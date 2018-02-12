@@ -1,0 +1,148 @@
+#form_setting_insta_shop .input_wraper {
+	margin-bottom: 20px;
+}
+
+#form_setting_insta_shop .input_wraper input#insta_shop_id {
+	width: 300px;
+}
+
+#form_setting_insta_shop .button_wraper button {
+	cursor: pointer;
+	padding: 4px;
+	font-size: 15px;
+}
+
+#modal_instagram {
+	min-height: 500px;
+	height: auto;
+}
+
+#related_items_label {
+	font-size: 16px;
+	margin-top: 20px;
+}
+
+#related_items_list {
+	margin-top: 0;
+}
+
+ul#instagram_list_admin {
+	min-height: 500px;
+}
+
+ul#instagram_list_admin li {
+	display: inline-block;
+	width: auto;
+	margin: 12px 8px;
+	position: relative;
+}
+
+ul#instagram_list_admin li img {
+	max-width: 150px
+}
+
+ul#instagram_list_admin li .edit_insta {
+	display: block;
+}
+
+ul#instagram_list_admin li .related_number {
+	display: block;
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	padding: 0px 4px;
+	background: #fb2525;
+	color: #fff;
+	font-size: 10px;
+}
+
+ul#instagram_list_admin li .related_number.has_related {
+	background: #21c6fd;
+}
+
+#modal_insta_content_wraper {
+	position: relative;
+	height: 100%;
+}
+
+#modal_insta_content .insta-left, #modal_insta_content .insta-right {
+	float: left;
+}
+
+#modal_insta_button_wraper {
+	float: none;
+	clear: both;
+	position: absolute;
+	bottom: 45px;
+	left: 50%;
+}
+
+#modal_insta_button_wraper button {
+	position: relative;
+	left: -50%;
+	display: block;
+}
+
+#modal_insta_content .insta-left {
+	margin-right: 20px;
+	width: 30%
+}
+
+#modal_insta_content .insta-right {
+	width: 60%;
+	text-align: left;
+}
+
+#modal_insta_content .insta-left img {
+	max-width: 200px;
+}
+
+#modal_insta_content #item_sku {
+	width: 100%;
+	height: 30px;
+}
+
+#modal_insta_content .remove_related {
+	margin-left: 15px;
+	cursor: pointer;
+	color: red;
+	font-weight: bold
+}
+
+#modal_insta_content .button_wraper {
+	margin-top: 20px;
+}
+
+#modal_insta_content .searching-results .image img, #related_items_list span.image img
+	{
+	max-width: 30px;
+	max-height: 30px;
+	margin-right: 10px;
+	position: relative;
+	top: 2px;
+}
+
+#related_items_list span.image img {
+	top: 10px;
+}
+
+.typeahead__group {
+	margin-bottom: 0;
+}
+
+span.searching-results {
+	display: block;
+	overflow: hidden;
+}
+
+li.typeahead__item {
+	margin-bottom: 0;
+}
+
+.searching-results span.name {
+	position: relative;
+	top: -7px;
+}

@@ -1,0 +1,271 @@
+.igviewer {
+     position: fixed;
+     top: 0;
+     bottom: 0;
+     right: 0;
+     left: 0;
+     background-color: RGBA(29, 31, 32, 0.9);
+ }
+ .igviewer img {
+     display: block;
+     margin: 1rem auto;
+     height: calc(100vh - 2rem);
+     width: auto;
+     box-shadow: 0px 10px 40px 10px rgba(0, 0, 0, 0.8);
+ }
+ .igviewer.hidden {
+     display: none;
+ }
+ .instagram {
+ }
+ .instagram .image {
+ }
+.insta_product {
+	text-align: left;
+}
+.instagram .image {
+}
+.instagram {
+	padding: 0 20px;
+	}
+.insta-item > .ask-text {
+    display: block;
+    line-height: 240px;
+    height: 240px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+    letter-spacing: 1px;
+	border: 1px solid #000;
+}
+ .c-insta-tile__details {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 5px 0;
+    background-color: rgba(255,255,255,.7);
+}
+ .instagram .image:hover .caption {
+     display: block;
+ }
+ .instagram .image .caption p {
+     margin: 4px 0px 4px 0px;
+     text-align: center;
+ }
+ .instagram .image .caption p > img {
+     width: 16px;
+     border-radius: 50%;
+     vertical-align: middle;
+ }
+ .instagram .image .caption p span.hearts {
+     color: #000;
+     padding-left: 5px;
+ }
+ .instagram .product-box {
+	 position: relative;
+     background-color: transparent;
+     width: 100%;
+     height: auto;
+	 float: left;
+	 padding: 45px 0 45px;
+ }
+ .instagram .product-box .col1 {
+    width: 100%;
+    float: left;
+    padding: 0;
+    text-align: center;
+ }
+ .instagram .product-box .col2 {
+    width: 100%;
+    float: left;
+	padding: 0 10px;
+ }
+.insta_heading h2 {
+   margin-bottom: 10px;
+	font-size: 12px;
+	color: #222;
+ }
+.insta_heading {
+	border-bottom: 1px solid #959595;
+	margin-bottom: 20px;
+}
+ .instagram .product-box span.close {
+	position: absolute;
+    top: 10px;
+    right: 2px;
+    height: 15px;
+    width: 15px;
+    background-image: url(../images/icon-close.svg);
+	opacity: 1;
+ }
+.instagram .product-box span.close:hover {
+	opacity: .8;
+}
+ .instagram .product-box .col1 .caption img 
+ {
+	width: 25px;
+	border-radius: 50%;
+	margin-right: 5px;
+	vertical-align: middle;
+ }
+.instagram .product-box .col1 .caption 
+{
+	text-align: center;
+	padding: 10px 0px;
+}
+.instagram .product-box .col1 .caption .user-info
+{
+	font: 11px helvetica,arial,sans-serif;
+    display: inline;
+}
+.instagram .product-box .col1 .caption p.likes {
+    font: 11px helvetica,arial,sans-serif;
+    display: inline;
+    margin-left: -10px;
+}
+.instagram .product-box .col1 .caption p.likes span.hearts {
+    font-size: 15px;
+    margin-left: 5px;
+    margin-right: 0px;
+}
+.instagram .product-box .col1 .caption p.likes span.count {
+    position: relative;
+    top: 0px;
+    left: 40px;
+}
+.instagram .product-box #slick_insta{
+	margin-top:10px;
+}
+.instagram .product-box #slick_insta .slick-prev{
+	left: -5px;
+}
+.instagram .product-box #slick_insta .slick-next {
+    right: -5px;
+}
+.instagram .product-box #slick_insta .slick-prev:before, .instagram .product-box #slick_insta .slick-next:before {
+    font-size: 20px;
+	padding: 0;
+	border-radius: 0;
+	background: none;
+}
+.instagram .product-box #slick_insta .insta_product p {
+    font-size: 12px;
+    line-height: 1.36;
+	color: #222;
+}
+.instagram .product-box #slick_insta .insta_product p.price {
+	padding-right: 10px;
+    margin-bottom: 5px;
+    line-height: 1.6;
+}
+.instagram .product-box #slick_insta a:hover, .instagram .product-box #slick_insta a:focus{
+	text-decoration: none;
+	outline:none;
+}
+.insta-item {
+	position: relative;
+	margin-bottom: 10px;
+}
+.product-tile {
+    padding: 0 10px;
+}
+.product-tile .c-product-tile__h3 {
+    margin-bottom: 0;
+	margin-top: 0;
+	font-size: 12px;
+	line-height: 1.36;
+    white-space: normal;
+}
+.product-tile .els-pr-price {
+    margin-bottom: 5px;
+    line-height: 1.6;
+    font-size: 12px;
+}
+.instagram .product-box .col1 img.main {
+    width: 100%;
+    height: auto;
+}
+.c-product-tile-controls {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(255,255,255,.7);
+}
+.c-insta-tile {
+    position: relative;
+    padding: 0 2.5px 0 2.5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+.instagram .o-column {
+    float: left;
+    width: 100%;
+}
+.instagram .o-row {
+    max-width: 1441px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.instagram .o-extra-small--3 {
+    width: 25%;
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.instagram .o-extra-small--6 {
+    width: 50%;
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+@media (min-width: 768px) {
+	.instagram .o-medium--3 {
+    width: 25%;
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+	}
+	.c-product-tile-controls {
+    display: block;
+	}
+	.instagram .product-box .col1 img.main {
+    width: 100%;
+    max-width: 275px;
+	}
+	.instagram .product-box span.close {
+		top: 15px;
+		right: 3px;
+	}
+	 .instagram .product-box .col1 {
+    width: 40%;
+	}
+	.instagram .product-box .col2 {
+		width: 60%;
+	 }
+	.instagram {
+	padding: 0;
+	}
+}
+@media (min-width: 1025px) {
+	.instagram .product-box .col1 img.main {
+        max-width: 400px;
+	}
+	.instagram .o-large--12 {
+    width: 100%;
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+	}
+	.c-product-tile-controls {
+    display: none;
+	}
+}
+.slick-prev, .slick-next {
+    width: 7px!important;
+    height: 20px;
+    margin-top: -10px;
+    padding: 0;
+}

@@ -9,10 +9,22 @@ wp-content/upgrade/
 wp-content/uploads/
 wp-content/wp-cache-config.php
 wp-content/plugins/hello.php
+wp-snapshots
+
+wp-includes
+wp-admin
 
 /.htaccess
 /license.txt
 /readme.html
 /sitemap.xml
 /sitemap.xml.gz
+/commit.php
+/deploy.php
+/pull.php
+/.DS_Store
+/.buildpath
+/.htaccess.170818020051.orig
+/.project
+
 
