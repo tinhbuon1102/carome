@@ -114,11 +114,11 @@ jQuery(document).ready(function(){
 		}else{
 			?>
 				if(jQuery(".woocommerce-variation-add-to-cart-disabled.soldout_disabled").length == 0){
-					jQuery("#woocommerce_waitlist_wraper a.woocommerce_waitlist_new").text("<?=_e("can't see your types ?","elsey");?>").addClass("cta link_waitlist_cta");
+					jQuery("#woocommerce_waitlist_wraper a.woocommerce_waitlist_new").text("<?=_e("Need notification for out of stock product ?","elsey");?>").addClass("cta link_waitlist_cta");
 				}
 				jQuery(".els-product-summary-col").on("change",".variations select",function () {
 					if(jQuery(".woocommerce-variation-add-to-cart-disabled.soldout_disabled").length == 0){
-						jQuery("#woocommerce_waitlist_wraper a.woocommerce_waitlist_new").text("<?=_e("can't see your types ?","elsey");?>").addClass("cta link_waitlist_cta");
+						jQuery("#woocommerce_waitlist_wraper a.woocommerce_waitlist_new").text("<?=_e("Need notification for out of stock product ?","elsey");?>").addClass("cta link_waitlist_cta");
 					}else{
 						jQuery("#woocommerce_waitlist_wraper a.woocommerce_waitlist_new").text("<?=_e("Join waitlist","elsey");?>").removeClass("cta link_waitlist_cta");
 					}
