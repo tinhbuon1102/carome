@@ -3,7 +3,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Project-Id-Version: Elsey\n"
 "POT-Creation-Date: 2018-01-04 17:56+0530\n"
-"PO-Revision-Date: 2018-02-13 20:55+0900\n"
+"PO-Revision-Date: 2018-02-14 00:20+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -3653,6 +3653,12 @@ msgid "Last Name Kana"
 msgstr "姓(フリガナ)"
 
 msgid "First Name Kana"
+msgstr "名(フリガナ)"
+
+msgid "Last name Kana"
+msgstr "姓(フリガナ)"
+
+msgid "First name Kana"
 msgstr "名(フリガナ)"
 
 msgid "Member Information"

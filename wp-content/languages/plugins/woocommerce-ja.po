@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - WooCommerce - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2018-02-13 12:50+0900\n"
+"PO-Revision-Date: 2018-02-14 01:14+0900\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25701,3 +25701,6 @@ msgstr "電話番号"
 
 msgid "Shipping Phone"
 msgstr "電話番号"
+
+msgid "The order #%1$d from %2$s has been cancelled. The order was as follows:"
+msgstr "%2$s様の注文番号#%1$dをキャンセルしました。注文内容はこちら: "

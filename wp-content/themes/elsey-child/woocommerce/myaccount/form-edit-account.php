@@ -37,11 +37,11 @@ do_action( 'woocommerce_before_edit_account_form' ); ?>
 	</div>
 	
 	<div class="woocommerce-form-row woocommerce-form-row--last form-row form-row-first">
-		<label class="form-row__label light-copy" for="account_last_name_kana"><?php _e( 'Last name Kana', 'woocommerce' ); ?> <span class="required">*</span></label>
+		<label class="form-row__label light-copy" for="account_last_name_kana"><?php _e( 'Last Name Kana', 'elsey' ); ?> <span class="required">*</span></label>
 		<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="account_last_name_kana" id="account_last_name_kana" value="<?php echo get_user_meta($user->ID, 'last_name_kana', true); ?>" />
 	</div>
 	<div class="woocommerce-form-row woocommerce-form-row--first form-row form-row-last">
-		<label class="form-row__label light-copy" for="account_first_name_kana"><?php _e( 'First name Kana', 'woocommerce' ); ?> <span class="required">*</span></label>
+		<label class="form-row__label light-copy" for="account_first_name_kana"><?php _e( 'First Name Kana', 'elsey' ); ?> <span class="required">*</span></label>
 		<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="account_first_name_kana" id="account_first_name_kana" value="<?php echo get_user_meta($user->ID, 'first_name_kana', true); ?>" />
 	</div>
 
