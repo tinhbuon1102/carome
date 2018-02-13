@@ -441,7 +441,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 				{
 // 					$output .= '<span>' . esc_html__( ' In Stock', 'elsey' ) . '</span>';
 				}
-				else if ( $availability['class'] === 'out-of-stock' )
+				else if ( $availability['class'] === 'out-of-stock' && $product->is_type('simple'))
 				{
 					$output .= '<span class="soldout_text">' . esc_html__('SOLD OUT', 'elsey') . '</span>';
 				}
