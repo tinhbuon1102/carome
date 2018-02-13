@@ -439,7 +439,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 				// $output .= '<label>'.esc_html__( 'Availability:', 'elsey' ).'</label>';
 				if ( $availability['class'] === 'in-stock' )
 				{
-					$output .= '<span>' . esc_html__( ' In Stock', 'elsey' ) . '</span>';
+// 					$output .= '<span>' . esc_html__( ' In Stock', 'elsey' ) . '</span>';
 				}
 				else if ( $availability['class'] === 'out-of-stock' )
 				{
