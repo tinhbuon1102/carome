@@ -40,7 +40,7 @@ echo '</h1>';
   <h1><?php echo __('WaitList', 'elsey')?></h1>
   
   <div class="body_content">
-	<p><?php echo __('We will notify to ', 'elsey')?><?php echo $current_user->user_email?></p>
+	<p><?php echo sprintf(__('We will notify to %s', 'elsey'), $current_user->user_email)?></p>
 </div>
 
   <form method="post" id="form_waitlist_modal">
