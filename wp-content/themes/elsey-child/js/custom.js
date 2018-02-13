@@ -131,12 +131,14 @@ jQuery(document).ready(function($){
 			{
 				if (variation.is_in_stock == true)
 				{
+					$('.els-product-stock-status').fadeOut();
 					$('.els-product-stock-status .els-avl').removeClass('els-out-of-stock');
 					$('.els-product-stock-status .els-avl').addClass('els-in-stock');
 					$('.els-product-stock-status span').text('IN STOCK');
 					$('.woocommerce-variation-add-to-cart').removeClass('soldout_disabled');
 				}
 				else {
+					$('.els-product-stock-status').fadeIn();
 					$('.els-product-stock-status .els-avl').removeClass('els-in-stock');
 					$('.els-product-stock-status .els-avl').addClass('els-out-of-stock');
 					$('.els-product-stock-status span').text('SOLD OUT');
