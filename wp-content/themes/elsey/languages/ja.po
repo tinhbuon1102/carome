@@ -3,7 +3,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Project-Id-Version: Elsey\n"
 "POT-Creation-Date: 2018-01-04 17:56+0530\n"
-"PO-Revision-Date: 2018-02-13 13:30+0900\n"
+"PO-Revision-Date: 2018-02-13 19:34+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -3695,7 +3695,16 @@ msgid "Join waitlist"
 msgstr "再販売お知らせ"
 
 msgid "Need notification for out of stock product ?"
-msgstr "売り切れ商品の再販売お知らせ登録"
+msgstr "売り切れ商品の再販売通知"
 
 msgid "We will notify to %s"
 msgstr "商品が再販売した際に%s宛へお知らせメールが送られます。"
+
+msgid "Already in waitlist"
+msgstr "すでにお気に入りリストに追加されます"
+
+msgid "You need to login if u will use favorite list."
+msgstr "お気に入り機能を使うにはログインが必要です"
+
+msgid "Delete Card"
+msgstr "カードを削除"

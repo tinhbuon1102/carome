@@ -45,7 +45,7 @@ else : ?>
 
 <?php do_action( 'woocommerce_email_after_order_table', $order, $sent_to_admin, $plain_text, $email ); ?>
 
-<?php do_action( 'woocommerce_email_order_meta', $order, $sent_to_admin, $plain_text, $email ); ?>
+<?php //do_action( 'woocommerce_email_order_meta', $order, $sent_to_admin, $plain_text, $email ); ?>
 
 <?php if ( version_compare( WOOCOMMERCE_VERSION, '2.3', '<' ) ) : ?>
 

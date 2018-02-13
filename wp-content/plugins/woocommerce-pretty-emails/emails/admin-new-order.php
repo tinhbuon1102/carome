@@ -56,7 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 
 <?php do_action( 'woocommerce_email_after_order_table', $order, true, false, $email ); ?>
 
-<?php do_action( 'woocommerce_email_order_meta', $order, true, false, $email ); ?>
+<?php //do_action( 'woocommerce_email_order_meta', $order, true, false, $email ); ?>
 
 <?php if ( version_compare( WOOCOMMERCE_VERSION, '2.3', '<' ) ) : ?>
 

@@ -174,7 +174,16 @@ input.input--white {
 .remodal .body_content p {
     text-align: center;
 }
-
+.remodal .wcwl_email_field {
+    width: 100%;
+    max-width: 380px;
+    margin: 24px auto;
+    display: block;
+    float: none;
+}
+.remodal .wcwl_email_field label {
+    margin-bottom: 20px;
+}
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
@@ -1776,6 +1785,12 @@ a.reset_variations {
 	}
 	.dropdown:after {
     right: 15px;
+	}
+	.dropdown select {
+    width: 100%;
+	}
+	#waitlist_remodal h1 {
+    font-size: 16px;
 	}
 	.woocommerce-page .qty-input .qty-input__ctrl {
     display: inline-block;
