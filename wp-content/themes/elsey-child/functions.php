@@ -1052,5 +1052,27 @@ function else_parse_query ( $query )
 	}
 	return $query;
 }
-
+add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
+function get_text_for_select_based_on_attribute($atr) {
+  $count=0;
+  // var_dump($atr);
+  global $product;
+  if($product){
+     foreach ($product->get_available_variations() as $variation){
+             $var=wc_get_product($variation['variation_id']);
+             $var_name=str_replace($product->get_title().' - ','',$var->get_name());
+             // var_dump($var_name);
+             // echo "<br>";
+             // var_dump($atr);
+            
+             if(($var->get_stock_status()=='outofstock')&&($var_name==$atr)){
+                  return $atr.' (SOLD OUT)';
+             }
+          
+    // var_dump( $var->get_title().$var->get_stock_status().$var->get_name().$atr);
+    }
+    return $atr;
+  }
+  
+}
 
