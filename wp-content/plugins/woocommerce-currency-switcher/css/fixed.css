@@ -15,6 +15,9 @@
 #woocs_multiple_simple_tpl{
     display: none;
 }
+#woocs_multiple_simple_tpl_restriction{
+    display: none;
+}
 
 .woocs_tab_navbar{
     background: #eee;

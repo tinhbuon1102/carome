@@ -5,11 +5,15 @@ jQuery(function ($) {
         //***
         if (woocs_is_multiple_allowed) {
             $('#woocs_is_fixed_enabled').parents('tr').show(200);
+            $('#woocs_is_fixed_coupon').parents('tr').show(200);
+            $('#woocs_is_fixed_shipping').parents('tr').show(200);
             if (woocs_is_fixed_enabled) {
                 $('#woocs_force_pay_bygeoip_rules').parents('tr').show(200);
             }
         } else {
             $('#woocs_is_fixed_enabled').parents('tr').hide(200);
+            $('#woocs_is_fixed_coupon').parents('tr').hide(200);
+            $('#woocs_is_fixed_shipping').parents('tr').hide(200);
             $('#woocs_force_pay_bygeoip_rules').parents('tr').hide(200);
         }
     });

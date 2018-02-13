@@ -385,4 +385,3 @@ function woocs_get_cookie(name) {
 	    ));
     return matches ? decodeURIComponent(matches[1]) : undefined;
 }
-

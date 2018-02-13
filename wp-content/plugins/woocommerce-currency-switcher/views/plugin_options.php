@@ -276,18 +276,18 @@
                     <li class="tab-current">
                         <a href="#tabs-1">
                             <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
-                            <span><?php _e("Currencies", 'currency-switcher') ?></span>
+                            <span><?php _e("Currencies", 'woocommerce-currency-switcher') ?></span>
                         </a>
                     </li><li>
                         <a href="#tabs-2">
                             <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
                             <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
-                            <span><?php _e("Options", 'currency-switcher') ?></span>
+                            <span><?php _e("Options", 'woocommerce-currency-switcher') ?></span>
                         </a>
                     </li><li><a href="#tabs-3">
                             <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
                             <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
-                            <span><?php _e("Advanced", 'currency-switcher') ?></span>
+                            <span><?php _e("Advanced", 'woocommerce-currency-switcher') ?></span>
                         </a></li>
                     <?php if ($this->is_use_geo_rules()): ?>
                         <li>
@@ -335,10 +335,14 @@
                                 }
                             }
                             ?>
-                        </ul><br />
+                        </ul>
 
+                        <div style="float: right;">
+                            <a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes" target="_blank" class="button button-primary button-large"><?php _e("Read wiki about Currency Active codes  <-  Get right currencies codes here if you are not sure about it!", 'woocommerce-currency-switcher') ?></a>
+                        </div>
 
-                        <a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes" target="_blank" class="button button-primary button-large"><?php _e("Read wiki about Currency Active codes  <-  Get right currencies codes here if you are not sure about it!", 'woocommerce-currency-switcher') ?></a>
+                        <div style="clear: both;"></div>
+
                     </div>
                 </section>
                 <section id="tabs-2">
@@ -398,7 +402,7 @@
                                 <select name="woocs_use_geo_rules" id="woocs_use_geo_rules" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Use GeoLocation rules', 'woocommerce-currency-switcher') ?>">
 
                             <?php foreach ($opts as $val => $title): ?>
-                                                                                                                                            <option value="<?php echo $val ?>" <?php echo selected($selected, $val) ?>><?php echo $title ?></option>
+                                                                                                                                                        <option value="<?php echo $val ?>" <?php echo selected($selected, $val) ?>><?php echo $title ?></option>
                             <?php endforeach; ?>
 
                                 </select>
@@ -460,8 +464,53 @@
                                     </select>
                                 </td>
                             </tr>
+                            <?php if (version_compare($WOOCS->actualized_for, '3.3', '>='))://WOO 33 ?>
+                                <tr valign="top" <?php if (!$woocs_is_multiple_allowed): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_is_fixed_coupon"><?php _e('Individual fixed amount for coupon', 'woocommerce-currency-switcher') ?>(*)</label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("You will be able to set FIXED amount for coupon for each currency. ATTENTION: 'Is multiple allowed' should be enabled!", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $opts = array(
+                                            0 => __('No', 'woocommerce-currency-switcher'),
+                                            1 => __('Yes', 'woocommerce-currency-switcher')
+                                        );
+                                        $woocs_is_fixed_coupon = get_option('woocs_is_fixed_coupon', 0);
+                                        ?>
+                                        <select name="woocs_is_fixed_coupon" id="woocs_is_fixed_coupon" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Enable fixed coupon', 'woocommerce-currency-switcher') ?>">
 
+                                            <?php foreach ($opts as $val => $title): ?>
+                                                <option value="<?php echo $val ?>" <?php echo selected($woocs_is_fixed_coupon, $val) ?>><?php echo $title ?></option>
+                                            <?php endforeach; ?>
 
+                                        </select>
+                                    </td>
+                                </tr> 
+
+                                <tr valign="top" <?php if (!$woocs_is_multiple_allowed): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_is_fixed_shipping"><?php _e('Individual fixed amount for shipping', 'woocommerce-currency-switcher') ?>(*)</label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("You will be able to set FIXED amount for each currency for free and all another shipping ways. ATTENTION: 'Is multiple allowed' should be enabled!", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $optns = array(
+                                            0 => __('No', 'woocommerce-currency-switcher'),
+                                            1 => __('Yes', 'woocommerce-currency-switcher')
+                                        );
+                                        $woocs_is_fixed_shipping = get_option('woocs_is_fixed_shipping', 0);
+                                        ?>
+                                        <select name="woocs_is_fixed_shipping" id="woocs_is_fixed_shipping" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Enable fixed for Shipping', 'woocommerce-currency-switcher') ?>">
+
+                                            <?php foreach ($optns as $val => $title): ?>
+                                                <option value="<?php echo $val ?>" <?php echo selected($woocs_is_fixed_shipping, $val) ?>><?php echo $title ?></option>
+                                            <?php endforeach; ?>
+
+                                        </select>
+                                    </td>
+                                </tr> 
+                            <?php endif; //end woo33?>
                             <tr valign="top">
                                 <th scope="row" class="titledesc">
                                     <label for="woocs_is_geoip_manipulation"><?php _e('Individual GeoIP rules for each product', 'woocommerce-currency-switcher') ?>(*)</label>
@@ -615,7 +664,9 @@
 
 
 
-
+        <div style="float: right;">
+            <a href="https://pluginus.net/" target="_blank" style="font-size: 11px; color: #aaa; text-decoration: none;">Powered by PluginUs.NET</a>
+        </div>
 
 
     </div>
