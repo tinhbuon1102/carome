@@ -99,6 +99,47 @@
 			$('#els-mobile-menu .slicknav_menu .els-slicknav-mobile-inner').toggleClass('open');
 		});
 
+		// Magnific Popup Gallery
+		$(".els-gallery").magnificPopup({
+			delegate: 'a',
+			type: 'image',
+			closeOnContentClick: false,
+			closeBtnInside: false,
+			mainClass: 'mfp-with-zoom',
+			image: {
+				verticalFit: true,
+			},
+			gallery: {
+				enabled: true,
+			},
+			zoom: {
+				enabled: true,
+				duration: 300,
+				opener: function(element) {
+					return element.find("img");
+				}
+			}
+		});
+
+		// Magnific Popup Single Image
+		$(".els-img-popup").magnificPopup({
+			type: 'image',
+			closeOnContentClick: false,
+			closeOnBgClick: true,
+			closeBtnInside: false,
+			mainClass: 'mfp-with-zoom',
+			image: {
+				verticalFit: true
+			},
+			zoom: {
+				enabled: true,
+				duration: 300,
+				opener: function(element) {
+					return element.find("img");
+				}
+			}
+		});
+
 		// Scrolling Header
 		$(window).scroll(function() {
 			var scroll = $(window).scrollTop();
