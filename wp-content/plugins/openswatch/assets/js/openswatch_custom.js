@@ -12,16 +12,15 @@
             var html = data.html;
             var productId = data.productId;
             
-            if(html && html.length > 5)
+            if(html.length > 5)
             {
                 console.log(html);
-                $('.els-product-image-col').html( html );
+                $('.woocommerce-product-gallery').replaceWith( html );
                 var $form = $('.variations_form');
                 var $product          = $form.closest( '.product' );
                 var $product_gallery  = $product.find( '.images' );
                 $( '.woocommerce-product-gallery' ).wc_product_gallery();
                 $form.trigger('reset_image');
-                $('.els-product-image-col').trigger('init_slider');
             }
            //end your custom code here
         });
