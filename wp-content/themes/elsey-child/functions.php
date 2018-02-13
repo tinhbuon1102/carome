@@ -992,6 +992,14 @@ function elsey_document_title_parts( $title ) {
 	return $title;
 }
 
+
+add_filter( 'bulk_actions-edit-shop_order', 'elsey_shop_order_bulk_actions', 1000, 1 );
+function elsey_shop_order_bulk_actions($actions)
+{
+	$actions['mark_cancelled'] = __('Mark cancelled', 'elsey');
+	return $actions;
+}
+
 add_action( 'restrict_manage_posts', 'elsey_restrict_manage_posts', 50  );
 // Display dropdown
 function elsey_restrict_manage_posts(){
@@ -1032,7 +1040,7 @@ function else_parse_query ( $query )
 add_action('woocommerce_thankyou_bacs', 'elsey_woocommerce_thankyou_bacs', 1);
 function elsey_woocommerce_thankyou_bacs() 
 {
-	echo '<div class="before_bacs">' . __('ご注文の確定はご入金確認後となり、<strong>ご注文日から3営業日以内にご入金が確認できない場合はキャンセルとなります</strong>のであらかじめご了承ください。', 'elsey') . '</div>';
+	echo '<div class="before_bacs">' . __('Text before bacs', 'elsey') . '</div>';
 }
 
 /*add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
