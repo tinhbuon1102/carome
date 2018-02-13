@@ -1084,14 +1084,4 @@ function get_text_for_select_based_on_attribute($atr) {
   }
   
 }*/
-add_action( 'template_redirect', 'woo_restirct_checkout' );
-function woo_restirct_checkout() {
 
-    if ( !is_user_logged_in() && is_checkout() ) {
-
-        $my_account_url = get_permalink( get_option('woocommerce_myaccount_page_id') );
-        wp_redirect( $my_account_url );
-        exit;
-
-    }
-}
