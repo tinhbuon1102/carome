@@ -1052,7 +1052,7 @@ function else_parse_query ( $query )
 	}
 	return $query;
 }
-add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
+/*add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
 function get_text_for_select_based_on_attribute($atr) {
   $count=0;
   // var_dump($atr);
@@ -1074,5 +1074,5 @@ function get_text_for_select_based_on_attribute($atr) {
     return $atr;
   }
   
-}
+}*/
 
