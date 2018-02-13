@@ -141,7 +141,7 @@ jQuery(document).ready(function($){
 					$('.els-product-stock-status').fadeIn();
 					$('.els-product-stock-status .els-avl').removeClass('els-in-stock');
 					$('.els-product-stock-status .els-avl').addClass('els-out-of-stock');
-					$('.els-product-stock-status span').text('SOLD OUT');
+					$('.els-product-stock-status').html('<span class="soldout_text">SOLD OUT</span>');
 					$('.woocommerce-variation-add-to-cart').addClass('soldout_disabled');
 				}
 			}
