@@ -131,7 +131,7 @@ jQuery(document).ready(function($){
 			{
 				if (variation.is_in_stock == true)
 				{
-					$('.els-product-stock-status').fadeOut();
+					$('.els-product-stock-status').hide();
 					$('.els-product-stock-status .els-avl').removeClass('els-out-of-stock');
 					$('.els-product-stock-status .els-avl').addClass('els-in-stock');
 					$('.els-product-stock-status span').text('IN STOCK');
