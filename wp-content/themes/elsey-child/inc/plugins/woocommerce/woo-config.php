@@ -272,7 +272,7 @@ if ( class_exists( 'WooCommerce' ) ) {
   if (!function_exists('elsey_product_title')) {
 		function elsey_product_title() {
 			global $product;
-			$html = '<div class="els-product-title"><h3><a href="'.get_the_permalink($product->get_id()).'">'. get_the_title() .'</a></h3>';
+			$html = '<div class="els-product-title"><h3><a href="'.get_the_permalink($product->get_id()).'">'. get_post_meta(get_the_ID(), '_custom_product_text_field', true) .'</a></h3>';
 			
 		  $html .= '</div>';
 		  echo $html;
