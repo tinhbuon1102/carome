@@ -15,6 +15,7 @@ wp-content/plugins/instagram-shop/api/storage
 wp-includes
 wp-admin
 wp-content/ai1wm-backups
+wp-content/plugins/wpide/backups
 
 /.htaccess
 /license.txt
