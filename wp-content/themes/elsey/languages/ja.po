@@ -3,7 +3,11 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Project-Id-Version: Elsey\n"
 "POT-Creation-Date: 2018-01-04 17:56+0530\n"
+<<<<<<< HEAD
 "PO-Revision-Date: 2018-02-14 02:55+0900\n"
+=======
+"PO-Revision-Date: 2018-02-14 00:20+0900\n"
+>>>>>>> 9648c06493a30e75f15c46204b058e46ce6ab9c5
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -3717,9 +3721,12 @@ msgstr "カードを削除"
 
 msgid "Expiry date"
 msgstr "有効期限"
+<<<<<<< HEAD
 
 msgid "My Page"
 msgstr "マイページ"
 
 msgid "Sign in / Register"
 msgstr "ログイン / 新規登録"
+=======
+>>>>>>> 9648c06493a30e75f15c46204b058e46ce6ab9c5
