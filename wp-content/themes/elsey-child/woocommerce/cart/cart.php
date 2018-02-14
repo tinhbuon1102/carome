@@ -72,10 +72,10 @@ do_action( 'woocommerce_before_cart' ); ?>
 									echo apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;';
 								} else {
 									echo '<div class="mini-product__info">';
-									echo apply_filters( 'woocommerce_cart_item_name_en', sprintf( '<div class="mini-product__item en-name small-text">%s</div>', $_product->get_name() ), $cart_item_key );
-									echo apply_filters( 'woocommerce_cart_item_name_ja', sprintf( '<div class="mini-product__item name"><a class="link" href="%s">', esc_url( $product_permalink ), $_product->get_name() ), $cart_item );
-									echo get_post_meta($cart_item['product_id'], '_custom_product_text_field', true);
-									echo '</a></div>';
+									echo apply_filters( 'woocommerce_cart_item_name_en', sprintf( '<div class="mini-product__item en-name small-text"><a class="link" href="%s">%s</a></div>', esc_url( $product_permalink ), get_post_meta($cart_item['product_id'], '_custom_product_text_field', true) ), $cart_item_key );
+									echo apply_filters( 'woocommerce_cart_item_name_ja', sprintf( 
+											'<div class="mini-product__item name"><a class="link" href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item );
+									echo '</div>';
 									
 									// Meta data
 									echo WC()->cart->get_item_data( $cart_item );

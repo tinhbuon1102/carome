@@ -321,13 +321,13 @@ function wdm_test($product_title, $product){
     	$parent_id = $product->get_parent_id();
     	$parent = get_product($parent_id);
     	$product_test    = get_product($product->variation_id);
-    	
+    	$product_title = $parent->name;
     	$attributes = $product->get_attributes();
     	
-    	$html = '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">' . $product_title . '</a></div>' .
+    	$html = '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' .
     			'<div class="mini-product__item mini-product__name-ja p6">
 			<a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">
-				'.get_post_meta($product->id, '_custom_product_text_field', true) . '
+				'.$product_title . '
 			</a>
          </div>';
     	
@@ -353,10 +353,11 @@ function wdm_test($product_title, $product){
     }
     elseif( is_a($product, "WC_Product") ){
         $product_test    = new WC_Product($product->id);
-       return '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">' . $product_title . '</a></div>' . 
+        
+       return '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' . 
          '<div class="mini-product__item mini-product__name-ja p6">
 			<a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">
-				'.get_post_meta($product->id, '_custom_product_text_field', true) . '
+				'.$product_title . '
 			</a>
          </div>' .
        	'<p class="mini-product__item mini-product__id light-copy">商品番号 #' . $product_test->get_sku() . '</p>';
@@ -523,28 +524,13 @@ function elsey_woocommerce_cart_item_name ($product_name, $cart_item, $cart_item
 	{
 		$variation = get_product($cart_item['variation_id']);
 		$product_link = $variation->get_permalink( $cart_item );
+		$product_name = $product->name;
 	}
 	else {
 		$product_link = $product->get_permalink( $cart_item );
+		$product_name = $product->name;
 	}
 	
-	$product_name = strip_tags($product_name);
-	
-	$option_name = str_replace($product->name, '', $product_name);
-	$options = explode('-', $option_name);
-	$product_name = get_post_meta($cart_item['product_id'], '_custom_product_text_field', true);
-	
-	/*if (count($options))
-	{
-		foreach ($options as $option)
-		{
-			$option = trim($option);
-			if ($option)
-			{
-				$product_name .= ' - ' . $option;
-			}
-		}
-	}*/
 	return sprintf( '<a href="%s">%s</a>', $product_link, $product_name );
 }
 
