@@ -1034,6 +1034,19 @@ function elsey_woocommerce_thankyou_bacs()
 	echo '<div class="before_bacs">' . __('ご注文の確定はご入金確認後となり、<strong>ご注文日から3営業日以内にご入金が確認できない場合はキャンセルとなります</strong>のであらかじめご了承ください。', 'elsey') . '</div>';
 }
 
+add_action( 'woe_order_exported', 'elsey_woe_order_exported', 1000, 2 );
+function elsey_woe_order_exported($order_id){
+	if (class_exists('WC_Order_Export_Manage'))
+	{
+		$order = new WC_Order( $order_id );
+		$settings = WC_Order_Export_Manage::make_new_settings( $_POST );
+		if ( $settings[ 'mark_exported_orders' ] && $order->status == 'processing') {
+			// Set new status
+			$order->update_status('wc-process-deliver', 'mark exported for processing order'); 
+		}
+	}
+}
+
 /*add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
 function get_text_for_select_based_on_attribute($atr) {
   $count=0;
