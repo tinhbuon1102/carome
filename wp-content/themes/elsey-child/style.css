@@ -488,6 +488,7 @@ footer .edit-link {
 	background: none;
     border: 1px solid #FFF;
 	min-height: 40px;
+	color: #FFF;
 }
 #newsletter-1 button.yikes-easy-mc-submit-button {
     position: absolute;
