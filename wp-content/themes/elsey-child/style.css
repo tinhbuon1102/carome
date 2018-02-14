@@ -512,6 +512,9 @@ footer .edit-link {
 .els-footer .els-footer-widget-area .yikes-mailchimp-container a {
     color: #333;
 }
+fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
+    margin-top: 24px;
+}
 @media only screen and (min-width: 48em) {
 	.header__primary {
 		padding-top: 28px;
