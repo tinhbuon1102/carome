@@ -503,6 +503,15 @@ footer .edit-link {
     border: none;
     font-size: 12px;
 }
+.yikes-easy-mc-error-message {
+    color: rgba(216,48,57,.87);
+    background: #FFF;
+    padding: 12px;
+    position: relative;
+}
+.els-footer .els-footer-widget-area .yikes-mailchimp-container a {
+    color: #333;
+}
 @media only screen and (min-width: 48em) {
 	.header__primary {
 		padding-top: 28px;
