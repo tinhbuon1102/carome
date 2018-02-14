@@ -1,5 +1,14 @@
 // JavaScript Document
 jQuery(document).ready(function($){
+	$(window).on('load resize click',function(){
+		var windowW = $(window).width();
+		var windowH = $(window).height();
+		if (windowW < 768) {
+			$('.header__secondary.toggle--active').css('height', (windowH - 62) + 'px');
+		} else {
+			$('.header__secondary.toggle--active').css('height', 'auto');
+		}
+	});
 	/*Tabs Jquery*/
 	$('[data-add-class]').each(function(){
     var class_to_add = $(this).attr('data-add-class');
@@ -131,20 +140,27 @@ jQuery(document).ready(function($){
 			{
 				if (variation.is_in_stock == true)
 				{
+					$('.els-product-stock-status').hide();
 					$('.els-product-stock-status .els-avl').removeClass('els-out-of-stock');
 					$('.els-product-stock-status .els-avl').addClass('els-in-stock');
 					$('.els-product-stock-status span').text('IN STOCK');
 					$('.woocommerce-variation-add-to-cart').removeClass('soldout_disabled');
 				}
 				else {
-					$('.els-product-stock-status .els-avl').removeClass('els-in-stock');
-					$('.els-product-stock-status .els-avl').addClass('els-out-of-stock');
-					$('.els-product-stock-status span').text('SOLD OUT');
-					$('.woocommerce-variation-add-to-cart').addClass('soldout_disabled');
+					//addOutStockText();
 				}
 			}
 		})
 	});
+  
+  function addOutStockText()
+  {
+	  $('.els-product-stock-status').fadeIn();
+		$('.els-product-stock-status .els-avl').removeClass('els-in-stock');
+		$('.els-product-stock-status .els-avl').addClass('els-out-of-stock');
+		$('.els-product-stock-status').html('<span class="soldout_text">SOLD OUT</span>');
+		$('.woocommerce-variation-add-to-cart').addClass('soldout_disabled');
+  }
   
   function addWaitListButton(){
 	  var form = $('form.variations_form.cart');
@@ -153,6 +169,7 @@ jQuery(document).ready(function($){
 	  var attrOutStock = {};
 		variations = jQuery.parseJSON(form.attr('data-product_variations'));
 		
+		var allOutStock = true;
 		$.each(variations, function(index, variation){
 			if (variation.is_in_stock == false)
 			{
@@ -171,8 +188,14 @@ jQuery(document).ready(function($){
 				
 			}
 			else {
+				allOutStock = false;
 			}
 		});
+		
+		if (allOutStock)
+		{
+			addOutStockText();
+		}
 		
 		$('#waitlist_remodal_content').html($('.variations_form .pdp__attribute--list.variations').clone());
 		var variation_html = $('#waitlist_remodal_content .pdp__attribute--list.variations');
@@ -242,7 +265,27 @@ jQuery(document).ready(function($){
 		}
   });
   
+  function disableVariationOption()
+  {
+	  $( '.variations select option' ).each( function( index, el ) {
+	      var sold_out = 'SOLD OUT';
+	      var re = new RegExp( ' - ' + sold_out + '$' );
+	      el = $( el );
+
+	      if ( el.is( ':disabled' ) ) {
+	        if ( ! el.html().match( re ) ) el.html( el.html() + ' - ' + sold_out );
+	      } else {
+	        if ( el.html().match( re ) ) el.html( el.html().replace( re,'' ) );
+	      }
+	    } );
+
+  }
+  
   setTimeout(function(){
+	$( document ).bind( 'woocommerce_update_variation_values', function() {
+//		disableVariationOption();
+	});
+	  
 	if ($('.els-out-of-stock').length)
 	{
 		  $('.woocommerce-variation-add-to-cart').addClass('soldout_disabled');

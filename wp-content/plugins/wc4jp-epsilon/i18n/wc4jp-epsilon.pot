@@ -1,0 +1,1269 @@
+# Copyright (C) 2016 WooCommerce For Epsilon payments link
+# This file is distributed under the same license as the WooCommerce For Epsilon payments link package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce For Epsilon payments link 1.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc4jp-epsilon\n"
+"POT-Creation-Date: 2016-08-23 11:27:42+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: am-license-menu.php:104
+msgid " Activation"
+msgstr ""
+
+#: am-license-menu.php:105
+msgid " API Key Activation"
+msgstr ""
+
+#: am-license-menu.php:106 am-license-menu.php:332
+msgid "API Key Activation"
+msgstr ""
+
+#: am-license-menu.php:107
+msgid "API Key Deactivation"
+msgstr ""
+
+#: am-license-menu.php:266
+msgid ""
+"The <strong>%s</strong> API Key has not been activated, so the %s is "
+"inactive! %sClick here%s to activate <strong>%s</strong>."
+msgstr ""
+
+#: am-license-menu.php:283
+msgid ""
+"<b>Warning!</b> You're blocking external requests which means you won't be "
+"able to get %s updates. Please add %s to %s."
+msgstr ""
+
+#: am-license-menu.php:315 am-license-menu.php:319
+msgid "Save Changes"
+msgstr ""
+
+#: am-license-menu.php:336
+msgid "API Key Status"
+msgstr ""
+
+#: am-license-menu.php:340
+msgid "API Key"
+msgstr ""
+
+#: am-license-menu.php:344
+msgid "API Email"
+msgstr ""
+
+#: am-license-menu.php:350
+msgid "API Deactivation"
+msgstr ""
+
+#: am-license-menu.php:354
+msgid "Deactivate API Key"
+msgstr ""
+
+#: am-license-menu.php:366
+msgid "Activated"
+msgstr ""
+
+#: am-license-menu.php:366
+msgid "Deactivated"
+msgstr ""
+
+#: am-license-menu.php:422
+msgid "%s activated. "
+msgstr ""
+
+#: am-license-menu.php:428
+msgid "Connection failed to the License Key API server. Try again later."
+msgstr ""
+
+#: am-license-menu.php:526
+msgid ""
+"The API Key could not be deactivated. Use the API Key Deactivation tab to "
+"manually deactivate the API Key before activating a new API Key."
+msgstr ""
+
+#: am-license-menu.php:561
+msgid "API Key deactivated. "
+msgstr ""
+
+#: am-license-menu.php:634
+msgid "Deactivates an API Key so it can be used on another blog."
+msgstr ""
+
+#: am-license-menu.php:998
+msgid ""
+"The license key for %s has expired. You can reactivate or purchase a license "
+"key from your account <a href=\"%s\" target=\"_blank\">dashboard</a>."
+msgstr ""
+
+#: am-license-menu.php:1005
+msgid ""
+"The subscription for %s is on-hold. You can reactivate the subscription from "
+"your account <a href=\"%s\" target=\"_blank\">dashboard</a>."
+msgstr ""
+
+#: am-license-menu.php:1012
+msgid ""
+"The subscription for %s has been cancelled. You can renew the subscription "
+"from your account <a href=\"%s\" target=\"_blank\">dashboard</a>. A new "
+"license key will be emailed to you after your order has been completed."
+msgstr ""
+
+#: am-license-menu.php:1019
+msgid ""
+"The subscription for %s has expired. You can reactivate the subscription "
+"from your account <a href=\"%s\" target=\"_blank\">dashboard</a>."
+msgstr ""
+
+#: am-license-menu.php:1026
+msgid ""
+"The subscription for %s has been suspended. You can reactivate the "
+"subscription from your account <a href=\"%s\" target=\"_blank\">dashboard</"
+"a>."
+msgstr ""
+
+#: am-license-menu.php:1033
+msgid ""
+"The subscription for %s is still pending. You can check on the status of the "
+"subscription from your account <a href=\"%s\" target=\"_blank\">dashboard</"
+"a>."
+msgstr ""
+
+#: am-license-menu.php:1040
+msgid ""
+"The subscription for %s has been placed in the trash and will be deleted "
+"soon. You can purchase a new subscription from your account <a href=\"%s\" "
+"target=\"_blank\">dashboard</a>."
+msgstr ""
+
+#: am-license-menu.php:1047
+msgid ""
+"A subscription for %s could not be found. You can purchase a subscription "
+"from your account <a href=\"%s\" target=\"_blank\">dashboard</a>."
+msgstr ""
+
+#: am-license-menu.php:1054
+msgid ""
+"A license key for %s could not be found. Maybe you forgot to enter a license "
+"key when setting up %s, or the key was deactivated in your account. You can "
+"reactivate or purchase a license key from your account <a href=\"%s\" target="
+"\"_blank\">dashboard</a>."
+msgstr ""
+
+#: am-license-menu.php:1061
+msgid ""
+"Download permission for %s has been revoked possibly due to a license key or "
+"subscription expiring. You can reactivate or purchase a license key from "
+"your account <a href=\"%s\" target=\"_blank\">dashboard</a>."
+msgstr ""
+
+#: am-license-menu.php:1068
+msgid ""
+"%s has not been activated. Go to the settings page and enter the license key "
+"and license email to activate %s."
+msgstr ""
+
+#: am-license-menu.php:1075
+msgid ""
+"You changed the subscription for %s, so you will need to enter your new API "
+"License Key in the settings page. The License Key should have arrived in "
+"your email inbox, if not you can get it by logging into your account <a href="
+"\"%s\" target=\"_blank\">dashboard</a>."
+msgstr ""
+
+#: includes/class-wc-admin-screen-epsilon.php:27
+msgid "Epsilon Setting"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:44
+msgid "Epsilon Credit Card"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:34
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:32
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:33
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:33
+msgid "Please set this payment at Control Panel! "
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:45
+msgid "Allows payments by Epsilon Credit Card in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:77
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:61
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:62
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:64
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:62
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:63
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:63
+msgid "Enable/Disable"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:64
+msgid "Enable Epsilon Credit Card Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:68
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:69
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:71
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:69
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:70
+msgid "Title"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:86
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:70
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:71
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:73
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:71
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:72
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:72
+msgid "This controls the title which the user sees during checkout."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:73
+msgid "Credit Card (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:90
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:74
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:75
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:77
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:75
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:76
+msgid "Description"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:92
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:98
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:76
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:77
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:83
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:79
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:85
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:77
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:83
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:84
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:78
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:84
+msgid "This controls the description which the user sees during checkout."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:79
+msgid "Pay with your credit card via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:96
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:80
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:81
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:83
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:81
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:82
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:82
+msgid "Order Button Text"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:85
+msgid "Proceed to Epsilon Credit Card"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:88
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:152
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:97
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:88
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:87
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:88
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:89
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:87
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:88
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:88
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:88
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:88
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:215
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:88
+msgid "Test Mode"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:90
+msgid "Enable Epsilon Test mode For Credit Card"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:92
+msgid "Please check you want to use Epsilon Test mode for Credit Card."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:112
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:112
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:111
+msgid "Paydesign Payment Processing."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-00cc.php:121
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:136
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:121
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:120
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:119
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:120
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:118
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:119
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:119
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:119
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:119
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:246
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:119
+msgid "Thank you for your order."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:47
+msgid "Epsilon Convenience store"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:48
+msgid "Allows payments by Epsilon Convenience store in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:55
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:112
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:201
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:244
+msgid "Seven Eleven"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:56
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:118
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:202
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:245
+msgid "Family Mart"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:57
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:124
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:203
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:246
+msgid "Lawson"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:58
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:130
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:204
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:247
+msgid "Seicomart"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:59
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:136
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:205
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:248
+msgid "Mini Stop"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:60
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:142
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:206
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:249
+msgid "Circle K"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:61
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:148
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:207
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:250
+msgid "Thanks"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:78
+msgid "Enable Epsilon Convenience store Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:87
+msgid "Convenience store (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:93
+msgid "Pay with your Convenience store via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:99
+msgid "Proceed to Epsilon Convenience store"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:102
+msgid "Instructions"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:104
+msgid "Instructions that will be added to the thank you page and emails."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:105
+msgid "Thank you for your order. Please check the e-mail from Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:109
+msgid "Set Convenience Store"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:154
+msgid "Enable Epsilon Test mode For Convenience store"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:156
+msgid "Please check you want to use Epsilon Test mode for Convenience store."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:179
+msgid "Please select Convenience Store where you want to pay"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:211
+msgid "Awaiting Convenience Store payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:226
+msgid "Thank you for your order. Please cehck e-mail from Epsilon"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-01cs.php:252
+msgid "Your selected Convenience Store : "
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:43
+msgid "Epsilon Net Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:44
+msgid "Allows payments by Epsilon Net Bank in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:62
+msgid "Enable Epsilon Net Bank Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:71
+msgid "Net Bank (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:77
+msgid "Pay with your Net Bank via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:83
+msgid "Proceed to Epsilon Net Bank Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:86
+msgid "Set Net Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:88
+msgid "Japan Net Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:93
+msgid "Rakuten Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:99
+msgid "Enable Epsilon Test mode For Net Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-02nb.php:101
+msgid "Please check you want to use Epsilon Test mode for Net Bank."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:44
+msgid "Epsilon Web Money"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:45
+msgid "Allows payments by Epsilon Web Money in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:64
+msgid "Enable Epsilon Web Money Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:73
+msgid "Web Money (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:79
+msgid "Pay with your Web Money via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:85
+msgid "Proceed to Epsilon Web Money"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:90
+msgid "Enable Epsilon Test mode For Web Money"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-03wm.php:92
+msgid "Please check you want to use Epsilon Test mode for Web Money."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:44
+msgid "Epsilon BitCash"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:45
+msgid "Allows payments by Epsilon BitCash in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:63
+msgid "Enable %s Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:72
+msgid "BitCash (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:78
+msgid "Pay with your BitCash via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:84
+msgid "Proceed to Epsilon BitCash"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:89
+msgid "Enable Epsilon Test mode For BitCash"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-04bc.php:91
+msgid "Please check you want to use Epsilon Test mode for %s."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:44
+msgid "Epsilon Electric Money"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:45
+msgid "Allows payments by Epsilon Electric Money in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:64
+msgid "Enable Epsilon Electric Money Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:73
+msgid "Electric Money (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:79
+msgid "Pay with your Electric Money via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:85
+msgid "Proceed to Epsilon Electric Money"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:90
+msgid "Enable Epsilon Test mode For Electric Money"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-05em.php:92
+msgid "Please check you want to use Epsilon Test mode for Electric Money."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:86
+msgid "Proceed to Epsilon Pay-easy"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:30
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:45
+msgid "Epsilon Pay-easy"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:46
+msgid "Allows payments by Epsilon Pay-easy in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:65
+msgid "Enable Epsilon Pay-easy Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:74
+msgid "Pay-easy (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:80
+msgid "Pay with your Pay-easy via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:91
+msgid "Enable Epsilon Test mode For Pay-easy"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-06pe.php:93
+msgid "Please check you want to use Epsilon Test mode for Pay-easy."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:28
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:43
+msgid "Epsilon Pay Pal"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:44
+msgid "Allows payments by Epsilon Pay Pal in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:63
+msgid "Enable Epsilon Pay Pal Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:72
+msgid "Pay Pal (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:78
+msgid "Pay with your Pay Pal via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:84
+msgid "Proceed to Epsilon Pay Pal"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:89
+msgid "Enable Epsilon Test mode For Pay Pal"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-07pp.php:91
+msgid "Please check you want to use Epsilon Test mode for Pay Pal."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:44
+msgid "Epsilon Yahoo! Walet"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:45
+msgid "Allows payments by Epsilon Yahoo! Walet in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:64
+msgid "Enable Epsilon Yahoo! Walet Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:73
+msgid "Yahoo! Walet (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:79
+msgid "Pay with your Yahoo! Walet via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:85
+msgid "Proceed to Epsilon Yahoo! Walet"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:90
+msgid "Enable Epsilon Test mode For Yahoo! Walet"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-08yw.php:92
+msgid "Please check you want to use Epsilon Test mode for Yahoo! Walet."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:44
+msgid "Epsilon SmartPhone Carrier"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:45
+msgid "Allows payments by Epsilon SmartPhone Carrier in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:64
+msgid "Enable Epsilon SmartPhone Carrier Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:73
+msgid "SmartPhone Carrier (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:79
+msgid "Pay with your SmartPhone Carrier via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:85
+msgid "Proceed to Epsilon SmartPhone Carrier"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:90
+msgid "Enable Epsilon Test mode For SmartPhone Carrier"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-09sc.php:92
+msgid "Please check you want to use Epsilon Test mode for SmartPhone Carrier."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:44
+msgid "Epsilon SBI Net Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:45
+msgid "Allows payments by Epsilon SBI Net Bank in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:64
+msgid "Enable Epsilon SBI Net Bank Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:73
+msgid "SBI Net Bank (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:79
+msgid "Pay with your SBI Net Bank via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:85
+msgid "Proceed to Epsilon SBI Net Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:90
+msgid "Enable Epsilon Test mode For SBI Net Bank"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-10sn.php:92
+msgid "Please check you want to use Epsilon Test mode for SBI Net Bank."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:44
+msgid "Epsilon GMO Postpay Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:45
+msgid "Allows payments by Epsilon GMO Postpay Payment in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:64
+msgid "Enable Epsilon GMO Postpay Payment Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:73
+msgid "GMO Postpay Payment (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:79
+msgid "Pay with your GMO Postpay Payment via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:85
+msgid "Proceed to Epsilon GMO Postpay Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:90
+msgid "Enable Epsilon Test mode For GMO Postpay Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-11gp.php:92
+msgid "Please check you want to use Epsilon Test mode for GMO Postpay Payment."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:44
+msgid "Epsilon Multi-currency Credit Card"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:45
+msgid "Allows payments by Epsilon Multi-currency Credit Card in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:64
+msgid "Enable Epsilon Multi-currency Credit Card Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:73
+msgid "Multi-currency Credit Card (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:79
+msgid "Pay with your Multi-currency Credit Card via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:85
+msgid "Proceed to Epsilon Multi-currency Credit Card"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:88
+msgid "Set Use Currency"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:91
+msgid "South Korean Won"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:97
+msgid "Chinese Yuan"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:103
+msgid "Taiwan New Dollars"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:109
+msgid "US Dollars"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:115
+msgid "Hong Kong Dollar"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:121
+msgid "Australian Dollars"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:127
+msgid "Thai Baht"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:133
+msgid "Pounds Sterling"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:139
+msgid "Singapore Dollar"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:145
+msgid "Canadian Dollars"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:151
+msgid "Euros"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:157
+msgid "Malaysian Ringgits"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:163
+msgid "Philippine Pesos"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:169
+msgid "Indian Rupee"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:175
+msgid "Russian Ruble"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:181
+msgid "Vietnamese Dong"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:187
+msgid "Norwegian Krone"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:193
+msgid "Swedish Krona"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:199
+msgid "Swiss Franc"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:205
+msgid "Danish Krone"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:211
+msgid "Brazilian Real"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:217
+msgid "Enable Epsilon Test mode For Multi-currency Credit Card"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-12mccc.php:219
+msgid ""
+"Please check you want to use Epsilon Test mode for Multi-currency Credit "
+"Card."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:29
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:44
+msgid "Epsilon  JCB PREMO"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:45
+msgid "Allows payments by Epsilon  JCB PREMO in Japan."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:64
+msgid "Enable Epsilon  JCB PREMO Payment"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:73
+msgid " JCB PREMO (Epsilon)"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:79
+msgid "Pay with your  JCB PREMO via Epsilon."
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:85
+msgid "Proceed to Epsilon  JCB PREMO"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:90
+msgid "Enable Epsilon Test mode For  JCB PREMO"
+msgstr ""
+
+#: includes/gateways/epsilon/class-wc-gateway-epsilon-13jp.php:92
+msgid "Please check you want to use Epsilon Test mode for  JCB PREMO."
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:138
+msgid "Extra charge for Convenience store method"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:142
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:145
+msgid "Fee name"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:146
+msgid "Convenience store Payment method fee"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:151
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:154
+msgid "Extra charge amount"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:160
+msgid "Maximum cart value to which adding fee"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:163
+msgid "Maximum cart value for adding fee"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:165
+msgid "If you dont need this setting, please set empty, 0."
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:170
+msgid "Includes taxes"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:173
+msgid "Calculate taxes on this fee"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:175
+msgid "Do not calculate taxes"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:176
+msgid "The fee is taxes included"
+msgstr ""
+
+#: includes/gateways/epsilon/includes/class-wc-cs-fee.php:177
+msgid "The fee is taxes excluded"
+msgstr ""
+
+#: includes/views/html-admin-info-screen.php:1
+msgid "Infomation of Epsion Setting"
+msgstr ""
+
+#: includes/views/html-admin-screen.php:3
+msgid "Setting"
+msgstr ""
+
+#: includes/views/html-admin-screen.php:3
+msgid "Infomations"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:4
+msgid "Epsilon Initial Setting"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:8
+msgid "Connect ID"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:11
+msgid "Please input User ID from Epsilon documents"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:15
+msgid "Connect Password"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:18
+msgid "Please input User Password from Epsilon documents"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:21
+msgid "Epsilon Payment Method"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:25
+#: includes/views/html-admin-setting-screen.php:27
+msgid "Credit Card"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:28
+msgid "Please check it if you want to use the payment method of Credit Card"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:32
+#: includes/views/html-admin-setting-screen.php:34
+msgid "Convenience store"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:35
+msgid ""
+"Please check it if you want to use the payment method of Convenience store"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:39
+#: includes/views/html-admin-setting-screen.php:41
+msgid "Net Bank"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:42
+msgid "Please check it if you want to use the payment method of Net Bank"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:46
+#: includes/views/html-admin-setting-screen.php:48
+msgid "Web Money"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:49
+msgid "Please check it if you want to use the payment method of Web Money"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:53
+#: includes/views/html-admin-setting-screen.php:55
+msgid "BitCash"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:56
+msgid "Please check it if you want to use the payment method of BitCash"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:60
+#: includes/views/html-admin-setting-screen.php:62
+msgid "Electric Money"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:63
+msgid "Please check it if you want to use the payment method of Electric Money"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:67
+#: includes/views/html-admin-setting-screen.php:69
+msgid "Pay-easy"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:70
+msgid "Please check it if you want to use the payment method of Pay-easy"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:74
+#: includes/views/html-admin-setting-screen.php:76
+msgid "Pay Pal"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:77
+msgid "Please check it if you want to use the payment method of Pay Pal"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:81
+#: includes/views/html-admin-setting-screen.php:83
+msgid "Yahoo! Walet"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:84
+msgid "Please check it if you want to use the payment method of Yahoo! Walet"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:88
+#: includes/views/html-admin-setting-screen.php:90
+msgid "SmartPhone Carrier"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:91
+msgid ""
+"Please check it if you want to use the payment method of SmartPhone Carrier"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:95
+#: includes/views/html-admin-setting-screen.php:97
+msgid "SBI Net Bank"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:98
+msgid "Please check it if you want to use the payment method of SBI Net Bank"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:102
+#: includes/views/html-admin-setting-screen.php:104
+msgid "GMO Postpay Payment"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:105
+msgid ""
+"Please check it if you want to use the payment method of GMO Postpay Payment"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:109
+#: includes/views/html-admin-setting-screen.php:111
+msgid "Multi-currency Credit Card"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:112
+msgid ""
+"Please check it if you want to use the payment method of Multi-currency "
+"Credit Card"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:116
+#: includes/views/html-admin-setting-screen.php:118
+msgid "JCB PREMO"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:119
+msgid "Please check it if you want to use the payment method of JCB PREMO"
+msgstr ""
+
+#: includes/views/html-admin-setting-screen.php:123
+msgid "Save changes"
+msgstr ""
+
+#: wc4jp-epsilon.php:109
+msgid "Order Data is not exist."
+msgstr ""
+
+#: wc4jp-epsilon.php:120 wc4jp-epsilon.php:153
+msgid "Wait a moment."
+msgstr ""
+
+#: wc4jp-epsilon.php:150
+msgid ""
+"Return from Epsilon payment page. Sorry, this action is coused your order is "
+"cancel now. Please recart."
+msgstr ""
+
+#: wc4jp-epsilon.php:164
+msgid ""
+"This page is especially for Epsilon Return Page. Your action is incorrect or "
+"Error has happened. Please check it."
+msgstr ""
+
+#: wc4jp-epsilon.php:174
+msgid ""
+"WooCommerce for Epsilon method is enabled but not effective. It requires "
+"WooCommerce in order to work."
+msgstr ""
+
+#: wc4jp-epsilon.php:195
+msgid "Epsilon Payment cancelled, because renumber."
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "WooCommerce For Epsilon payments link"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://ec.artws.info/shop/plugins/wc-epsilon-link-pro/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Woocommerce For Epsilon payments link"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Artisan Workshop"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://wc.artws.info/"
+msgstr ""

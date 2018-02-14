@@ -55,6 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</p>
 
 			<?php do_action( 'woocommerce_login_form' ); ?>
+			<?php apply_filters('login_form', 1 ); ?>
 
 			<!-- <div class="els-login-lost-pass"> custom - div added -->
 				<p class="form-row label-inline login-rememberme label-inline form-indent">

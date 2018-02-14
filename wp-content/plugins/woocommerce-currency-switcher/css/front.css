@@ -93,6 +93,9 @@ span.woocs_price_info_icon{
     display: inline;
     margin-left: 3px;
 }
+.woocs_price_code .woocs_price_info{
+    display: none ;
+}
 
 .woocs_price_info + .woocs_price_info{
     display: none !important;
@@ -113,7 +116,7 @@ div.woocs_price_info ul{
     background: #000000 !important;
     height: auto;
     min-height: 19px;
-    /*font-size: 24px;*/
+    font-size: 14px !important;
     line-height: normal;
     vertical-align: middle;
     text-align: left;

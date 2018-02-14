@@ -2,9 +2,9 @@
 Contributors: ThemeHigh
 Donate link: https://themehigh.com/
 Tags: checkout field editor, woocommerce checkout field editor, checkout manager, woocommerce checkout manager, checkout field customizer, checkout form editor, checkout form customizer, checkout, WooCommerce checkout, checkout form designer, checkout
-Requires at least: 3.0.1
-Tested up to: 4.8
-Stable tag: 1.1.9
+Requires at least: 4.0
+Tested up to: 4.9
+Stable tag: 1.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,10 +73,10 @@ Check out the premium version of WooCommerce Checkout Field Editor Pro - The bes
 
 == Installation ==
 = Minimum Requirements =
-* WooCommerce 2.2 +
-* WordPress 3.8 or greater
-* PHP version 5.2.4 or greater
-* MySQL version 5.0 or greater
+* WooCommerce 3.0 or greater
+* WordPress 4.0 or greater
+* PHP version 5.2.4 or greater (PHP 5.6 or greater is recommended)
+* MySQL version 5.0 or greater (MySQL 5.6 or greater is recommended)
 
 = Automatic installation =
 1. Log in to your WordPress dashboard
@@ -102,6 +102,26 @@ Yes. There is a button 'reset to default fields' to go back to the WooCommerce d
 8. Newly added field
 
 == Changelog ==
+= 1.2.5 =
+* WooCommerce tested up to version updated.
+
+= 1.2.4 =
+* Improvement for checkout fields display ordering.
+
+= 1.2.3 =
+* Replaced the hooks those are removed from WooCommerce version 3.2.0.
+
+= 1.2.2 =
+* Replaced deprecated hook.
+
+= 1.2.1 =
+* Fix for required validation issue with default address fields.
+* Added placeholder for select field.
+* Added confirmation check for reset button.
+
+= 1.2.0 =
+* Fix for required validation issue with default address fields.
+
 = 1.1.9 =
 * Fix for required validation issue with default address fields.
 

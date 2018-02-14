@@ -184,7 +184,7 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
 		</div><!--.header__primary-->
 
       <div class="els-main-menu header__secondary" style="<?php echo esc_attr($elsey_menubar_position_css); ?>">
-	
+	<div class="header__secondary__content">
         <?php
         wp_nav_menu(
           array(
@@ -197,15 +197,16 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
           )
         ); ?>
 		  <div class="header__user display--small-only">
-			  <a href="<?php echo esc_url($elsey_myaccount_url); ?>" class="header__user__item header__user__link">Sign in / Register</a>
+			  <a href="<?php echo esc_url($elsey_myaccount_url); ?>" class="header__user__item header__user__link"><?php if ( is_user_logged_in() ) { ?><?php _e( 'My Page', 'elsey' ); ?><?php } else { ?><?php _e( 'Sign in / Register', 'elsey' ); ?><?php } ?></a>
 			  <?php if ( $elsey_menubar_wishlist && class_exists('WooCommerce') ) {
 	if ( defined( 'YITH_WCWL' ) ) {
 		$els_wishlist_count = YITH_WCWL()->count_products();
 		$els_wishlist_class = ($els_wishlist_count) ? 'els-wishlist-filled' : 'els-wishlist-empty'; ?>
-			  <a href="<?php echo esc_url( home_url( '/my-account/favorite-list/' ) ); ?>" class="header__user__item header__user__link <?php echo esc_attr($els_wishlist_class); ?>">Wishlist</a>
+			  <a href="<?php echo esc_url( home_url( '/my-account/favorite-list/' ) ); ?>" class="header__user__item header__user__link <?php echo esc_attr($els_wishlist_class); ?>"><?php _e( 'Wishlist', 'elsey' ); ?></a>
 			  <?php } } ?>
 		  </div>
-		</div>
+		</div><!--/header__secondary__content-->
+		</div><!--/header__secondary-->
 		 
 		<div class="focus-overlay focus-overlay--header"></div>
 	  </div>

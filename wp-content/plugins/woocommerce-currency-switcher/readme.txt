@@ -2,22 +2,22 @@
 Contributors: RealMag777
 Donate link: http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777
 Tags: woocommerce, currency, switcher, currency switcher, converter
-Requires at least: 3.8.0
-Tested up to: 4.9
+Requires at least: 4.1.0
+Tested up to: 4.9.4
 Requires PHP: 5.4
-Stable tag: 1.2.1
+Stable tag: 1.2.3
 
 WooCommerce Currency Switcher – is a WordPress plugin that allows to switch products prices and get their rates converted in the real time!
 
 == Description ==
 
-**WooCommerce Currency Switcher** – is a plugin that allows your site customers/visitors switch currencies on your woocommerce store and get their rates converted in the real time – a must have plugin for your WooCommerce powered online store!
+**WooCommerce Currency Switcher** – is a plugin that allows your site customers/visitors switch currencies on your woocommerce store and get their rates converted in the real time – Ideal solution to make an online store in multiple currencies - must have plugin for your WooCommerce powered online store!
 
 Currency Switcher is available as with shortcode **[woocs]** so with the widget.
 
 Plus it is possible to show on the front 2 additional widgets: currency converter and currencies rates widget/shortcode as here (in sidebar) [http://demo.currency-switcher.com/](http://demo.currency-switcher.com/)
 
-More info is here: [https://currency-switcher.com/](https://currency-switcher.com/)
+More info is here: [https://currency-switcher.com/category/faq/](https://currency-switcher.com/category/faq/)
 
 
 
@@ -30,8 +30,12 @@ More info is here: [https://currency-switcher.com/](https://currency-switcher.co
 * Currency can be changed automatically according to visitor's IP using woo WC_Geolocation PHP class
 * **Individual GeoIP rules for each product**
 * **Individual fixed prices rules for each product**
+* Fixed minimum amount for FREE delivery for each currency(actual only for woocommerce v3.3 and higher)
+* Fixed minimum amount for shipping for each currency(actual only for woocommerce v3.3 and higher)
+* Fixed amount for coupons for each currency(actual only for woocommerce v3.3 and higher)
+* Fixed minimum and maximum coupon verification amount for each currency (actual only for woocommerce v3.3 and higher)
 * **Checkout by GeoIP rules**
-* 4 currencies aggregators
+* 6 currencies aggregators
 * **The customer allowed to pay in the selected currency (optionally)**
 * WooCommerce native PayPal gate ready!
 * Ability to set new order currency which was created through admin panel by hands
@@ -39,11 +43,12 @@ More info is here: [https://currency-switcher.com/](https://currency-switcher.co
 * Easy to use for administrators and shop customers
 * Compatible with WooCommerce 2.6.x and higher
 * Compatible with [WooCommerce Extra Product Options](http://codecanyon.net/item/woocommerce-extra-product-options/7908619?ref=realmag777)
+* Compatible with [Table Rate Shipping for WooCommerce by bolderelements](https://codecanyon.net/item/table-rate-shipping-for-woocommerce/3796656?ref=realmag777)
 * Compatible with – WooCommerce Stripe Gateway by woothemes
 * Compatible with – PayPal for WooCommerce by angelleye
 * Compatible with – WooCommerce PDF Invoices & Packing Slips
 * 90% compatibility with different payment gates in 'multiple allowed' mode, just try it!
-* More compatibility: [https://currency-switcher.com/codex/#compatibility](https://currency-switcher.com/codex/#compatibility)
+* More compatibility: [https://currency-switcher.com/codex/#compatibility](https://currency-switcher.com/codex/#compatibility) AND [https://currency-switcher.com/woocs-labs](https://currency-switcher.com/woocs-labs)
 
 Premium version of the plugin: [http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777](http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777)
 
@@ -88,15 +93,26 @@ R: [https://currency-switcher.com/category/faq/](https://currency-switcher.com/c
 2. Options
 3. Advanced options
 4. GeoLocation rules in the back panel
+5. Fixed prices for FREE delivery for each currency(actual only for woocommerce v3.3 and higher)
+6. Fixed minimum amount for shipping for each currency(actual only for woocommerce v3.3 and higher)
+7. Fixed amount for coupons for each currency(actual only for woocommerce v3.3 and higher)
+8. Fixed minimum and maximum coupon verification amount for each currency (actual only for woocommerce v3.3 and higher)
 
 == Changelog ==
 
+= 1.2.3 =
+* adaptation for woocommerce 3.3.1 - better update WOOCS from v.1.2.2 to v.1.2.3
+
+= 1.2.2 =
+* [https://currency-switcher.com/update-v-2-2-2-v-1-2-2/](https://currency-switcher.com/update-v-2-2-2-v-1-2-2/)
+* previous v.1.2.1 is here: [v.1.2.1](https://currency-switcher.com/wp-content/uploads/2018/01/woocommerce-currency-switcher-121.zip)
+
 = 1.2.1 =
-* https://currency-switcher.com/update-v-2-2-1v-1-2-1/
+* [https://currency-switcher.com/update-v-2-2-1v-1-2-1/](https://currency-switcher.com/update-v-2-2-1v-1-2-1/)
 * previous v.1.2.0 is here: [v.1.2.0](https://currency-switcher.com/wp-content/uploads/2017/11/woocommerce-currency-switcher-1.2.0.zip)
 
 = 1.2.0 =
-* https://currency-switcher.com/update-v-2-2-0-v-1-2-0/
+* [https://currency-switcher.com/update-v-2-2-0-v-1-2-0/](https://currency-switcher.com/update-v-2-2-0-v-1-2-0/)
 * previous v.1.1.9 is here: [v.1.1.9](https://currency-switcher.com/wp-content/uploads/2017/09/woocommerce-currency-switcher-1.1.9.zip)
 
 = 1.1.9 =
@@ -105,7 +121,7 @@ R: [https://currency-switcher.com/category/faq/](https://currency-switcher.com/c
 * previous v.1.1.8 is here: [v.1.1.8](https://currency-switcher.com/wp-content/uploads/2017/04/woocommerce-currency-switcher-1.1.8.zip)
 
 = 1.1.8 =
-* https://currency-switcher.com/update-v-2-1-8-and-v-1-1-8/
+* [https://currency-switcher.com/update-v-2-1-8-and-v-1-1-8/](https://currency-switcher.com/update-v-2-1-8-and-v-1-1-8/)
 * previous v.1.1.7 is here: https://currency-switcher.com/wp-content/uploads/2016/12/woocommerce-currency-switcher-117.zip
 
 = 1.1.7 =
@@ -201,7 +217,7 @@ Plugin release. Operate all the basic functions.
 
 == License ==
 
-This plugin is copyright pluginus.net &copy; 2012-2017 with [GNU General Public License][] by realmag777.
+This plugin is copyright pluginus.net &copy; 2012-2018 with [GNU General Public License][] by realmag777.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the [GNU General Public License][] as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 

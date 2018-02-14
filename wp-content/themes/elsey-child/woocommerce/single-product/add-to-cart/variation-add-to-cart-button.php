@@ -20,11 +20,6 @@ foreach ($available_variations as $indexVariation => $available_variation)
 }
 ?>
 
-<div class="wcwl_control" id="woocommerce_waitlist_wraper" style="display: none;">
-	<a href="javascript:void(0)" class="button alt woocommerce_waitlist_new join"><?php echo __('Join waitlist', 'elsey')?></a>
-</div>
-
-
 <div class="woocommerce-variation-add-to-cart variations_button <?php if ( $iOutStock == 0 ) : ?>soldout_disabled<?php endif; ?>">
 	<?php
 		/**
@@ -55,3 +50,6 @@ foreach ($available_variations as $indexVariation => $available_variation)
 	</div>
 </div>
 
+<div class="wcwl_control" id="woocommerce_waitlist_wraper" style="display: none;">
+	<a href="javascript:void(0)" class="button alt woocommerce_waitlist_new join"><?php echo __('Join waitlist', 'elsey')?></a>
+</div>

@@ -401,30 +401,6 @@ if (!function_exists('woocommerce_template_loop_add_to_cart')) {
     }
 }*/
 
-/*show out of stock in variable dropdown not working*/
-add_action( 'woocommerce_before_add_to_cart_form', 'woocommerce_sold_out_dropdown' );
-
-function woocommerce_sold_out_dropdown() {
-  ?>
-  <script type="text/javascript">
-  jQuery( document ).bind( 'woocommerce_update_variation_values', function() {
-
-    jQuery( '.variations select option' ).each( function( index, el ) {
-      var sold_out = '<?php _e( 'sold out', 'woocommerce' ); ?>';
-      var re = new RegExp( ' - ' + sold_out + '$' );
-      el = jQuery( el );
-
-      if ( el.is( ':disabled' ) ) {
-        if ( ! el.html().match( re ) ) el.html( el.html() + ' - ' + sold_out );
-      } else {
-        if ( el.html().match( re ) ) el.html( el.html().replace( re,'' ) );
-      }
-    } );
-
-  } );
-</script>
-  <?php
-}
 //webfonts
 function webfonts_scripts ()
 {
@@ -1016,6 +992,14 @@ function elsey_document_title_parts( $title ) {
 	return $title;
 }
 
+
+add_filter( 'bulk_actions-edit-shop_order', 'elsey_shop_order_bulk_actions', 1000, 1 );
+function elsey_shop_order_bulk_actions($actions)
+{
+	$actions['mark_cancelled'] = __('Mark cancelled', 'elsey');
+	return $actions;
+}
+
 add_action( 'restrict_manage_posts', 'elsey_restrict_manage_posts', 50  );
 // Display dropdown
 function elsey_restrict_manage_posts(){
@@ -1053,4 +1037,57 @@ function else_parse_query ( $query )
 	return $query;
 }
 
+add_action('woocommerce_thankyou_bacs', 'elsey_woocommerce_thankyou_bacs', 1);
+function elsey_woocommerce_thankyou_bacs() 
+{
+	echo '<div class="before_bacs">' . __('Text before bacs', 'elsey') . '</div>';
+}
 
+/*add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
+function get_text_for_select_based_on_attribute($atr) {
+  $count=0;
+  // var_dump($atr);
+  global $product;
+  if($product){
+     foreach ($product->get_available_variations() as $variation){
+             $var=wc_get_product($variation['variation_id']);
+             $var_name=str_replace($product->get_title().' - ','',$var->get_name());
+             // var_dump($var_name);
+             // echo "<br>";
+             // var_dump($atr);
+            
+             if(($var->get_stock_status()=='outofstock')&&($var_name==$atr)){
+                  return $atr.' (SOLD OUT)';
+             }
+          
+    // var_dump( $var->get_title().$var->get_stock_status().$var->get_name().$atr);
+    }
+    return $atr;
+  }
+  
+}*/
+
+function add_footer_script(){
+    ?>
+    <script>
+    jQuery( '<div class="cus" style="margin-bottom: 22px;"><p class=""><label style="margin-top:  22px;"><input type="checkbox" name="" value="1"><span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;" class="pop1">Create an account?</font></font></font></font></span></label></p></div>' ).insertBefore( ".woocommerce-checkout .woocommerce-account-fields" );
+    
+    jQuery(document).ready(function(){
+        jQuery("body.woocommerce-checkout form.woocommerce-checkout .cus").on('click', function(ev){
+            ev.preventDefault();
+          jQuery('form.woocommerce-checkout .cus input').prop('checked', true);
+         // jQuery(".woocommerce-checkout .woocommerce-account-fields").addClass("add");
+          if(jQuery(".woocommerce-checkout .woocommerce-account-fields").hasClass("add")){
+               jQuery('.woocommerce-checkout .woocommerce-account-fields').removeClass("add");
+               jQuery('form.woocommerce-checkout .cus input').prop('checked', false);
+               } else {
+                jQuery('.woocommerce-checkout .woocommerce-account-fields').addClass("add");
+                jQuery('form.woocommerce-checkout .cus input').prop('checked', true);
+               }
+          });
+        }
+    );
+    </script>
+    <?php
+}
+add_action('wp_footer', 'add_footer_script');

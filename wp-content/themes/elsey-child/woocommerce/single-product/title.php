@@ -21,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 global $post, $main_product_id;
 $main_product_id = $post->ID;
+$current_user = wp_get_current_user();
+
 
 the_title( '<p class="pdp__name product_title_en">', '</p>' );
 // Display the value of custom product text field
@@ -36,6 +38,11 @@ echo '</h1>';
 
   <button data-remodal-action="close" class="remodal-close"></button>
   <h1><?php echo __('WaitList', 'elsey')?></h1>
+  
+  <div class="body_content">
+	<p><?php echo sprintf(__('We will notify to %s', 'elsey'), $current_user->user_email)?></p>
+</div>
+
   <form method="post" id="form_waitlist_modal">
   <div id="waitlist_remodal_content"></div>
   

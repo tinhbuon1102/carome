@@ -10,9 +10,11 @@ wp-content/uploads/
 wp-content/wp-cache-config.php
 wp-content/plugins/hello.php
 wp-snapshots
-
+wp-content/plugins/siteguard/really-simple-captcha/tmp
+wp-content/plugins/instagram-shop/api/storage
 wp-includes
 wp-admin
+wp-content/ai1wm-backups
 
 /.htaccess
 /license.txt

@@ -416,34 +416,42 @@ if ( class_exists( 'WooCommerce' ) ) {
 	add_filter( 'woocommerce_single_product_summary', 'elsey_product_description_close', 20, 2 );
 	function elsey_product_description_open($availability) {
 		global $product;
-    $quantity     = $product->get_stock_quantity();
-    $availability = $product->get_availability();
-
-    if( isset($quantity) || $availability['class'] ) {
-    	$output = '<div class="els-product-stock-status">';
-	    if( isset($quantity) ) {
-		    /*$output .= '<div class="els-product-qty">';
-		    $output .= '<img src="'.ELSEY_THEMEROOT_URI.'/inc/plugins/woocommerce/images/stock-icon.png" alt="" />';
-				$output .= esc_html__( ' Only ', 'elsey' ) . '<label>' . $quantity . ' ' . esc_html__( 'left', 'elsey' ) . '</label>';
-		    $output .= '</div>';*/
-		  }
-
-    	if( $availability['class'] ) {
-	    	$output .= '<div class="els-'.esc_attr($availability['class']).' els-avl">';
-	    	//$output .= ( isset($quantity) ) ? esc_html__( ' | ', 'elsey' ) : '';
-	    	//$output .= '<label>'.esc_html__( 'Availability:', 'elsey' ).'</label>';
-		    if( $availability['class'] === 'in-stock' ) {
-		    	//$output .= '<span>' . esc_html__( ' In Stock', 'elsey' ) . '</span>';
-		    } else if ( $availability['class'] === 'out-of-stock' ) {
-		    	$output .= '<span class="soldout">' . esc_html__( 'SOLD OUT', 'elsey' ) . '</span>';
-		    }
+		$quantity = $product->get_stock_quantity();
+		$availability = $product->get_availability();
+		
+		if ( isset($quantity) || $availability['class'] )
+		{
+			$output = '<div class="els-product-stock-status">';
+			if ( isset($quantity) )
+			{
+				/*
+				 * $output .= '<div class="els-product-qty">';
+				 * $output .= '<img src="'.ELSEY_THEMEROOT_URI.'/inc/plugins/woocommerce/images/stock-icon.png" alt="" />';
+				 * $output .= esc_html__( ' Only ', 'elsey' ) . '<label>' . $quantity . ' ' . esc_html__( 'left', 'elsey' ) . '</label>';
+				 * $output .= '</div>';
+				 */
+			}
+			
+			if ( $availability['class'] )
+			{
+				$output .= '<div class="els-' . esc_attr($availability['class']) . ' els-avl">';
+				// $output .= ( isset($quantity) ) ? esc_html__( ' | ', 'elsey' ) : '';
+				// $output .= '<label>'.esc_html__( 'Availability:', 'elsey' ).'</label>';
+				if ( $availability['class'] === 'in-stock' )
+				{
+// 					$output .= '<span>' . esc_html__( ' In Stock', 'elsey' ) . '</span>';
+				}
+				else if ( $availability['class'] === 'out-of-stock' && $product->is_type('simple'))
+				{
+					$output .= '<span class="soldout_text">' . esc_html__('SOLD OUT', 'elsey') . '</span>';
+				}
 				$output .= '</div>';
 			}
 			$output .= '</div>';
 		}
-
-    $output .= '';
-	  //echo $output;
+		
+		$output .= '';
+		echo $output;
 	}
 	function elsey_product_description_close() {
 	  echo '';
