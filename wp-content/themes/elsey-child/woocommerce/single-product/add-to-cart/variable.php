@@ -21,9 +21,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $product;
 $variations = $product->get_available_variations();
+$iVariationInStockCount = 0;
 foreach ($variations as $variation) {
 	$stock_array[$variation["attributes"][key($variation["attributes"])]] = $variation["is_in_stock"]; //Stock array
+	$iVariationInStockCount += $variation["is_in_stock"] ? 1 : 0;
 }
+$isAllVariationInStock = $iVariationInStockCount == count($variations) ? true : false;
+
 
 do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 <form class="variations_form cart" method="post" enctype='multipart/form-data' data-product_id="<?php echo absint( $product->get_id() ); ?>" data-product_variations="<?php echo htmlspecialchars( wp_json_encode( $available_variations ) ) ?>">
@@ -44,7 +48,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 									//Stock Condition
 									if(empty($selected)){
 										foreach($stock_array as $sk => $sv){
-											if($sv == 1){
+											if($sv == 1 && !$isAllVariationInStock){
 												$selected = $sk;
 												break;
 											}
@@ -52,7 +56,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 									}else{
 										if($stock_array[$selected] != 1){
 											foreach($stock_array as $sk => $sv){
-												if($sv == 1){
+												if($sv == 1 && !$isAllVariationInStock){
 													$selected = $sk;
 													break;
 												}
