@@ -1000,6 +1000,11 @@ function elsey_shop_order_bulk_actions($actions)
 	return $actions;
 }
 
+add_filter('woocommerce_create_account_default_checked', 'elsey_woocommerce_create_account_default_checked', 1000);
+function elsey_woocommerce_create_account_default_checked(){
+	return true;
+}
+
 add_action( 'restrict_manage_posts', 'elsey_restrict_manage_posts', 50  );
 // Display dropdown
 function elsey_restrict_manage_posts(){
@@ -1066,28 +1071,3 @@ function get_text_for_select_based_on_attribute($atr) {
   }
   
 }*/
-
-function add_footer_script(){
-    ?>
-    <script>
-    jQuery( '<div class="cus" style="margin-bottom: 22px;"><p class=""><label style="margin-top:  22px;"><input type="checkbox" name="" value="1"><span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;" class="pop1">Create an account?</font></font></font></font></span></label></p></div>' ).insertBefore( ".woocommerce-checkout .woocommerce-account-fields" );
-    
-    jQuery(document).ready(function(){
-        jQuery("body.woocommerce-checkout form.woocommerce-checkout .cus").on('click', function(ev){
-            ev.preventDefault();
-          jQuery('form.woocommerce-checkout .cus input').prop('checked', true);
-         // jQuery(".woocommerce-checkout .woocommerce-account-fields").addClass("add");
-          if(jQuery(".woocommerce-checkout .woocommerce-account-fields").hasClass("add")){
-               jQuery('.woocommerce-checkout .woocommerce-account-fields').removeClass("add");
-               jQuery('form.woocommerce-checkout .cus input').prop('checked', false);
-               } else {
-                jQuery('.woocommerce-checkout .woocommerce-account-fields').addClass("add");
-                jQuery('form.woocommerce-checkout .cus input').prop('checked', true);
-               }
-          });
-        }
-    );
-    </script>
-    <?php
-}
-add_action('wp_footer', 'add_footer_script');

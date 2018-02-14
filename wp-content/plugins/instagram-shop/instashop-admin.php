@@ -96,27 +96,32 @@ class Instashop_Admin extends Instashop_Admin_Base {
 	
 	public function insta_woocommerce_json_search_found_products ($products) 
 	{
-		$new_products = $product = $relatedProducts = array();
-		foreach ($products as $product_id => $product_name)
-		{
-			$wProduct = get_product($product_id);
-			
-			if ( has_post_thumbnail($product_id) )
+		if (isset($_GET['insta_id'])) {
+			$new_products = $product = $relatedProducts = array();
+			foreach ($products as $product_id => $product_name)
 			{
-				$product['image'] = get_the_post_thumbnail( $product_id, 'thumbnail' );
+				$wProduct = get_product($product_id);
+				
+				if ( has_post_thumbnail($product_id) )
+				{
+					$product['image'] = get_the_post_thumbnail( $product_id, 'thumbnail' );
+				}
+				else
+				{
+					$product['image'] = null;
+				}
+				
+				$product['id'] = $product_id;
+				$product['name'] = strip_tags($product_name);
+				$product['group_name'] = __( 'Related Products', self::$text_domain );
+				$relatedProducts[] = $product;
 			}
-			else
-			{
-				$product['image'] = null;
-			}
-			
-			$product['id'] = $product_id;
-			$product['name'] = strip_tags($product_name);
-			$product['group_name'] = __( 'Related Products', self::$text_domain );
-			$relatedProducts[] = $product;
+			$new_products['data']['product'] = $relatedProducts;
+			return $new_products;
 		}
-		$new_products['data']['product'] = $relatedProducts;
-		return $new_products;
+		else {
+			return $products;
+		}
 	}
 	
 	public function get_insta_form() {

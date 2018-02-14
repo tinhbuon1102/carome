@@ -129,25 +129,5 @@ jQuery(document).ready(function(){
 	?>
 });
 </script>
-<style>
-.woocommerce-checkout .woocommerce-account-fields{
-   display: none;    
-}
-.add{
-   display: block !important;    
-}
-.cus input {
-    float: none;
-    width: auto;
-    position: static;
-    margin: 0 6px 0 0;
-    padding: 0;
-    vertical-align: middle;
-    display: inline-block !important;
-    max-width: 21px;
-    -webkit-appearance: checkbox;
-}
-</style>
-
 </body>
 </html>

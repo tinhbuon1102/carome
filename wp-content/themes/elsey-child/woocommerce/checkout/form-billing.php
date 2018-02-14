@@ -56,13 +56,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="woocommerce-account-fields">
 		<?php if ( ! $checkout->is_registration_required() ) : ?>
 
-			<div class="form-row form-row-wide create-account">
+			<p class="form-row form-row-wide create-account">
 				<!-- Custom Changes -->
 				<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
-					<input class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" id="createaccount" <?php checked( ( true === $checkout->get_value( 'createaccount' ) || ( true === apply_filters( 'woocommerce_create_account_default_checked', false ) ) ), true ) ?> type="checkbox" name="createaccount" value="1" /> <label for="createaccount"><?php esc_html_e( 'Create an account?', 'woocommerce' ); ?></label>
+					<input class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" id="createaccount" <?php checked( ( true === $checkout->get_value( 'createaccount' ) || ( true === apply_filters( 'woocommerce_create_account_default_checked', false ) ) ), true ) ?> type="checkbox" name="createaccount" value="1" /> <label for="createaccount"><?php esc_html_e( 'Create an account?', 'elsey' ); ?></label>
 				</label>
 				<!-- Custom Changes -->
-			</div>
+			</p>
 
 		<?php endif; ?>
 
