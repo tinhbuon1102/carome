@@ -244,7 +244,7 @@ if ( class_exists( 'WooCommerce' ) ) {
                       <a href="<?php echo get_the_permalink($product->get_id()); ?>" class="woocommerce-LoopProduct-link"></a>
                       <div class="els-product-info">
     	                  <div class="els-product-title">
-    	                    <h3><a href="<?php echo get_the_permalink($product->get_id()); ?>"><?php echo esc_attr(get_the_title($product->get_id())); ?></a></h3>
+    	                    <h3><a href="<?php echo get_the_permalink($product->get_id()); ?>"><?php echo esc_attr(get_post_meta($product->get_id(), '_custom_product_text_field', true)); ?></a></h3>
     	                  </div>
     	                  <div class="els-product-price price"><?php echo $product->get_price_html(); ?></div>
     	                  <div class="els-product-atc">
@@ -330,7 +330,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 
                 	<div class="els-fullgrid-title-rating">
 	                  <div class="els-product-title">
-	                    <h2><a href="<?php echo get_the_permalink($product->get_id()); ?>"><?php echo esc_attr(get_the_title($product->get_id())); ?></a></h2>
+	                    <h2><a href="<?php echo get_the_permalink($product->get_id()); ?>"><?php echo esc_attr(get_post_meta($product->get_id(), '_custom_product_text_field', true)); ?></a></h2>
 	                  </div>
                   	<?php echo get_the_term_list($product->get_id(), 'product_cat', '<div class="els-product-cats">', ' & ', '</div>'); ?>        
 	                  <div class="els-star-rating woocommerce-product-rating">
@@ -460,7 +460,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 
 	                <div class="els-product-info">
 	                  <div class="els-product-title">
-	                    <h3><a href="<?php echo get_the_permalink($product->get_id()); ?>"><?php echo esc_attr(get_the_title($product->get_id())); ?></a></h3>
+	                    <h3><a href="<?php echo get_the_permalink($product->get_id()); ?>"><?php echo esc_attr(get_post_meta($product->get_id(), '_custom_product_text_field', true)); ?></a></h3>
 	                  </div>
 	                  <?php echo get_the_term_list($product->get_id(), 'product_cat', '<div class="els-product-cats">', ', ', '</div>'); ?>   
 	                  <div class="els-product-price price"><?php echo $product->get_price_html(); ?></div>
