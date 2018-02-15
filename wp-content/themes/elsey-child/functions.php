@@ -1046,7 +1046,25 @@ function elsey_woe_order_exported($order_id){
 		}
 	}
 }
-
+add_action( 'woocommerce_email_before_order_table', 'add_order_email_instructions', 10, 2 );
+ 
+function add_order_email_instructions( $order, $sent_to_admin ) {
+  
+  if ( ! $sent_to_admin ) {
+ 
+    if ( ('bacs' == $order->payment_method) && ($order->status == 'processing') ) {
+      // cash on delivery method
+      echo '<p>お客様のご注文のご入金を確認いたしましたので、お知らせ致します。<br/>お忙しいなか、お手続きをありがとうございました。</p><p>発送手続き完了後、「商品発送のご案内」メールを再度配信いたしますので、<br/>発送完了までもうしばらくお待ちください。</p><p>お客様のご注文内容は以下となりますので、ご確認ください。</p>';
+    } elseif (('epsilon' == $order->payment_method) && ($order->status == 'processing')) {
+      echo '<p>お客様のご注文を下記の内容で承りましたので、ご確認ください。</p><p>発送手続き完了後、「商品発送のご案内」メールを再度配信いたしますので、<br/>発送完了までもうしばらくお待ちください。</p>';
+    } elseif (('epsilon_pro_sc' == $order->payment_method) && ($order->status == 'processing')) {
+      echo '<p>お客様のご注文を下記の内容で承りましたので、ご確認ください。</p><p>発送手続き完了後、「商品発送のご案内」メールを再度配信いたしますので、<br/>発送完了までもうしばらくお待ちください。</p>';
+    } else {
+      // other methods (ie credit card)
+      echo '';
+    }
+  }
+}
 /*add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
 function get_text_for_select_based_on_attribute($atr) {
   $count=0;
