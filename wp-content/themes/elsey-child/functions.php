@@ -456,10 +456,8 @@ add_action('pre_current_active_plugins', 'hide_plugin_order_by_product');
 add_filter('woocommerce_cart_shipping_method_full_label', 'elsey_woocommerce_cart_shipping_method_full_label', 10, 3);
 function elsey_woocommerce_cart_shipping_method_full_label ($label, $method)
 {
-
-	$label = '<span class="small-text">' . $method->get_label() . '</span>';
-
 	if ( $method->cost > 0 ) {
+		$label = '<span class="small-text">' . $method->get_label() . '</span>';
 		if ( WC()->cart->tax_display_cart == 'excl' ) {
 			$label .= ': ' . wc_price( $method->cost );
 			if ( $method->get_shipping_tax() > 0 && wc_prices_include_tax() ) {
@@ -471,6 +469,9 @@ function elsey_woocommerce_cart_shipping_method_full_label ($label, $method)
 				$label .= ' <small class="tax_label">' . WC()->countries->inc_tax_or_vat() . '</small>';
 			}
 		}
+	}
+	else {
+		$label = '<span class="small-text free_shipping">' . __('Free Shipping', 'elsey') . '</span>';
 	}
 	return $label;
 }
@@ -1121,6 +1122,7 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
     }
   }
 }
+
 /*add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
 function get_text_for_select_based_on_attribute($atr) {
   $count=0;
