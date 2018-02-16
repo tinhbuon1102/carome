@@ -42,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<span class="label"><?php _e( 'Status', 'elsey' ); ?></span>
 			<?php
 			printf(
-				'<span class="value">' . wc_get_order_status_name( $order->get_status() ) . '</span>'
+				'<span class="value"><mark class="order-status">' . wc_get_order_status_name( $order->get_status() ) . '</mark></span>'
 			);
 			?>
 		</div>
@@ -54,6 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			);
 			?>
 		</p>
+		<p class="purchase-note"><?php if ( ('bacs' == $order->payment_method) && ($order->status == 'on-hold') ) {?><?php } ?></p>
 	</div>
 </div>
 
