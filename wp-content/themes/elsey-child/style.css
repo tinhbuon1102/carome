@@ -188,6 +188,8 @@ h3.waitlist_error {
 .remodal .wcwl_email_field label {
     margin-bottom: 20px;
 }
+.zoo-cw-variations li div.label {display: block;}
+
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
