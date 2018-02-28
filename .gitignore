@@ -17,6 +17,7 @@ wp-includes
 wp-admin
 wp-content/ai1wm-backups
 wp-content/plugins/wpide/backups
+wp-content/plugins/bwp-minify/cache
 
 /.htaccess
 /license.txt
