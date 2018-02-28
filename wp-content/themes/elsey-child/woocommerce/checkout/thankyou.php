@@ -43,6 +43,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="section__header os-header">
 		<h2 class="heading heading--xlarge serif">ご注文#<?php echo $order->get_order_number(); ?>を受け付けました。</h2>
 			<p class="woocommerce-notice woocommerce-notice--success woocommerce-thankyou-order-received"><?php echo apply_filters( 'woocommerce_thankyou_order_received_text', __( 'Thank you. Your order has been received.', 'woocommerce' ), $order ); ?></p>
+			<?php if (get_post_meta( $order->id, '_wc_pre_orders_is_pre_order', true )) {
+				$orderProducts = $order->get_items('line_item');
+				$orderProduct = end($orderProducts);
+				$product = wc_get_product($orderProduct->get_product_id());
+			?>
+			<p class="notice-preorder"><?php  printf(__('This order will be delivered on <strong>%s</strong>', 'elsey'), WC_Pre_Orders_Product::get_localized_availability_date_approx( $product ))?></p>
+			<?php }?>
 		</div>
 	</div>
 

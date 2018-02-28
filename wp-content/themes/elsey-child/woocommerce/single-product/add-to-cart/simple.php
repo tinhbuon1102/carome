@@ -71,4 +71,8 @@ if ( $product->is_in_stock() ) : ?>
 
 	<?php do_action( 'woocommerce_after_add_to_cart_form' ); ?>
 
+<?php else : ?>
+<div class="wcwl_control" id="woocommerce_waitlist_wraper">
+	<a href="javascript:void(0)" class="button alt woocommerce_waitlist_new join"><?php echo __('Join waitlist', 'elsey')?></a>
+</div>
 <?php endif; ?>

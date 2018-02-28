@@ -318,5 +318,9 @@ License - nucleoapp.com/license/
     content: "\ea2a";
 }
 
+.carome-alert-circle-exc::before {
+    content: "\ea2b";
+}
+
 
 /* all icon font classes list here */

@@ -199,6 +199,10 @@ jQuery(document).ready(function($){
 		
 		$('#waitlist_remodal_content').html($('.variations_form .pdp__attribute--list.variations').clone());
 		var variation_html = $('#waitlist_remodal_content .pdp__attribute--list.variations');
+		variation_html.find('select.zoo-cw-attribute-select').remove();
+		variation_html.find('.zoo-cw-attribute-option').remove();
+		variation_html.find('.variations__attribute__value').attr('class', 'value variations__attribute__value dropdown');
+		
 		variation_html.find('select').each(function(index_select, select){
 			var select_name = $(select).attr('name');
 			if (!attrOutStock[select_name])
@@ -249,7 +253,7 @@ jQuery(document).ready(function($){
 		// trigger the original waitlist fields
 		$('#wcwl_email').val($('#wcwl_email_new').val());
 		
-		var joinBtn = $('.woocommerce-variation-availability .woocommerce_waitlist.join');
+		var joinBtn = $('.woocommerce_waitlist.join');
 		
 		if ($('#form_waitlist_modal').smkValidate())
 		{

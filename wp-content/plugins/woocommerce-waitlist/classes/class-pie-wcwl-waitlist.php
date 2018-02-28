@@ -295,7 +295,7 @@ if ( ! class_exists( 'Pie_WCWL_Waitlist' ) ) {
 					}
 					if ( WooCommerce_Waitlist_Plugin::persistent_waitlists_are_disabled( $post_id ) ) {
 						$user = get_user_by( 'id', $user_id );
-						$this->unregister_user( $user );
+// 						$this->unregister_user( $user );
 					}
 				}
 			}

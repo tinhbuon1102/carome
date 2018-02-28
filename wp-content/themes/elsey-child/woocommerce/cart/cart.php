@@ -49,7 +49,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 				$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
 
 				if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
-					$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
+					$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->get_permalink( $cart_item ), $cart_item, $cart_item_key );
 					?>
 					<div class="cart-row woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 
@@ -85,12 +85,15 @@ do_action( 'woocommerce_before_cart' ); ?>
 									echo '</div>';
 									
 									
+									
+									
 									if ( !empty($_product->get_sku()) ) {
 									echo '<div class="mini-product__item mini-product__id light-copy">';
 									echo '<span class="label">商品番号: </span><span class="value">' . $_product->get_sku() . '</span>';
 									echo '</div>';//sku
 									}
 									echo '</div>';
+									
 								}
 
 								

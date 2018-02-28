@@ -24,6 +24,7 @@ function custom_add_google_fonts() {
 /*hide adminbar*/
 add_filter('show_admin_bar', '__return_false');
 
+
 /**
  * バージョンアップ通知を管理者のみ表示させるようにします。
  */
@@ -139,12 +140,94 @@ add_filter('woocommerce_checkout_fields','custom_override_checkout_fields');
 
 function custom_override_billing_fields( $fields ) {
   unset($fields['billing_country']);
+  
+  $fields['billing_last_name_kana'] = array(
+  	'label'     => __('姓(ふりがな)', 'woocommerce'),
+  	'required'  => true,
+  	'class'     => array('form-row-first')
+  );
+  $fields['billing_first_name_kana'] = array(
+  	'label'     => __('名(ふりがな)', 'woocommerce'),
+  	'required'  => true,
+  	'class'     => array('form-row-last'),
+  	'clear'     => true
+  );
+  
+  $fields['billing_last_name']['class'] = array('form-row-first');
+  $fields['billing_first_name']['class'] = array('form-row-last');
+  $fields['billing_postcode']['class'] = array('form-row-first', 'address-field');
+  $fields['billing_state']['class'] = array('form-row-last', 'address-field');
+  $fields['billing_city']['class'] = array('form-row-wide', 'address-field');
+  
+  //change order
+  $order = array(
+  	"billing_last_name",
+  	"billing_first_name",
+  	"billing_last_name_kana",
+  	"billing_first_name_kana",
+  	"billing_postcode",
+  	"billing_state",
+  	"billing_city",
+  	"billing_address_1",
+  	"billing_address_2",
+  	"billing_phone",
+  	"billing_email",
+  );
+  
+  $ordered_fields = array();
+  foreach($order as $field)
+  {
+  	$ordered_fields[$field] = $fields[$field];
+  }
+  
+  $fields = $ordered_fields;
   return $fields;
 }
 add_filter( 'woocommerce_billing_fields' , 'custom_override_billing_fields' );
 
 function custom_override_shipping_fields( $fields ) {
   unset($fields['shipping_country']);
+  
+  $fields['shipping_last_name_kana'] = array(
+  	'label'     => __('姓(ふりがな)', 'woocommerce'),
+  	'required'  => true,
+  	'class'     => array('form-row-first')
+  );
+  $fields['shipping_first_name_kana'] = array(
+  	'label'     => __('名(ふりがな)', 'woocommerce'),
+  	'required'  => true,
+  	'class'     => array('form-row-last'),
+  	'clear'     => true
+  );
+  
+  $fields['shipping_last_name']['class'] = array('form-row-first');
+  $fields['shipping_first_name']['class'] = array('form-row-last');
+  $fields['shipping_postcode']['class'] = array('form-row-first', 'address-field');
+  $fields['shipping_state']['class'] = array('form-row-last', 'address-field');
+  $fields['shipping_city']['class'] = array('form-row-wide', 'address-field');
+  
+  //change order
+  $order = array(
+  	"shipping_last_name",
+  	"shipping_first_name",
+  	"shipping_last_name_kana",
+  	"shipping_first_name_kana",
+  	"shipping_postcode",
+  	"shipping_state",
+  	"shipping_city",
+  	"shipping_address_1",
+  	"shipping_address_2",
+  	"shipping_phone",
+  );
+  
+  $ordered_fields = array();
+  foreach($order as $field)
+  {
+  	$ordered_fields[$field] = $fields[$field];
+  }
+  
+  $fields = $ordered_fields;
+  
   return $fields;
 }
 add_filter( 'woocommerce_shipping_fields' , 'custom_override_shipping_fields' );
@@ -282,6 +365,25 @@ function woocommerce_product_custom_fields()
         )
     );
     echo '</div>';
+	/*
+	
+	echo '<div class="product_custom_field">';
+    // Custom Product Text Field
+    woocommerce_wp_text_input(
+        array(
+            'id' => '_custom_product_text_field_jan_code',
+            'placeholder' => 'JAN Code',
+            'label' => __('JAN Code', 'woocommerce'),
+            'desc_tip' => 'true'
+        )
+    );
+    echo '</div>';
+	
+	
+	*/
+	
+	
+	
 
 }
 function woocommerce_product_custom_fields_save($post_id)
@@ -290,6 +392,16 @@ function woocommerce_product_custom_fields_save($post_id)
     $woocommerce_custom_product_text_field = $_POST['_custom_product_text_field'];
     if (!empty($woocommerce_custom_product_text_field))
         update_post_meta($post_id, '_custom_product_text_field', esc_attr($woocommerce_custom_product_text_field));
+	
+	/*
+	
+	  // Custom Product Text Field
+    $woocommerce_custom_product_text_field = $_POST['_custom_product_text_field_jan_code'];
+    if (!empty($woocommerce_custom_product_text_field))
+        update_post_meta($post_id, '_custom_product_text_field_jan_code', esc_attr($woocommerce_custom_product_text_field));
+	
+	*/
+	
 // Custom Product Number Field
     $woocommerce_custom_product_number_field = $_POST['_custom_product_number_field'];
     if (!empty($woocommerce_custom_product_number_field))
@@ -300,6 +412,82 @@ function woocommerce_product_custom_fields_save($post_id)
         update_post_meta($post_id, '_custom_product_textarea', esc_html($woocommerce_custom_procut_textarea));
 
 }
+
+
+
+
+
+
+//variation custom field
+add_action('woocommerce_product_options_sku','add_jancode', 10, 0 );
+function add_jancode(){
+
+    global $woocommerce, $post;
+
+    // getting the barcode value if exits
+    $product_jancode = get_post_meta( $post->ID, '_jancode', true );
+    if( ! $product_jancode ) $product_jancode = '';
+
+    // Displaying the barcode custom field
+    woocommerce_wp_text_input( array(
+        'id'          => '_jancode',
+        'label'       => __('JAN Code','woocommerce'),
+        'placeholder' => 'JAN Code',
+        'desc_tip'    => 'true',
+        'description' => __('JAN Code.','woocommerce')
+    ), $product_jancode); // <== added "$product_jancode" here to get the value if exist
+
+}
+
+add_action( 'woocommerce_process_product_meta', 'save_jancode', 10, 1 );
+function save_jancode( $post_id ){
+
+    $product_jancode_field = $_POST['_jancode'];
+    if( !empty( $product_jancode_field ) )
+        update_post_meta( $post_id, '_jancode', esc_attr( $product_jancode_field ) );
+
+}
+
+add_action( 'woocommerce_product_after_variable_attributes','add_jancode_variations',10 , 3 );
+function add_jancode_variations( $loop, $variation_data, $variation ){
+
+    $variation_jancode = get_post_meta($variation->ID,"_jancode", true );
+    if( ! $variation_jancode ) $variation_jancode = "";
+
+    woocommerce_wp_text_input( array(
+        'id'          => '_jancode_' . $loop,
+        'label'       => __('JAN Code','woocommerce'),
+        'placeholder' => 'JAN Code',
+        'desc_tip'    => 'true',
+        'description' => __('JAN Code.','woocommerce'),
+        'value' => $variation_jancode,
+    ) );
+}
+//Save Variation JANCode
+add_action( 'woocommerce_save_product_variation','save_jancode_variations', 10 ,2 );
+function save_jancode_variations( $variation_id, $loop ){
+
+    $jancode = $_POST["_jancode_$loop"];
+    if(!empty($jancode))
+        update_post_meta( $variation_id, '_jancode', sanitize_text_field($jancode) );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*edit minicart buttons*/
 remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_button_view_cart', 10 );
 remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_proceed_to_checkout', 20 );
@@ -384,11 +572,20 @@ if ( $availability['availability'] == 'Out of stock') {
 }
 /****** NOT WORKING************/
 /*hide stock not working*/
-function my_wc_hide_in_stock_message( $html, $text, $product ) {
+function my_wc_hide_in_stock_message( $html='', $text, $product='' ) {
+	
+	if($product !=''){
 	$availability = $product->get_availability();
 	if ( isset( $availability['class'] ) && 'in-stock' === $availability['class'] ) {
 		return '';
 	}
+	}else{
+	
+	if ('in-stock' != $text ) {
+		return '';
+	}
+	}
+	
 	return $html;
 }
 add_filter( 'woocommerce_stock_html', 'my_wc_hide_in_stock_message', 10, 3 );
@@ -508,6 +705,9 @@ function elsey_woocommerce_email_order_meta_fields($fields, $sent_to_admin, $ord
 }
 
 
+
+
+
 add_filter( 'cs_framework_settings', 'elsey_cs_framework_settings', 100, 1 );
 function elsey_cs_framework_settings ($settings)
 {
@@ -537,16 +737,16 @@ function elsey_woocommerce_cart_item_name ($product_name, $cart_item, $cart_item
 
 function my_formatted_billing_adress($ord) {
 	$address = apply_filters('woocommerce_order_formatted_billing_address', array(
-		'first_name' => $ord->billing_first_name,
 		'last_name' => $ord->billing_last_name,
+		'first_name' => $ord->billing_first_name,
 		'kana_first_name' => $ord->billing_first_name_kana,
 		'kana_last_name' => $ord->billing_last_name_kana,
 		'company' => $ord->billing_company,
+		'postcode' => $ord->billing_postcode,
+		'state' => $ord->billing_state,
+		'city' => $ord->billing_city,
 		'address_1' => $ord->billing_address_1,
 		'address_2' => $ord->billing_address_2,
-		'city' => $ord->billing_city,
-		'state' => $ord->billing_state,
-		'postcode' => $ord->billing_postcode,
 		'country' => $ord->billing_country
 	), $ord);
 
@@ -564,11 +764,11 @@ function my_formatted_shipping_adress($ord) {
 			'kana_first_name' => $ord->shipping_first_name_kana,
 			'kana_last_name' => $ord->shipping_last_name_kana,
 			'company' => $ord->shipping_company,
+			'postcode' => $ord->shipping_postcode,
+			'state' => $ord->shipping_state,
+			'city' => $ord->shipping_city,
 			'address_1' => $ord->shipping_address_1,
 			'address_2' => $ord->shipping_address_2,
-			'city' => $ord->shipping_city,
-			'state' => $ord->shipping_state,
-			'postcode' => $ord->shipping_postcode,
 			'country' => $ord->shipping_country
 		), $ord);
 
@@ -599,7 +799,10 @@ function look_woocommerce_admin_extra_fields($fields){
 	
 
 	$fields = insertAtSpecificIndex($fields, $fieldExtras, array_search('last_name', array_keys($fields)) + 1);
-
+	
+	$fields['phone'] = array(
+		'label' => __( 'phone', 'woocommerce' ),
+	);
 	return $fields;
 }
 
@@ -1010,13 +1213,18 @@ function elsey_restrict_manage_posts(){
 		    	<option value="<?php echo 1?>" <?php echo (isset($_REQUEST['woe_order_exported']) && $_REQUEST['woe_order_exported'] == 1) ? 'selected' : '';?>><?php _e('Orders Exported', 'elsey'); ?></option>
 		    </select>
 		</span>
+		
+		
+		<span id="kana_name_search_wraper">
+		    <input name="kana_name" placeholder="<?php echo __('Search Kana name', 'elsey')?>" value="<?php echo $_REQUEST['kana_name'] ? $_REQUEST['kana_name'] : ''?>"/>
+		</span>
 	    <?php
 }
 
 add_filter( 'parse_query', 'else_parse_query' ); 
 function else_parse_query ( $query )
 {
-	global $pagenow;
+	global $pagenow, $wpdb;
 	if ( 'shop_order' == $_GET['post_type'] && is_admin() && $pagenow == 'edit.php' && isset($_GET['woe_order_exported']) && $_GET['woe_order_exported'] !== '' )
 	{
 		$query->query_vars['meta_query'] = isset($query->query_vars['meta_query']) ? $query->query_vars['meta_query'] : array();
@@ -1025,6 +1233,25 @@ function else_parse_query ( $query )
 			'value' => 1,
 			'compare' => $_GET['woe_order_exported'] ? '=' : 'NOT EXISTS'
 		);
+	}
+	
+	if ( 'shop_order' == $_GET['post_type'] && is_admin() && $pagenow == 'edit.php' && $_GET['kana_name'])
+	{
+		$products = $wpdb->get_results( "
+				SELECT post_id 
+				FROM $wpdb->postmeta 
+				WHERE 
+					(meta_key = '_billing_last_name_kana' AND meta_value LIKE '%". $_GET['kana_name'] ."%') OR 
+					(meta_key = '_billing_first_name_kana' AND meta_value LIKE '%". $_GET['kana_name'] ."%') 
+				GROUP BY post_id
+				");
+		if (count($products))
+		{
+			foreach ($products as $product)
+			{
+				$query->query_vars['post__in'][] = $product->post_id;
+			}
+		}
 	}
 	return $query;
 }
@@ -1054,7 +1281,7 @@ function change_orders_detail_name(){
 	{
 		return;
 	}
-	
+
 	$post_status = array('publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit', 'trash');
 	$order_statuses = array_keys(wc_get_order_statuses());
 	foreach ($post_status as $post_status)
@@ -1079,7 +1306,7 @@ function change_orders_detail_name(){
 				$product = get_product($product_id);
 				$english_name = get_post_meta($product_id, '_custom_product_text_field', true);
 				$japanese_name = $product->name;
-				
+
 				$order_names = explode(' - ', $order_name_orig);
 				$order_name_old = '';
 				$order_name_attr = '';
@@ -1100,7 +1327,7 @@ function change_orders_detail_name(){
 			}
 		}
 	}
-	
+
 }
 
 add_action( 'woocommerce_email_before_order_table', 'add_order_email_instructions', 10, 2 );
@@ -1120,29 +1347,131 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
       // other methods (ie credit card)
       echo '';
     }
+    
+    $products = $order->get_items();
+    
+    $pre_order_notice = '';
+    foreach ( $products as $product ) {
+    	if ($pre_order_notice)
+    	{
+    		break;
+    	}
+    	$pre_order_notice = trim(get_field( 'notice_pre-order', $product->get_product_id()));
+    }
+    if (in_array($order->payment_method, array('epsilon', 'epsilon_pro_sc')) && in_array($order->status, array('on-hold', 'processing')) && $pre_order_notice)
+    {
+    	echo '<p>お届け日が異なる商品がこの注文にあるため、それぞれの商品は別日に発送されます。</p>';
+    }
   }
 }
 
-/*add_filter('woocommerce_variation_option_name', 'get_text_for_select_based_on_attribute');
-function get_text_for_select_based_on_attribute($atr) {
-  $count=0;
-  // var_dump($atr);
-  global $product;
-  if($product){
-     foreach ($product->get_available_variations() as $variation){
-             $var=wc_get_product($variation['variation_id']);
-             $var_name=str_replace($product->get_title().' - ','',$var->get_name());
-             // var_dump($var_name);
-             // echo "<br>";
-             // var_dump($atr);
-            
-             if(($var->get_stock_status()=='outofstock')&&($var_name==$atr)){
-                  return $atr.' (SOLD OUT)';
-             }
-          
-    // var_dump( $var->get_title().$var->get_stock_status().$var->get_name().$atr);
-    }
-    return $atr;
-  }
-  
-}*/
+add_action('woocommerce_review_order_before_submit','wpdreamer_woocommerce_proceed_to_checkout',9999);
+add_action('woocommerce_proceed_to_checkout','wpdreamer_woocommerce_proceed_to_checkout');
+function wpdreamer_woocommerce_proceed_to_checkout(){
+	$show_text = array();
+	foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+			$pre_order_notice = get_field( 'notice_pre-order',$cart_item['product_id']);
+			if(!empty($pre_order_notice))$show_text['has_text']=true;
+			if(empty($pre_order_notice))$show_text['has_no_text']=true;
+	}
+
+	if(count($show_text) == 2 && count(array_unique($show_text)) === 1)
+		echo '<p class="prenotice-message">お届け日が異なる商品がこの注文にあるため、それぞれの商品は別日に発送されます。</p>';
+}
+
+add_filter('woocommerce_thankyou_order_received_text','wpdreamer_woocommerce_thankyou_order_received_text',10,2);
+function wpdreamer_woocommerce_thankyou_order_received_text($text, $order){
+	$items = $order->get_items();
+	$show_text = array();
+
+	foreach ( $items as $item ) {
+		$pre_order_notice = get_field( 'notice_pre-order',$item->get_product_id());
+		if(!empty($pre_order_notice))$show_text['has_text']=true;
+		if(empty($pre_order_notice))$show_text['has_no_text']=true;
+	}
+	if(count($show_text) == 2 && count(array_unique($show_text)) === 1)
+		$text .= '<p class="prenotice-message">お届け日が異なる商品がこの注文にあるため、それぞれの商品は別日に発送されます。</p>';
+
+
+		return $text;
+}
+
+/**
+ * Add a widget to the dashboard.
+ */
+function product_report_dashboard_widget() {
+	wp_add_dashboard_widget(
+			'product_report_dashboard_widget',
+			__('Product Quantity Report By Time', 'elsey'),
+			'grand_product_report_dashboard_widget_function'
+			);
+}
+add_action( 'wp_dashboard_setup', 'product_report_dashboard_widget' );
+
+/**
+ * Create the function to output the contents of our Dashboard Widget.
+ */
+function grand_product_report_dashboard_widget_function() {
+	require_once get_stylesheet_directory() . '/classes/class-product-report-list-table.php';
+	$product_list = new Product_Quantity_Report_List();
+	$product_list->prepare_items();
+	return $product_list->display();
+}
+
+add_filter( 'woocommerce_payment_gateways', 'elsey_woocommerce_payment_gateways', 1000, 1 );
+function elsey_woocommerce_payment_gateways($load_gateways) 
+{
+	global $wpdb;
+	$current_user = wp_get_current_user();
+	$sql = "SELECT g.group_id, g.name
+	FROM {$wpdb->prefix}groups_user_group ug 
+	INNER JOIN {$wpdb->prefix}groups_group g ON ug.group_id = g.group_id
+	WHERE ug.user_id=" . (int)$current_user->ID . ' AND g.group_id = 2';
+	
+	$group = $wpdb->get_row($sql);
+	if (!$group)
+	{
+		if (($bacs_index = array_search('WC_Gateway_BACS', $load_gateways)) !== false)
+		{
+			unset($load_gateways[$bacs_index]);
+		}
+	}
+	$load_gateways = array_values($load_gateways);
+	return $load_gateways;
+}
+
+add_action( 'wp_loaded', 'restoreUserWailist' );
+function restoreUserWailist()
+{
+	if ($_GET['restore_waitlist'])
+	{
+		$aRestore = array(
+			'4696' => 'a:42:{i:507;i:1518684954;i:520;i:1518686760;i:375;i:1518687460;i:491;i:1518693988;i:126;i:1518705446;i:603;i:1518708337;i:607;i:1518723825;i:528;i:1518742447;i:670;i:1518791770;i:215;i:1518827079;i:689;i:1518841801;i:94;i:1518871036;i:298;i:1518917790;i:730;i:1518946140;i:735;i:1518953435;i:279;i:1518961236;i:198;i:1518963751;i:751;i:1518964438;i:758;i:1518969203;i:7;i:1518969753;i:44;i:1518993623;i:775;i:1519007182;i:34;i:1519025065;i:788;i:1519027564;i:194;i:1519033084;i:943;i:1519033598;i:513;i:1519034252;i:539;i:1519034874;i:1062;i:1519041612;i:241;i:1519044929;i:594;i:1519059964;i:1205;i:1519110630;i:1234;i:1519137039;i:969;i:1519139195;i:448;i:1519171648;i:1247;i:1519191414;i:1250;i:1519198254;i:740;i:1519202869;i:1254;i:1519205406;i:1107;i:1519211304;i:317;i:1519211541;i:508;i:1519263128;}',
+			'4697' => 'a:34:{i:42;i:1518514226;i:93;i:1518515231;i:89;i:1518515718;i:72;i:1518515733;i:26;i:1518519443;i:172;i:1518519817;i:107;i:1518520076;i:221;i:1518521280;i:207;i:1518521323;i:229;i:1518522152;i:242;i:1518524134;i:44;i:1518524870;i:260;i:1518525742;i:298;i:1518530666;i:302;i:1518531168;i:317;i:1518534396;i:319;i:1518534897;i:326;i:1518536487;i:327;i:1518537289;i:338;i:1518540091;i:346;i:1518549003;i:353;i:1518559983;i:392;i:1518586064;i:98;i:1518594378;i:447;i:1518643721;i:565;i:1518699181;i:581;i:1518702552;i:588;i:1518704581;i:604;i:1518713366;i:614;i:1518766289;i:636;i:1518770391;i:638;i:1518772455;i:686;i:1518831208;i:696;i:1518854331;}',
+			'4699' => 'a:1:{i:658;i:1518784987;}',
+			'4700' => 'a:7:{i:363;i:1518716156;i:528;i:1518742459;i:584;i:1518778902;i:647;i:1518782796;i:332;i:1518792633;i:706;i:1518867954;i:518;i:1518878996;}',
+			'4701' => 'a:16:{i:535;i:1518696455;i:376;i:1518698032;i:383;i:1518699528;i:578;i:1518702332;i:340;i:1518704172;i:592;i:1518705375;i:599;i:1518707137;i:65;i:1518712189;i:338;i:1518716891;i:609;i:1518733829;i:622;i:1518749158;i:632;i:1518778769;i:648;i:1518783505;i:679;i:1518795561;i:685;i:1518818467;i:696;i:1518854342;}',
+		);
+		foreach ($aRestore as $product_id => $restore)
+		{
+			$product = get_product($product_id);
+			$waitListClass = new Pie_WCWL_Waitlist($product);
+			$waitListUser = unserialize($restore);
+			foreach ($waitListUser as $user_id => $datetime)
+			{
+				$user = get_user_by('id', $user_id);
+				$waitListClass->register_user( $user );
+			}
+		}
+	}
+}
+
+add_action( 'woocommerce_order_status_on-hold', 'elsey_woocommerce_order_status_on_hold', 1000, 4);
+function elsey_woocommerce_order_status_on_hold($order_id, $order){
+	$is_pre_order = get_post_meta( $order_id, '_wc_pre_orders_is_pre_order', true );
+	if ($is_pre_order)
+	{
+		remove_action('woocommerce_order_status_pending_to_on-hold', array('WC_Emails', 'send_transactional_email'), 10);
+	}
+	return $order_id;
+}

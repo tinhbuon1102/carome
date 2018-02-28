@@ -179,7 +179,7 @@ if ( ! class_exists( 'WooCommerce_Waitlist_Plugin' ) ) {
 			add_action( 'admin_init', array( $this, 'version_check' ) );
 			add_action( 'init', array( $this, 'localization' ) );
 			add_action( 'init', array( $this, 'email_loader' ) );
-			add_action( 'woocommerce_reduce_order_stock', array( $this, 'check_order_for_waitlisted_items', ) );
+// 			add_action( 'woocommerce_reduce_order_stock', array( $this, 'check_order_for_waitlisted_items', ) );
 			add_action( 'delete_user', array( $this, 'unregister_user_when_deleted' ) );
 		}
 

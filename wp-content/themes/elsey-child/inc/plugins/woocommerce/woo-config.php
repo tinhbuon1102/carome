@@ -422,6 +422,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 		if ( isset($quantity) || $availability['class'] )
 		{
 			$output = '<div class="els-product-stock-status">';
+			
 			if ( isset($quantity) )
 			{
 				/*
@@ -445,6 +446,8 @@ if ( class_exists( 'WooCommerce' ) ) {
 				{
 					$output .= '<span class="soldout_text">' . esc_html__('SOLD OUT', 'elsey') . '</span>';
 				}
+				$pre_order_notice = get_field( 'notice_pre-order');
+				if(!empty($pre_order_notice))$output .= '<div class="pre-notice">'.$pre_order_notice.'</div>';
 				$output .= '</div>';
 			}
 			$output .= '</div>';

@@ -3,7 +3,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Project-Id-Version: Elsey\n"
 "POT-Creation-Date: 2018-01-04 17:56+0530\n"
-"PO-Revision-Date: 2018-02-14 02:55+0900\n"
+"PO-Revision-Date: 2018-02-26 16:01+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -3707,7 +3707,7 @@ msgid "We will notify to %s"
 msgstr "商品が再販売した際に%s宛へお知らせメールが送られます。"
 
 msgid "Already in waitlist"
-msgstr "すでにお気に入りリストに追加されます"
+msgstr "すでに再入荷通知に登録されています"
 
 msgid "You need to login if u will use favorite list."
 msgstr "お気に入り機能を使うにはログインが必要です"
@@ -3723,3 +3723,12 @@ msgstr "マイページ"
 
 msgid "Sign in / Register"
 msgstr "ログイン / 新規登録"
+
+msgid "Payment Status"
+msgstr "支払い状況"
+
+msgid "Free Shipping"
+msgstr "送料無料"
+
+msgid "This order will be delivered on <strong>%s</strong>"
+msgstr "この注文は<strong>%s</strong>頃にお届け予定となります。"
