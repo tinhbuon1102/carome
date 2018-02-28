@@ -2,11 +2,12 @@
     'use strict';
     $(document).ready(function () {
 
-        function cw_findMatchVariation(product_variations, check_options, check_purchasable) {
+        function cw_findMatchVariation(product_variations, check_options, need_check_stock) {
             var match_variation = false;
+            var check_purchasable = false;
             $.each(product_variations, function (key, value) {
                 var product_variation = value;
-                if (check_purchasable) check_purchasable = (product_variation.is_in_stock && product_variation.is_purchasable);
+                if (need_check_stock) check_purchasable = (product_variation.is_in_stock && product_variation.is_purchasable);
                 else check_purchasable = true;
                 if (check_purchasable) { //not in_stock or don't have price will be out
                     var attribute_case = product_variation.attributes;
@@ -33,6 +34,16 @@
                 var attribute_name = current_attribute_row.data('group-attribute');
                 var check_options = {};
                 check_options = $.extend({}, selected_options);
+                var need_check_stock = false;
+                $.each(check_options, function(key_check, value_check){
+                	if (attribute_name == key_check)
+                	{
+                		need_check_stock = false;
+                	}
+                	else {
+                		need_check_stock = true;
+                	}
+                });
                 var attribute_display_type = $(this).data('attribute-display-type');
                 if (attribute_display_type == 'default') {
                     if (disable_class == 'out-stock') { //only run filter on click event
@@ -43,7 +54,7 @@
                                 var option_text = $(this).text();
                                 var new_text = option_text.replace(' * (Not suitable)', '');
                                 check_options[attribute_name] = option_value;
-                                if (cw_findMatchVariation(product_variations, check_options, true)) {
+                                if (cw_findMatchVariation(product_variations, check_options, need_check_stock)) {
                                     $(this).text(new_text);
                                 } else {
                                     $(this).text(new_text + ' * (Not suitable)');
@@ -58,7 +69,7 @@
                         var option = $(this);
                         var option_value = $(this).data('attribute-option');
                         check_options[attribute_name] = option_value;
-                        if (cw_findMatchVariation(product_variations, check_options, true)) {
+                        if (cw_findMatchVariation(product_variations, check_options, need_check_stock)) {
                             option.addClass(enable_class).removeClass(disable_class);
                         } else {
                             option.addClass(disable_class).removeClass(enable_class);
@@ -155,6 +166,8 @@
                     if (!!zoo_cw_params.slider_support) {
                         $('#product-' + response.product_id).find(wrap_class).wc_product_gallery();
                     }
+                    
+                    $('.els-product-image-col').trigger('init_slider');
                 }
             });
 

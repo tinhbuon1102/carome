@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CleverSwatches
  * Description: Swatch color for your woocommerce variable products.
- * Version: 2.0.4
+ * Version: 1232.0.4
  * Author: cleversoft.co <hello.cleversoft@gmail.com>
  * Requires at least: 4.6.1
  * Tested up to: 4.9.2

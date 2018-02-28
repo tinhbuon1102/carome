@@ -635,6 +635,7 @@
 
 		////************************************* Product Single Page Script Starts ********************************////
 
+		$(document).on('init_slider', '.els-product-image-col', function(){
 		var $productImageSlider = $('#els-product-featured-image-slider');
 		var $productThumbSlider = $('#els-product-thumbnails-slider');
 		var $productImages = $productImageSlider.children('div');
@@ -703,6 +704,51 @@
 			touchMove: false,
 			speed: productAnimSpeed
 		});
+
+			// Magnific Popup Gallery
+		$productImageSlider.magnificPopup({
+				delegate: 'a',
+				type: 'image',
+				closeOnContentClick: false,
+				closeBtnInside: false,
+				mainClass: 'mfp-with-zoom',
+				image: {
+					verticalFit: true,
+				},
+				gallery: {
+					enabled: true,
+				},
+				zoom: {
+					enabled: true,
+					duration: 300,
+					opener: function(element) {
+						return element.find("img");
+					}
+				}
+			});
+
+			// Magnific Popup Single Image
+			$(".els-img-popup").magnificPopup({
+				type: 'image',
+				closeOnContentClick: false,
+				closeOnBgClick: true,
+				closeBtnInside: false,
+				mainClass: 'mfp-with-zoom',
+				image: {
+					verticalFit: true
+				},
+				zoom: {
+					enabled: true,
+					duration: 300,
+					opener: function(element) {
+						return element.find("img");
+					}
+				}
+			});
+		});
+		
+		
+		$('.els-product-image-col').trigger('init_slider');
 
 		// Tab Activation Class
 		$('.els-wc-tabs-details .woocommerce-Tabs-panel').removeClass('els-current-tab');

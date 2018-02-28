@@ -33,6 +33,9 @@ if( !class_exists( 'Zoo_Clever_Swatch_Cart_Page' ) ) {
             if (count($cart_item['variation'])) {
                 $product_swatch_data_array = get_post_meta($cart_item['product_id'], 'zoo_cw_product_swatch_data', true);
                 $variations = $cart_item['variation'];
+				
+				
+				if (is_array($values) || is_object($values)){}else{return $item_data;}
                 foreach ($product_swatch_data_array as $attribute_name => $data) {
                     $attribue_key = wc_variation_attribute_name($attribute_name);
                     foreach ($variations as $name => $value) {

@@ -664,6 +664,8 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 		$direct_card_url = "https://beta.epsilon.jp/cgi-bin/order/direct_card_payment.cgi";
 		}
 
+// 		var_dump($direct_card_url);
+// 		pr($request);die;
 		// make new cURL resource
 		$ch = curl_init();
 		curl_setopt($ch,CURLOPT_POST, TRUE);
@@ -676,6 +678,63 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 		$output = curl_exec($ch);
 		curl_close($ch);
 
+		if (false)
+		{
+			if (file_exists(dirname(dirname(__FILE__)) . '/wc4jp-epsilon/includes/gateways/epsilon/includes/xml/Unserializer.php'))
+			{
+				require_once dirname(dirname(__FILE__)) . '/wc4jp-epsilon/includes/gateways/epsilon/includes/xml/Unserializer.php';
+			}
+			else {
+				require_once (plugin_dir_path(__FILE__) . 'Unserializer.php');
+			}
+			$temp_xml_res = str_replace("x-sjis-cp932", "UTF-8", $output);
+			$unserializer =new XML_Unserializer();
+			$unserializer->setOption('parseAttributes', TRUE);
+			$unseriliz_st = $unserializer->unserialize($temp_xml_res);
+			if ($unseriliz_st === true) {
+				//xmlを解析
+				$res_array = $unserializer->getUnserializedData();
+				$is_xml_error = false;
+				$xml_redirect_url = "";
+				$xml_error_cd = "";
+				$xml_error_msg = "";
+				$xml_memo1_msg = "";
+				$xml_memo2_msg = "";
+				$result = "";
+				$trans_code = "";
+				foreach($res_array['result'] as $uns_k => $uns_v){
+					list($result_atr_key, $result_atr_val) = each($uns_v);
+			
+					switch ($result_atr_key) {
+						case 'redirect':
+							$xml_redirect_url = rawurldecode($result_atr_val);
+							break;
+						case 'err_code':
+							$is_xml_error = true;
+							$xml_error_cd = $result_atr_val;
+							break;
+						case 'err_detail':
+							$xml_error_msg = mb_convert_encoding(urldecode($result_atr_val), "UTF-8" ,"auto");
+							break;
+						case 'memo1':
+							$xml_memo1_msg = mb_convert_encoding(urldecode($result_atr_val), "UTF-8" ,"auto");
+							break;
+						case 'memo2':
+							$xml_memo2_msg = mb_convert_encoding(urldecode($result_atr_val), "UTF-8" ,"auto");
+							break;
+						case 'result':
+							$result = mb_convert_encoding(urldecode($result_atr_val), "UTF-8" ,"auto");
+							break;
+						case 'trans_code':
+							$trans_code = mb_convert_encoding(urldecode($result_atr_val), "UTF-8" ,"auto");
+							break;
+						default:
+							break;
+					}
+				}
+			
+			}
+		}
 		$array = explode("\n", $output);
 		foreach($array as $value){
 			$title = substr($value,10,5);

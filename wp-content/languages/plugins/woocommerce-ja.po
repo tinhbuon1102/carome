@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - WooCommerce - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2018-02-14 01:14+0900\n"
+"PO-Revision-Date: 2018-02-19 00:02+0900\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13682,7 +13682,7 @@ msgstr "必須"
 #: templates/single-product/add-to-cart/variation.php:25
 msgid ""
 "Sorry, this product is unavailable. Please choose a different combination."
-msgstr "この商品は対応しておりません。異なる組み合わせを選択してください。"
+msgstr "この商品は売り切れです。異なる組み合わせを選択してください。"
 
 #: includes/class-wc-post-types.php:199
 msgid "Search %s"
