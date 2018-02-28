@@ -189,7 +189,13 @@ h3.waitlist_error {
     margin-bottom: 20px;
 }
 .zoo-cw-variations li {list-style-type: none !important;}
-
+.zoo-cw-variations li div.label:before, .zoo-cw-variations li div.label:after {
+    content: '';
+    display: table;
+}
+.zoo-cw-variations li div.label:after {
+    clear: both;
+}
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
