@@ -103,7 +103,7 @@
                                 "selector": add_to_cart_button
                             });
                         }
-                        var template = wp.template('variation-template');
+                        var template = _.template('variation-template');
                         var template_html = template({
                             variation: match_variation
                         });
@@ -113,8 +113,8 @@
                         $('.product_meta .sku').html(match_variation.sku);
                         cw_updateGallery(form_add_to_cart, product_id, selected_options);
                     } else {
-                        add_to_cart_button.html(wp.template('add-to-cart-button-out-stock')).addClass('disabled');
-                        var template_html = wp.template('unavailable-variation-template');
+                        add_to_cart_button.html(_.template('add-to-cart-button-out-stock')).addClass('disabled');
+                        var template_html = _.template('unavailable-variation-template');
                         form_add_to_cart.find('.woocommerce-variation.single_variation').html(template_html).show();
                     }
                 }
@@ -256,7 +256,7 @@
                                 });
                             }
 
-                            var template = wp.template('variation-template');
+                            var template = _.template('variation-template');
                             var template_html = template({
                                 variation: match_variation
                             });
@@ -268,7 +268,7 @@
                             $(document).trigger('cleverswatch_button_out_stock', {
                                 "selector": add_to_cart_button
                             });
-                            var template = wp.template('unavailable-variation-template');
+                            var template = _.template('unavailable-variation-template');
                             form_add_to_cart.find('.woocommerce-variation.single_variation').html(template);
                             if ($('.single_variation_wrap .single_variation').css('display') == 'none') {
                                 form_add_to_cart.find('.woocommerce-variation.single_variation').slideDown()
@@ -314,7 +314,7 @@
                                     "selector": add_to_cart_button
                                 });
                             }
-                            var template = wp.template('variation-template');
+                            var template = _.template('variation-template');
                             var template_html = template({
                                 variation: match_variation
                             });
@@ -326,7 +326,7 @@
                             $(document).trigger('cleverswatch_button_out_stock', {
                                 "selector": add_to_cart_button
                             });
-                            var template = wp.template('unavailable-variation-template');
+                            var template = _.template('unavailable-variation-template');
                             form_add_to_cart.find('.woocommerce-variation.single_variation').html(template);
                             if ($('.single_variation_wrap .single_variation').css('display') == 'none') {
                                 form_add_to_cart.find('.woocommerce-variation.single_variation').slideDown()
@@ -389,22 +389,21 @@
         $(document).bind('cleverswatch_button_select_option', function (event, response) {
             var add_to_cart_button = response.selector;
             var icon = add_to_cart_button.find('i').clone();
-            add_to_cart_button.html(wp.template('add-to-cart-button-select-option')).addClass('disabled');
+            add_to_cart_button.html(_.template('add-to-cart-button-select-option')).addClass('disabled');
             add_to_cart_button.prepend(icon);
         });
         //Bind for button if button is Add to Cart
         $(document).bind('cleverswatch_button_add_cart', function (event, response) {
             var add_to_cart_button = response.selector;
             var icon = add_to_cart_button.find('i').clone();
-            add_to_cart_button.html(wp.template('add-to-cart-button')).removeClass('disabled');
+            add_to_cart_button.html(_.template('add-to-cart-button')).removeClass('disabled');
             add_to_cart_button.prepend(icon);
         });
         //Bind for button if button is Out of stock
         $(document).bind('cleverswatch_button_out_stock', function (event, response) {
             var add_to_cart_button = response.selector;
             var icon = add_to_cart_button.find('i').clone();
-            var html = wp.template('add-to-cart-button-out-stock');
-            add_to_cart_button.html(html).addClass('disabled');
+            add_to_cart_button.html(_.template('add-to-cart-button-out-stock')).addClass('disabled');
             add_to_cart_button.prepend(icon);
         });
         //Add Tooltip
