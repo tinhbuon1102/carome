@@ -4,7 +4,7 @@ Plugin Name: Slider Revolution
 Plugin URI: http://revolution.themepunch.com/
 Description: Slider Revolution - Premium responsive slider
 Author: ThemePunch
-Version: 5.4.6.4
+Version: 232135.4.6.4
 Author URI: http://themepunch.com
 */
 
