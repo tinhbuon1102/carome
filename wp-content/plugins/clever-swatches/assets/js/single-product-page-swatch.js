@@ -396,14 +396,14 @@
         $(document).bind('cleverswatch_button_add_cart', function (event, response) {
             var add_to_cart_button = response.selector;
             var icon = add_to_cart_button.find('i').clone();
-            add_to_cart_button.html(wp.template('add-to-cart-button')).removeClass('disabled');
+            add_to_cart_button.html($('#tmpl-add-to-cart-button').html()).removeClass('disabled');
             add_to_cart_button.prepend(icon);
         });
         //Bind for button if button is Out of stock
         $(document).bind('cleverswatch_button_out_stock', function (event, response) {
             var add_to_cart_button = response.selector;
             var icon = add_to_cart_button.find('i').clone();
-            add_to_cart_button.html(wp.template('add-to-cart-button-out-stock')).addClass('disabled');
+            add_to_cart_button.html($('#tmpl-add-to-cart-button-out-stock').html()).addClass('disabled');
             add_to_cart_button.prepend(icon);
         });
         //Add Tooltip
