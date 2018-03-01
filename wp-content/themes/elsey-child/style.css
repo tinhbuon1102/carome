@@ -1893,6 +1893,10 @@ a.reset_variations {
     height: 48px;
     line-height: 48px;
 	}
+	.button--primary.button:not(.disabled) {
+		background-color: #000 !important;
+    	color: #fff  !important;
+	}
 }
 /*Single Product Accordion*/
 .js_collapsed .o-accordion__panel {
