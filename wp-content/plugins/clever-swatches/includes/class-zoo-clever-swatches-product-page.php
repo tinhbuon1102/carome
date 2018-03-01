@@ -35,6 +35,8 @@ if (!class_exists('Zoo_Clever_Swatch_Product_Page')) {
 
         public function load_template($located, $template_name, $args, $template_path, $default_path)
         {
+        	require_once(ZOO_CW_TEMPLATES_PATH . 'add-to-cart-button.php');
+        	
             if ($template_name == 'single-product/add-to-cart/variable.php' || $template_name == 'single-product/product-image.php') {
                 $general_settings = get_option('zoo-cw-settings',true);
                 $is_gallery_enabled = isset($general_settings['product_gallery']) ? intval($general_settings['product_gallery']) : 1;
@@ -68,8 +70,6 @@ if (!class_exists('Zoo_Clever_Swatch_Product_Page')) {
                         $located = $old_located;
                     }
                 }
-                require_once(ZOO_CW_TEMPLATES_PATH . 'add-to-cart-button.php');
-
             }
             return $located;
         }
