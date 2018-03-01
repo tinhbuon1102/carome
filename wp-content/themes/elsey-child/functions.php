@@ -1279,7 +1279,7 @@ add_action( 'wp_loaded', 'elsey_redirect_product_url' );
 function elsey_redirect_product_url(){
 	if (isset($_POST) && $_POST['add-to-cart'])
 	{
-		wp_redirect(get_permalink($_POST['product_id']));
+		//wp_redirect(get_permalink($_POST['product_id']));
 	}
 }
 
