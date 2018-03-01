@@ -172,7 +172,7 @@
             });
 
             //click function for image/text/color types option
-            $(document).on('click', '.variations_form .zoo-cw-attribute-option', function () {
+            $(document).on('mousedown touched', '.variations_form .zoo-cw-attribute-option', function () {
                 var form_add_to_cart = $(this).parents('.variations_form');
                 var attribute_rows = form_add_to_cart.find('.zoo-cw-group-attribute');
                 var current_attribute_row = $(this).parents('.zoo-cw-group-attribute');
