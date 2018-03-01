@@ -403,7 +403,8 @@
         $(document).bind('cleverswatch_button_out_stock', function (event, response) {
             var add_to_cart_button = response.selector;
             var icon = add_to_cart_button.find('i').clone();
-            add_to_cart_button.html(wp.template('add-to-cart-button-out-stock')).addClass('disabled');
+            var html = wp.template('add-to-cart-button-out-stock');
+            add_to_cart_button.html(html).addClass('disabled');
             add_to_cart_button.prepend(icon);
         });
         //Add Tooltip
