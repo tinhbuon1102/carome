@@ -56,6 +56,8 @@ do_action('woocommerce_before_add_to_cart_form');
                 $selected = isset($_REQUEST['attribute_' . sanitize_title($attribute_name)])
                     ? wc_clean(stripslashes(urldecode($_REQUEST['attribute_' . sanitize_title($attribute_name)])))
                     : $product->get_variation_default_attribute($attribute_name);
+            
+                $selected = '';
 
                 $attribute_slug = sanitize_title($attribute_name);
                 /**
