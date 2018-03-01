@@ -1474,6 +1474,28 @@ function restoreUserWailist()
 	}
 }
 
+// remove user waitlist after order placed
+add_filter( 'woocommerce_payment_successful_result', 'elsey_woocommerce_payment_successful_result', 1000, 2 );
+function elsey_woocommerce_payment_successful_result($result, $order_id)
+{
+	$order = new WC_Order($order_id);
+	$order_items = $order->get_items();
+	$current_user = wp_get_current_user();
+	if (count($order_items))
+	{
+		foreach ($order_items as $order_item)
+		{
+			$product_id = $order_item->get_product_id();
+			$variation_id = $order_item->get_variation_id();
+			$product = get_product($variation_id ? $variation_id : $product_id);
+			$waitListClass = new Pie_WCWL_Waitlist($product);
+			// remove current waitist user this product;
+			$waitListClass->unregister_user( $current_user );
+		}
+	}
+	return $result;
+}
+
 add_action( 'woocommerce_order_status_on-hold', 'elsey_woocommerce_order_status_on_hold', 1000, 4);
 function elsey_woocommerce_order_status_on_hold($order_id, $order){
 	$is_pre_order = get_post_meta( $order_id, '_wc_pre_orders_is_pre_order', true );

@@ -1,10 +1,4 @@
 <?php 
-if (!$waitlist_products)
-{
-	$user_id = get_current_user_id();
-	$waitlist_products = get_user_meta($user_id, woocommerce_waitlist_user, true);
-	$waitlist_products = $waitlist_products ? $waitlist_products : array();
-}
 $show_price = $show_stock_status = $is_user_owner = true;
 
 ?>
