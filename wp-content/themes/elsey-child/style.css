@@ -1751,7 +1751,7 @@ a.reset_variations {
     background-color: #000;
     color: #fff;
 }
-.product-template-default .els-product-summary-col .button--primary.button:hover, .product-template-default .els-product-summary-col .button--primary.button:focus {
+.product-template-default .els-product-summary-col, .product-template-default .els-product-summary-col .button--primary.button:focus {
     background-color: #FFF;
     color: #000;
 }
