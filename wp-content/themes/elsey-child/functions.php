@@ -1275,6 +1275,14 @@ function elsey_woe_order_exported($order_id){
 	}
 }
 
+add_action( 'wp_loaded', 'elsey_redirect_product_url' );
+function elsey_redirect_product_url(){
+	if (isset($_POST) && $_POST['add-to-cart'])
+	{
+		wp_redirect(get_permalink($_POST['product_id']));
+	}
+}
+
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
 	if (!isset($_GET['change_old_order_name']) || !$_GET['change_old_order_name'])
