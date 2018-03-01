@@ -1,4 +1,5 @@
 *.log
+robots.txt
 *.wpress
 wp-config.php
 wp-content/advanced-cache.php
