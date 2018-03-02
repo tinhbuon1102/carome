@@ -1615,7 +1615,7 @@ function else_show_product_stock_record()
 			sprintf(__('Product = %1$s, %2$s, Modified by : %3$s', 'elsey'), 
 				$stock_log['variation_id'], 
 				implode(', ', $stock_change_texts),
-				'#' . $user->ID . '-' . $user->display_name
+				'ID' . $user->ID . '-' . $user->display_name
 			) . '
         	</p></div>
         	<p class="meta">
