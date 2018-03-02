@@ -1590,6 +1590,7 @@ function else_show_product_stock_record()
 	
 	$product_stock_log = get_post_meta($post->ID, 'product_stock_log', true);
 	$product_stock_log = $product_stock_log ? $product_stock_log : array();
+	krsort($product_stock_log);
 	echo '<ul class="order_notes">';
 	foreach ($product_stock_log as $stock_log)
 	{
