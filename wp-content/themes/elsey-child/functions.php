@@ -1525,9 +1525,9 @@ function elsey_wp_ajax_woocommerce_save_variations()
 }
 
 add_action( 'woocommerce_save_product_variation', 'elsey_woocommerce_save_product_variation', 1000, 2 );
-function elsey_woocommerce_save_product_variation( $variation_id, $variation_index ) {
+function elsey_woocommerce_save_product_variation( $variation_id, $variation_index, $product_id = 0 ) {
 	global $before_save_variations;
-	$product_id = absint( $_POST['product_id'] );
+	$product_id = absint( $product_id ? $product_id : $_POST['product_id'] );
 	$product_stock_log = get_post_meta($product_id, 'product_stock_log', true);
 	$product_stock_log = $product_stock_log ? $product_stock_log : array();
 	$current_user = wp_get_current_user();
@@ -1538,7 +1538,7 @@ function elsey_woocommerce_save_product_variation( $variation_id, $variation_ind
 	if ($before_save_variations && count($before_save_variations))
 	{
 		$old_variation = $before_save_variations[$variation_id];
-		$new_variation    = new WC_Product_Variation( $variation_id );
+		$new_variation    = wc_get_product($variation_id);
 		
 		if ($old_variation->stock_quantity != $new_variation->stock_quantity || $old_variation->stock_status != $new_variation->stock_status)
 		{
@@ -1558,6 +1558,26 @@ function elsey_woocommerce_save_product_variation( $variation_id, $variation_ind
 	return $variation_id;
 }
 
+add_action( 'admin_action_editpost', 'elsey_admin_action_editpost', 1000);
+function elsey_admin_action_editpost()
+{
+	if (isset($_POST) && !empty($_POST) && $_POST['post_type'] == 'product' && $_POST['product-type'] == 'simple')
+	{
+		global $before_save_variations;
+		$product_id = $_POST['post_ID'];
+		$before_save_variations[$product_id] = wc_get_product($product_id);
+	}
+}
+
+add_action( 'wp_insert_post', 'elsey_wp_insert_post', 999999, 3);
+function elsey_wp_insert_post($post_ID, $post, $update )
+{
+	if (isset($_POST) && !empty($_POST) && $_POST['post_type'] == 'product' && $_POST['product-type'] == 'simple')
+	{
+		elsey_woocommerce_save_product_variation( $post_ID, 0, $post_ID );
+	}
+}
+
 add_action( 'add_meta_boxes', 'else_add_meta_boxes_product_stock_record' );
 function else_add_meta_boxes_product_stock_record()
 {
@@ -1570,7 +1590,6 @@ function else_show_product_stock_record()
 	
 	$product_stock_log = get_post_meta($post->ID, 'product_stock_log', true);
 	$product_stock_log = $product_stock_log ? $product_stock_log : array();
-	
 	echo '<ul class="order_notes">';
 	foreach ($product_stock_log as $stock_log)
 	{
@@ -1582,12 +1601,12 @@ function else_show_product_stock_record()
 		$statuses = array('instock' => __('In Stock'), 'outofstock' => __('Out Of Stock'));
 		if ($stock_change != 0)
 		{
-			$stock_change_texts[] = $stock_change > 0 ? sprintf(__('Stock increase from %1s to %2s', 'elsey'), $statuses[$stock_log['old_stock']], $statuses[$stock_log['new_stock']]) : sprintf(__('Stock decrease from %1s to %2s', 'elsey'), $stock_log['old_stock'], $stock_log['new_stock']);
+			$stock_change_texts[] = $stock_change > 0 ? sprintf(__('Stock increase from %1$s to %2$s', 'elsey'), $stock_log['old_stock'], $stock_log['new_stock']) : sprintf(__('Stock decrease from %1s to %2s', 'elsey'), $stock_log['old_stock'], $stock_log['new_stock']);
 		}
 		
 		if ($stock_log['old_stock_status'] != $stock_log['new_stock_status'])
 		{
-			$stock_change_texts[] = sprintf(__('Stock status change from %1s to %2s', 'elsey'), $statuses[$stock_log['old_stock_status']], $statuses[$stock_log['new_stock_status']]);
+			$stock_change_texts[] = sprintf(__('Stock status change from %1$s to %2$s', 'elsey'), $statuses[$stock_log['old_stock_status']], $statuses[$stock_log['new_stock_status']]);
 		}
 		
 		echo '<li class="note system-note">
