@@ -699,7 +699,7 @@ function elsey_init() {
 }
 
 add_filter( 'woocommerce_email_order_meta_fields', 'elsey_woocommerce_email_order_meta_fields', 1000, 3 );
-add_filter( 'woocommerce_email_order_meta_keys', 'elsey_woocommerce_email_order_meta_keys', 1000, 3 );
+add_filter( 'woocommerce_email_order_meta_keys', 'elsey_woocommerce_email_order_meta_fields', 1000, 3 );
 function elsey_woocommerce_email_order_meta_fields($fields, $sent_to_admin, $order){
 	$fields = array();
 	return $fields;
