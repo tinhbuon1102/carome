@@ -1532,8 +1532,8 @@ function elsey_woocommerce_save_product_variation( $variation_id, $variation_ind
 	$product_stock_log = $product_stock_log ? $product_stock_log : array();
 	$current_user = wp_get_current_user();
 	
-	$current_time = date('Y-m-d H:i:s');
-	$current_time_mix = date('Y-m-d H:i:s') . '__' . $variation_id;
+	$current_time = date('Y-m-d H:i:s', current_time( 'timestamp', 0 ));
+	$current_time_mix = $current_time . '__' . $variation_id;
 	
 	if ($before_save_variations && count($before_save_variations))
 	{
