@@ -436,4 +436,8 @@ jQuery(document).ready(function($){
 		 }
 	  });
   }
+  
+  document.addEventListener( 'wpcf7mailsent', function( event ) {
+	  $('.contact_file_wraper').fadeOut("slow", "linear");
+	}, false );
 });

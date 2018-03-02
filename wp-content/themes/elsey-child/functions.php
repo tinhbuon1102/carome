@@ -1640,7 +1640,6 @@ add_filter( 'wpcf7_validate_file', 'else_wpcf7_file_validation_filter', 20, 2 );
 function else_wpcf7_file_validation_filter ($result, $tag)
 {
 	$name = $tag->name;
-	$id = $tag->get_id_option();
 	$file = isset( $_FILES[$name] ) ? $_FILES[$name] : null;
 	
 	if ( empty( $file['tmp_name'] ) && $_POST['contact-type'] == '不良品の返品・交換について' ) {
