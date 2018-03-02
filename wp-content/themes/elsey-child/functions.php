@@ -1571,25 +1571,37 @@ function else_show_product_stock_record()
 	$product_stock_log = get_post_meta($post->ID, 'product_stock_log', true);
 	$product_stock_log = $product_stock_log ? $product_stock_log : array();
 	
+	echo '<ul class="order_notes">';
 	foreach ($product_stock_log as $stock_log)
 	{
 		$user = get_user_by('id', $stock_log['user_id']);
 		$product = wc_get_product($stock_log['variation_id']);
 		$product_name = $product->get_name();
 		$stock_change = $stock_log['new_stock'] - $stock_log['old_stock'];
-		$stock_direction = '';
+		$stock_change_texts = array();
+		$statuses = array('instock' => __('In Stock'), 'outofstock' => __('Out Of Stock'));
 		if ($stock_change != 0)
 		{
-			$stock_direction = $stock_change > 0 ? sprintf(__('Stock Change : Increase %s', 'elsey'), $stock_change) : sprintf(__('Stock Change : Decrease %s', 'elsey'), $stock_change);
+			$stock_change_texts[] = $stock_change > 0 ? sprintf(__('Stock increase from %1s to %2s', 'elsey'), $statuses[$stock_log['old_stock']], $statuses[$stock_log['new_stock']]) : sprintf(__('Stock decrease from %1s to %2s', 'elsey'), $stock_log['old_stock'], $stock_log['new_stock']);
 		}
-		echo '<p class="stock_record">' .  
-			sprintf(__('%1$s: Product = %2$s, Old Stock = %3$s, New Stock = %4$s, %5$s, Modified by : %6$s', 'elsey'), 
-				date('Y年m月d日 H:i', strtotime($stock_log['create_time'])), 
+		
+		if ($stock_log['old_stock_status'] != $stock_log['new_stock_status'])
+		{
+			$stock_change_texts[] = sprintf(__('Stock status change from %1s to %2s', 'elsey'), $statuses[$stock_log['old_stock_status']], $statuses[$stock_log['new_stock_status']]);
+		}
+		
+		echo '<li class="note system-note">
+        	<div class="note_content"><p>' .  
+			sprintf(__('Product = %1$s, %2$s, Modified by : %3$s', 'elsey'), 
 				$stock_log['variation_id'], 
-				$stock_log['old_stock'], 
-				$stock_log['new_stock'], 
-				$stock_direction, 
+				implode(', ', $stock_change_texts),
 				'#' . $user->ID . '-' . $user->display_name
-			) . '<p>';
+			) . '
+        	</p></div>
+        	<p class="meta">
+				<abbr class="exact-date" title="'. $stock_log['create_time'] .'">'. date('Y年m月d日 h:i A', strtotime($stock_log['create_time'])) .'に追加</abbr>
+			</p>	
+        </li>';
 	}
+	echo '</ul>';
 }
