@@ -418,4 +418,22 @@ jQuery(document).ready(function($){
 		  });
 	  }
    });
+  
+  // Contact form 
+  if ($('.wpcf7 select[name="contact-type"]').length)
+  {
+	  $(document).on('change', '.wpcf7 select[name="contact-type"]', function(){
+		 if ($(this).val() == '不良品の返品・交換について') 
+		 {
+			 $('.contact_file_wraper').fadeIn("slow", "linear");
+			 $('#contact_file').addClass('wpcf7-validates-as-required');
+			 $('#contact_file').attr('aria-required', 'true');
+		 }
+		 else {
+			 $('.contact_file_wraper').fadeOut("slow", "linear");
+			 $('#contact_file').removeClass('wpcf7-validates-as-required');
+			 $('#contact_file').attr('aria-required', 'false');
+		 }
+	  });
+  }
 });

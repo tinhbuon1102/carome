@@ -1625,3 +1625,26 @@ function else_show_product_stock_record()
 	}
 	echo '</ul>';
 }
+
+add_filter( 'wpcf7_mail_components', 'elsey_wpcf7_mail_components', 100, 3);
+function elsey_wpcf7_mail_components ($components, $contactForm, $mailer) 
+{
+	if ($_POST['contact-type'] == '不良品の返品・交換について')
+	{
+		$components['recipient'] = 'quocthang.2001@gmail.com';
+	}
+	return $components;
+}
+
+add_filter( 'wpcf7_validate_file', 'else_wpcf7_file_validation_filter', 20, 2 );
+function else_wpcf7_file_validation_filter ($result, $tag)
+{
+	$name = $tag->name;
+	$id = $tag->get_id_option();
+	$file = isset( $_FILES[$name] ) ? $_FILES[$name] : null;
+	
+	if ( empty( $file['tmp_name'] ) && $_POST['contact-type'] == '不良品の返品・交換について' ) {
+		$result->invalidate( $tag, wpcf7_get_message( 'invalid_required' ) );
+	}
+	return $result;
+}
