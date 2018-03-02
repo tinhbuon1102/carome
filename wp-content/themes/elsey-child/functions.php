@@ -1505,3 +1505,91 @@ function elsey_woocommerce_order_status_on_hold($order_id, $order){
 	}
 	return $order_id;
 }
+
+add_action( 'wp_ajax_woocommerce_save_variations', 'elsey_wp_ajax_woocommerce_save_variations', 1, 2 );
+add_action( 'wp_ajax_nopriv_woocommerce_save_variations', 'elsey_wp_ajax_woocommerce_save_variations', 1, 2 );
+function elsey_wp_ajax_woocommerce_save_variations()
+{
+	global $before_save_variations;
+	if ( isset( $_POST['variable_post_id'] ) ) {
+		$max_loop   = max( array_keys( $_POST['variable_post_id'] ) );
+		for ( $i = 0; $i <= $max_loop; $i ++ ) {
+			if ( ! isset( $_POST['variable_post_id'][ $i ] ) ) {
+				continue;
+			}
+			$variation_id = absint( $_POST['variable_post_id'][ $i ] );
+			$variation    = new WC_Product_Variation( $variation_id );
+			$before_save_variations[$variation_id] = $variation;
+		}
+	}
+}
+
+add_action( 'woocommerce_save_product_variation', 'elsey_woocommerce_save_product_variation', 1000, 2 );
+function elsey_woocommerce_save_product_variation( $variation_id, $variation_index ) {
+	global $before_save_variations;
+	$product_id = absint( $_POST['product_id'] );
+	$product_stock_log = get_post_meta($product_id, 'product_stock_log', true);
+	$product_stock_log = $product_stock_log ? $product_stock_log : array();
+	$current_user = wp_get_current_user();
+	
+	$current_time = date('Y-m-d H:i:s');
+	$current_time_mix = date('Y-m-d H:i:s') . '__' . $variation_id;
+	
+	if ($before_save_variations && count($before_save_variations))
+	{
+		$old_variation = $before_save_variations[$variation_id];
+		$new_variation    = new WC_Product_Variation( $variation_id );
+		
+		if ($old_variation->stock_quantity != $new_variation->stock_quantity || $old_variation->stock_status != $new_variation->stock_status)
+		{
+			$product_stock_log[$current_time_mix]['old_stock'] = (int)$old_variation->stock_quantity;
+			$product_stock_log[$current_time_mix]['new_stock'] = (int)$new_variation->stock_quantity;
+			
+			$product_stock_log[$current_time_mix]['old_stock_status'] = $old_variation->stock_status;
+			$product_stock_log[$current_time_mix]['new_stock_status'] = $new_variation->stock_status;
+			
+			$product_stock_log[$current_time_mix]['user_id'] = $current_user->ID;
+			$product_stock_log[$current_time_mix]['create_time'] = $current_time;
+			$product_stock_log[$current_time_mix]['variation_id'] = $variation_id;
+			
+			update_post_meta($product_id, 'product_stock_log', $product_stock_log);
+		}
+	}
+	return $variation_id;
+}
+
+add_action( 'add_meta_boxes', 'else_add_meta_boxes_product_stock_record' );
+function else_add_meta_boxes_product_stock_record()
+{
+	add_meta_box( 'else_product_stock_record', __('Stock records','elsey'), 'else_show_product_stock_record', 'product', 'side', 'core' );
+}
+
+function else_show_product_stock_record()
+{
+	global $post;
+	
+	$product_stock_log = get_post_meta($post->ID, 'product_stock_log', true);
+	$product_stock_log = $product_stock_log ? $product_stock_log : array();
+	
+	foreach ($product_stock_log as $stock_log)
+	{
+		$user = get_user_by('id', $stock_log['user_id']);
+		$product = wc_get_product($stock_log['variation_id']);
+		$product_name = $product->get_name();
+		$stock_change = $stock_log['new_stock'] - $stock_log['old_stock'];
+		$stock_direction = '';
+		if ($stock_change != 0)
+		{
+			$stock_direction = $stock_change > 0 ? sprintf(__('Stock Change : Increase %s', 'elsey'), $stock_change) : sprintf(__('Stock Change : Decrease %s', 'elsey'), $stock_change);
+		}
+		echo '<p class="stock_record">' .  
+			sprintf(__('%1$s: Product = %2$s, Old Stock = %3$s, New Stock = %4$s, %5$s, Modified by : %6$s', 'elsey'), 
+				date('Y年m月d日 H:i', strtotime($stock_log['create_time'])), 
+				$stock_log['variation_id'], 
+				$stock_log['old_stock'], 
+				$stock_log['new_stock'], 
+				$stock_direction, 
+				'#' . $user->ID . '-' . $user->display_name
+			) . '<p>';
+	}
+}
