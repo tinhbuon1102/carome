@@ -1506,6 +1506,28 @@ function elsey_woocommerce_order_status_on_hold($order_id, $order){
 	return $order_id;
 }
 
+add_filter( 'wpcf7_mail_components', 'elsey_wpcf7_mail_components', 100, 3);
+function elsey_wpcf7_mail_components ($components, $contactForm, $mailer)
+{
+	if ($_POST['contact-type'] == '不良品の返品・交換について')
+	{
+		$components['recipient'] = 'quocthang.2001@gmail.com';
+	}
+	return $components;
+}
+
+add_filter( 'wpcf7_validate_file', 'else_wpcf7_file_validation_filter', 20, 2 );
+function else_wpcf7_file_validation_filter ($result, $tag)
+{
+	$name = $tag->name;
+	$file = isset( $_FILES[$name] ) ? $_FILES[$name] : null;
+
+	if ( empty( $file['tmp_name'] ) && $_POST['contact-type'] == '不良品の返品・交換について' ) {
+		$result->invalidate( $tag, wpcf7_get_message( 'invalid_required' ) );
+	}
+	return $result;
+}
+
 add_action( 'wp_ajax_woocommerce_save_variations', 'elsey_wp_ajax_woocommerce_save_variations', 1, 2 );
 add_action( 'wp_ajax_nopriv_woocommerce_save_variations', 'elsey_wp_ajax_woocommerce_save_variations', 1, 2 );
 function elsey_wp_ajax_woocommerce_save_variations()
@@ -1624,26 +1646,4 @@ function else_show_product_stock_record()
         </li>';
 	}
 	echo '</ul>';
-}
-
-add_filter( 'wpcf7_mail_components', 'elsey_wpcf7_mail_components', 100, 3);
-function elsey_wpcf7_mail_components ($components, $contactForm, $mailer) 
-{
-	if ($_POST['contact-type'] == '不良品の返品・交換について')
-	{
-		$components['recipient'] = 'quocthang.2001@gmail.com';
-	}
-	return $components;
-}
-
-add_filter( 'wpcf7_validate_file', 'else_wpcf7_file_validation_filter', 20, 2 );
-function else_wpcf7_file_validation_filter ($result, $tag)
-{
-	$name = $tag->name;
-	$file = isset( $_FILES[$name] ) ? $_FILES[$name] : null;
-	
-	if ( empty( $file['tmp_name'] ) && $_POST['contact-type'] == '不良品の返品・交換について' ) {
-		$result->invalidate( $tag, wpcf7_get_message( 'invalid_required' ) );
-	}
-	return $result;
 }
