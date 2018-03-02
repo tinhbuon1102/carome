@@ -1,4 +1,5 @@
 <?php
+define('CONTACT_EMAIL_ADMIN_WITH_FILE', 'return@carome.net');
 /**
  * Enqueues child theme stylesheet, loading first the parent theme stylesheet.
  */
@@ -1511,7 +1512,7 @@ function elsey_wpcf7_mail_components ($components, $contactForm, $mailer)
 {
 	if ($_POST['contact-type'] == '不良品の返品・交換について')
 	{
-		$components['recipient'] = 'quocthang.2001@gmail.com';
+		$components['recipient'] = CONTACT_EMAIL_ADMIN_WITH_FILE;
 	}
 	return $components;
 }
