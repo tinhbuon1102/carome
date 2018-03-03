@@ -1619,6 +1619,8 @@ function else_show_product_stock_record()
 	{
 		$user = get_user_by('id', $stock_log['user_id']);
 		$product = wc_get_product($stock_log['variation_id']);
+		if (!$product) continue;
+		
 		$product_name = $product->get_name();
 		$stock_change = $stock_log['new_stock'] - $stock_log['old_stock'];
 		$stock_change_texts = array();
