@@ -1280,6 +1280,8 @@ add_action( 'wp_loaded', 'elsey_redirect_product_url' );
 function elsey_redirect_product_url(){
 	if ($_GET['thang_test'])
 	{
+		wp_cache_flush();
+		
 		$attribute_slug = 'pa_color';
 		$terms = get_terms( $attribute_slug, array('menu_order' => 'ASC') );
 		pr($terms);die;
