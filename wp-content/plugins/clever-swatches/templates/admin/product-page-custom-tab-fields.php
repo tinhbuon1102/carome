@@ -15,6 +15,10 @@ $zoo_cw_helper =  new Zoo_Clever_Swatch_Helper();
 
 <div id="zoo-cw-variation-swatch-data" class="panel woocommerce_options_panel"><?php
     $attributes = $zoo_cw_helper->zoo_cw_get_all_options_data_by_attribute_name($_product);
+    if (is_admin())
+    {
+    	pr($attributes );die;
+    }
 	$visible_attributes = array();
 	if(is_array($attributes) && count($attributes)): 
 	$product_swatch_data_array = get_post_meta( $post->ID, 'zoo_cw_product_swatch_data', true );

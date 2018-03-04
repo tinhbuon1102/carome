@@ -70,7 +70,7 @@ if( !class_exists( 'Zoo_Clever_Swatch_Helper' ) ){
                                 'hide_empty' => 0,
                             );
                             $all_terms = get_terms( $current_attribute->get_taxonomy(), apply_filters( 'woocommerce_product_attribute_terms', $args ) );
-                            
+
                             foreach ($all_terms as $term) {
                                 $option_array[] = $term->slug;
                             }
@@ -92,10 +92,6 @@ if( !class_exists( 'Zoo_Clever_Swatch_Helper' ) ){
 
                     }
                 }
-            }
-            if (is_admin())
-            {
-            //pr($attributes );die;
             }
             return $attributes;
         }
