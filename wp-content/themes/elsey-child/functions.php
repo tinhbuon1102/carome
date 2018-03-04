@@ -1278,12 +1278,6 @@ function elsey_woe_order_exported($order_id){
 
 add_action( 'wp_loaded', 'elsey_redirect_product_url' );
 function elsey_redirect_product_url(){
-	if ($_GET['thang_test'])
-	{
-		$attribute_slug = 'pa_color';
-		$terms = get_terms( $attribute_slug, array('menu_order' => 'ASC', 'hide_empty' => false) );
-		pr($terms);die;
-	}
 	if (isset($_POST) && $_POST['add-to-cart'])
 	{
 		//wp_redirect(get_permalink($_POST['product_id']));
