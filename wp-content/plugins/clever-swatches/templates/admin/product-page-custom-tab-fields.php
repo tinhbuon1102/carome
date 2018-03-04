@@ -91,7 +91,7 @@ $zoo_cw_helper =  new Zoo_Clever_Swatch_Helper();
 						<?php $tmp_options_data_array = isset($product_swatch_data_array[$attribute_slug]['options_data']) ? $product_swatch_data_array[$attribute_slug]['options_data'] : array();?>
 							<?php if ( is_array( $options ) ) { ?>
 								<?php if ( taxonomy_exists(  $attribute_slug ) ) { ?>
-									<?php $terms = get_terms( $attribute_slug, array('menu_order' => 'ASC') ); ?>
+									<?php pr($attribute_slug);$terms = get_terms( $attribute_slug, array('menu_order' => 'ASC') ); pr($terms);?>
 									<?php foreach ( $terms as $term ) { ?>
 										<?php if ( in_array( $term->slug, $options ) ) :?>
 											<div class="zoo-cw-sub-panel-heading">
