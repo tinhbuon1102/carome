@@ -95,7 +95,7 @@ if( !class_exists( 'Zoo_Clever_Swatch_Helper' ) ){
             }
             if (is_admin())
             {
-            pr($attributes );die;
+            //pr($attributes );die;
             }
             return $attributes;
         }
