@@ -1667,7 +1667,7 @@ function else_woocommerce_process_product_meta_simple($post_id)
 }
 
 
-add_action('woocommerce_product_options_stock_fields', 'else_woocommerce_product_options_stock_fields', 1000);
+//add_action('woocommerce_product_options_stock_fields', 'else_woocommerce_product_options_stock_fields', 1000);
 function else_woocommerce_product_options_stock_fields()
 {
 	global $product_object;
@@ -1697,7 +1697,7 @@ function else_woocommerce_product_options_stock_fields()
 	echo '<script type="text/javascript">jQuery("#restock_schedule").datetimepicker({minDate: new Date()});</script>';
 }
 
-add_action( 'woocommerce_variation_options_inventory', 'else_woocommerce_variation_options_inventory', 100, 3);
+//add_action( 'woocommerce_variation_options_inventory', 'else_woocommerce_variation_options_inventory', 100, 3);
 function else_woocommerce_variation_options_inventory($loop, $variation_data, $variation)
 {
 	$stock_schedule = get_option('restock_schedule');
