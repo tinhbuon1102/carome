@@ -480,9 +480,10 @@ class WC_Pre_Orders_Product {
 		);
 
 		foreach ( $orders as $order_data ) {
-			$order = new WC_Order( $order_data->order_id );
+			$order = wc_get_order($order_data->order_id);
+			//$order = new WC_Order( $order_data->order_id );
 
-			if ( WC_Pre_Orders_Order::order_contains_pre_order( $order ) && WC_Pre_Orders_Manager::can_pre_order_be_changed_to( 'cancelled', $order ) ) {
+			if ( $order && WC_Pre_Orders_Order::order_contains_pre_order( $order ) && WC_Pre_Orders_Manager::can_pre_order_be_changed_to( 'cancelled', $order ) ) {
 				WC_Pre_Orders_Order::update_pre_order_status( $order, 'cancelled' );
 			}
 		}
