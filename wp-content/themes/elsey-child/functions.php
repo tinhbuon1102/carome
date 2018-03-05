@@ -1276,14 +1276,6 @@ function elsey_woe_order_exported($order_id){
 	}
 }
 
-add_action( 'wp_loaded', 'elsey_redirect_product_url' );
-function elsey_redirect_product_url(){
-	if (isset($_POST) && $_POST['add-to-cart'])
-	{
-		//wp_redirect(get_permalink($_POST['product_id']));
-	}
-}
-
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
 	if (!isset($_GET['change_old_order_name']) || !$_GET['change_old_order_name'])
@@ -1578,6 +1570,16 @@ function elsey_woocommerce_save_product_variation( $variation_id, $variation_ind
 			update_post_meta($product_id, 'product_stock_log', $product_stock_log);
 		}
 	}
+	
+	// Save stock schedule
+	if ($_POST['variable_stock_schedule'])
+	{
+		$stock_schedule = get_option('restock_schedule');
+		$stock_schedule[$variation_id]['schedule'] = trim($_POST['variable_stock_schedule'][$variation_index]);
+		$stock_schedule[$variation_id]['quantity'] = trim($_POST['restock_quantity_schedule'][$variation_index]);
+		update_option('restock_schedule', $stock_schedule);
+	}
+	
 	return $variation_id;
 }
 
@@ -1649,4 +1651,122 @@ function else_show_product_stock_record()
         </li>';
 	}
 	echo '</ul>';
+}
+
+add_action( 'woocommerce_process_product_meta_simple', 'else_woocommerce_process_product_meta_simple', 100, 1);
+function else_woocommerce_process_product_meta_simple($post_id)
+{
+	if ($_POST['restock_schedule'])
+	{
+		$stock_schedule = get_option('restock_schedule');
+		$stock_schedule[$post_id]['schedule'] = trim($_POST['restock_schedule']);
+		$stock_schedule[$post_id]['quantity'] = trim($_POST['restock_quantity_schedule']);
+		update_option('restock_schedule', $stock_schedule);
+	}
+	return $post_id;
+}
+
+
+add_action('woocommerce_product_options_stock_fields', 'else_woocommerce_product_options_stock_fields', 1000);
+function else_woocommerce_product_options_stock_fields()
+{
+	global $product_object;
+	$stock_schedule = get_option('restock_schedule');
+	$product_id = $product_object->get_id();
+	$stock_schedule_value = $stock_schedule && isset($stock_schedule[$product_id]) ? $stock_schedule[$product_id] : array('schedule' => '', 'quantity' => '');
+	woocommerce_wp_text_input( array(
+		'id'                => 'restock_schedule',
+		'value'             => $stock_schedule_value['schedule'],
+		'label'             => __( 'ReStock Schedule', 'elsey' ),
+		'desc_tip'          => true,
+		'description'       => __( 'ReStock schedule', 'elsey' ),
+		'type'              => 'text',
+		'placeholder'       => 'YYYY-MM-DD HH:MM',
+	) );
+	
+	woocommerce_wp_text_input( array(
+		'id'                => 'restock_quantity_schedule',
+		'value'             => $stock_schedule_value['quantity'],
+		'label'             => __( 'ReStock Schedule Quantity', 'elsey' ),
+		'desc_tip'          => true,
+		'description'       => __( 'ReStock quantity with schedule', 'elsey' ),
+		'type'              => 'text',
+		'placeholder'       => '0',
+	) );
+	
+	echo '<script type="text/javascript">jQuery("#restock_schedule").datetimepicker({minDate: new Date()});</script>';
+}
+
+add_action( 'woocommerce_variation_options_inventory', 'else_woocommerce_variation_options_inventory', 100, 3);
+function else_woocommerce_variation_options_inventory($loop, $variation_data, $variation)
+{
+	$stock_schedule = get_option('restock_schedule');
+	$product_id = $variation->ID;
+	$stock_schedule_value = $stock_schedule && isset($stock_schedule[$product_id]) ? $stock_schedule[$product_id] : array('schedule' => '', 'quantity' => '');
+	
+	woocommerce_wp_text_input( array(
+	'id'                => "variable_stock_schedule{$loop}",
+	'name'              => "variable_stock_schedule[{$loop}]",
+	'value'             => $stock_schedule_value['schedule'],
+	'label'             => __( 'ReStock Schedule', 'elsey' ),
+	'desc_tip'          => true,
+	'description'       => __( 'ReStock schedule', 'elsey' ),
+	'type'              => 'text',
+	'placeholder'       => 'YYYY-MM-DD HH:MM',
+	'class'       		=> 'schedule_date_picker',
+	'wrapper_class'     => 'form-row form-row-first',
+	) );
+	
+	woocommerce_wp_text_input( array(
+		'id'                => "restock_quantity_schedule{$loop}",
+		'name'                => "restock_quantity_schedule[{$loop}]",
+		'value'             => $stock_schedule_value['quantity'],
+		'label'             => __( 'ReStock Schedule Quantity', 'elsey' ),
+		'desc_tip'          => true,
+		'description'       => __( 'ReStock quantity with schedule', 'elsey' ),
+		'type'              => 'text',
+		'placeholder'       => '0',
+		'wrapper_class'     => 'form-row form-row-last',
+	) );
+	
+	echo '<script type="text/javascript">jQuery(".schedule_date_picker").datetimepicker({minDate: new Date()});</script>';
+}
+
+add_action( 'wp_ajax_nopriv_process_stock_schedule', 'elsey_process_stock_schedule' );
+add_action( 'wp_ajax_process_stock_schedule', 'elsey_process_stock_schedule' );
+function elsey_process_stock_schedule() {
+	$current_time = date('Y-m-d H:i', current_time( 'timestamp', 0 ));
+	
+	$stock_schedules = get_option('restock_schedule');
+	$new_stock_schedules = array();
+	if ($stock_schedules && !empty($stock_schedules))
+	{
+		foreach($stock_schedules as $product_id => $stock_schedule)
+		{
+			// Don't process if missing data schedule date
+			if (!isset($stock_schedule['schedule']) && !isset($stock_schedule['quantity'])) continue;
+			if (!$stock_schedule['schedule']) continue;
+			
+			$schedule = $stock_schedule['schedule'];
+			$quantity = $stock_schedule['quantity'];
+			$schedule_date = str_replace(array('年', '月', '日'), array('-', '-', ''), $schedule);
+			if ($current_time >= $schedule_date)
+			{
+				// Restock when ontime
+				wc_update_product_stock($product_id, $quantity);
+			}
+			elseif ($current_time < $schedule_date)
+			{
+				// Store the future schedules only
+				$new_stock_schedules[$product_id] = $schedule;
+			}
+		}
+	}
+	// Store new schedule
+	update_option('restock_schedule', $new_stock_schedules);
+	if (isset($_REQUEST['return']))
+	{
+		pr($new_stock_schedules);
+	}
+	die('done');
 }
