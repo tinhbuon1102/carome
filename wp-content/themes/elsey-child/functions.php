@@ -700,7 +700,7 @@ function elsey_init() {
 
 add_filter( 'woocommerce_email_order_meta_fields', 'elsey_woocommerce_email_order_meta_fields', 1000, 3 );
 add_filter( 'woocommerce_email_order_meta_keys', 'elsey_woocommerce_email_order_meta_fields', 1000, 3 );
-function elsey_woocommerce_email_order_meta_fields($fields, $sent_to_admin, $order){
+function elsey_woocommerce_email_order_meta_fields($fields, $sent_to_admin = null, $order = null){
 	$fields = array();
 	return $fields;
 }
@@ -1624,7 +1624,7 @@ function else_show_product_stock_record()
 		$product_name = $product->get_name();
 		$stock_change = $stock_log['new_stock'] - $stock_log['old_stock'];
 		$stock_change_texts = array();
-		$statuses = array('instock' => __('In Stock'), 'outofstock' => __('Out Of Stock'));
+		$statuses = array('instock' => __('In Stock', 'elsey'), 'outofstock' => __('Out Of Stock', 'elsey'));
 		if ($stock_change != 0)
 		{
 			$stock_change_texts[] = $stock_change > 0 ? sprintf(__('Stock increase from %1$s to %2$s', 'elsey'), $stock_log['old_stock'], $stock_log['new_stock']) : sprintf(__('Stock decrease from %1s to %2s', 'elsey'), $stock_log['old_stock'], $stock_log['new_stock']);
