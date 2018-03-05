@@ -451,7 +451,7 @@ if( !class_exists( 'Zoo_Clever_Swatch_Admin_Manager' ) ){
                         if ( is_array( $options ) ) {
                             $tmp_option_array = array();
                             if ( taxonomy_exists(  $attribute_name ) ) {
-                                $terms = get_terms( $attribute_name, array('menu_order' => 'ASC') );
+                                $terms = get_terms( $attribute_name, array('menu_order' => 'ASC', 'hide_empty' => false) );
                                 foreach ( $terms as $term ) {
                                     if ( in_array( $term->slug, $options ) ){
                                         $default_value = $zoo_cw_helper->get_default_value_of_attribute_option($term);

@@ -67,7 +67,7 @@ if( !class_exists( 'Zoo_Clever_Swatch_Helper' ) ){
                         if ($current_attribute->is_taxonomy()) {
                             $args = array(
                                 'orderby'    => 'name',
-                                'hide_empty' => 0,
+                                'hide_empty' => false
                             );
                             $all_terms = get_terms( $current_attribute->get_taxonomy(), apply_filters( 'woocommerce_product_attribute_terms', $args ) );
 
