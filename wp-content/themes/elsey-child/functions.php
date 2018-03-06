@@ -9,7 +9,7 @@ function elsey_enqueue_child_theme_styles() {
 add_action( 'wp_enqueue_scripts', 'elsey_enqueue_child_theme_styles', 11 );
 
 function remove_product_editor() {
-  remove_post_type_support( 'product', 'editor' );
+	remove_post_type_support( 'product', 'editor' );
 }
 add_action( 'init', 'remove_product_editor' );
 
@@ -18,9 +18,9 @@ add_action( 'woocommerce_single_product_summary', 'woocommerce_output_product_da
 
 // google fonts
 function custom_add_google_fonts() {
- wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato|Poppins:300,400,500,600', false );
- }
- add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
+	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato|Poppins:300,400,500,600', false );
+}
+add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
 
 /*hide adminbar*/
 add_filter('show_admin_bar', '__return_false');
@@ -30,32 +30,32 @@ add_filter('show_admin_bar', '__return_false');
  * バージョンアップ通知を管理者のみ表示させるようにします。
  */
 function update_nag_admin_only() {
-    if ( ! current_user_can( 'administrator' ) ) {
-        remove_action( 'admin_notices', 'update_nag', 3 );
-    }
+	if ( ! current_user_can( 'administrator' ) ) {
+		remove_action( 'admin_notices', 'update_nag', 3 );
+	}
 }
 add_action( 'admin_init', 'update_nag_admin_only' );
 
 /*add class to body*/
 add_filter( 'body_class', 'add_page_slug_class_name' );
 function add_page_slug_class_name( $classes ) {
-  if ( is_page() ) {
-    $page = get_post( get_the_ID() );
-    $classes[] = $page->post_name . '-template';
+	if ( is_page() ) {
+		$page = get_post( get_the_ID() );
+		$classes[] = $page->post_name . '-template';
 
-    $parent_id = $page->post_parent;
-    if ( $parent_id ) {
-      $classes[] = get_post($parent_id)->post_name . '-child-template';
-    }
-  }
-  return $classes;
+		$parent_id = $page->post_parent;
+		if ( $parent_id ) {
+			$classes[] = get_post($parent_id)->post_name . '-child-template';
+		}
+	}
+	return $classes;
 }
 
 
 /*add custom logo menu for sticky*/
 add_filter( 'wp_nav_menu_items', 'custom_menu_item_logo', 10, 2 );
 function custom_menu_item_logo ( $items, $args ) {
-    if ($args->theme_location == 'primary') {
+	if ($args->theme_location == 'primary') {
 		$items_array = array();
 		while ( false !== ( $item_pos = strpos ( $items, '<li', 1 ) ) )
 		{
@@ -66,14 +66,14 @@ function custom_menu_item_logo ( $items, $args ) {
 		$elsey_brand_logo_default = cs_get_option('brand_logo_default');
 		array_splice($items_array, 0, 0, '<li class="navLogo"><a href="'. esc_url(home_url( '/' )) .'"><img src="'. esc_url( wp_get_attachment_url( $elsey_brand_logo_default ) ) .'" alt="'. esc_attr( get_bloginfo( 'name' ) ) .'" class="sticky-logo"></a></li>');
 		$items = implode('', $items_array);
-    }
-    return $items;
+	}
+	return $items;
 }
 /*add custom actions menu for sticky*/
 add_filter( 'wp_nav_menu_items', 'custom_menu_item_actions', 10, 2 );
 function custom_menu_item_actions ( $items2, $args ) {
 	//$items2 = "";
-    if ($args->theme_location == 'primary') {
+	if ($args->theme_location == 'primary') {
 		$items2 .= '<li class="navActions"><ul>';
 		$elsey_myaccount_url = get_permalink(get_option('woocommerce_myaccount_page_id'));
 		$items2 .= '<li class="action-minibar els-user-icon"><a href="' . esc_url($elsey_myaccount_url) . '" class="link-actions"><i class="carome-icon carome-single-01"></i></a></li>';
@@ -101,30 +101,30 @@ function custom_menu_item_actions ( $items2, $args ) {
 			$items2 .= '</a></li>';
 		}
 		$items2 .= '</li></ul>';
-    }
+	}
 	return $items2;
 }
 /*override checkiout.min.js*/
 add_action( 'wp_enqueue_scripts', 'custom_wp_enqueue_scripts_for_frontend', 99 );
 function custom_wp_enqueue_scripts_for_frontend(){
-    if( is_checkout() ){
-        // Checkout Page        
-        wp_deregister_script('wc-checkout');
-        wp_register_script('wc-checkout', get_stylesheet_directory_uri() . "/woocommerce/assets/js/frontend/checkout.js", 
-        array( 'jquery', 'woocommerce', 'wc-country-select', 'wc-address-i18n' ), WC_VERSION, TRUE);
-        wp_enqueue_script('wc-checkout');
-    }
-    
+	if( is_checkout() ){
+		// Checkout Page
+		wp_deregister_script('wc-checkout');
+		wp_register_script('wc-checkout', get_stylesheet_directory_uri() . "/woocommerce/assets/js/frontend/checkout.js",
+				array( 'jquery', 'woocommerce', 'wc-country-select', 'wc-address-i18n' ), WC_VERSION, TRUE);
+		wp_enqueue_script('wc-checkout');
+	}
+
 }
 /*address form*/
 add_filter( 'woocommerce_form_field_args', 'custom_wc_form_field_args', 10, 3 );
 function custom_wc_form_field_args( $args, $key, $value ){
-    // Only on My account > Edit Adresses
-    if( is_wc_endpoint_url( 'edit-account' ) || is_checkout() ) return $args;
+	// Only on My account > Edit Adresses
+	if( is_wc_endpoint_url( 'edit-account' ) || is_checkout() ) return $args;
 
-    $args['label_class'] = array('label');
+	$args['label_class'] = array('label');
 
-    return $args;
+	return $args;
 }
 /*change positon of payment section*/
 remove_action( 'woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20 );
@@ -140,96 +140,96 @@ function custom_override_checkout_fields( $fields )
 add_filter('woocommerce_checkout_fields','custom_override_checkout_fields');
 
 function custom_override_billing_fields( $fields ) {
-  unset($fields['billing_country']);
-  
-  $fields['billing_last_name_kana'] = array(
-  	'label'     => __('姓(ふりがな)', 'woocommerce'),
-  	'required'  => true,
-  	'class'     => array('form-row-first')
-  );
-  $fields['billing_first_name_kana'] = array(
-  	'label'     => __('名(ふりがな)', 'woocommerce'),
-  	'required'  => true,
-  	'class'     => array('form-row-last'),
-  	'clear'     => true
-  );
-  
-  $fields['billing_last_name']['class'] = array('form-row-first');
-  $fields['billing_first_name']['class'] = array('form-row-last');
-  $fields['billing_postcode']['class'] = array('form-row-first', 'address-field');
-  $fields['billing_state']['class'] = array('form-row-last', 'address-field');
-  $fields['billing_city']['class'] = array('form-row-wide', 'address-field');
-  
-  //change order
-  $order = array(
-  	"billing_last_name",
-  	"billing_first_name",
-  	"billing_last_name_kana",
-  	"billing_first_name_kana",
-  	"billing_postcode",
-  	"billing_state",
-  	"billing_city",
-  	"billing_address_1",
-  	"billing_address_2",
-  	"billing_phone",
-  	"billing_email",
-  );
-  
-  $ordered_fields = array();
-  foreach($order as $field)
-  {
-  	$ordered_fields[$field] = $fields[$field];
-  }
-  
-  $fields = $ordered_fields;
-  return $fields;
+	unset($fields['billing_country']);
+
+	$fields['billing_last_name_kana'] = array(
+		'label'     => __('姓(ふりがな)', 'woocommerce'),
+		'required'  => true,
+		'class'     => array('form-row-first')
+	);
+	$fields['billing_first_name_kana'] = array(
+		'label'     => __('名(ふりがな)', 'woocommerce'),
+		'required'  => true,
+		'class'     => array('form-row-last'),
+		'clear'     => true
+	);
+
+	$fields['billing_last_name']['class'] = array('form-row-first');
+	$fields['billing_first_name']['class'] = array('form-row-last');
+	$fields['billing_postcode']['class'] = array('form-row-first', 'address-field');
+	$fields['billing_state']['class'] = array('form-row-last', 'address-field');
+	$fields['billing_city']['class'] = array('form-row-wide', 'address-field');
+
+	//change order
+	$order = array(
+		"billing_last_name",
+		"billing_first_name",
+		"billing_last_name_kana",
+		"billing_first_name_kana",
+		"billing_postcode",
+		"billing_state",
+		"billing_city",
+		"billing_address_1",
+		"billing_address_2",
+		"billing_phone",
+		"billing_email",
+	);
+
+	$ordered_fields = array();
+	foreach($order as $field)
+	{
+		$ordered_fields[$field] = $fields[$field];
+	}
+
+	$fields = $ordered_fields;
+	return $fields;
 }
 add_filter( 'woocommerce_billing_fields' , 'custom_override_billing_fields' );
 
 function custom_override_shipping_fields( $fields ) {
-  unset($fields['shipping_country']);
-  
-  $fields['shipping_last_name_kana'] = array(
-  	'label'     => __('姓(ふりがな)', 'woocommerce'),
-  	'required'  => true,
-  	'class'     => array('form-row-first')
-  );
-  $fields['shipping_first_name_kana'] = array(
-  	'label'     => __('名(ふりがな)', 'woocommerce'),
-  	'required'  => true,
-  	'class'     => array('form-row-last'),
-  	'clear'     => true
-  );
-  
-  $fields['shipping_last_name']['class'] = array('form-row-first');
-  $fields['shipping_first_name']['class'] = array('form-row-last');
-  $fields['shipping_postcode']['class'] = array('form-row-first', 'address-field');
-  $fields['shipping_state']['class'] = array('form-row-last', 'address-field');
-  $fields['shipping_city']['class'] = array('form-row-wide', 'address-field');
-  
-  //change order
-  $order = array(
-  	"shipping_last_name",
-  	"shipping_first_name",
-  	"shipping_last_name_kana",
-  	"shipping_first_name_kana",
-  	"shipping_postcode",
-  	"shipping_state",
-  	"shipping_city",
-  	"shipping_address_1",
-  	"shipping_address_2",
-  	"shipping_phone",
-  );
-  
-  $ordered_fields = array();
-  foreach($order as $field)
-  {
-  	$ordered_fields[$field] = $fields[$field];
-  }
-  
-  $fields = $ordered_fields;
-  
-  return $fields;
+	unset($fields['shipping_country']);
+
+	$fields['shipping_last_name_kana'] = array(
+		'label'     => __('姓(ふりがな)', 'woocommerce'),
+		'required'  => true,
+		'class'     => array('form-row-first')
+	);
+	$fields['shipping_first_name_kana'] = array(
+		'label'     => __('名(ふりがな)', 'woocommerce'),
+		'required'  => true,
+		'class'     => array('form-row-last'),
+		'clear'     => true
+	);
+
+	$fields['shipping_last_name']['class'] = array('form-row-first');
+	$fields['shipping_first_name']['class'] = array('form-row-last');
+	$fields['shipping_postcode']['class'] = array('form-row-first', 'address-field');
+	$fields['shipping_state']['class'] = array('form-row-last', 'address-field');
+	$fields['shipping_city']['class'] = array('form-row-wide', 'address-field');
+
+	//change order
+	$order = array(
+		"shipping_last_name",
+		"shipping_first_name",
+		"shipping_last_name_kana",
+		"shipping_first_name_kana",
+		"shipping_postcode",
+		"shipping_state",
+		"shipping_city",
+		"shipping_address_1",
+		"shipping_address_2",
+		"shipping_phone",
+	);
+
+	$ordered_fields = array();
+	foreach($order as $field)
+	{
+		$ordered_fields[$field] = $fields[$field];
+	}
+
+	$fields = $ordered_fields;
+
+	return $fields;
 }
 add_filter( 'woocommerce_shipping_fields' , 'custom_override_shipping_fields' );
 
@@ -239,29 +239,29 @@ add_filter( 'woocommerce_shipping_calculator_enable_postcode', '__return_false' 
 
 /*remove additional info*/
 add_filter( 'woocommerce_product_tabs', 'bbloomer_remove_product_tabs', 98 );
- 
+
 function bbloomer_remove_product_tabs( $tabs ) {
-    unset( $tabs['additional_information'] ); 
-    return $tabs;
+	unset( $tabs['additional_information'] );
+	return $tabs;
 }
 /*remove shortdescription*/
 remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20 );
 /*add custom tab in woo setting*/
 add_filter( 'woocommerce_get_sections_products' , 'returnship_add_settings_tab' );
 function returnship_add_settings_tab( $settings_tab ){
-     $settings_tab['return_shipping_notices'] = __( 'Return&Shipping Notices' );
-     return $settings_tab;
+	$settings_tab['return_shipping_notices'] = __( 'Return&Shipping Notices' );
+	return $settings_tab;
 }
 add_filter( 'woocommerce_get_settings_products' , 'returnship_get_settings' , 10, 2 );
 function returnship_get_settings( $settings, $current_section ) {
-        $custom_settings = array();
-        if( 'return_shipping_notices' == $current_section ) {
-        	$custom_settings =  array(
+	$custom_settings = array();
+	if( 'return_shipping_notices' == $current_section ) {
+		$custom_settings =  array(
 			array(
 				'name' => __( 'Return&Shipping Notices' ),
 				'type' => 'title',
-			    'desc' => __( '全ての商品共通の配送返品について' ),
-				'id'   => 'return_shipping' 
+				'desc' => __( '全ての商品共通の配送返品について' ),
+				'id'   => 'return_shipping'
 			),
 			array(
 				'name' => __( 'この記載を表示する' ),
@@ -283,33 +283,33 @@ function returnship_get_settings( $settings, $current_section ) {
 				'desc_tip' => true,
 				'id'	=> 'position',
 				'options' => array(
-					      'top' => __( 'Top' ),
-					      'bottom' => __('Bottom')
+					'top' => __( 'Top' ),
+					'bottom' => __('Bottom')
 				)
 			),
-			 array( 'type' => 'sectionend', 'id' => 'return_shipping' ),
-	);
+			array( 'type' => 'sectionend', 'id' => 'return_shipping' ),
+		);
 		return $custom_settings;
-     } else {
-        	return $settings;
-    }
+	} else {
+		return $settings;
+	}
 }
 /*add custom tab in woo setting2*/
 add_filter( 'woocommerce_get_sections_products' , 'notice_add_settings_tab' );
 function notice_add_settings_tab( $settings_tab ){
-     $settings_tab['common_notices'] = __( 'Notice' );
-     return $settings_tab;
+	$settings_tab['common_notices'] = __( 'Notice' );
+	return $settings_tab;
 }
 add_filter( 'woocommerce_get_settings_products' , 'notice_get_settings' , 10, 2 );
 function notice_get_settings( $settings, $current_section ) {
-        $custom_settings = array();
-        if( 'common_notices' == $current_section ) {
-        	$custom_settings =  array(
+	$custom_settings = array();
+	if( 'common_notices' == $current_section ) {
+		$custom_settings =  array(
 			array(
 				'name' => __( 'Return&Shipping Notices' ),
 				'type' => 'title',
-			    'desc' => __( '全ての商品共通の注意事項について' ),
-				'id'   => 'notice_desc' 
+				'desc' => __( '全ての商品共通の注意事項について' ),
+				'id'   => 'notice_desc'
 			),
 			array(
 				'name' => __( 'この記載を表示する' ),
@@ -331,16 +331,16 @@ function notice_get_settings( $settings, $current_section ) {
 				'desc_tip' => true,
 				'id'	=> 'position_notice',
 				'options' => array(
-					      'top' => __( 'Top' ),
-					      'bottom' => __('Bottom')
+					'top' => __( 'Top' ),
+					'bottom' => __('Bottom')
 				)
 			),
-			 array( 'type' => 'sectionend', 'id' => 'notice_desc' ),
-	);
+			array( 'type' => 'sectionend', 'id' => 'notice_desc' ),
+		);
 		return $custom_settings;
-     } else {
-        	return $settings;
-    }
+	} else {
+		return $settings;
+	}
 }
 /*change products per a page*/
 
@@ -354,63 +354,63 @@ add_action('woocommerce_process_product_meta', 'woocommerce_product_custom_field
 
 function woocommerce_product_custom_fields()
 {
-    global $woocommerce, $post;
-    echo '<div class="product_custom_field">';
-    // Custom Product Text Field
-    woocommerce_wp_text_input(
-        array(
-            'id' => '_custom_product_text_field',
-            'placeholder' => '日本語商品名',
-            'label' => __('Japanese Name', 'woocommerce'),
-            'desc_tip' => 'true'
-        )
-    );
-    echo '</div>';
-	/*
-	
+	global $woocommerce, $post;
 	echo '<div class="product_custom_field">';
-    // Custom Product Text Field
-    woocommerce_wp_text_input(
-        array(
-            'id' => '_custom_product_text_field_jan_code',
-            'placeholder' => 'JAN Code',
-            'label' => __('JAN Code', 'woocommerce'),
-            'desc_tip' => 'true'
-        )
-    );
-    echo '</div>';
-	
-	
+	// Custom Product Text Field
+	woocommerce_wp_text_input(
+			array(
+				'id' => '_custom_product_text_field',
+				'placeholder' => '日本語商品名',
+				'label' => __('Japanese Name', 'woocommerce'),
+				'desc_tip' => 'true'
+			)
+			);
+	echo '</div>';
+	/*
+
+	echo '<div class="product_custom_field">';
+	// Custom Product Text Field
+	woocommerce_wp_text_input(
+	array(
+	'id' => '_custom_product_text_field_jan_code',
+	'placeholder' => 'JAN Code',
+	'label' => __('JAN Code', 'woocommerce'),
+	'desc_tip' => 'true'
+	)
+	);
+	echo '</div>';
+
+
 	*/
-	
-	
-	
+
+
+
 
 }
 function woocommerce_product_custom_fields_save($post_id)
 {
-    // Custom Product Text Field
-    $woocommerce_custom_product_text_field = $_POST['_custom_product_text_field'];
-    if (!empty($woocommerce_custom_product_text_field))
-        update_post_meta($post_id, '_custom_product_text_field', esc_attr($woocommerce_custom_product_text_field));
-	
-	/*
-	
-	  // Custom Product Text Field
-    $woocommerce_custom_product_text_field = $_POST['_custom_product_text_field_jan_code'];
-    if (!empty($woocommerce_custom_product_text_field))
-        update_post_meta($post_id, '_custom_product_text_field_jan_code', esc_attr($woocommerce_custom_product_text_field));
-	
-	*/
-	
-// Custom Product Number Field
-    $woocommerce_custom_product_number_field = $_POST['_custom_product_number_field'];
-    if (!empty($woocommerce_custom_product_number_field))
-        update_post_meta($post_id, '_custom_product_number_field', esc_attr($woocommerce_custom_product_number_field));
-// Custom Product Textarea Field
-    $woocommerce_custom_procut_textarea = $_POST['_custom_product_textarea'];
-    if (!empty($woocommerce_custom_procut_textarea))
-        update_post_meta($post_id, '_custom_product_textarea', esc_html($woocommerce_custom_procut_textarea));
+	// Custom Product Text Field
+	$woocommerce_custom_product_text_field = $_POST['_custom_product_text_field'];
+	if (!empty($woocommerce_custom_product_text_field))
+		update_post_meta($post_id, '_custom_product_text_field', esc_attr($woocommerce_custom_product_text_field));
+
+		/*
+
+		// Custom Product Text Field
+		$woocommerce_custom_product_text_field = $_POST['_custom_product_text_field_jan_code'];
+		if (!empty($woocommerce_custom_product_text_field))
+			update_post_meta($post_id, '_custom_product_text_field_jan_code', esc_attr($woocommerce_custom_product_text_field));
+
+			*/
+
+		// Custom Product Number Field
+		$woocommerce_custom_product_number_field = $_POST['_custom_product_number_field'];
+		if (!empty($woocommerce_custom_product_number_field))
+			update_post_meta($post_id, '_custom_product_number_field', esc_attr($woocommerce_custom_product_number_field));
+			// Custom Product Textarea Field
+			$woocommerce_custom_procut_textarea = $_POST['_custom_product_textarea'];
+			if (!empty($woocommerce_custom_procut_textarea))
+				update_post_meta($post_id, '_custom_product_textarea', esc_html($woocommerce_custom_procut_textarea));
 
 }
 
@@ -423,54 +423,54 @@ function woocommerce_product_custom_fields_save($post_id)
 add_action('woocommerce_product_options_sku','add_jancode', 10, 0 );
 function add_jancode(){
 
-    global $woocommerce, $post;
+	global $woocommerce, $post;
 
-    // getting the barcode value if exits
-    $product_jancode = get_post_meta( $post->ID, '_jancode', true );
-    if( ! $product_jancode ) $product_jancode = '';
+	// getting the barcode value if exits
+	$product_jancode = get_post_meta( $post->ID, '_jancode', true );
+	if( ! $product_jancode ) $product_jancode = '';
 
-    // Displaying the barcode custom field
-    woocommerce_wp_text_input( array(
-        'id'          => '_jancode',
-        'label'       => __('JAN Code','woocommerce'),
-        'placeholder' => 'JAN Code',
-        'desc_tip'    => 'true',
-        'description' => __('JAN Code.','woocommerce')
-    ), $product_jancode); // <== added "$product_jancode" here to get the value if exist
+	// Displaying the barcode custom field
+	woocommerce_wp_text_input( array(
+		'id'          => '_jancode',
+		'label'       => __('JAN Code','woocommerce'),
+		'placeholder' => 'JAN Code',
+		'desc_tip'    => 'true',
+		'description' => __('JAN Code.','woocommerce')
+	), $product_jancode); // <== added "$product_jancode" here to get the value if exist
 
 }
 
 add_action( 'woocommerce_process_product_meta', 'save_jancode', 10, 1 );
 function save_jancode( $post_id ){
 
-    $product_jancode_field = $_POST['_jancode'];
-    if( !empty( $product_jancode_field ) )
-        update_post_meta( $post_id, '_jancode', esc_attr( $product_jancode_field ) );
+	$product_jancode_field = $_POST['_jancode'];
+	if( !empty( $product_jancode_field ) )
+		update_post_meta( $post_id, '_jancode', esc_attr( $product_jancode_field ) );
 
 }
 
 add_action( 'woocommerce_product_after_variable_attributes','add_jancode_variations',10 , 3 );
 function add_jancode_variations( $loop, $variation_data, $variation ){
 
-    $variation_jancode = get_post_meta($variation->ID,"_jancode", true );
-    if( ! $variation_jancode ) $variation_jancode = "";
+	$variation_jancode = get_post_meta($variation->ID,"_jancode", true );
+	if( ! $variation_jancode ) $variation_jancode = "";
 
-    woocommerce_wp_text_input( array(
-        'id'          => '_jancode_' . $loop,
-        'label'       => __('JAN Code','woocommerce'),
-        'placeholder' => 'JAN Code',
-        'desc_tip'    => 'true',
-        'description' => __('JAN Code.','woocommerce'),
-        'value' => $variation_jancode,
-    ) );
+	woocommerce_wp_text_input( array(
+		'id'          => '_jancode_' . $loop,
+		'label'       => __('JAN Code','woocommerce'),
+		'placeholder' => 'JAN Code',
+		'desc_tip'    => 'true',
+		'description' => __('JAN Code.','woocommerce'),
+		'value' => $variation_jancode,
+	) );
 }
 //Save Variation JANCode
 add_action( 'woocommerce_save_product_variation','save_jancode_variations', 10 ,2 );
 function save_jancode_variations( $variation_id, $loop ){
 
-    $jancode = $_POST["_jancode_$loop"];
-    if(!empty($jancode))
-        update_post_meta( $variation_id, '_jancode', sanitize_text_field($jancode) );
+	$jancode = $_POST["_jancode_$loop"];
+	if(!empty($jancode))
+		update_post_meta( $variation_id, '_jancode', sanitize_text_field($jancode) );
 }
 
 
@@ -494,10 +494,10 @@ remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_s
 remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_proceed_to_checkout', 20 );
 
 function my_woocommerce_widget_shopping_cart_button_view_cart() {
-    echo '<a href="' . esc_url( wc_get_cart_url() ) . '" class="button button--primary button--full">' . esc_html__( 'View cart', 'woocommerce' ) . '</a>';
+	echo '<a href="' . esc_url( wc_get_cart_url() ) . '" class="button button--primary button--full">' . esc_html__( 'View cart', 'woocommerce' ) . '</a>';
 }
 function my_woocommerce_widget_shopping_cart_proceed_to_checkout() {
-    echo '<div class="align--center order__actions__item"><a href="' . esc_url( wc_get_checkout_url() ) . '" class="button checkout button--link button--full">' . esc_html__( 'Checkout', 'woocommerce' ) . '</a></div>';
+	echo '<div class="align--center order__actions__item"><a href="' . esc_url( wc_get_checkout_url() ) . '" class="button checkout button--link button--full">' . esc_html__( 'Checkout', 'woocommerce' ) . '</a></div>';
 }
 add_action( 'woocommerce_widget_shopping_cart_buttons', 'my_woocommerce_widget_shopping_cart_button_view_cart', 10 );
 add_action( 'woocommerce_widget_shopping_cart_buttons', 'my_woocommerce_widget_shopping_cart_proceed_to_checkout', 20 );
@@ -506,54 +506,54 @@ add_action( 'woocommerce_widget_shopping_cart_buttons', 'my_woocommerce_widget_s
 add_filter("woocommerce_in_cartproduct_obj_title", "wdm_test", 10 , 2);
 
 function wdm_test($product_title, $product){
-    if(is_a($product, "WC_Product_Variation")){
-    	$parent_id = $product->get_parent_id();
-    	$parent = get_product($parent_id);
-    	$product_test    = get_product($product->variation_id);
-    	$product_title = $parent->name;
-    	$attributes = $product->get_attributes();
-    	
-    	$html = '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' .
-    			'<div class="mini-product__item mini-product__name-ja p6">
+	if(is_a($product, "WC_Product_Variation")){
+		$parent_id = $product->get_parent_id();
+		$parent = get_product($parent_id);
+		$product_test    = get_product($product->variation_id);
+		$product_title = $parent->name;
+		$attributes = $product->get_attributes();
+		 
+		$html = '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' .
+				'<div class="mini-product__item mini-product__name-ja p6">
 			<a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">
 				'.$product_title . '
 			</a>
          </div>';
-    	
-    	foreach ($attributes as $attribute_key => $attribute_value)
-    	{
-    		$display_key   = wc_attribute_label( $attribute_key, $product );
-    		$display_value = $attribute_value;
-    	
-    		if ( taxonomy_exists( $attribute_key ) ) {
-    			$term = get_term_by( 'slug', $attribute_value, $attribute_key );
-    			if ( ! is_wp_error( $term ) && is_object( $term ) && $term->name ) {
-    				$display_value = $term->name;
-    			}
-    		}
-    		$html .= '<div class="mini-product__item mini-product__attribute">
+		 
+		foreach ($attributes as $attribute_key => $attribute_value)
+		{
+			$display_key   = wc_attribute_label( $attribute_key, $product );
+			$display_value = $attribute_value;
+			 
+			if ( taxonomy_exists( $attribute_key ) ) {
+				$term = get_term_by( 'slug', $attribute_value, $attribute_key );
+				if ( ! is_wp_error( $term ) && is_object( $term ) && $term->name ) {
+					$display_value = $term->name;
+				}
+			}
+			$html .= '<div class="mini-product__item mini-product__attribute">
 						<span class="label variation-color">'. $display_key .':</span>
 						<span class="value variation-color">'. $display_value .'</span>
 					</div>';
-    	}
-    	
-    	$html .= '<p class="mini-product__item mini-product__id light-copy">商品番号 #' . $product_test->get_sku() . '</p>';
-    	return $html;
-    }
-    elseif( is_a($product, "WC_Product") ){
-        $product_test    = new WC_Product($product->id);
-        
-       return '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' . 
-         '<div class="mini-product__item mini-product__name-ja p6">
+		}
+		 
+		$html .= '<p class="mini-product__item mini-product__id light-copy">商品番号 #' . $product_test->get_sku() . '</p>';
+		return $html;
+	}
+	elseif( is_a($product, "WC_Product") ){
+		$product_test    = new WC_Product($product->id);
+
+		return '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' .
+				'<div class="mini-product__item mini-product__name-ja p6">
 			<a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">
 				'.$product_title . '
 			</a>
          </div>' .
-       	'<p class="mini-product__item mini-product__id light-copy">商品番号 #' . $product_test->get_sku() . '</p>';
-    }
-    else{
-     return $product_title ;
-    }
+         '<p class="mini-product__item mini-product__id light-copy">商品番号 #' . $product_test->get_sku() . '</p>';
+	}
+	else{
+		return $product_title ;
+	}
 }
 //add action give it the name of our function to run
 add_action( 'woocommerce_after_shop_loop_item_title', 'wcs_stock_text_shop_page', 25 );
@@ -561,44 +561,44 @@ add_action( 'woocommerce_after_shop_loop_item_title', 'wcs_stock_text_shop_page'
 //create our function
 function wcs_stock_text_shop_page() {
 
-//returns an array with 2 items availability and class for CSS
-global $product;
-$availability = $product->get_availability();
+	//returns an array with 2 items availability and class for CSS
+	global $product;
+	$availability = $product->get_availability();
 
-//check if availability in the array = string 'Out of Stock'
-//if so display on page.//if you want to display the 'in stock' messages as well just leave out this, == 'Out of stock'
-if ( $availability['availability'] == 'Out of stock') {
-    echo apply_filters( 'woocommerce_stock_html', '<p class="stock ' . esc_attr( $availability['class'] ) . '">' . esc_html( $availability['availability'] ) . '</p>', $availability['availability'] );
-}
+	//check if availability in the array = string 'Out of Stock'
+	//if so display on page.//if you want to display the 'in stock' messages as well just leave out this, == 'Out of stock'
+	if ( $availability['availability'] == 'Out of stock') {
+		echo apply_filters( 'woocommerce_stock_html', '<p class="stock ' . esc_attr( $availability['class'] ) . '">' . esc_html( $availability['availability'] ) . '</p>', $availability['availability'] );
+	}
 }
 /****** NOT WORKING************/
 /*hide stock not working*/
 function my_wc_hide_in_stock_message( $html='', $text, $product='' ) {
-	
+
 	if($product !=''){
-	$availability = $product->get_availability();
-	if ( isset( $availability['class'] ) && 'in-stock' === $availability['class'] ) {
-		return '';
-	}
+		$availability = $product->get_availability();
+		if ( isset( $availability['class'] ) && 'in-stock' === $availability['class'] ) {
+			return '';
+		}
 	}else{
-	
-	if ('in-stock' != $text ) {
-		return '';
+
+		if ('in-stock' != $text ) {
+			return '';
+		}
 	}
-	}
-	
+
 	return $html;
 }
 add_filter( 'woocommerce_stock_html', 'my_wc_hide_in_stock_message', 10, 3 );
 
 /*hide add to cart when out of stock not working
-if (!function_exists('woocommerce_template_loop_add_to_cart')) {
-    function woocommerce_template_loop_add_to_cart() {
-        global $product;
-        if ( ! $product->is_in_stock() || ! $product->is_purchasable() ) return;
-        woocommerce_get_template('loop/add-to-cart.php');
-    }
-}*/
+ if (!function_exists('woocommerce_template_loop_add_to_cart')) {
+ function woocommerce_template_loop_add_to_cart() {
+ global $product;
+ if ( ! $product->is_in_stock() || ! $product->is_purchasable() ) return;
+ woocommerce_get_template('loop/add-to-cart.php');
+ }
+ }*/
 
 //webfonts
 function webfonts_scripts ()
@@ -622,13 +622,13 @@ function custom_scripts ()
 {
 	wp_register_script('autokana', get_stylesheet_directory_uri() . '/js/jquery.autoKana.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('autokana');
-	
+
 	wp_register_script('simple-ticker', get_stylesheet_directory_uri() . '/js/jquery.simpleTicker/jquery.simpleTicker.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('simple-ticker');
 
 	wp_register_script('custom_js', get_stylesheet_directory_uri() . '/js/custom.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('custom_js');
-	
+
 	wp_dequeue_script( 'sticky-header', ELSEY_SCRIPTS . '/sticky.min.js', array( 'jquery' ), '1.0.4', true );
 	wp_enqueue_script('sticky-header', get_stylesheet_directory_uri() . '/js/sticky.min.js', array( 'jquery' ),'', true);
 }
@@ -687,7 +687,7 @@ function woo_title_order_received( $title, $id ) {
 }
 
 function wc_cart_totals_order_total_html1() {
-	
+
 	$value = '<strong>'. WC()->cart->get_total(). '</strong>';
 	echo $value;
 }
@@ -724,7 +724,7 @@ add_filter('woocommerce_order_item_name', 'elsey_woocommerce_cart_item_name', 10
 function elsey_woocommerce_cart_item_name ($product_name, $cart_item, $cart_item_key)
 {
 	$product = get_product($cart_item['product_id']);
-	
+
 	if ($cart_item['variation_id'])
 	{
 		$variation = get_product($cart_item['variation_id']);
@@ -735,7 +735,7 @@ function elsey_woocommerce_cart_item_name ($product_name, $cart_item, $cart_item
 		$product_link = $product->get_permalink( $cart_item );
 		$product_name = $product->name;
 	}
-	
+
 	return sprintf( '<a href="%s">%s</a>', $product_link, $product_name );
 }
 
@@ -795,15 +795,15 @@ function look_woocommerce_admin_extra_fields($fields){
 		'label' => __( '姓(ふりがな)', 'woocommerce' ),
 		'show'  => false
 	);
-	
+
 	$fieldExtras['first_name_kana'] = array(
 		'label' => __( '名(ふりがな)', 'woocommerce' ),
 		'show'  => false
 	);
-	
+
 
 	$fields = insertAtSpecificIndex($fields, $fieldExtras, array_search('last_name', array_keys($fields)) + 1);
-	
+
 	$fields['phone'] = array(
 		'label' => __( 'phone', 'woocommerce' ),
 	);
@@ -815,7 +815,7 @@ function elsey_woocommerce_localisation_address_formats($formats) {
 	if(is_admin())
 	{
 		$format_string = "{last_name} {first_name}\n{kananame}\n{company}\n{country}\n〒{postcode}\n{state}\n{city}\n{address_1}\n{address_2}";
-		
+
 	}
 	else {
 		$format_string = "<span class='readonly-address__item'>{last_name} {first_name} ({kananame})</span><span class='readonly-address__item'>{company}</span><br><span class='readonly-address__item'>{country}</span><span class='readonly-address__item'>〒{postcode}</span><span class='readonly-address__item'>{state}{city}{address_1}</span><span class='readonly-address__item'>{address_2}</span>";
@@ -907,14 +907,14 @@ function look_woocommerce_my_account_my_address_formatted_address($fields, $cust
 
 //add fav content to my account
 function carome_add_list_endpoint() {
-    add_rewrite_endpoint( 'favorite-list', EP_ROOT | EP_PAGES );
-    add_rewrite_endpoint( 'waitlist', EP_ROOT | EP_PAGES );
+	add_rewrite_endpoint( 'favorite-list', EP_ROOT | EP_PAGES );
+	add_rewrite_endpoint( 'waitlist', EP_ROOT | EP_PAGES );
 }
 add_action( 'init', 'carome_add_list_endpoint' );
 
 // ------------------
 // 2. Add new query var
- 
+
 function carome_list_query_vars( $vars ) {
 	if (!in_array('favorite-list', $vars))
 	{
@@ -924,33 +924,33 @@ function carome_list_query_vars( $vars ) {
 	{
 		$vars[] = 'waitlist';
 	}
-	
-    return $vars;
+
+	return $vars;
 }
 add_filter( 'query_vars', 'carome_list_query_vars', 0 );
- 
+
 // ------------------
 // 3. Insert the new endpoint into the My Account menu
- 
+
 /*function carome_add_fav_list_link_my_account( $items ) {
-    $items['favorite-list'] = __('お気に入りアイテム', 'elsey');
-	$items['waitlist'] = __('再入荷待ちアイテム', 'elsey');
-    return $items;
-}
-add_filter( 'woocommerce_account_menu_items', 'carome_add_fav_list_link_my_account' );*/
- 
- 
+ $items['favorite-list'] = __('お気に入りアイテム', 'elsey');
+ $items['waitlist'] = __('再入荷待ちアイテム', 'elsey');
+ return $items;
+ }
+ add_filter( 'woocommerce_account_menu_items', 'carome_add_fav_list_link_my_account' );*/
+
+
 // ------------------
 // 4. Add content to the new endpoint
- 
+
 function carome_fav_list_content() {
-echo '<h1 class="account__heading heading heading--xlarge serif">お気に入りアイテム</h1>';
-echo do_shortcode( ' [yith_wcwl_wishlist] ' );
+	echo '<h1 class="account__heading heading heading--xlarge serif">お気に入りアイテム</h1>';
+	echo do_shortcode( ' [yith_wcwl_wishlist] ' );
 }
 add_action( 'woocommerce_account_favorite-list_endpoint', 'carome_fav_list_content' );
 function carome_wait_list_content() {
-echo '<h1 class="account__heading heading heading--xlarge serif">再入荷待ちアイテム</h1>';
-echo do_shortcode( ' [woocommerce_my_waitlist] ' );
+	echo '<h1 class="account__heading heading heading--xlarge serif">再入荷待ちアイテム</h1>';
+	echo do_shortcode( ' [woocommerce_my_waitlist] ' );
 }
 add_action( 'woocommerce_account_waitlist_endpoint', 'carome_wait_list_content' );
 
@@ -974,7 +974,7 @@ function elsey_custom_checkout_field_update_order_meta( $order_id )
 {
 	$userID = get_current_user_id();
 	if (!get_user_meta($user_id, 'first_name_kana', true))
-	{	
+	{
 		update_user_meta($userID, 'first_name_kana', $_POST['billing_first_name_kana']);
 	}
 	if (!get_user_meta($user_id, 'last_name_kana', true))
@@ -995,7 +995,7 @@ function elsey_wcwl_after_remove_user_from_waitlist ($product_id, $user )
 	$user_id = $user->ID;
 	$waitlist_user = get_user_meta($user_id, woocommerce_waitlist_user, true);
 	$waitlist_user = $waitlist_user ? $waitlist_user : array();
-	
+
 	if (isset($waitlist_user) && isset($waitlist_user[$product_id])){
 		unset($waitlist_user[$product_id]);
 	}
@@ -1064,11 +1064,11 @@ function elsey_woocommerce_display_item_meta ( $html, $item, $args)
 	$strings = array();
 	foreach ( $item->get_formatted_meta_data() as $meta_id => $meta ) {
 		$strings[] = '<div class="mini-product__item mini-product__attribute">
-						<span class="label variation-color">' . wp_kses_post( $meta->display_key ) . ':</span> 
+						<span class="label variation-color">' . wp_kses_post( $meta->display_key ) . ':</span>
 					 	<span class="value variation-color">'. strip_tags($meta->display_value) .'</span>
 					</div>';
 	}
-	
+
 	$html = implode( '', $strings );
 	return $html;
 }
@@ -1094,16 +1094,16 @@ add_filter('woocommerce_bacs_account_fields','custom_bacs_fields');
 function custom_bacs_fields() {
 	global $wpdb;
 	$account_details = get_option( 'woocommerce_bacs_accounts',
+			array(
 				array(
-					array(
-						'account_name'   => get_option( 'account_name' ),
-						'account_number' => get_option( 'account_number' ),
-						'sort_code'      => get_option( 'sort_code' ),
-						'bank_name'      => get_option( 'bank_name' ),
-						'iban'           => get_option( 'iban' ),
-						'bic'            => get_option( 'bic' )
-					)
+					'account_name'   => get_option( 'account_name' ),
+					'account_number' => get_option( 'account_number' ),
+					'sort_code'      => get_option( 'sort_code' ),
+					'bank_name'      => get_option( 'bank_name' ),
+					'iban'           => get_option( 'iban' ),
+					'bic'            => get_option( 'bic' )
 				)
+			)
 
 			);
 	$account_fields = array(
@@ -1135,14 +1135,14 @@ function show_epsilon_method() {
 		ob_start();
 		$user = wp_get_current_user();
 		$removed_epsilon = get_user_meta($user->ID, 'epsilon_cc_removed', true);
-		
+
 		// Stop showing if the method removed
 		if ($removed_epsilon) return '';
-		
+
 		$epsilon = new WC_Epsilon();
 		$customer_check = $epsilon->user_has_stored_data( $user->ID );
 		if ( $customer_check['err_code']!=801 && $customer_check['result']==1) {
-		?>
+			?>
 			<!--Start saved credit card-->
 			<div class="payment-list row">
 				<div class="col-xs-12 col-lg-6 first Visa">
@@ -1739,9 +1739,13 @@ add_action( 'wp_ajax_nopriv_process_stock_schedule', 'elsey_process_stock_schedu
 add_action( 'wp_ajax_process_stock_schedule', 'elsey_process_stock_schedule' );
 function elsey_process_stock_schedule() {
 	$current_time = date('Y-m-d H:i', current_time( 'timestamp', 0 ));
-	
+
+	// @TODO remove this
+		$current_time = '2018-03-07 23:59';
+			
 	$stock_schedules = get_option('restock_schedule');
 	$new_stock_schedules = array();
+	
 	if ($stock_schedules && !empty($stock_schedules))
 	{
 		foreach($stock_schedules as $product_id => $stock_schedule)
@@ -1753,10 +1757,11 @@ function elsey_process_stock_schedule() {
 			$schedule = $stock_schedule['schedule'];
 			$quantity = $stock_schedule['quantity'];
 			$schedule_date = str_replace(array('年', '月', '日'), array('-', '-', ''), $schedule);
-			$schedule_date = date('Y-m-d H:i', strtotime($schedule_date)); 
+			$schedule_date = date('Y-m-d H:i', strtotime($schedule_date));
 			
+			pr($schedule_date);die;
 			if ($current_time >= $schedule_date)
-			{
+			{				
 				// Restock when ontime
 				wc_update_product_stock($product_id, $quantity);
 			}
