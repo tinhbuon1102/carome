@@ -1753,6 +1753,8 @@ function elsey_process_stock_schedule() {
 			$schedule = $stock_schedule['schedule'];
 			$quantity = $stock_schedule['quantity'];
 			$schedule_date = str_replace(array('年', '月', '日'), array('-', '-', ''), $schedule);
+			$schedule_date = date('Y-m-d H:i', strtotime($schedule_date)); 
+			
 			if ($current_time >= $schedule_date)
 			{
 				// Restock when ontime
