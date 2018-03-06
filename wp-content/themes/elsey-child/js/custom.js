@@ -15,7 +15,7 @@ jQuery(document).ready(function($){
     // Then take the value from this attribute and add it into the class list.
     $(this).addClass(class_to_add);
   });
-  
+  $.simpleTicker($("#ticker"),{'effectType':'fade'});
   // Scour the elements in the DOM for the existence of a 'data-toggle' attribute.
   $('[data-toggle]').on('click', function(e){
     // The target is the attribute value, a CSS selector
