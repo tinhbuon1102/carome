@@ -196,6 +196,25 @@ h3.waitlist_error {
 .zoo-cw-variations li div.label:after {
     clear: both;
 }
+
+.flexslider [class*='flex-'] {
+	display: block  !important;
+	position: static;
+}
+
+.flex-control-nav {
+	position: absolute !important;
+	display: block  !important;
+}
+
+.flex-direction-nav {
+	display: block  !important;
+}
+
+.flexslider .flex-direction-nav a{
+	position: absolute  !important;
+}
+
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;

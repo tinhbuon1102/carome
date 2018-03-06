@@ -80,7 +80,12 @@ $elsey_logo_style  = '';
 $elsey_logo_style .= ($elsey_brand_logo_top) ? 'padding-top:'.elsey_check_px($elsey_brand_logo_top).';' : '';
 $elsey_logo_style .= ($elsey_brand_logo_bottom) ? 'padding-bottom:'.elsey_check_px($elsey_brand_logo_bottom).';' : '';
 $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_px($elsey_brand_logo_width).';' : ''; ?>
-
+<div id="ticker" class="header__promo-banner">
+<ul>
+<li><a href="<?php if ( !is_product() ){ ?>#modelaud<?php }else{?>https://carome-audition.com<?php }?>" <?php if ( is_product() ){ ?>target="_blank"<?php }?>>CAROME.モデルオーディション開始</a></li>
+<li><a href="<?php if ( !is_product() ){ ?>#modelaud<?php }else{?>https://carome-audition.com<?php }?>" <?php if ( is_product() ){ ?>target="_blank"<?php }?>>募集モデル：男・女</a></li>
+</ul>
+</div>
 <!-- Menubar Starts -->
 <div class="els-menubar <?php echo esc_attr($elsey_menubar_position_class); ?>" style="<?php echo esc_attr($elsey_menubar_bg); ?>">
   <div class="o-row">
