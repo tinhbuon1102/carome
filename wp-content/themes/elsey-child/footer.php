@@ -28,6 +28,9 @@ if ($elsey_meta) {
 } ?>
 <?php if ( !is_product() ){ echo '</div>'; } ?>
 <!-- Content Background End -->
+<?php if ( !is_product() ){ ?>
+<div id="modelaud" class="footer-banner"><a href="https://carome-audition.com" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/carome_model_aud_banner-wide.jpg" class="xs-hide" /><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/carome_model_aud_banner-sp_ver04.jpg" class="xs-show" /></a></div>
+<?php } ?>
 </div>
 <!-- max-width--site End -->
 </div>
