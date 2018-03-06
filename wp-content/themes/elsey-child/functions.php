@@ -1740,9 +1740,6 @@ add_action( 'wp_ajax_process_stock_schedule', 'elsey_process_stock_schedule' );
 function elsey_process_stock_schedule() {
 	$current_time = date('Y-m-d H:i', current_time( 'timestamp', 0 ));
 
-	// @TODO remove this
-		$current_time = '2018-03-07 23:59';
-			
 	$stock_schedules = get_option('restock_schedule');
 	$new_stock_schedules = array();
 	
