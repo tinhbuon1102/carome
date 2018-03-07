@@ -1296,7 +1296,7 @@ function change_orders_detail_name(){
 		'post_type'   => 'shop_order',
 		'posts_per_page' => '-1',
 		'post_status' => $order_statuses,
-		'posts_per_page' => 500, 'offset' => 0
+		'posts_per_page' => 500, 'offset' => (int)$_GET['change_old_order_name']
 	));
 	foreach ($orders as $order)
 	{
@@ -1332,7 +1332,7 @@ function change_orders_detail_name(){
 			}
 		}
 	}
-
+	die('done');
 }
 
 add_action( 'woocommerce_email_before_order_table', 'add_order_email_instructions', 10, 2 );
