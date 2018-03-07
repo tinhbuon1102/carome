@@ -1296,7 +1296,7 @@ function change_orders_detail_name(){
 		'post_type'   => 'shop_order',
 		'posts_per_page' => '-1',
 		'post_status' => $order_statuses,
-		'posts_per_page' => 500, 'offset' => 0
+		'posts_per_page' => 500, 'offset' => 0 
 	));
 	foreach ($orders as $order)
 	{
