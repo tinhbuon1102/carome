@@ -851,7 +851,7 @@ function elsey_woe_fetch_order_row ($row, $order_id)
 		elseif (strpos($key, '_state') !== false)
 		{
 			$states = WC()->countries->get_states( 'JP' );
-			$row[$key] = $states[$field];
+			$row[$key] = $states[$field] ? $states[$field] : $row[$key];
 		}
 	}
 	return $row;
