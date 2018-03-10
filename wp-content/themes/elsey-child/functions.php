@@ -626,7 +626,7 @@ function custom_scripts ()
 	wp_register_script('simple-ticker', get_stylesheet_directory_uri() . '/js/jquery.simpleTicker/jquery.simpleTicker.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('simple-ticker');
 
-	wp_register_script('custom_js', get_stylesheet_directory_uri() . '/js/custom.js?v=1', array( 'jquery' ),'', true);
+	wp_register_script('custom_js', get_stylesheet_directory_uri() . '/js/custom.js?v=' . time(), array( 'jquery' ),'', true);
 	wp_enqueue_script('custom_js');
 
 	wp_dequeue_script( 'sticky-header', ELSEY_SCRIPTS . '/sticky.min.js', array( 'jquery' ), '1.0.4', true );
