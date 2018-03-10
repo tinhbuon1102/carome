@@ -260,7 +260,13 @@ jQuery(document).ready(function($){
 			if ($(joinBtn).length)
 			{
 				$(joinBtn).trigger('click');
-				location.href = $(joinBtn).attr('href');
+				
+				if( $( '#wcwl_email' ).length > 0 ) {
+                    window.location.href = $(joinBtn).attr( 'href' ) + '&wcwl_email=' + $( '#wcwl_email' ).val();
+	            }
+				else {
+					window.location.href = $(joinBtn).attr( 'href' );
+				}
 			}
 			else {
 				$('#waitlist_remodal .waitlist_error').html(already_in_waitlist);
