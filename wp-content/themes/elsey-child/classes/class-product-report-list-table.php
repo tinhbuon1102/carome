@@ -37,7 +37,6 @@ class Product_Quantity_Report_List extends WP_List_Table {
 			case 'today' :
 				$where .= ' AND DATE(p.post_date) = CURDATE() ';
 				break;
-				
 			case 'yesterday' :
 				$where .= ' AND (p.post_date >= CURDATE() - INTERVAL 1 DAY) AND (p.post_date < CURDATE()) ';
 				break;
@@ -67,6 +66,7 @@ class Product_Quantity_Report_List extends WP_List_Table {
 				break;
 				
 			default :
+				$where .= ' AND DATE(p.post_date) = CURDATE() ';
 				break;
 		}
 		
@@ -278,8 +278,6 @@ class Product_Quantity_Report_List extends WP_List_Table {
 				</style>';
 		echo '<form method="get" name="product-reporting-dashboard" class="product-reporting-dashboard">';
 		echo '<select name="action' . $two . '" id="time-action-selector-' . esc_attr( $which ) . "\">\n";
-		echo '<option value="-1">' . __( 'View Per Time', 'else' ) . "</option>\n";
-		
 		$current_action = $this->current_action();
 		$actions = $this->get_time_actions();
 		foreach ( $actions as $name => $title ) {
