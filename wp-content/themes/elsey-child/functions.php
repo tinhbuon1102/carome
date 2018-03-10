@@ -1657,6 +1657,20 @@ function else_show_product_stock_record()
 	echo '</ul>';
 }
 
+add_filter('posts_clauses', 'elsey_order_by_stock_status', 200, 1);
+function elsey_order_by_stock_status($posts_clauses)
+{
+	if (is_woocommerce() && (is_shop() || is_product_category() || is_product_tag()))
+	{
+		global $wpdb;
+		$posts_clauses['join'] .= " INNER JOIN $wpdb->postmeta st ON ($wpdb->posts.ID = st.post_id) ";
+		$posts_clauses['orderby'] = "stock DESC, st.meta_value ASC, " . $posts_clauses['orderby'];
+		$posts_clauses['where'] = " AND st.meta_key = '_stock_status' AND st.meta_value <> '' " . $posts_clauses['where'];
+		$posts_clauses['fields'] = $posts_clauses['fields'] . ", IF(st.meta_value > 0, 1, 0) as stock ";
+	}
+	return $posts_clauses;
+}
+
 add_action( 'woocommerce_process_product_meta_simple', 'else_woocommerce_process_product_meta_simple', 100, 1);
 function else_woocommerce_process_product_meta_simple($post_id)
 {
