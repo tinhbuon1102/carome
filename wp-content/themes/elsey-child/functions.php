@@ -133,14 +133,14 @@ add_action( 'woocommerce_after_order_notes', 'woocommerce_checkout_payment', 20 
 /*remove country field from checkout*/
 function custom_override_checkout_fields( $fields )
 {
-	unset($fields['billing']['billing_country']);
-	unset($fields['shipping']['shipping_country']);
+// 	unset($fields['billing']['billing_country']);
+// 	unset($fields['shipping']['shipping_country']);
 	return $fields;
 }
 add_filter('woocommerce_checkout_fields','custom_override_checkout_fields');
 
 function custom_override_billing_fields( $fields ) {
-	unset($fields['billing_country']);
+	//unset($fields['billing_country']);
 
 	$fields['billing_last_name_kana'] = array(
 		'label'     => __('姓(ふりがな)', 'woocommerce'),
@@ -157,6 +157,7 @@ function custom_override_billing_fields( $fields ) {
 	$fields['billing_last_name']['class'] = array('form-row-first');
 	$fields['billing_first_name']['class'] = array('form-row-last');
 	$fields['billing_postcode']['class'] = array('form-row-first', 'address-field');
+	$fields['billing_country']['class'] = array('form-row-wide', 'address-field');
 	$fields['billing_state']['class'] = array('form-row-last', 'address-field');
 	$fields['billing_city']['class'] = array('form-row-wide', 'address-field');
 
@@ -168,6 +169,7 @@ function custom_override_billing_fields( $fields ) {
 		"billing_first_name_kana",
 		"billing_postcode",
 		"billing_state",
+		"billing_country",
 		"billing_city",
 		"billing_address_1",
 		"billing_address_2",
@@ -176,18 +178,20 @@ function custom_override_billing_fields( $fields ) {
 	);
 
 	$ordered_fields = array();
-	foreach($order as $field)
+	foreach($order as $indexField => $field)
 	{
+		$fields[$field]['priority'] = ($indexField + 1) * 10;
 		$ordered_fields[$field] = $fields[$field];
 	}
 
 	$fields = $ordered_fields;
+	
 	return $fields;
 }
 add_filter( 'woocommerce_billing_fields' , 'custom_override_billing_fields' );
 
 function custom_override_shipping_fields( $fields ) {
-	unset($fields['shipping_country']);
+// 	unset($fields['shipping_country']);
 
 	$fields['shipping_last_name_kana'] = array(
 		'label'     => __('姓(ふりがな)', 'woocommerce'),
@@ -204,6 +208,7 @@ function custom_override_shipping_fields( $fields ) {
 	$fields['shipping_last_name']['class'] = array('form-row-first');
 	$fields['shipping_first_name']['class'] = array('form-row-last');
 	$fields['shipping_postcode']['class'] = array('form-row-first', 'address-field');
+	$fields['shipping_country']['class'] = array('form-row-wide', 'address-field');
 	$fields['shipping_state']['class'] = array('form-row-last', 'address-field');
 	$fields['shipping_city']['class'] = array('form-row-wide', 'address-field');
 
@@ -215,6 +220,7 @@ function custom_override_shipping_fields( $fields ) {
 		"shipping_first_name_kana",
 		"shipping_postcode",
 		"shipping_state",
+		"shipping_country",
 		"shipping_city",
 		"shipping_address_1",
 		"shipping_address_2",
@@ -224,6 +230,7 @@ function custom_override_shipping_fields( $fields ) {
 	$ordered_fields = array();
 	foreach($order as $field)
 	{
+		$fields[$field]['priority'] = ($indexField + 1) * 10;
 		$ordered_fields[$field] = $fields[$field];
 	}
 
