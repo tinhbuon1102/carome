@@ -49,6 +49,40 @@ do_action( 'woocommerce_before_edit_account_form' ); ?>
 		<label class="form-row__label light-copy" for="account_email"><?php _e( 'Email address', 'woocommerce' ); ?> <span class="required">*</span></label>
 		<input type="email" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" value="<?php echo esc_attr( $user->user_email ); ?>" />
 	</div>
+	
+	<?php 
+	$aTimes = getArrayYearMonthDay();
+	$user_birth_year = get_user_meta($user->ID, 'birth_year', true);
+	$user_birth_month = get_user_meta($user->ID, 'birth_month', true);
+	$user_birth_day = get_user_meta($user->ID, 'birth_day', true);
+	?>
+	<div class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+		<label for=birth_year class="control-label"><?php esc_html_e( 'Your Birth', 'elsey' ); ?> <span class="required">*</span></label>
+		
+		<div class="birth_wraper birth_year_wraper form-row-first-3 form-group">
+			<select name="birth_year" id="birth_year" class="woocommerce-Select form-control" required>
+			<?php foreach ($aTimes['years'] as $timeKey => $timeValue) {?>
+				<option value="<?php echo $timeKey?>" <?php echo $user_birth_year == $timeKey ? 'selected' : ''?> ><?php echo $timeValue?></option>
+			<?php }?>
+			</select>
+		</div>
+		
+		<div class="birth_wraper birth_month_wraper form-row-middle-3 form-group">
+			<select name="birth_month" id="birth_month" class="woocommerce-Select form-control" required>
+			<?php foreach ($aTimes['months'] as $timeKey => $timeValue) {?>
+				<option value="<?php echo $timeKey?>" <?php echo $user_birth_month == $timeKey ? 'selected' : ''?> ><?php echo $timeValue?></option>
+			<?php }?>
+			</select>
+		</div>
+		
+		<div class="birth_wraper birth_day_wraper form-row-last-3 form-group">
+			<select name="birth_day" id="birth_day" class="woocommerce-Select form-control"  required>
+			<?php foreach ($aTimes['days'] as $timeKey => $timeValue) {?>
+				<option value="<?php echo $timeKey?>" <?php echo $user_birth_day == $timeKey ? 'selected' : ''?> ><?php echo $timeValue?></option>
+			<?php }?>
+			</select>
+		</div>
+	</div>
 	</fieldset>
 
 	<fieldset class="form-row-wrap">

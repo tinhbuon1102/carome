@@ -130,6 +130,22 @@ function custom_wc_form_field_args( $args, $key, $value ){
 remove_action( 'woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20 );
 add_action( 'woocommerce_after_order_notes', 'woocommerce_checkout_payment', 20 );
 
+
+add_action( 'user_register', 'elsey_register_new_user', 10, 1 );
+function elsey_register_new_user($user_id){
+	$user = get_user_by( 'id', $user_id );
+	if( $user && isset($_POST['birth_year']) ) {
+		update_user_meta($user_id, 'birth_year', $_POST['birth_year']);
+		update_user_meta($user_id, 'billing_birth_year', $_POST['birth_year']);
+		
+		update_user_meta($user_id, 'birth_month', $_POST['birth_month']);
+		update_user_meta($user_id, 'billing_birth_month', $_POST['birth_month']);
+		
+		update_user_meta($user_id, 'birth_day', $_POST['birth_day']);
+		update_user_meta($user_id, 'billing_birth_day', $_POST['birth_day']);
+	}
+}
+
 function getArrayYearMonthDay()
 {
 	$aTimes = array();
@@ -181,27 +197,30 @@ function custom_override_billing_fields( $fields ) {
 	
 	$aTimes = getArrayYearMonthDay();
 	
-	$fields['billing_birth_year'] = array(
-		'label'     => __('Birth Year', 'elsey'),
-		'required'  => true,
-		'type'  => 'select',
-		'options' => $aTimes['years'],
-		'class'     => array('form-row-first-3 form-row-wide')
-	);
-	$fields['billing_birth_month'] = array(
-		'label'     => __('Birth Month', 'elsey'),
-		'required'  => true,
-		'type'  => 'select',
-		'options' => $aTimes['months'],
-		'class'     => array('form-row-middle-3 form-row-wide')
-	);
-	$fields['billing_birth_day'] = array(
-		'label'     => __('Birth Day', 'elsey'),
-		'required'  => true,
-		'type'  => 'select',
-		'options' => $aTimes['days'],
-		'class'     => array('form-row-last-3 form-row-wide')
-	);
+	if (is_checkout())
+	{
+		$fields['billing_birth_year'] = array(
+			'label'     => __('Birth Year', 'elsey'),
+			'required'  => true,
+			'type'  => 'select',
+			'options' => $aTimes['years'],
+			'class'     => array('form-row-first-3 form-row-wide')
+		);
+		$fields['billing_birth_month'] = array(
+			'label'     => __('Birth Month', 'elsey'),
+			'required'  => true,
+			'type'  => 'select',
+			'options' => $aTimes['months'],
+			'class'     => array('form-row-middle-3 form-row-wide')
+		);
+		$fields['billing_birth_day'] = array(
+			'label'     => __('Birth Day', 'elsey'),
+			'required'  => true,
+			'type'  => 'select',
+			'options' => $aTimes['days'],
+			'class'     => array('form-row-last-3 form-row-wide')
+		);
+	}
 
 	$fields['billing_last_name']['class'] = array('form-row-first');
 	$fields['billing_first_name']['class'] = array('form-row-last');
@@ -1025,6 +1044,14 @@ function woocommerce_save_account_details_custom ($userID)
 {
 	update_user_meta($userID, 'first_name_kana', $_POST['account_first_name_kana']);
 	update_user_meta($userID, 'last_name_kana', $_POST['account_last_name_kana']);
+	
+	update_user_meta($userID, 'birth_year', $_POST['birth_year']);
+	update_user_meta($userID, 'birth_month', $_POST['birth_month']);
+	update_user_meta($userID, 'birth_day', $_POST['birth_day']);
+	
+	update_user_meta($userID, 'billing_birth_year', $_POST['birth_year']);
+	update_user_meta($userID, 'billing_birth_month', $_POST['birth_month']);
+	update_user_meta($userID, 'billing_birth_day', $_POST['birth_day']);
 }
 
 add_action( 'woocommerce_save_account_details_required_fields', 'carome_woocommerce_save_account_details_required_fields' );

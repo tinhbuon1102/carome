@@ -113,6 +113,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<?php endif; ?>
 
+			<?php 
+			$aTimes = getArrayYearMonthDay();
+			?>
+			<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide ">
+				<label for=birth_year class="control-label"><?php esc_html_e( 'Your Birth', 'elsey' ); ?> <span class="required">*</span></label>
+				
+				<div class="birth_wraper birth_year_wraper form-row-first-3 form-group">
+					<select name="birth_year" id="birth_year" class="woocommerce-Select form-control" required>
+					<?php foreach ($aTimes['years'] as $timeKey => $timeValue) {?>
+						<option value="<?php echo $timeKey?>" ><?php echo $timeValue?></option>
+					<?php }?>
+					</select>
+				</div>
+				
+				<div class="birth_wraper birth_month_wraper form-row-middle-3 form-group">
+					<select name="birth_month" id="birth_month" class="woocommerce-Select form-control" required>
+					<?php foreach ($aTimes['months'] as $timeKey => $timeValue) {?>
+						<option value="<?php echo $timeKey?>" ><?php echo $timeValue?></option>
+					<?php }?>
+					</select>
+				</div>
+				
+				<div class="birth_wraper birth_day_wraper form-row-last-3 form-group">
+					<select name="birth_day" id="birth_day" class="woocommerce-Select form-control"  required>
+					<?php foreach ($aTimes['days'] as $timeKey => $timeValue) {?>
+						<option value="<?php echo $timeKey?>" ><?php echo $timeValue?></option>
+					<?php }?>
+					</select>
+				</div>
+			</p>
+			
 			<!-- Spam Trap -->
 			<div style="<?php echo ( ( is_rtl() ) ? 'right' : 'left' ); ?>: -999em; position: absolute;"><label for="trap"><?php esc_html_e( 'Anti-spam', 'elsey' ); ?></label><input type="text" name="email_2" id="trap" tabindex="-1" autocomplete="off" /></div>
 

@@ -41,6 +41,13 @@ jQuery(document).ready(function($){
   		$('#billing_birth_month').select2();
   		$('#billing_birth_day').select2();
   	}
+  	
+  	if ($('#birth_year').length)
+  	{
+  		$('#birth_year').select2();
+  		$('#birth_month').select2();
+  		$('#birth_day').select2();
+  	}
 
   	if ($('form.woocommerce-checkout').length)
   	{
