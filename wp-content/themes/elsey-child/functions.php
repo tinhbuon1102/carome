@@ -130,6 +130,30 @@ function custom_wc_form_field_args( $args, $key, $value ){
 remove_action( 'woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20 );
 add_action( 'woocommerce_after_order_notes', 'woocommerce_checkout_payment', 20 );
 
+function getArrayYearMonthDay()
+{
+	$aTimes = array();
+	
+	$aTimes['years'][''] = __('Select Year Of Birth', 'elsey');
+	$aTimes['months'][''] = __('Select Month Of Birth', 'elsey');
+	$aTimes['days'][''] = __('Select Day Of Birth', 'elsey');
+	
+	for($i = date('Y') - 12; $i >= 1910; $i--)
+	{
+		$aTimes['years'][$i] = $i;
+	}
+	
+	for($i = 1; $i <= 12; $i++)
+	{
+		$aTimes['months'][$i] = $i;
+	}
+	
+	for($i = 1; $i <= 31; $i++)
+	{
+		$aTimes['days'][$i] = $i;
+	}
+	return $aTimes;
+}
 /*remove country field from checkout*/
 function custom_override_checkout_fields( $fields )
 {
@@ -142,6 +166,7 @@ add_filter('woocommerce_checkout_fields','custom_override_checkout_fields');
 function custom_override_billing_fields( $fields ) {
 	//unset($fields['billing_country']);
 
+	$current_user = wp_get_current_user();
 	$fields['billing_last_name_kana'] = array(
 		'label'     => __('姓(ふりがな)', 'woocommerce'),
 		'required'  => true,
@@ -152,6 +177,30 @@ function custom_override_billing_fields( $fields ) {
 		'required'  => true,
 		'class'     => array('form-row-last'),
 		'clear'     => true
+	);
+	
+	$aTimes = getArrayYearMonthDay();
+	
+	$fields['billing_birth_year'] = array(
+		'label'     => __('Birth Year', 'elsey'),
+		'required'  => true,
+		'type'  => 'select',
+		'options' => $aTimes['years'],
+		'class'     => array('form-row-first-3 form-row-wide')
+	);
+	$fields['billing_birth_month'] = array(
+		'label'     => __('Birth Month', 'elsey'),
+		'required'  => true,
+		'type'  => 'select',
+		'options' => $aTimes['months'],
+		'class'     => array('form-row-middle-3 form-row-wide')
+	);
+	$fields['billing_birth_day'] = array(
+		'label'     => __('Birth Day', 'elsey'),
+		'required'  => true,
+		'type'  => 'select',
+		'options' => $aTimes['days'],
+		'class'     => array('form-row-last-3 form-row-wide')
 	);
 
 	$fields['billing_last_name']['class'] = array('form-row-first');
@@ -177,18 +226,27 @@ function custom_override_billing_fields( $fields ) {
 		"billing_email",
 	);
 
+	if ((!get_user_meta($current_user->ID, 'birth_year', true) && is_checkout()) || !is_checkout())
+	{
+		$order[] = 'billing_birth_year';
+		$order[] = 'billing_birth_month';
+		$order[] = 'billing_birth_day';
+	}
+	
 	$ordered_fields = array();
 	foreach($order as $indexField => $field)
 	{
-		$fields[$field]['priority'] = ($indexField + 1) * 10;
-		$ordered_fields[$field] = $fields[$field];
+		if (isset($fields[$field]))
+		{
+			$fields[$field]['priority'] = ($indexField + 1) * 10;
+			$ordered_fields[$field] = $fields[$field];
+		}
 	}
 
 	$fields = $ordered_fields;
-	
 	return $fields;
 }
-add_filter( 'woocommerce_billing_fields' , 'custom_override_billing_fields' );
+add_filter( 'woocommerce_billing_fields' , 'custom_override_billing_fields', 100000 );
 
 function custom_override_shipping_fields( $fields ) {
 // 	unset($fields['shipping_country']);
@@ -882,6 +940,7 @@ function look_woocommerce_customer_meta_fields ($fields) {
 
 	$fields['billing']['fields'] = insertAtSpecificIndex($fields['billing']['fields'], $extraBilling, array_search('billing_last_name', array_keys($fields['billing']['fields'])) + 1);
 	$fields['shipping']['fields'] = insertAtSpecificIndex($fields['shipping']['fields'], $extraShipping, array_search('shipping_last_name', array_keys($fields['shipping']['fields'])) + 1);
+	
 	return $fields;
 }
 // Rename My Account navigation
@@ -987,6 +1046,19 @@ function elsey_custom_checkout_field_update_order_meta( $order_id )
 	if (!get_user_meta($user_id, 'last_name_kana', true))
 	{
 		update_user_meta($userID, 'last_name_kana', $_POST['billing_last_name_kana']);
+	}
+	
+	if (!get_user_meta($user_id, 'birth_year', true))
+	{
+		update_user_meta($userID, 'birth_year', $_POST['billing_birth_year']);
+	}
+	if (!get_user_meta($user_id, 'birth_month', true))
+	{
+		update_user_meta($userID, 'birth_month', $_POST['billing_birth_month']);
+	}
+	if (!get_user_meta($user_id, 'birth_day', true))
+	{
+		update_user_meta($userID, 'birth_day', $_POST['billing_birth_day']);
 	}
 }
 

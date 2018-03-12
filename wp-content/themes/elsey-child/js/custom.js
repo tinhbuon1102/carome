@@ -35,6 +35,13 @@ jQuery(document).ready(function($){
 	  }
 	});
   	
+  	if ($('#billing_birth_year').length)
+  	{
+  		$('#billing_birth_year').select2();
+  		$('#billing_birth_month').select2();
+  		$('#billing_birth_day').select2();
+  	}
+
   	if ($('form.woocommerce-checkout').length)
   	{
   		jQuery('form.woocommerce-checkout').on( 'checkout_place_order', function(){
