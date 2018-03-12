@@ -1791,3 +1791,65 @@ function elsey_process_stock_schedule() {
 	}
 	die('done');
 }
+
+add_action( 'wp_loaded', 'elsey_restock_cancelled' );
+function elsey_restock_cancelled ()
+{
+	$enable_restock = get_option('woocommerce_enable_restock');
+	if (!class_exists('WC_Auto_Stock_Restore') && $enable_restock == 'yes')
+	{
+		add_action( 'woocommerce_order_status_processing_to_cancelled', 'elsey_restore_order_stock', 10, 1 );
+		add_action( 'woocommerce_order_status_completed_to_cancelled', 'elsey_restore_order_stock', 10, 1 );
+		add_action( 'woocommerce_order_status_on-hold_to_cancelled', 'elsey_restore_order_stock', 10, 1 );
+		add_action( 'woocommerce_order_status_processing_to_refunded', 'elsey_restore_order_stock', 10, 1 );
+		add_action( 'woocommerce_order_status_completed_to_refunded', 'elsey_restore_order_stock', 10, 1 );
+		add_action( 'woocommerce_order_status_on-hold_to_refunded', 'elsey_restore_order_stock', 10, 1 );
+	}
+}
+
+function elsey_restore_order_stock($order_id){
+
+	$order = new WC_Order( $order_id );
+	
+	if ( ! get_option('woocommerce_manage_stock') == 'yes' && ! sizeof( $order->get_items() ) > 0 ) {
+		return;
+	}
+	
+	foreach ( $order->get_items() as $item ) {
+	
+		if ( $item['product_id'] > 0 ) {
+			$_product = $order->get_product_from_item( $item );
+	
+			if ( $_product && $_product->exists() && $_product->managing_stock() ) {
+	
+				$old_stock = $_product->stock;
+	
+				$qty = apply_filters( 'woocommerce_order_item_quantity', $item['qty'], $this, $item );
+	
+				$new_quantity = $_product->increase_stock( $qty );
+	
+				do_action( 'woocommerce_auto_stock_restored', $_product, $item );
+	
+				$order->add_order_note( sprintf( __( 'Item #%s stock incremented from %s to %s.', 'woocommerce' ), $item['product_id'], $old_stock, $new_quantity) );
+	
+				$order->send_stock_notifications( $_product, $new_quantity, $item['qty'] );
+			}
+		}
+	}
+	
+}
+
+add_filter( 'woocommerce_get_settings_general', 'else_woocommerce_get_settings_general', 1, 1);
+function else_woocommerce_get_settings_general($settings) {
+	$settings[] = array( 'title' => __( 'Restock When Order Cancel', 'elsey' ), 'type' => 'title', 'desc' => '', 'id' => 'enable_restock_title' );
+	
+	$settings[] = array(
+		'title'    => __( 'Enable Cancelled Restock', 'elsey' ),
+		'desc'    => __( 'Restock when order status is cancelled', 'woocommerce' ),
+		'default' => 'no',
+		'type'    => 'checkbox',
+		'id'       => 'woocommerce_enable_restock',
+	);
+	$settings[] = array( 'type' => 'sectionend', 'id' => 'enable_restock' );
+	return $settings;
+}
