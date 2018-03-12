@@ -1544,14 +1544,16 @@ function elsey_user_age_report_dashboard_widget_function() {
 	$sqlAllAge = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} WHERE meta_key = 'birth_year'";
 	$result = $wpdb->get_row($sqlAllAge);
 	$allCount = $result ? $result->count : 0;
-	foreach ($ageRanges as $range)
+	arsort($aRangesCount);
+	
+	foreach ($aRangesCount as $range => $rangeCount)
 	{
-		if (!$aRangesCount[$range]) continue;
+		if (!$rangeCount) continue;
 		
-		$percent = round(($aRangesCount[$range] / $allCount) * 100);
+		$percent = round(($rangeCount / $allCount) * 100);
 		echo '<div class="age-record">';
 		echo '<span class="range">';
-		echo sprintf(__('%1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $aRangesCount[$range], $percent);
+		echo sprintf(__('%1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $rangeCount, $percent);
 		echo '</span>';
 		echo '</div>';
 		
