@@ -1516,9 +1516,47 @@ function product_report_dashboard_widget() {
 			__('Product Quantity Report By Time', 'elsey'),
 			'grand_product_report_dashboard_widget_function'
 			);
+	
+	wp_add_dashboard_widget(
+			'user_age_report_dashboard_widget',
+			__('Member Age Report', 'elsey'),
+			'elsey_user_age_report_dashboard_widget_function'
+			);
 }
 add_action( 'wp_dashboard_setup', 'product_report_dashboard_widget' );
 
+function elsey_user_age_report_dashboard_widget_function() {
+	global $wpdb;
+	$ageRanges = array('1-13', '14-19', '20-24', '25-29', '30-34', '35-39', '40-50', '51-60', '61-70', '71-100');
+	$aRangesCount = array();
+	foreach ($ageRanges as $range)
+	{
+		$ageRange = explode('-', $range);
+		$sql = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} 
+			WHERE 
+				meta_key = 'birth_year' 
+				AND meta_value <= YEAR(CURDATE()) - {$ageRange[0]} 
+				AND meta_value >= YEAR(CURDATE()) - {$ageRange[1]}
+				";
+		$result = $wpdb->get_row($sql);
+		$aRangesCount[$range] = $result ? $result->count : 0;
+	}
+	$sqlAllAge = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} WHERE meta_key = 'birth_year'";
+	$result = $wpdb->get_row($sqlAllAge);
+	$allCount = $result ? $result->count : 0;
+	foreach ($ageRanges as $range)
+	{
+		if (!$aRangesCount[$range]) continue;
+		
+		$percent = round(($aRangesCount[$range] / $allCount) * 100);
+		echo '<div class="age-record">';
+		echo '<span class="range">';
+		echo sprintf(__('Range %1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $aRangesCount[$range], $percent);
+		echo '</span>';
+		echo '</div>';
+		
+	}
+}
 /**
  * Create the function to output the contents of our Dashboard Widget.
  */
