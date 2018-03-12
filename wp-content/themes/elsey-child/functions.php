@@ -1551,7 +1551,7 @@ function elsey_user_age_report_dashboard_widget_function() {
 		$percent = round(($aRangesCount[$range] / $allCount) * 100);
 		echo '<div class="age-record">';
 		echo '<span class="range">';
-		echo sprintf(__('Range %1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $aRangesCount[$range], $percent);
+		echo sprintf(__('%1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $aRangesCount[$range], $percent);
 		echo '</span>';
 		echo '</div>';
 		
