@@ -1387,7 +1387,6 @@ function elsey_woe_order_exported($order_id){
 
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
-	
 	if (!isset($_GET['change_old_order_name']))
 	{
 		return;
@@ -2009,4 +2008,47 @@ function else_woocommerce_get_settings_general($settings) {
 	);
 	$settings[] = array( 'type' => 'sectionend', 'id' => 'enable_restock' );
 	return $settings;
+}
+
+add_action( 'admin_menu', 'elsey_menu_report_removing', 99 );
+function elsey_menu_report_removing() {
+	if ( current_user_can( 'manage_woocommerce' ) ) {
+		global $submenu, $wp_filter;
+		$tag = 'woocommerce_page_wc-reports';
+		if (!class_exists('WC_Admin_Reports_New'))
+		{
+			$adminMenu = new WC_Admin_Menus;
+			remove_submenu_page( 'woocommerce', 'wc-reports' );
+			remove_action( $tag, array($adminMenu, 'reports_page') );
+			
+			if ( isset( $wp_filter[ $tag ] ) ) {
+				unset( $wp_filter[ $tag ] );
+			}
+			
+			require_once  get_stylesheet_directory() .'/woocommerce/includes/admin/class-wc-admin-reports.php';
+			add_submenu_page( 'woocommerce', __( 'Reports', 'woocommerce' ),  __( 'Reports', 'woocommerce' ) , 'view_woocommerce_reports', 'wc-reports', array( WC_Admin_Reports_New, 'output_new' ) );
+		}
+	}
+}
+
+add_filter( 'wc_admin_reports_path',  'elsey_wc_admin_reports_path', 100, 3 );
+function elsey_wc_admin_reports_path($file_name, $name, $class)
+{
+	$template_file = get_stylesheet_directory() . '/woocommerce/includes/admin/' . $file_name;
+	if (file_exists($template_file))
+	{
+		return $template_file;
+	}
+	return $file_name;
+}
+
+add_filter( 'woocommerce_admin_reports', 'else_woocommerce_admin_reports', 1000, 1);
+function else_woocommerce_admin_reports($reports)
+{
+	$most_stocked = $reports['stock']['reports']['most_stocked'];
+	$reports['stock']['reports']['out_of_stock_new'] = $reports['stock']['reports']['out_of_stock'];
+	unset($reports['stock']['reports']['out_of_stock']);
+	unset($reports['stock']['reports']['most_stocked']);
+	$reports['stock']['reports']['most_stocked'] = $most_stocked;
+	return $reports;
 }
