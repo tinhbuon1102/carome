@@ -1288,7 +1288,8 @@ function elsey_woe_order_exported($order_id){
 
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
-	if (!isset($_GET['change_old_order_name']) || !$_GET['change_old_order_name'])
+	
+	if (!isset($_GET['change_old_order_name']))
 	{
 		return;
 	}
@@ -1305,8 +1306,11 @@ function change_orders_detail_name(){
 		'post_status' => $order_statuses,
 		'posts_per_page' => 500, 'offset' => (int)$_GET['change_old_order_name']
 	));
+	
 	foreach ($orders as $order)
 	{
+		if ($order->ID > 6075) continue;
+		
 		$order = new WC_Order($order->ID);
 		$order_items = $order->get_items();
 		if (count($order_items))
@@ -1316,6 +1320,7 @@ function change_orders_detail_name(){
 				$order_name_orig = $order_item->get_name();
 				$product_id = $order_item->get_product_id();
 				$product = get_product($product_id);
+				
 				$english_name = get_post_meta($product_id, '_custom_product_text_field', true);
 				$japanese_name = $product->name;
 
@@ -1333,7 +1338,13 @@ function change_orders_detail_name(){
 					}
 				}
 					
-				$new_name = $japanese_name . ' - ' . $order_name_attr;
+				if ($order_names[0] == $order_names[1])
+				{
+					$new_name = $japanese_name;
+				}
+				else {
+					$new_name = $japanese_name . ' - ' . $order_name_attr;
+				}
 				$order_item->set_name($new_name);
 				$order_item->save();
 			}
@@ -1667,7 +1678,7 @@ function else_show_product_stock_record()
 add_filter('posts_clauses', 'elsey_order_by_stock_status', 200, 1);
 function elsey_order_by_stock_status($posts_clauses)
 {
-	if (is_woocommerce() && (is_shop() || is_product_category() || is_product_tag()))
+	if (is_woocommerce() && (is_shop() || is_product_category() || is_product_tag()) && !is_admin())
 	{
 		global $wpdb;
 		$posts_clauses['fields'] = $posts_clauses['fields'] . ", IF(st.meta_value > 0, 1, 0) as stock ";
