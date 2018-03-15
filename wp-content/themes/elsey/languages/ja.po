@@ -3,7 +3,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Project-Id-Version: Elsey\n"
 "POT-Creation-Date: 2018-01-04 17:56+0530\n"
-"PO-Revision-Date: 2018-03-15 11:18+0700\n"
+"PO-Revision-Date: 2018-03-15 21:31+0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -4069,3 +4069,12 @@ msgstr "出産月を選択"
 
 msgid "Select Day Of Birth"
 msgstr "誕生日を選択"
+
+msgid "Birth Year"
+msgstr "生年"
+
+msgid "Birth Month"
+msgstr "誕生月"
+
+msgid "Birth Day"
+msgstr "お誕生日"
