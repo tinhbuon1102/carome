@@ -1387,7 +1387,7 @@ function elsey_woe_order_exported($order_id){
 
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
-	if (!isset($_GET['change_old_order_name']) || !$_GET['change_old_order_name'])
+	if (!isset($_GET['change_old_order_name']))
 	{
 		return;
 	}
@@ -1404,8 +1404,11 @@ function change_orders_detail_name(){
 		'post_status' => $order_statuses,
 		'posts_per_page' => 500, 'offset' => (int)$_GET['change_old_order_name']
 	));
+	
 	foreach ($orders as $order)
 	{
+		if ($order->ID > 6075) continue;
+		
 		$order = new WC_Order($order->ID);
 		$order_items = $order->get_items();
 		if (count($order_items))
@@ -1415,6 +1418,7 @@ function change_orders_detail_name(){
 				$order_name_orig = $order_item->get_name();
 				$product_id = $order_item->get_product_id();
 				$product = get_product($product_id);
+				
 				$english_name = get_post_meta($product_id, '_custom_product_text_field', true);
 				$japanese_name = $product->name;
 
@@ -1432,7 +1436,13 @@ function change_orders_detail_name(){
 					}
 				}
 					
-				$new_name = $japanese_name . ' - ' . $order_name_attr;
+				if ($order_names[0] == $order_names[1])
+				{
+					$new_name = $japanese_name;
+				}
+				else {
+					$new_name = $japanese_name . ' - ' . $order_name_attr;
+				}
 				$order_item->set_name($new_name);
 				$order_item->save();
 			}
@@ -1806,7 +1816,7 @@ function else_show_product_stock_record()
 add_filter('posts_clauses', 'elsey_order_by_stock_status', 200, 1);
 function elsey_order_by_stock_status($posts_clauses)
 {
-	if (is_woocommerce() && (is_shop() || is_product_category() || is_product_tag()))
+	if (is_woocommerce() && (is_shop() || is_product_category() || is_product_tag()) && !is_admin())
 	{
 		global $wpdb;
 		$posts_clauses['fields'] = $posts_clauses['fields'] . ", IF(st.meta_value > 0, 1, 0) as stock ";
@@ -1998,4 +2008,47 @@ function else_woocommerce_get_settings_general($settings) {
 	);
 	$settings[] = array( 'type' => 'sectionend', 'id' => 'enable_restock' );
 	return $settings;
+}
+
+add_action( 'admin_menu', 'elsey_menu_report_removing', 99 );
+function elsey_menu_report_removing() {
+	if ( current_user_can( 'manage_woocommerce' ) ) {
+		global $submenu, $wp_filter;
+		$tag = 'woocommerce_page_wc-reports';
+		if (!class_exists('WC_Admin_Reports_New'))
+		{
+			$adminMenu = new WC_Admin_Menus;
+			remove_submenu_page( 'woocommerce', 'wc-reports' );
+			remove_action( $tag, array($adminMenu, 'reports_page') );
+			
+			if ( isset( $wp_filter[ $tag ] ) ) {
+				unset( $wp_filter[ $tag ] );
+			}
+			
+			require_once  get_stylesheet_directory() .'/woocommerce/includes/admin/class-wc-admin-reports.php';
+			add_submenu_page( 'woocommerce', __( 'Reports', 'woocommerce' ),  __( 'Reports', 'woocommerce' ) , 'view_woocommerce_reports', 'wc-reports', array( WC_Admin_Reports_New, 'output_new' ) );
+		}
+	}
+}
+
+add_filter( 'wc_admin_reports_path',  'elsey_wc_admin_reports_path', 100, 3 );
+function elsey_wc_admin_reports_path($file_name, $name, $class)
+{
+	$template_file = get_stylesheet_directory() . '/woocommerce/includes/admin/' . $file_name;
+	if (file_exists($template_file))
+	{
+		return $template_file;
+	}
+	return $file_name;
+}
+
+add_filter( 'woocommerce_admin_reports', 'else_woocommerce_admin_reports', 1000, 1);
+function else_woocommerce_admin_reports($reports)
+{
+	$most_stocked = $reports['stock']['reports']['most_stocked'];
+	$reports['stock']['reports']['out_of_stock_new'] = $reports['stock']['reports']['out_of_stock'];
+	unset($reports['stock']['reports']['out_of_stock']);
+	unset($reports['stock']['reports']['most_stocked']);
+	$reports['stock']['reports']['most_stocked'] = $most_stocked;
+	return $reports;
 }
