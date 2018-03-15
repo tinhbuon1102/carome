@@ -130,6 +130,46 @@ function custom_wc_form_field_args( $args, $key, $value ){
 remove_action( 'woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20 );
 add_action( 'woocommerce_after_order_notes', 'woocommerce_checkout_payment', 20 );
 
+
+add_action( 'user_register', 'elsey_register_new_user', 10, 1 );
+function elsey_register_new_user($user_id){
+	$user = get_user_by( 'id', $user_id );
+	if( $user && isset($_POST['birth_year']) ) {
+		update_user_meta($user_id, 'birth_year', $_POST['birth_year']);
+		update_user_meta($user_id, 'billing_birth_year', $_POST['birth_year']);
+		
+		update_user_meta($user_id, 'birth_month', $_POST['birth_month']);
+		update_user_meta($user_id, 'billing_birth_month', $_POST['birth_month']);
+		
+		update_user_meta($user_id, 'birth_day', $_POST['birth_day']);
+		update_user_meta($user_id, 'billing_birth_day', $_POST['birth_day']);
+	}
+}
+
+function getArrayYearMonthDay()
+{
+	$aTimes = array();
+	
+	$aTimes['years'][''] = __('Select Year Of Birth', 'elsey');
+	$aTimes['months'][''] = __('Select Month Of Birth', 'elsey');
+	$aTimes['days'][''] = __('Select Day Of Birth', 'elsey');
+	
+	for($i = date('Y') - 12; $i >= 1910; $i--)
+	{
+		$aTimes['years'][$i] = $i;
+	}
+	
+	for($i = 1; $i <= 12; $i++)
+	{
+		$aTimes['months'][$i] = $i;
+	}
+	
+	for($i = 1; $i <= 31; $i++)
+	{
+		$aTimes['days'][$i] = $i;
+	}
+	return $aTimes;
+}
 /*remove country field from checkout*/
 function custom_override_checkout_fields( $fields )
 {
@@ -142,6 +182,7 @@ add_filter('woocommerce_checkout_fields','custom_override_checkout_fields');
 function custom_override_billing_fields( $fields ) {
 	//unset($fields['billing_country']);
 
+	$current_user = wp_get_current_user();
 	$fields['billing_last_name_kana'] = array(
 		'label'     => __('姓(ふりがな)', 'woocommerce'),
 		'required'  => true,
@@ -153,6 +194,33 @@ function custom_override_billing_fields( $fields ) {
 		'class'     => array('form-row-last'),
 		'clear'     => true
 	);
+	
+	$aTimes = getArrayYearMonthDay();
+	
+	if (is_checkout())
+	{
+		$fields['billing_birth_year'] = array(
+			'label'     => __('Birth Year', 'elsey'),
+			'required'  => true,
+			'type'  => 'select',
+			'options' => $aTimes['years'],
+			'class'     => array('form-row-first-3 form-row-wide')
+		);
+		$fields['billing_birth_month'] = array(
+			'label'     => __('Birth Month', 'elsey'),
+			'required'  => true,
+			'type'  => 'select',
+			'options' => $aTimes['months'],
+			'class'     => array('form-row-middle-3 form-row-wide')
+		);
+		$fields['billing_birth_day'] = array(
+			'label'     => __('Birth Day', 'elsey'),
+			'required'  => true,
+			'type'  => 'select',
+			'options' => $aTimes['days'],
+			'class'     => array('form-row-last-3 form-row-wide')
+		);
+	}
 
 	$fields['billing_last_name']['class'] = array('form-row-first');
 	$fields['billing_first_name']['class'] = array('form-row-last');
@@ -177,18 +245,27 @@ function custom_override_billing_fields( $fields ) {
 		"billing_email",
 	);
 
+	if ((!get_user_meta($current_user->ID, 'birth_year', true) && is_checkout()) || !is_checkout())
+	{
+		$order[] = 'billing_birth_year';
+		$order[] = 'billing_birth_month';
+		$order[] = 'billing_birth_day';
+	}
+	
 	$ordered_fields = array();
 	foreach($order as $indexField => $field)
 	{
-		$fields[$field]['priority'] = ($indexField + 1) * 10;
-		$ordered_fields[$field] = $fields[$field];
+		if (isset($fields[$field]))
+		{
+			$fields[$field]['priority'] = ($indexField + 1) * 10;
+			$ordered_fields[$field] = $fields[$field];
+		}
 	}
 
 	$fields = $ordered_fields;
-	
 	return $fields;
 }
-add_filter( 'woocommerce_billing_fields' , 'custom_override_billing_fields' );
+add_filter( 'woocommerce_billing_fields' , 'custom_override_billing_fields', 100000 );
 
 function custom_override_shipping_fields( $fields ) {
 // 	unset($fields['shipping_country']);
@@ -882,6 +959,7 @@ function look_woocommerce_customer_meta_fields ($fields) {
 
 	$fields['billing']['fields'] = insertAtSpecificIndex($fields['billing']['fields'], $extraBilling, array_search('billing_last_name', array_keys($fields['billing']['fields'])) + 1);
 	$fields['shipping']['fields'] = insertAtSpecificIndex($fields['shipping']['fields'], $extraShipping, array_search('shipping_last_name', array_keys($fields['shipping']['fields'])) + 1);
+	
 	return $fields;
 }
 // Rename My Account navigation
@@ -966,6 +1044,14 @@ function woocommerce_save_account_details_custom ($userID)
 {
 	update_user_meta($userID, 'first_name_kana', $_POST['account_first_name_kana']);
 	update_user_meta($userID, 'last_name_kana', $_POST['account_last_name_kana']);
+	
+	update_user_meta($userID, 'birth_year', $_POST['birth_year']);
+	update_user_meta($userID, 'birth_month', $_POST['birth_month']);
+	update_user_meta($userID, 'birth_day', $_POST['birth_day']);
+	
+	update_user_meta($userID, 'billing_birth_year', $_POST['birth_year']);
+	update_user_meta($userID, 'billing_birth_month', $_POST['birth_month']);
+	update_user_meta($userID, 'billing_birth_day', $_POST['birth_day']);
 }
 
 add_action( 'woocommerce_save_account_details_required_fields', 'carome_woocommerce_save_account_details_required_fields' );
@@ -987,6 +1073,19 @@ function elsey_custom_checkout_field_update_order_meta( $order_id )
 	if (!get_user_meta($user_id, 'last_name_kana', true))
 	{
 		update_user_meta($userID, 'last_name_kana', $_POST['billing_last_name_kana']);
+	}
+	
+	if (!get_user_meta($user_id, 'birth_year', true))
+	{
+		update_user_meta($userID, 'birth_year', $_POST['billing_birth_year']);
+	}
+	if (!get_user_meta($user_id, 'birth_month', true))
+	{
+		update_user_meta($userID, 'birth_month', $_POST['billing_birth_month']);
+	}
+	if (!get_user_meta($user_id, 'birth_day', true))
+	{
+		update_user_meta($userID, 'birth_day', $_POST['billing_birth_day']);
 	}
 }
 
@@ -1428,9 +1527,49 @@ function product_report_dashboard_widget() {
 			__('Product Quantity Report By Time', 'elsey'),
 			'grand_product_report_dashboard_widget_function'
 			);
+	
+	wp_add_dashboard_widget(
+			'user_age_report_dashboard_widget',
+			__('Member Age Report', 'elsey'),
+			'elsey_user_age_report_dashboard_widget_function'
+			);
 }
 add_action( 'wp_dashboard_setup', 'product_report_dashboard_widget' );
 
+function elsey_user_age_report_dashboard_widget_function() {
+	global $wpdb;
+	$ageRanges = array('1-13', '14-19', '20-24', '25-29', '30-34', '35-39', '40-50', '51-60', '61-70', '71-100');
+	$aRangesCount = array();
+	foreach ($ageRanges as $range)
+	{
+		$ageRange = explode('-', $range);
+		$sql = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} 
+			WHERE 
+				meta_key = 'birth_year' 
+				AND meta_value <= YEAR(CURDATE()) - {$ageRange[0]} 
+				AND meta_value >= YEAR(CURDATE()) - {$ageRange[1]}
+				";
+		$result = $wpdb->get_row($sql);
+		$aRangesCount[$range] = $result ? $result->count : 0;
+	}
+	$sqlAllAge = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} WHERE meta_key = 'birth_year'";
+	$result = $wpdb->get_row($sqlAllAge);
+	$allCount = $result ? $result->count : 0;
+	arsort($aRangesCount);
+	
+	foreach ($aRangesCount as $range => $rangeCount)
+	{
+		if (!$rangeCount) continue;
+		
+		$percent = round(($rangeCount / $allCount) * 100);
+		echo '<div class="age-record">';
+		echo '<span class="range">';
+		echo sprintf(__('%1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $rangeCount, $percent);
+		echo '</span>';
+		echo '</div>';
+		
+	}
+}
 /**
  * Create the function to output the contents of our Dashboard Widget.
  */

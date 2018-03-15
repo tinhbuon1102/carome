@@ -335,7 +335,7 @@ if ( ! class_exists( 'Pie_WCWL_Custom_Tab' ) ) {
 				return;
 			}
 			if ( WooCommerce_Waitlist_Plugin::is_simple( $this->product ) ) {
-				//$this->update_waitlist( $post_id );
+				$this->update_waitlist( $post_id );
 			}
 		}
 
@@ -375,7 +375,7 @@ if ( ! class_exists( 'Pie_WCWL_Custom_Tab' ) ) {
 		public function update_variation_waitlists( $variations ) {
 			for ( $i = 0; $i < sizeof( $variations ); $i ++ ) {
 				$variation_id = (int) $variations[ $i ];
-// 				$this->update_waitlist( $variation_id );
+				$this->update_waitlist( $variation_id );
 			}
 		}
 
