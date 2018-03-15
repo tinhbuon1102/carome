@@ -54,6 +54,10 @@ class WC_Report_Stock extends WP_List_Table {
 		$actions = [
 			'publish-date-desc' => __('Publish Date Descending', 'elsey'),
 			'publish-date-asc' => __('Publish Date Ascending', 'elsey'),
+			
+			'stock-desc' => __('Unit In Stock Descending', 'elsey'),
+			'stock-asc' => __('Unit In Stock Asceding', 'elsey'),
+			
 			'title-desc' => __('Title Descending', 'elsey'),
 			'title-asc' => __('Title Asceding', 'elsey'),
 		];

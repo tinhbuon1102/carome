@@ -37,6 +37,13 @@ class WC_Report_Out_Of_Stock_New extends WC_Report_Stock {
 			case 'publish-date-asc' :
 				$orderby .= ' posts.post_date ASC ';
 				break;
+				
+			case 'stock-desc' :
+				$orderby .= ' postmeta.meta_value DESC ';
+				break;
+			case 'stock-asc' :
+				$orderby .= ' postmeta.meta_value ASC ';
+				break;
 	
 			case 'title-desc' :
 				$orderby .= ' posts.post_title DESC ';
