@@ -1906,9 +1906,11 @@ function else_woocommerce_variation_options_inventory($loop, $variation_data, $v
 	echo '<script type="text/javascript">jQuery(".schedule_date_picker").datetimepicker({minDate: new Date()});</script>';
 }
 
-add_action( 'wp_ajax_nopriv_process_stock_schedule', 'elsey_process_stock_schedule' );
-add_action( 'wp_ajax_process_stock_schedule', 'elsey_process_stock_schedule' );
+add_action( 'wp_loaded', 'elsey_process_stock_schedule' );
 function elsey_process_stock_schedule() {
+	if (!$_GET['process_stock_schedule'])
+		return ;
+	
 	$current_time = date('Y-m-d H:i', current_time( 'timestamp', 0 ));
 
 	$stock_schedules = get_option('restock_schedule');
@@ -1935,7 +1937,9 @@ function elsey_process_stock_schedule() {
 			elseif ($current_time < $schedule_date)
 			{
 				// Store the future schedules only
-				$new_stock_schedules[$product_id] = $schedule;
+				$new_stock_schedules[$product_id]['schedule'] = $schedule;
+				$new_stock_schedules[$product_id]['quantity'] = $quantity;
+				update_option('restock_schedule', $stock_schedule);
 			}
 		}
 	}
@@ -1946,6 +1950,7 @@ function elsey_process_stock_schedule() {
 		pr($new_stock_schedules);
 	}
 	die('done');
+
 }
 
 add_action( 'wp_loaded', 'elsey_restock_cancelled' );
