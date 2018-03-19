@@ -3830,5 +3830,6 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
 	color: #f00;
 	display: block !important;
 }
-	
+.els-product-sold.pre_order_badge {
+    background: rgba(212,103,120,1);
 }
