@@ -3846,7 +3846,7 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
 .els-product-sold.pre_order_badge, .pre_order_bagges {
     background: rgba(212,103,120,1);
 	color: #FFF;
-	font-weidht: bold;
+	font-weight: bold;
 }
 .pre_order_badge + .els-product-sold, .pre_order_bagges + .els-product-sold {
     left: 80px;
