@@ -2057,3 +2057,11 @@ function else_woocommerce_admin_reports($reports)
 	$reports['stock']['reports']['most_stocked'] = $most_stocked;
 	return $reports;
 }
+
+
+add_filter ('woocommerce_output_related_products_args', 'elsey_woocommerce_output_related_products_args', 1000, 1);
+function elsey_woocommerce_output_related_products_args ($args) 
+{
+	$args['posts_per_page'] = 4;
+	return $args;
+}
