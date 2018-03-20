@@ -1664,7 +1664,7 @@ function elsey_woocommerce_order_status_on_hold($order_id, $order){
 add_filter( 'wpcf7_mail_components', 'elsey_wpcf7_mail_components', 100, 3);
 function elsey_wpcf7_mail_components ($components, $contactForm, $mailer)
 {
-	if ($_POST['contact-type'] == '不良品の返品・交換について')
+	if ($_POST['contact-type'] == '不良品の返品・交換について' && strpos($components['recipient'], '@carome.net') !== false)
 	{
 		$components['recipient'] = CONTACT_EMAIL_ADMIN_WITH_FILE;
 	}
@@ -2148,4 +2148,66 @@ function elsey_woocommerce_output_related_products_args ($args)
 {
 	$args['posts_per_page'] = 4;
 	return $args;
+}
+
+
+add_action( 'show_user_profile', 'elsey_edit_user_profile', 1, 1 );
+add_action( 'edit_user_profile', 'elsey_edit_user_profile', 1, 1 );
+function elsey_edit_user_profile($profileuser){
+	$aTimes = getArrayYearMonthDay();
+	$birth_year = get_user_meta($profileuser->ID, 'birth_year', true);
+	$birth_month = get_user_meta($profileuser->ID, 'birth_month', true);
+	$birth_day = get_user_meta($profileuser->ID, 'birth_day', true);
+?>
+	<h2><?php echo __('Customer Birth', 'elsey')?></h2>
+	<table class="form-table" id="fieldset-customer-birth">
+		<tbody>
+			<tr>
+				<th>
+					<label for="birth_year"><?php echo __('Birth Year', 'elsey')?></label>
+				</th>
+				<td>
+					<select name="birth_year" id="birth_year" class="woocommerce-Select form-control" required>
+					<?php foreach ($aTimes['years'] as $timeKey => $timeValue) {?>
+						<option value="<?php echo $timeKey?>" <?php echo $birth_year == $timeKey ? 'selected' : ''?> ><?php echo $timeValue?></option>
+					<?php }?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="birth_month"><?php echo __('Birth Month', 'elsey')?></label>
+				</th>
+				<td>
+					<select name="birth_month" id="birth_month" class="woocommerce-Select form-control" required>
+					<?php foreach ($aTimes['months'] as $timeKey => $timeValue) {?>
+						<option value="<?php echo $timeKey?>" <?php echo $birth_month == $timeKey ? 'selected' : ''?> ><?php echo $timeValue?></option>
+					<?php }?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="birth_day"><?php echo __('Birth Day', 'elsey')?></label>
+				</th>
+				<td>
+					<select name="birth_day" id="birth_day" class="woocommerce-Select form-control" required>
+					<?php foreach ($aTimes['days'] as $timeKey => $timeValue) {?>
+						<option value="<?php echo $timeKey?>" <?php echo $birth_day == $timeKey ? 'selected' : ''?> ><?php echo $timeValue?></option>
+					<?php }?>
+					</select>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+<?php
+}
+
+add_action('profile_update', 'elsey_update_extra_profile_fields', 10, 1);
+add_action('edit_user_profile_update', 'elsey_update_extra_profile_fields', 10, 1);
+function elsey_update_extra_profile_fields($user_id) {
+	if ( current_user_can('edit_user',$user_id) && $_POST['birth_year'])
+		update_user_meta($user_id, 'birth_year', $_POST['birth_year']);
+		update_user_meta($user_id, 'birth_month', $_POST['birth_month']);
+		update_user_meta($user_id, 'birth_day', $_POST['birth_day']);
 }
