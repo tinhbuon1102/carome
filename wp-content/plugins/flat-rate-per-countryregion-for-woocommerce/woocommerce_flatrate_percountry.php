@@ -1336,30 +1336,12 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 						return $rate['cost'];
 					}
 					else {
-						$aNormalProducts = $aPreOrderProducts = $package;
-						$aNormalProducts['contents'] = $aPreOrderProducts['contents'] = array();
-						$aNormalProducts['contents_cost'] = $aNormalProducts['cart_subtotal'] = 0;
-						$aPreOrderProducts['contents_cost'] = $aPreOrderProducts['cart_subtotal'] = 0;
-						
-						foreach ($package['contents'] as $item_id => $values) {
-							$is_pre_order = get_post_meta($values['product_id'], '_wc_pre_orders_enabled', true);
-							if( 'yes' !== $is_pre_order )
-							{
-								$aNormalProducts['contents'][$item_id] = $values;
-								$aNormalProducts['contents_cost'] += $values['line_total'];
-								$aNormalProducts['cart_subtotal'] += $values['line_total'] + $values['line_tax'];
-							}
-							else {
-								$aPreOrderProducts['contents'][$item_id] = $values;
-								$aPreOrderProducts['contents_cost'] += $values['line_total'];
-								$aPreOrderProducts['cart_subtotal'] += $values['line_total'] + $values['line_tax'];
-							}
-						}
-						if (!empty($aPreOrderProducts) && !empty($aNormalProducts))
+						$aOrderBothType = isBothOrderTypeShipping($package);
+						if ($aOrderBothType)
 						{
 							$rate['cost'] = 0;
-							$rate['cost'] += $this->calculate_shipping($aPreOrderProducts, true);
-							$rate['cost'] += $this->calculate_shipping($aNormalProducts, true);
+							$rate['cost'] += $this->calculate_shipping($aOrderBothType['aPreOrderProducts'], true);
+							$rate['cost'] += $this->calculate_shipping($aOrderBothType['aNormalProducts'], true);
 						}
 					}
 				}

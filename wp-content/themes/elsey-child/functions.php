@@ -2058,9 +2058,100 @@ function else_woocommerce_admin_reports($reports)
 	return $reports;
 }
 
-add_filter( 'woocommerce_payment_successful_result', 'elsey_woocommerce_payment_successful_result_duplicate_order', 1000, 2 );
-function elsey_woocommerce_payment_successful_result_duplicate_order ($result, $order_id)
+function isBothOrderTypeShipping($package)
 {
+	$aNormalProducts = $aPreOrderProducts = $package;
+	$aNormalProducts['contents'] = $aPreOrderProducts['contents'] = array();
+	$aNormalProducts['contents_cost'] = $aNormalProducts['cart_subtotal'] = 0;
+	$aPreOrderProducts['contents_cost'] = $aPreOrderProducts['cart_subtotal'] = 0;
+	
+	$hasPreOrder = $hasNormal = false;
+	foreach ($package['contents'] as $item_id => $values) {
+		$is_pre_order = get_post_meta($values['product_id'], '_wc_pre_orders_enabled', true);
+		if( 'yes' !== $is_pre_order )
+		{
+			$aNormalProducts['contents'][$item_id] = $values;
+			$aNormalProducts['contents_cost'] += $values['line_total'];
+			$aNormalProducts['cart_subtotal'] += $values['line_total'] + $values['line_tax'];
+			$hasNormal = true;
+		}
+		else {
+			$aPreOrderProducts['contents'][$item_id] = $values;
+			$aPreOrderProducts['contents_cost'] += $values['line_total'];
+			$aPreOrderProducts['cart_subtotal'] += $values['line_total'] + $values['line_tax'];
+			$hasPreOrder = true;
+		}
+	}
+	if (!$hasNormal) $aNormalProducts = null;
+	if (!$hasPreOrder) $aPreOrderProducts = null;
+	
+	if (!empty($aPreOrderProducts) && !empty($aNormalProducts))
+	{
+		return array('aPreOrderProducts' => $aPreOrderProducts, 'aNormalProducts' => $aNormalProducts);
+	}
+	return null;
+}
+
+function elsey_calculate_shipping($calculated_shipping_packages, $order_id) {
+	$cart = WC()->cart;
+	$shipping_methods = array();
+	if ($cart->needs_shipping())
+	{
+		$chosen_methods = array();
+		foreach ( $calculated_shipping_packages as $key => $package ) {
+			$chosen_method          = wc_get_chosen_shipping_method_for_package( $key, $package );
+			if ( $chosen_method ) {
+				$chosen_methods[ $key ] = $package['rates'][ $chosen_method ];
+			}
+		}
+		$shipping_methods = $chosen_methods;
+		
+	}
+
+	$shipping_taxes = wp_list_pluck( $shipping_methods, 'taxes' );
+	$merged_taxes = array();
+	foreach ( $shipping_taxes as $taxes ) {
+		foreach ( $taxes as $tax_id => $tax_amount ) {
+			if ( ! isset( $merged_taxes[ $tax_id ] ) ) {
+				$merged_taxes[ $tax_id ] = 0;
+			}
+			$merged_taxes[ $tax_id ] += $tax_amount;
+		}
+	}
+
+	global $wpdb;
+	$wpdb->query( $wpdb->prepare( "
+		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta 
+		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
+		SET itemmeta.meta_value = %s 
+		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s", 
+		array_sum( wp_list_pluck( $cart->shipping_methods, 'cost' ) ), 'cost', 'shipping', $order_id ) );
+	
+	$wpdb->query( $wpdb->prepare( "
+		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta
+		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
+		SET itemmeta.meta_value = %s
+		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s",
+		array_sum( $merged_taxes ), 'total_tax', 'shipping', $order_id ) );
+	
+	$wpdb->query( $wpdb->prepare( "
+		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta
+		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
+		SET itemmeta.meta_value = %s
+		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s",
+		$merged_taxes, 'taxes', 'shipping', $order_id ) );
+	
+}
+
+// add_filter( 'woocommerce_payment_successful_result', 'elsey_woocommerce_payment_successful_result_duplicate_order', 1000, 2 );
+add_action( 'woocommerce_order_status_changed', 'elsey_woocommerce_order_status_changed', 1000, 4 );
+function elsey_woocommerce_order_status_changed ($order_id, $status_from, $status_to, $order)
+{
+	if (!in_array($status_to, array('on-hold', 'processing')) || is_admin())
+	{
+		return $order_id;
+	}
+	
 	global $wpdb;
 	require_once  get_stylesheet_directory() .'/classes/class-clone-order.php';
 	
@@ -2082,6 +2173,9 @@ function elsey_woocommerce_payment_successful_result_duplicate_order ($result, $
 	// If order contain both normal + preorder, so separate the order to 2 orders
 	if (!empty($aPreOrderProducts) && !empty($aNormalProducts))
 	{
+		$package = WC()->cart->get_shipping_packages();
+		$aOrderBothType = isBothOrderTypeShipping($package);
+		
 		// Clone order
 		$cloneOrder = new CloneOrder();
 		$clone_order_id = $cloneOrder->clone_order($order_id);
@@ -2094,7 +2188,9 @@ function elsey_woocommerce_payment_successful_result_duplicate_order ($result, $
 		
 		// Calculate price
 		wp_cache_delete( 'order-items-' . $order_id, 'orders' );
+		elsey_calculate_shipping($aOrderBothType['aNormalProducts'], $order_id);
 		$order = wc_get_order( $order_id );
+		$order->calculate_shipping();
 		$order->calculate_totals( true );
 			
 		delete_post_meta( $order_id, '_wc_pre_orders_is_pre_order');
@@ -2128,7 +2224,9 @@ function elsey_woocommerce_payment_successful_result_duplicate_order ($result, $
 			
 			// Calculate price for pre order
 			wp_cache_delete( 'order-items-' . $clone_order_id, 'orders' );
+			elsey_calculate_shipping($aOrderBothType['aPreOrderProducts'], $clone_order_id);
 			$order_clone = wc_get_order( $clone_order_id );
+			$order->calculate_shipping();
 			$order_clone->calculate_totals( true );
 			
 			$preOrderCheckout = new WC_Pre_Orders_Checkout();
@@ -2140,7 +2238,7 @@ function elsey_woocommerce_payment_successful_result_duplicate_order ($result, $
 			$order_clone->update_status( 'pre-ordered');
 		}
 	}
-	return $result;
+	return $order_id;
 }
 
 add_filter ('woocommerce_output_related_products_args', 'elsey_woocommerce_output_related_products_args', 1000, 1);
