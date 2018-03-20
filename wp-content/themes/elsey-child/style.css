@@ -3830,5 +3830,25 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
 	color: #f00;
 	display: block !important;
 }
-	
+.pre_order_bagges {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    z-index: 111;
+    height: 22px;
+    line-height: 24px;
+    display: inline-block;
+    padding: 0 6px;
+    font-size: 12px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
 }
+.els-product-sold.pre_order_badge, .pre_order_bagges {
+    background: rgba(212,103,120,1);
+	color: #FFF;
+	font-weight: bold;
+}
+.pre_order_badge + .els-product-sold, .pre_order_bagges + .els-product-sold {
+    left: 80px;
+}
+

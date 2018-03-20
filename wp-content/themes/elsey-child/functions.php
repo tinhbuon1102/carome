@@ -557,22 +557,6 @@ function save_jancode_variations( $variation_id, $loop ){
 		update_post_meta( $variation_id, '_jancode', sanitize_text_field($jancode) );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*edit minicart buttons*/
 remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_button_view_cart', 10 );
 remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_proceed_to_checkout', 20 );
@@ -1066,26 +1050,29 @@ add_action( 'woocommerce_checkout_update_order_meta', 'elsey_custom_checkout_fie
 function elsey_custom_checkout_field_update_order_meta( $order_id )
 {
 	$userID = get_current_user_id();
-	if (!get_user_meta($user_id, 'first_name_kana', true))
+	if (!get_user_meta($userID, 'first_name_kana', true))
 	{
 		update_user_meta($userID, 'first_name_kana', $_POST['billing_first_name_kana']);
 	}
-	if (!get_user_meta($user_id, 'last_name_kana', true))
+	if (!get_user_meta($userID, 'last_name_kana', true))
 	{
 		update_user_meta($userID, 'last_name_kana', $_POST['billing_last_name_kana']);
 	}
 	
-	if (!get_user_meta($user_id, 'birth_year', true))
+	if (!get_user_meta($userID, 'birth_year', true))
 	{
 		update_user_meta($userID, 'birth_year', $_POST['billing_birth_year']);
+		update_user_meta($userID, 'billing_birth_year', $_POST['billing_birth_year']);
 	}
-	if (!get_user_meta($user_id, 'birth_month', true))
+	if (!get_user_meta($userID, 'birth_month', true))
 	{
 		update_user_meta($userID, 'birth_month', $_POST['billing_birth_month']);
+		update_user_meta($userID, 'billing_birth_month', $_POST['billing_birth_month']);
 	}
-	if (!get_user_meta($user_id, 'birth_day', true))
+	if (!get_user_meta($userID, 'birth_day', true))
 	{
 		update_user_meta($userID, 'birth_day', $_POST['billing_birth_day']);
+		update_user_meta($userID, 'billing_birth_day', $_POST['billing_birth_day']);
 	}
 }
 
@@ -1502,6 +1489,8 @@ function wpdreamer_woocommerce_proceed_to_checkout(){
 
 add_filter('woocommerce_thankyou_order_received_text','wpdreamer_woocommerce_thankyou_order_received_text',10,2);
 function wpdreamer_woocommerce_thankyou_order_received_text($text, $order){
+	if (!$order) return $text;
+	
 	$items = $order->get_items();
 	$show_text = array();
 
@@ -1531,6 +1520,12 @@ function product_report_dashboard_widget() {
 			'user_age_report_dashboard_widget',
 			__('Member Age Report', 'elsey'),
 			'elsey_user_age_report_dashboard_widget_function'
+			);
+	
+	wp_add_dashboard_widget(
+			'pre_order_report_dashboard_widget',
+			__('Product Preorder Report', 'elsey'),
+			'elsey_pre_order_report_dashboard_widget_function'
 			);
 }
 add_action( 'wp_dashboard_setup', 'product_report_dashboard_widget' );
@@ -1579,6 +1574,13 @@ function grand_product_report_dashboard_widget_function() {
 	return $product_list->display();
 }
 
+function elsey_pre_order_report_dashboard_widget_function()
+{
+	require_once get_stylesheet_directory() . '/classes/class-product-pre-order-report-list-table.php';
+	$product_list = new Product_Pre_Order_Report_List();
+	$product_list->prepare_items();
+	return $product_list->display();
+}
 add_filter( 'woocommerce_payment_gateways', 'elsey_woocommerce_payment_gateways', 1000, 1 );
 function elsey_woocommerce_payment_gateways($load_gateways) 
 {
@@ -1906,9 +1908,11 @@ function else_woocommerce_variation_options_inventory($loop, $variation_data, $v
 	echo '<script type="text/javascript">jQuery(".schedule_date_picker").datetimepicker({minDate: new Date()});</script>';
 }
 
-add_action( 'wp_ajax_nopriv_process_stock_schedule', 'elsey_process_stock_schedule' );
-add_action( 'wp_ajax_process_stock_schedule', 'elsey_process_stock_schedule' );
+add_action( 'wp_loaded', 'elsey_process_stock_schedule' );
 function elsey_process_stock_schedule() {
+	if (!$_GET['process_stock_schedule'])
+		return ;
+	
 	$current_time = date('Y-m-d H:i', current_time( 'timestamp', 0 ));
 
 	$stock_schedules = get_option('restock_schedule');
@@ -1935,7 +1939,8 @@ function elsey_process_stock_schedule() {
 			elseif ($current_time < $schedule_date)
 			{
 				// Store the future schedules only
-				$new_stock_schedules[$product_id] = $schedule;
+				$new_stock_schedules[$product_id]['schedule'] = $schedule;
+				$new_stock_schedules[$product_id]['quantity'] = $quantity;
 			}
 		}
 	}
@@ -2051,4 +2056,96 @@ function else_woocommerce_admin_reports($reports)
 	unset($reports['stock']['reports']['most_stocked']);
 	$reports['stock']['reports']['most_stocked'] = $most_stocked;
 	return $reports;
+}
+
+add_filter( 'woocommerce_payment_successful_result', 'elsey_woocommerce_payment_successful_result_duplicate_order', 1000, 2 );
+function elsey_woocommerce_payment_successful_result_duplicate_order ($result, $order_id)
+{
+	global $wpdb;
+	require_once  get_stylesheet_directory() .'/classes/class-clone-order.php';
+	
+	// Check order items
+	$order = new WC_Order($order_id);
+	$items = $order->get_items();
+	$aNormalProducts = $aPreOrderProducts = array();
+	foreach ($items as $item_key => $order_item)
+	{
+		$product_id = $order_item->get_product_id();
+		$product = get_product($product_id);
+		$is_pre_order = get_post_meta($product_id, '_wc_pre_orders_enabled', true);
+		if( 'yes' === $is_pre_order )
+			$aPreOrderProducts[$item_key] = $product;
+		else
+			$aNormalProducts[$item_key] = $product;
+	}
+	
+	// If order contain both normal + preorder, so separate the order to 2 orders
+	if (!empty($aPreOrderProducts) && !empty($aNormalProducts))
+	{
+		// Clone order
+		$cloneOrder = new CloneOrder();
+		$clone_order_id = $cloneOrder->clone_order($order_id);
+		
+		// Remove pre order from normal order
+		foreach ($aPreOrderProducts as $item_key => $product)
+		{
+			wc_delete_order_item( absint( $item_key ) );
+		}
+		
+		// Calculate price
+		wp_cache_delete( 'order-items-' . $order_id, 'orders' );
+		$order = wc_get_order( $order_id );
+		$order->calculate_totals( true );
+			
+		delete_post_meta( $order_id, '_wc_pre_orders_is_pre_order');
+		delete_post_meta( $order_id, '_wc_pre_orders_when_charged');
+		update_post_meta( $order_id, '_wc_pre_orders_with_normal', $clone_order_id);
+		
+		if ( is_wp_error( $clone_order_id ) ) {
+			// Clone error
+		}
+		else {
+			// Get items from new clone order
+			$order_clone = wc_get_order( $clone_order_id );
+			$items = $order_clone->get_items();
+			$aNormalCloneProducts = array();
+			foreach ($items as $item_key => $order_item)
+			{
+				$product_id = $order_item->get_product_id();
+				$product = get_product($product_id);
+				$is_pre_order = get_post_meta($product_id, '_wc_pre_orders_enabled', true);
+				if( 'yes' !== $is_pre_order )
+				{
+					$aNormalCloneProducts[$item_key] = $product;
+				}
+			}
+			
+			// Remove normal products from pre order  
+			foreach ($aNormalCloneProducts as $item_key => $product)
+			{
+				wc_delete_order_item( absint( $item_key ) );
+			}
+			
+			// Calculate price for pre order
+			wp_cache_delete( 'order-items-' . $clone_order_id, 'orders' );
+			$order_clone = wc_get_order( $clone_order_id );
+			$order_clone->calculate_totals( true );
+			
+			$preOrderCheckout = new WC_Pre_Orders_Checkout();
+			$preOrderCheckout->add_order_meta( $clone_order_id );
+			update_post_meta( $clone_order_id, '_wc_pre_orders_with_normal', $order_id);
+			
+			// Send email notification
+			$updated = $wpdb->update( $wpdb->postmeta, array('post_status' => 'wc-pending'), array('ID' => $clone_order_id) );
+			$order_clone->update_status( 'on-hold');
+		}
+	}
+	return $result;
+}
+
+add_filter ('woocommerce_output_related_products_args', 'elsey_woocommerce_output_related_products_args', 1000, 1);
+function elsey_woocommerce_output_related_products_args ($args)
+{
+	$args['posts_per_page'] = 4;
+	return $args;
 }

@@ -254,6 +254,10 @@ if ( class_exists( 'WooCommerce' ) ) {
 
                       <?php $html = '';
 
+                      if ('yes' === get_post_meta( $product->get_id(), '_wc_pre_orders_enabled', true ))
+                      {
+                      	echo '<span class="pre_order_bagges">予約商品</span>';
+                      }
     									if ( !$product->is_in_stock() ) {
     									  echo '<span class="els-product-sold">' . esc_html__( 'Sold', 'elsey-core' ) . '</span>';
     									} else if ( $product->is_on_sale() ) {
@@ -392,6 +396,12 @@ if ( class_exists( 'WooCommerce' ) ) {
 	                    </div>
 	                  <a href="<?php echo get_the_permalink($product->get_id()); ?>" class="woocommerce-LoopProduct-link"></a>
 	                  
+	                  <?php 
+	                  if ('yes' === get_post_meta( $product->get_id(), '_wc_pre_orders_enabled', true ))
+	                  {
+                  		echo '<span class="pre_order_bagges">予約商品</span>';
+	                  }
+	                  ?>
 	                  <?php if ( !$product->is_in_stock() ) {
 	                    echo '<span class="els-product-sold">' . esc_html__( 'Sold', 'elsey-core' ) . '</span>';
 	                  } else if ( $product->is_on_sale() ) {

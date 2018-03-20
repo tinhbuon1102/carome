@@ -147,6 +147,12 @@ if ( class_exists( 'WooCommerce' ) ) {
   if ( ! function_exists('elsey_show_product_badge') ) {
 	  function elsey_show_product_badge() {
 	  	global $product;
+	
+	  	if ('yes' === get_post_meta( $product->get_id(), '_wc_pre_orders_enabled', true ))
+		{
+			echo '<span class="els-product-sold pre_order_badge">予約商品</span>';
+		}
+		
   	  if ( !$product->is_in_stock() ) {
 				echo '<span class="els-product-sold">' . esc_html__( 'Sold', 'elsey' ) . '</span>';
 			} else if ( $product->is_on_sale() ) {
