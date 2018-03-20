@@ -252,6 +252,8 @@ class WC_Pre_Orders_Product {
 	 */
 	public static function product_is_charged_upon_release( $product ) {
 
+		if (!$product) return false;
+		
 		if ( ! is_object( $product ) ) {
 			$product = wc_get_product( $product );
 		}

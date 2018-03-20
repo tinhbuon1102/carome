@@ -102,7 +102,7 @@ global $post, $woocommerce;
 				'desc_tip'    => true,
 				'default'     => 'upon_release',
 				'options'     => array(
-					'upon_release' => __( 'Upon Release', 'wc-pre-orders' ),
+// 					'upon_release' => __( 'Upon Release', 'wc-pre-orders' ),
 					'upfront'      => __( 'Upfront', 'wc-pre-orders' ),
 				),
 			)
