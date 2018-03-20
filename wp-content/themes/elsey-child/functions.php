@@ -2150,7 +2150,6 @@ function elsey_woocommerce_output_related_products_args ($args)
 	return $args;
 }
 
-
 add_action( 'show_user_profile', 'elsey_edit_user_profile', 1, 1 );
 add_action( 'edit_user_profile', 'elsey_edit_user_profile', 1, 1 );
 function elsey_edit_user_profile($profileuser){

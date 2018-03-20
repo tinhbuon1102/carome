@@ -217,7 +217,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 	 */
 	function get_columns() {
 		$columns = [
-			'product_id'    => __( 'Product ID', 'elsey' ),
+			'product_id'    => __( 'Product Sku', 'elsey' ),
 			'product_name' => __( 'Product Name', 'elsey' ),
 			'quantity'    => __( 'Sold Quantity', 'elsey' )
 		];
@@ -231,7 +231,13 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 		{
 			$product_id = $item['product_id'];
 			echo "<td>";
-			if ( 'product_id' == $column_name || 'product_name' == $column_name)
+			if ( 'product_id' == $column_name)
+			{
+				$sku = get_post_meta($product_id, '_sku', true);
+				$sku = $sku ? $sku : "#$product_id";
+				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. $product_id .'&action=edit'.'">'. $sku .'</a>';
+			}
+			elseif ('product_name' == $column_name)
 			{
 				
 				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. $product_id .'&action=edit'.'">'. $item[$column_name] .'</a>';
@@ -255,7 +261,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 	 */
 	public function get_sortable_columns() {
 		$sortable_columns = array(
-			'product_id' => array( 'product_id', false ),
+			//'product_id' => array( 'product_id', false ),
 			'product_name' => array( 'product_name', false ),
 			'quantity' => array( 'quantity', false ),
 		);
