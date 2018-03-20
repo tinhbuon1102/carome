@@ -2125,7 +2125,7 @@ function elsey_calculate_shipping($calculated_shipping_packages, $order_id) {
 		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
 		SET itemmeta.meta_value = %s 
 		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s", 
-		array_sum( wp_list_pluck( $cart->shipping_methods, 'cost' ) ), 'cost', 'shipping', $order_id ) );
+		array_sum( wp_list_pluck( $shipping_methods, 'cost' ) ), 'cost', 'shipping', $order_id ) );
 	
 	$wpdb->query( $wpdb->prepare( "
 		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta
