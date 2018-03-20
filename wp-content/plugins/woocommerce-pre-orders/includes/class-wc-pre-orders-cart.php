@@ -160,7 +160,7 @@ class WC_Pre_Orders_Cart
 	public function validate_cart ( $valid, $product_id )
 	{
 		$pre_order_charge = get_post_meta( $product_id, '_wc_pre_orders_when_to_charge', true );
-		if ($pre_order_charge == 'upfront')
+		if (false && $pre_order_charge == 'upfront')
 		{
 			//@TODO return because we can add both type of product to cart
 			return $valid;
