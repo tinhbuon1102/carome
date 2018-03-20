@@ -66,7 +66,7 @@ class Product_Quantity_Report_List extends WP_List_Table {
 				break;
 				
 			default :
-				$where .= ' AND DATE(p.post_date) = CURDATE() ';
+				$where .= ' AND MONTH(p.post_date) = MONTH(CURRENT_DATE()) AND YEAR(p.post_date) = YEAR(CURRENT_DATE()) ';
 				break;
 		}
 		
@@ -273,12 +273,11 @@ class Product_Quantity_Report_List extends WP_List_Table {
 	}
 	
 	public function table_header_list( $which = '' ) {
-		echo '<style>
-				.tablenav.bottom .product-reporting-dashboard {display: none;}
-				</style>';
+		if ($which == 'bottom') return'';
+		
 		echo '<form method="get" name="product-reporting-dashboard" class="product-reporting-dashboard">';
 		echo '<select name="action' . $two . '" id="time-action-selector-' . esc_attr( $which ) . "\">\n";
-		$current_action = $this->current_action();
+		$current_action = $this->current_action() ? $this->current_action() : 'current-month';
 		$actions = $this->get_time_actions();
 		foreach ( $actions as $name => $title ) {
 			$class = 'edit' === $name ? ' class="hide-if-no-js"' : '';

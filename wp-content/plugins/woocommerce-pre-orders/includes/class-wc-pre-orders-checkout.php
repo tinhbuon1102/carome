@@ -166,14 +166,30 @@ class WC_Pre_Orders_Checkout {
 		if ( ! WC_Pre_Orders_Cart::cart_contains_pre_order() )
 			return;
 
-		// get pre-ordered product
-		$product = WC_Pre_Orders_Cart::get_pre_order_product( $order_id );
-
-		// indicate the order contains a pre-order
-		update_post_meta( $order_id, '_wc_pre_orders_is_pre_order', 1 );
-
-		// save when the pre-order amount was charged (either upfront or upon release)
-		update_post_meta( $order_id, '_wc_pre_orders_when_charged', get_post_meta( $product->is_type( 'variation' ) && version_compare( WC_VERSION, '3.0', '>=' ) ? $product->get_parent_id() : $product->get_id(), '_wc_pre_orders_when_to_charge', true ) );
+		$order = new WC_Order($order_id);
+		$items = $order->get_items();
+		$aNormalProducts = $aPreOrderProducts = array();
+		foreach ($items as $item_key => $order_item)
+		{
+			$product_id = $order_item->get_product_id();
+			$is_pre_order = get_post_meta($product_id, '_wc_pre_orders_enabled', true);
+			if( 'yes' === $is_pre_order )
+				$aPreOrderProducts[$item_key] = $product_id;
+			else
+				$aNormalProducts[$item_key] = $product_id;
+		}
+		
+		if (!empty($aPreOrderProducts) && empty($aNormalProducts))
+		{
+			// get pre-ordered product
+			$product = WC_Pre_Orders_Cart::get_pre_order_product( $order_id );
+	
+			// indicate the order contains a pre-order
+			update_post_meta( $order_id, '_wc_pre_orders_is_pre_order', 1 );
+	
+			// save when the pre-order amount was charged (either upfront or upon release)
+			update_post_meta( $order_id, '_wc_pre_orders_when_charged', get_post_meta( $product->is_type( 'variation' ) && version_compare( WC_VERSION, '3.0', '>=' ) ? $product->get_parent_id() : $product->get_id(), '_wc_pre_orders_when_to_charge', true ) );
+		}
 	}
 
 
