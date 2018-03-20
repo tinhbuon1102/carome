@@ -2137,7 +2137,7 @@ function elsey_woocommerce_payment_successful_result_duplicate_order ($result, $
 			
 			// Send email notification
 			$updated = $wpdb->update( $wpdb->postmeta, array('post_status' => 'wc-pending'), array('ID' => $clone_order_id) );
-			$order_clone->update_status( 'on-hold');
+			$order_clone->update_status( 'pre-ordered');
 		}
 	}
 	return $result;

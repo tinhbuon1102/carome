@@ -3,7 +3,7 @@
  * Plugin Name: Flat Rate per State/Country/Region for WooCommerce
  * Plugin URI: http://www.webdados.pt/produtos-e-servicos/internet123/desenvolvimento-wordpress/flat-rate-per-countryregion-woocommerce-wordpress/
  * Description: This plugin allows you to set a flat delivery rate per States, Countries or World Regions (and a fallback "Rest of the World" rate) on WooCommerce.
- * Version: 11232.4.9
+ * Version: 999999.4.9
  * Author: Webdados
  * Author URI: http://www.webdados.pt
  * Text Domain: flat-rate-per-countryregion-for-woocommerce
@@ -944,14 +944,21 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 			}
 
 			/* Calculate the rate */
-			public function calculate_shipping($package = array()) {
+			public function calculate_shipping($package = array(), $return = false) {
 				//Per order by default
 				$tax_type='per_order';
 				//Order total
+				
+// 				if (WC()->cart->prices_include_tax)
+// 					$order_total = WC()->cart->cart_contents_total + array_sum( WC()->cart->taxes );
+// 				else
+// 					$order_total = WC()->cart->cart_contents_total;
+
 				if (WC()->cart->prices_include_tax)
-					$order_total = WC()->cart->cart_contents_total + array_sum( WC()->cart->taxes );
+					$order_total = $package['cart_subtotal'];
 				else
-					$order_total = WC()->cart->cart_contents_total;
+					$order_total = $package['contents_cost'];
+				
 				//Label
 				$label='';
 				if(trim($package['destination']['country'])!='') {
@@ -1321,6 +1328,42 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 						//The default - already set
 						break;
 				}
+				
+				// Customize for double freeshipping for both order Preorder + Normal Order.
+				if (!is_admin()) {
+					if ($return)
+					{
+						return $rate['cost'];
+					}
+					else {
+						$aNormalProducts = $aPreOrderProducts = $package;
+						$aNormalProducts['contents'] = $aPreOrderProducts['contents'] = array();
+						$aNormalProducts['contents_cost'] = $aNormalProducts['cart_subtotal'] = 0;
+						$aPreOrderProducts['contents_cost'] = $aPreOrderProducts['cart_subtotal'] = 0;
+						
+						foreach ($package['contents'] as $item_id => $values) {
+							$is_pre_order = get_post_meta($values['product_id'], '_wc_pre_orders_enabled', true);
+							if( 'yes' !== $is_pre_order )
+							{
+								$aNormalProducts['contents'][$item_id] = $values;
+								$aNormalProducts['contents_cost'] += $values['line_total'];
+								$aNormalProducts['cart_subtotal'] += $values['line_total'] + $values['line_tax'];
+							}
+							else {
+								$aPreOrderProducts['contents'][$item_id] = $values;
+								$aPreOrderProducts['contents_cost'] += $values['line_total'];
+								$aPreOrderProducts['cart_subtotal'] += $values['line_total'] + $values['line_tax'];
+							}
+						}
+						if (!empty($aPreOrderProducts) && !empty($aNormalProducts))
+						{
+							$rate['cost'] = 0;
+							$rate['cost'] += $this->calculate_shipping($aPreOrderProducts, true);
+							$rate['cost'] += $this->calculate_shipping($aNormalProducts, true);
+						}
+					}
+				}
+				
 				// Register the rate
 				$this->add_rate($rate);
 			}
