@@ -2118,7 +2118,9 @@ function elsey_calculate_shipping($calculated_shipping_packages, $order_id) {
 			$merged_taxes[ $tax_id ] += $tax_amount;
 		}
 	}
-
+	
+pr($order_id . '--------' . array_sum( wp_list_pluck( $shipping_methods, 'cost' ) ));
+pr($calculated_shipping_packages);
 	global $wpdb;
 	$wpdb->query( $wpdb->prepare( "
 		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta 
@@ -2238,6 +2240,7 @@ function elsey_woocommerce_order_status_changed ($order_id, $status_from, $statu
 			$order_clone->update_status( 'pre-ordered');
 		}
 	}
+	die('xxx');
 	return $order_id;
 }
 
