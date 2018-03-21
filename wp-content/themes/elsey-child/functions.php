@@ -2154,7 +2154,7 @@ function elsey_calculate_shipping($order_id) {
 add_action( 'woocommerce_order_status_pending', 'elsey_woocommerce_order_status_changed', 1, 2 );
 add_action( 'woocommerce_order_status_on-hold', 'elsey_woocommerce_order_status_changed', 1, 2 );
 add_action( 'woocommerce_order_status_processing', 'elsey_woocommerce_order_status_changed', 1, 2 );
-function elsey_woocommerce_order_status_changed ($order_id, &$order)
+function elsey_woocommerce_order_status_changed ($order_id, $order)
 {
 	if (is_admin())
 	{
