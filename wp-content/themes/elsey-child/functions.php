@@ -2110,6 +2110,7 @@ function elsey_calculate_shipping($order_id) {
 	$shipping_total_tax = WC()->cart->get_shipping_tax();
 	$shipping_taxes = array('total' => WC()->cart->get_shipping_taxes());
 	
+	// Save shipping cost
 	$wpdb->query( $wpdb->prepare( "
 		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta 
 		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
@@ -2131,11 +2132,13 @@ function elsey_calculate_shipping($order_id) {
 		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s",
 		serialize($shipping_taxes), 'taxes', 'shipping', $order_id ) );
 	
+	// Save shipping cost
 	$order = wc_get_order( $order_id );
 	$order->set_shipping_total($shipping_cost);
 	$order->set_shipping_tax($shipping_total_tax);
 	$order->save();
 	
+	// Save shipping cost
 	$shipping_items = $order->get_items('shipping');
 	foreach ($shipping_items as $shipping_item)
 	{
@@ -2143,14 +2146,17 @@ function elsey_calculate_shipping($order_id) {
 		$shipping_item->set_taxes($shipping_taxes);
 		$shipping_item->save();
 	}
-	$shipping_items = $order->get_items('shipping');
 }
 
 // add_filter( 'woocommerce_payment_successful_result', 'elsey_woocommerce_payment_successful_result_duplicate_order', 1000, 2 );
-add_action( 'woocommerce_order_status_changed', 'elsey_woocommerce_order_status_changed', 1000, 4 );
-function elsey_woocommerce_order_status_changed ($order_id, $status_from, $status_to, $order)
+// add_action( 'woocommerce_order_status_changed', 'elsey_woocommerce_order_status_changed', 1000, 4 );
+
+add_action( 'woocommerce_order_status_pending', 'elsey_woocommerce_order_status_changed', 1, 2 );
+add_action( 'woocommerce_order_status_on-hold', 'elsey_woocommerce_order_status_changed', 1, 2 );
+add_action( 'woocommerce_order_status_processing', 'elsey_woocommerce_order_status_changed', 1, 2 );
+function elsey_woocommerce_order_status_changed ($order_id, $order)
 {
-	if (!in_array($status_to, array('on-hold', 'processing')) || is_admin())
+	if (is_admin())
 	{
 		return $order_id;
 	}
