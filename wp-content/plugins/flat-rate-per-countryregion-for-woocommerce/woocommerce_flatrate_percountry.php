@@ -1339,9 +1339,9 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 						$aOrderBothType = isBothOrderTypeShipping($package);
 						if ($aOrderBothType)
 						{
-							$rate['cost'] = 0;
-							$rate['cost'] += $this->calculate_shipping($aOrderBothType['aPreOrderProducts'], true);
-							$rate['cost'] += $this->calculate_shipping($aOrderBothType['aNormalProducts'], true);
+							WC()->cart->rate_normal = $rate_normal = $this->calculate_shipping($aOrderBothType['aNormalProducts'], true);
+							WC()->cart->rate_preorder = $rate_preorder = $this->calculate_shipping($aOrderBothType['aPreOrderProducts'], true);
+							$rate['cost'] = $rate_normal + $rate_preorder;
 						}
 					}
 				}

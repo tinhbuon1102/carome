@@ -2058,6 +2058,17 @@ function else_woocommerce_admin_reports($reports)
 	return $reports;
 }
 
+add_filter('woocommerce_cart_shipping_packages', 'elsey_woocommerce_cart_shipping_packages', 10000, 1);
+function elsey_woocommerce_cart_shipping_packages($packages){
+	global $elsey_order_type;
+	if ($elsey_order_type == 'normal' || $elsey_order_type == 'preorder')
+	{
+		$aOrderBothType = isBothOrderTypeShipping($packages[0]);
+		return array($elsey_order_type == 'normal' ? $aOrderBothType['aNormalProducts'] : $aOrderBothType['aPreOrderProducts']);
+	}
+	return $packages;
+}
+
 function isBothOrderTypeShipping($package)
 {
 	$aNormalProducts = $aPreOrderProducts = $package;
@@ -2092,57 +2103,47 @@ function isBothOrderTypeShipping($package)
 	return null;
 }
 
-function elsey_calculate_shipping($calculated_shipping_packages, $order_id) {
-	$cart = WC()->cart;
-	$shipping_methods = array();
-	if ($cart->needs_shipping())
-	{
-		$chosen_methods = array();
-		foreach ( $calculated_shipping_packages as $key => $package ) {
-			$chosen_method          = wc_get_chosen_shipping_method_for_package( $key, $package );
-			if ( $chosen_method ) {
-				$chosen_methods[ $key ] = $package['rates'][ $chosen_method ];
-			}
-		}
-		$shipping_methods = $chosen_methods;
-		
-	}
-
-	$shipping_taxes = wp_list_pluck( $shipping_methods, 'taxes' );
-	$merged_taxes = array();
-	foreach ( $shipping_taxes as $taxes ) {
-		foreach ( $taxes as $tax_id => $tax_amount ) {
-			if ( ! isset( $merged_taxes[ $tax_id ] ) ) {
-				$merged_taxes[ $tax_id ] = 0;
-			}
-			$merged_taxes[ $tax_id ] += $tax_amount;
-		}
-	}
-	
-pr($order_id . '--------' . array_sum( wp_list_pluck( $shipping_methods, 'cost' ) ));
-pr($calculated_shipping_packages);
+function elsey_calculate_shipping($order_id) {
 	global $wpdb;
+	WC()->cart->calculate_shipping();
+	$shipping_cost = WC()->cart->get_shipping_total();
+	$shipping_total_tax = WC()->cart->get_shipping_tax();
+	$shipping_taxes = array('total' => WC()->cart->get_shipping_taxes());
+	
 	$wpdb->query( $wpdb->prepare( "
 		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta 
 		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
 		SET itemmeta.meta_value = %s 
 		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s", 
-		array_sum( wp_list_pluck( $shipping_methods, 'cost' ) ), 'cost', 'shipping', $order_id ) );
+		$shipping_cost, 'cost', 'shipping', $order_id ) );
 	
 	$wpdb->query( $wpdb->prepare( "
 		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta
 		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
 		SET itemmeta.meta_value = %s
 		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s",
-		array_sum( $merged_taxes ), 'total_tax', 'shipping', $order_id ) );
+		$shipping_total_tax, 'total_tax', 'shipping', $order_id ) );
 	
 	$wpdb->query( $wpdb->prepare( "
 		UPDATE {$wpdb->prefix}woocommerce_order_itemmeta itemmeta
 		INNER JOIN {$wpdb->prefix}woocommerce_order_items item ON itemmeta.order_item_id = item.order_item_id
 		SET itemmeta.meta_value = %s
 		WHERE itemmeta.meta_key = %s AND item.order_item_type = %s AND item.order_id = %s",
-		$merged_taxes, 'taxes', 'shipping', $order_id ) );
+		serialize($shipping_taxes), 'taxes', 'shipping', $order_id ) );
 	
+	$order = wc_get_order( $order_id );
+	$order->set_shipping_total($shipping_cost);
+	$order->set_shipping_tax($shipping_total_tax);
+	$order->save();
+	
+	$shipping_items = $order->get_items('shipping');
+	foreach ($shipping_items as $shipping_item)
+	{
+		$shipping_item->set_total($shipping_cost);
+		$shipping_item->set_taxes($shipping_taxes);
+		$shipping_item->save();
+	}
+	$shipping_items = $order->get_items('shipping');
 }
 
 // add_filter( 'woocommerce_payment_successful_result', 'elsey_woocommerce_payment_successful_result_duplicate_order', 1000, 2 );
@@ -2175,8 +2176,7 @@ function elsey_woocommerce_order_status_changed ($order_id, $status_from, $statu
 	// If order contain both normal + preorder, so separate the order to 2 orders
 	if (!empty($aPreOrderProducts) && !empty($aNormalProducts))
 	{
-		$package = WC()->cart->get_shipping_packages();
-		$aOrderBothType = isBothOrderTypeShipping($package);
+		global $elsey_order_type;
 		
 		// Clone order
 		$cloneOrder = new CloneOrder();
@@ -2189,8 +2189,12 @@ function elsey_woocommerce_order_status_changed ($order_id, $status_from, $statu
 		}
 		
 		// Calculate price
+		$elsey_order_type = 'normal';
+		elsey_calculate_shipping($order_id);
+		$elsey_order_type = '';
+		WC()->cart->calculate_shipping();
+		
 		wp_cache_delete( 'order-items-' . $order_id, 'orders' );
-		elsey_calculate_shipping($aOrderBothType['aNormalProducts'], $order_id);
 		$order = wc_get_order( $order_id );
 		$order->calculate_shipping();
 		$order->calculate_totals( true );
@@ -2225,10 +2229,14 @@ function elsey_woocommerce_order_status_changed ($order_id, $status_from, $statu
 			}
 			
 			// Calculate price for pre order
-			wp_cache_delete( 'order-items-' . $clone_order_id, 'orders' );
-			elsey_calculate_shipping($aOrderBothType['aPreOrderProducts'], $clone_order_id);
+			$elsey_order_type = 'preorder';
+			elsey_calculate_shipping($clone_order_id);
+			$elsey_order_type = '';
+			WC()->cart->calculate_shipping();
+			
 			$order_clone = wc_get_order( $clone_order_id );
-			$order->calculate_shipping();
+			wp_cache_delete( 'order-items-' . $clone_order_id, 'orders' );
+			$order_clone->calculate_shipping();
 			$order_clone->calculate_totals( true );
 			
 			$preOrderCheckout = new WC_Pre_Orders_Checkout();
@@ -2240,7 +2248,6 @@ function elsey_woocommerce_order_status_changed ($order_id, $status_from, $statu
 			$order_clone->update_status( 'pre-ordered');
 		}
 	}
-	die('xxx');
 	return $order_id;
 }
 
