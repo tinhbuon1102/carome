@@ -57,7 +57,7 @@ function serve_media_shortcode($shortcode) {
         } else {
             switch ($page_res['http_code']) {
                 default:
-                    $result = error();
+                    $result = error('service is unavailable now 1');
                     break;
 
                 case 404:
@@ -69,7 +69,7 @@ function serve_media_shortcode($shortcode) {
                     $page_data = json_decode($page_res['body'], true);
 
                     if (empty($page_data['entry_data']['PostPage'][0]['media']) && empty($page_data['graphql']['shortcode_media'])) {
-                        $result = error();
+                        $result = error('service is unavailable now 2');
 
                     } else {
                         $raw_data = !empty($page_data['entry_data']['PostPage'][0]['media']) ? $page_data['entry_data']['PostPage'][0]['media'] : $page_data['graphql']['shortcode_media'];
@@ -125,7 +125,7 @@ function serve_user($username) {
         } else {
             switch ($page_res['http_code']) {
                 default:
-                    $result = error();
+                    $result = error('service is unavailable now 3');
                     break;
 
                 case 404:
@@ -137,16 +137,16 @@ function serve_user($username) {
                     $page_data_matches = array();
 
                     if (!preg_match('#window\._sharedData\s*=\s*(.*?)\s*;\s*</script>#', $page_res['body'], $page_data_matches)) {
-                        $result = error();
+                        $result = error('service is unavailable now 4');
 
                     } else {
                         $page_data = json_decode($page_data_matches[1], true);
 
-                        if (!$page_data || empty($page_data['entry_data']['ProfilePage'][0]['user'])) {
-                            $result = error();
+                        if (!$page_data || empty($page_data['entry_data']['ProfilePage'][0]['graphql']['user'])) {
+                            $result = error('service is unavailable now 5');
 
                         } else {
-                            $user_data = $page_data['entry_data']['ProfilePage'][0]['user'];
+                            $user_data = $page_data['entry_data']['ProfilePage'][0]['graphql']['user'];
 
                             if ($user_data['is_private']) {
                                 $result = error('you cannot view this resource');
@@ -219,7 +219,7 @@ function serve_user_media_recent($username) {
         } else {
             switch ($page_res['http_code']) {
                 default:
-                    $result = error();
+                    $result = error('service is unavailable now 6');
                     break;
 
                 case 404:
@@ -231,15 +231,15 @@ function serve_user_media_recent($username) {
                     $page_data_matches = array();
 
                     if (!preg_match('#window\._sharedData\s*=\s*(.*?)\s*;\s*</script>#', $page_res['body'], $page_data_matches)) {
-                        $result = error();
+                        $result = error('service is unavailable now 7');
                     } else {
                         $page_data = json_decode($page_data_matches[1], true);
 
-                        if (!$page_data || empty($page_data['entry_data']['ProfilePage'][0]['user'])) {
-                            $result = error();
+                        if (!$page_data || (empty($page_data['entry_data']['ProfilePage'][0]['graphql']['user']) && empty($page_data['entry_data']['ProfilePage'][0]['user']))) {
+                            $result = error('service is unavailable now 8');
 
                         } else {
-                            $user_data = $page_data['entry_data']['ProfilePage'][0]['user'];
+                            $user_data = $page_data['entry_data']['ProfilePage'][0]['graphql']['user'];
 
                             if ($user_data['is_private']) {
                                 $result = error('you cannot view this resource');
@@ -259,13 +259,13 @@ function serve_user_media_recent($username) {
                                 ));
 
                                 if ($query_res['http_code'] != 200) {
-                                    $result = error();
+                                    $result = error('service is unavailable now 9');
 
                                 } else {
                                     $query_data = json_decode($query_res['body'], true);
 
                                     if (!$query_data) {
-                                        $result = error();
+                                        $result = error('service is unavailable now 10');
 
                                     } else if (empty($query_data['data']['user']['edge_owner_to_timeline_media']['edges'])) {
                                         $nodes = array();
@@ -364,13 +364,13 @@ function serve_tag_media_recent($tag) {
         ));
 
         if ($query_res['http_code'] != 200) {
-            $result = error();
+            $result = error('service is unavailable now 11');
 
         } else {
             $query_data = json_decode($query_res['body'], true);
 
             if (!$query_data || !isset($query_data['data']['hashtag']) || (!isset($query_data['data']['hashtag']['edge_hashtag_to_media']) && !isset($query_data['data']['hashtag']['edge_hashtag_to_top_posts']))) {
-                $result = error();
+                $result = error('service is unavailable now 12');
 
             } else {
                 $tag_data = array(
@@ -470,13 +470,13 @@ function serve_location_media_recent($location_id) {
 
 
         if ($query_res['http_code'] != 200) {
-            $result = error();
+            $result = error('service is unavailable now 13');
 
         } else {
             $query_data = json_decode($query_res['body'], true);
 
             if (!$query_data || !isset($query_data['data']['location']) || !isset($query_data['data']['location']['edge_location_to_media'])) {
-                $result = error();
+                $result = error('service is unavailable now 14');
 
             } else {
                 $location_data = array(
