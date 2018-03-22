@@ -60,6 +60,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php endif; ?>	
 			
 	</div>
+<?php do_action( 'woocommerce_after_shipping_price_custom');?>
 <?php if (is_cart()): ?>
 <p class="order__summary__row__descr p5"><?php esc_html_e( '送料は地域によって異なります。配送先住所を入力した時点で、送料が確定いたします。', 'elsey' ); ?></p>
 <?php endif; ?>

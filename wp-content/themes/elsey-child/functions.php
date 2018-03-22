@@ -2324,3 +2324,23 @@ function elsey_update_extra_profile_fields($user_id) {
 		update_user_meta($user_id, 'birth_month', $_POST['birth_month']);
 		update_user_meta($user_id, 'birth_day', $_POST['birth_day']);
 }
+
+add_action('woocommerce_before_checkout_form', 'elsey_woocommerce_after_shipping_price_custom');
+add_action('woocommerce_before_cart', 'elsey_woocommerce_after_shipping_price_custom');
+add_action('woocommerce_after_shipping_price_custom', 'elsey_woocommerce_after_shipping_price_custom');
+function elsey_woocommerce_after_shipping_price_custom()
+{
+	$current_filter = current_filter();
+	$packages = WC()->cart->get_shipping_packages();
+	$aOrderBothType = isBothOrderTypeShipping($packages[0]);
+	if ($aOrderBothType && count($aOrderBothType) > 1)
+	{
+		if (in_array($current_filter, array('woocommerce_before_cart', 'woocommerce_before_checkout_form'))  )
+		{
+			echo '<div class="order__summary__row shipping_fee_message"><span class="big-text">' . __('This order will be separated as 2 orders for normal and pre-order. But payment will be total of both orders.', 'elsey') . '<span></div>';
+		}
+		else {
+			echo '<div class="order__summary__row shipping_fee_message"><span class="small-text">' . __('This shipping fee is for 2 orders of normal order and pre-order', 'elsey') . '<span></div>';
+		}
+	}
+}
