@@ -49,8 +49,6 @@ class Instashop_Admin extends Instashop_Admin_Base {
 		{
 			foreach ($insta_related_products[$insta_id]['products'] as $product_id_index => $product_id)
 			{
-				if (in_array($product_id_index, array('hide'))) continue;
-				
 				$product = get_product($product_id);
 				$html .= '<li data-id="'. $product_id .'" data-insta-id="'. $insta_id .'">
 					<a target="_blank" href="'. site_url('/wp-admin/post.php?post='. $product->id .'&action=edit') .'"> 
