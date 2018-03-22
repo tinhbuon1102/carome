@@ -73,10 +73,16 @@ jQuery(function($){
 				  {
 					  var insta_list = '';
 					  $.each(response.data, function(index, item){
-						  var related_number = insta_related_products[item.code] ? Object.keys(insta_related_products[item.code]).length : 0;
-						  insta_list += '<li>';
+						  var related_number = (insta_related_products[item.code] && insta_related_products[item.code]['products']) ? Object.keys(insta_related_products[item.code]['products']).length : 0;
+						  var hide_post = insta_related_products[item.code] && insta_related_products[item.code]['hide'] && insta_related_products[item.code]['hide'] == 1 ? true : false;
+						  insta_list += '<li class="'+ (hide_post ? "hide-post" : "") +'">';
 						  insta_list += '<img src="'+ item.images.__original.url +'"/>';
+						  
+						  insta_list += '<div>';
 						  insta_list += '<a class="edit_insta" href="javascript:void(0)" data-insta-id="'+ item.code +'">Edit</a>';
+						  insta_list += '<a class="hide_insta" href="javascript:void(0)" data-insta-id="'+ item.code +'">'+ (hide_post ? "Un-hide" : "Hide") +'</a>';
+						  insta_list += '</div>';
+						  
 						  insta_list += '<span class="related_number '+ (related_number ? 'has_related' : '') +'" data-insta-id="'+ item.code +'">'+ related_number +'</span>';
 						  insta_list += '</li>';
 					  });
@@ -132,6 +138,33 @@ jQuery(function($){
 				  jQuery('body').LoadingOverlay('hide');
 				  $('#modal_insta_content').show();
 				  inst.open();
+			  },
+			  error: function(response){jQuery('body').LoadingOverlay('hide')}
+		});
+	});
+	
+	$('body').on('click', '#instagram_list_admin a.hide_insta', function(e){
+		  var eleClick = $(this);
+		  e.preventDefault();
+		  $('body').LoadingOverlay('show');
+		  
+		  params = {action: 'hide_insta_post', insta_id: $(this).attr('data-insta-id')};
+		  $.ajax({
+			  dataType: "json",
+			  type: 'post',
+			  url: object_data.ajax_url,
+			  data: params,
+			  success: function(response){
+				  if (response.hide)
+				  {
+					  eleClick.text('Un-hide');
+					  eleClick.closest('li').addClass('hide-post');
+				  }
+				  else {
+					  eleClick.text('Hide');
+					  eleClick.closest('li').removeClass('hide-post');
+				  }
+				  jQuery('body').LoadingOverlay('hide');
 			  },
 			  error: function(response){jQuery('body').LoadingOverlay('hide')}
 		});

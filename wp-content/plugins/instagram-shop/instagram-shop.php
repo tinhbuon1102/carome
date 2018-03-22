@@ -74,16 +74,16 @@ class Instashop
 		
 		$insta_related_products = get_option('insta_related_products');
 		$insta_related_products = $insta_related_products ? $insta_related_products : array();
-		$insta_related_products[$prdtID] = isset($insta_related_products[$prdtID]) ? array_values($insta_related_products[$prdtID]) : null;
+		$insta_related_products[$prdtID]['products'] = isset($insta_related_products[$prdtID]) && isset($insta_related_products[$prdtID]['products']) ? array_values($insta_related_products[$prdtID]['products']) : null;
 		
 		$products_array = array();
-		if ( $insta_related_products[$prdtID] )
+		if ( $insta_related_products[$prdtID]['products'] )
 		{
 			$args = array(
 				'post_type' => 'product',
 				'posts_per_page' => - 1,
 				'fields' => 'ids',
-				'post__in' => $insta_related_products[$prdtID]
+				'post__in' => $insta_related_products[$prdtID]['products']
 			);
 			$related_query = new WP_Query($args);
 			

@@ -26,6 +26,9 @@ class Instashop_Admin extends Instashop_Admin_Base {
 		add_action('wp_ajax_nopriv_get_insta_form', array( $this, 'get_insta_form'));
 		add_action('wp_ajax_get_insta_form', array( $this, 'get_insta_form'));
 		
+		add_action('wp_ajax_nopriv_hide_insta_post', array( $this, 'hide_insta_post'));
+		add_action('wp_ajax_hide_insta_post', array( $this, 'hide_insta_post'));
+		
 		add_action('wp_ajax_nopriv_get_search_product', array( $this, 'get_search_product'));
 		add_action('wp_ajax_get_search_product', array( $this, 'get_search_product'));
 		
@@ -42,10 +45,12 @@ class Instashop_Admin extends Instashop_Admin_Base {
 		$insta_related_products = get_option('insta_related_products');
 		$insta_related_products = $insta_related_products ? $insta_related_products : array();
 		$html = '';
-		if (isset($insta_related_products[$insta_id]) && count($insta_related_products[$insta_id]))
+		if (isset($insta_related_products[$insta_id]) && $insta_related_products[$insta_id]['products'] && count($insta_related_products[$insta_id]['products']))
 		{
-			foreach ($insta_related_products[$insta_id] as $product_id)
+			foreach ($insta_related_products[$insta_id]['products'] as $product_id_index => $product_id)
 			{
+				if (in_array($product_id_index, array('hide'))) continue;
+				
 				$product = get_product($product_id);
 				$html .= '<li data-id="'. $product_id .'" data-insta-id="'. $insta_id .'">
 					<a target="_blank" href="'. site_url('/wp-admin/post.php?post='. $product->id .'&action=edit') .'"> 
@@ -64,9 +69,9 @@ class Instashop_Admin extends Instashop_Admin_Base {
 		$insta_related_products = get_option('insta_related_products');
 		$insta_related_products = $insta_related_products ? $insta_related_products : array();
 		
-		if ((isset($insta_related_products[$insta_id]) && in_array($product_id, $insta_related_products[$insta_id])))
+		if ((isset($insta_related_products[$insta_id]) && isset($insta_related_products[$insta_id]['products']) && in_array($product_id, $insta_related_products[$insta_id]['products'])))
 		{
-			unset($insta_related_products[$insta_id][$product_id]);
+			unset($insta_related_products[$insta_id]['products'][$product_id]);
 		}
 		update_option('insta_related_products', $insta_related_products);
 		echo json_encode(array('html' => $this->buildRelatedProductList($insta_id)));
@@ -79,9 +84,9 @@ class Instashop_Admin extends Instashop_Admin_Base {
 		$insta_related_products = get_option('insta_related_products');
 		$insta_related_products = $insta_related_products ? $insta_related_products : array();
 		
-		if (!isset($insta_related_products[$insta_id]) || (isset($insta_related_products[$insta_id]) && !in_array($product_id, $insta_related_products[$insta_id])))
+		if (!isset($insta_related_products[$insta_id]) || (isset($insta_related_products[$insta_id]) && isset($insta_related_products[$insta_id]['products']) && !in_array($product_id, $insta_related_products[$insta_id]['products'])))
 		{
-			$insta_related_products[$insta_id][$product_id] = $product_id;
+			$insta_related_products[$insta_id]['products'][$product_id] = $product_id;
 		}
 		update_option('insta_related_products', $insta_related_products);
 		echo json_encode(array('html' => $this->buildRelatedProductList($insta_id)));
@@ -127,6 +132,25 @@ class Instashop_Admin extends Instashop_Admin_Base {
 	public function get_insta_form() {
 		$insta_id = $_REQUEST['insta_id'];
 		echo json_encode(array('html' => $this->buildRelatedProductList($insta_id)));
+		die;
+	}
+	
+	public function hide_insta_post() {
+		$insta_id = $_REQUEST['insta_id'];
+		
+		$insta_related_products = get_option('insta_related_products');
+		$insta_related_products = $insta_related_products ? $insta_related_products : array();
+		
+		if (!isset($insta_related_products[$insta_id]) || !isset($insta_related_products[$insta_id]['hide']) || $insta_related_products[$insta_id]['hide'] == 0)
+		{
+			$insta_related_products[$insta_id]['hide'] = 1;
+		}
+		else {
+			$insta_related_products[$insta_id]['hide'] = 0;
+		}
+		update_option('insta_related_products', $insta_related_products);
+		
+		echo json_encode(array('hide' => $insta_related_products[$insta_id]['hide']));
 		die;
 	}
 	

@@ -1374,6 +1374,39 @@ function elsey_woe_order_exported($order_id){
 
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
+	if ($_GET['update_insta_shop'])
+	{
+		$insta_related_products = get_option('insta_related_products');
+		$insta_related_products = $insta_related_products ? $insta_related_products : array();
+		
+		$insta_related_products_new = array();
+		foreach($insta_related_products as $insta_id => $insta_related_product)
+		{
+			if ($insta_related_product && count($insta_related_product))
+			{
+				foreach ($insta_related_product as $product_id_index => $product_id)
+				{
+					if (in_array($product_id_index, array('hide', 'products')))
+					{
+						break;
+					}
+					if (is_numeric($product_id_index))
+					{
+						$insta_related_products_new[$insta_id]['products'][$product_id_index] = $product_id;
+					}
+					else {
+						$insta_related_products_new[$insta_id][$product_id_index] = $product_id;
+					}
+				}
+			}
+		}
+		if (count($insta_related_products_new))
+		{
+			update_option('insta_related_products', $insta_related_products_new);
+		}
+		die('done');
+	}
+	
 	if (!isset($_GET['change_old_order_name']))
 	{
 		return;

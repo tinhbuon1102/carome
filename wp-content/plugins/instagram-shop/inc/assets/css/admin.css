@@ -38,11 +38,28 @@ ul#instagram_list_admin li {
 }
 
 ul#instagram_list_admin li img {
-	max-width: 150px
+	max-width: 150px;
+	border: 1px solid #f1f1f1;
+}
+
+ul#instagram_list_admin li.hide-post img {
+	opacity: 0.2;
+	border: 1px solid red;
+}
+
+ul#instagram_list_admin li.hide-post a.hide_insta {
+	color: red;
 }
 
 ul#instagram_list_admin li .edit_insta {
 	display: block;
+	float: left;
+	padding-left: 10px;
+}
+ul#instagram_list_admin li .hide_insta {
+	display: block;
+	float: right;
+	padding-right: 10px;
 }
 
 ul#instagram_list_admin li .related_number {
