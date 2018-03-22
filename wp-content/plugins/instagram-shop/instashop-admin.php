@@ -82,7 +82,7 @@ class Instashop_Admin extends Instashop_Admin_Base {
 		$insta_related_products = get_option('insta_related_products');
 		$insta_related_products = $insta_related_products ? $insta_related_products : array();
 		
-		if (!isset($insta_related_products[$insta_id]) || (isset($insta_related_products[$insta_id]) && isset($insta_related_products[$insta_id]['products']) && !in_array($product_id, $insta_related_products[$insta_id]['products'])))
+		if (!isset($insta_related_products[$insta_id]) || !isset($insta_related_products[$insta_id]['products']) || (isset($insta_related_products[$insta_id]) && isset($insta_related_products[$insta_id]['products']) && !in_array($product_id, $insta_related_products[$insta_id]['products'])))
 		{
 			$insta_related_products[$insta_id]['products'][$product_id] = $product_id;
 		}
