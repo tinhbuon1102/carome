@@ -18,6 +18,41 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class WC_Report_Stock extends WP_List_Table {
 
+	public function get_orderby()
+	{
+		$orderby = '';
+		$action = $this->current_action();
+		switch ($action)
+		{
+			case 'publish-date-desc' :
+				$orderby .= ' posts.post_date DESC ';
+				break;
+			case 'publish-date-asc' :
+				$orderby .= ' posts.post_date ASC ';
+				break;
+	
+			case 'stock-desc' :
+				$orderby .= ' CAST(postmeta.meta_value AS SIGNED) DESC ';
+				break;
+			case 'stock-asc' :
+				$orderby .= ' CAST(postmeta.meta_value AS SIGNED) ASC ';
+				break;
+	
+			case 'title-desc' :
+				$orderby .= ' posts.post_title DESC ';
+				break;
+	
+			case 'title-asc' :
+				$orderby .= ' posts.post_title ASC ';
+				break;
+			default :
+				$orderby .= ' posts.post_date DESC ';
+				break;
+		}
+	
+		return $orderby;
+	}
+	
 	/**
 	 * Max items.
 	 *

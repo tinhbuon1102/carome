@@ -2085,9 +2085,9 @@ function else_woocommerce_admin_reports($reports)
 {
 	$most_stocked = $reports['stock']['reports']['most_stocked'];
 	$reports['stock']['reports']['out_of_stock_new'] = $reports['stock']['reports']['out_of_stock'];
+	$reports['stock']['reports']['most_stocked_new'] = $reports['stock']['reports']['most_stocked'];
 	unset($reports['stock']['reports']['out_of_stock']);
 	unset($reports['stock']['reports']['most_stocked']);
-	$reports['stock']['reports']['most_stocked'] = $most_stocked;
 	return $reports;
 }
 
