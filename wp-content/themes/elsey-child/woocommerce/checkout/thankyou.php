@@ -28,13 +28,22 @@ if ($order)
 	$both_order_preorder_id = get_post_meta( $order->id, '_wc_pre_orders_with_normal', true );
 	if ($both_order_preorder_id)
 	{
+		$both_total_price = get_post_meta( $order->id, '_both_order_total_price', true );
 		$pre_order = new WC_Order($both_order_preorder_id);
 		$orders = array($order, $pre_order);
 	}
 }
-foreach ($orders as $order) {
+if (count($orders) > 1) {
+	echo '<div class="order__summary__row shipping_fee_message">
+ 			<span class="big-text both_order_total">'. 
+ 				sprintf(__('Total payment amount is %s for below orders', 'elsey'), wc_price($both_total_price)) .
+ 			'<hr />
+ 			</span>
+ 			</div>';
+}
+foreach ($orders as $order_index => $order) {
 ?>
-<?php if (count($orders) > 1) {?>
+<?php if (count($orders) > 1 && $order_index > 0) {?>
 <br /><br />
 <hr />
 <?php }?>

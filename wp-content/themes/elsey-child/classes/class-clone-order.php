@@ -172,6 +172,10 @@ class CloneOrder {
         update_post_meta( $order_id, '_customer_ip_address', get_post_meta($this->original_order_id, '_customer_ip_address', true) );
         update_post_meta( $order_id, '_customer_user_agent', get_post_meta($this->original_order_id, '_customer_user_agent', true) );
 		
+        
+        update_post_meta($order_id, '_both_order_total_price', get_post_meta($this->original_order_id, '_both_order_total_price', true));
+        update_post_meta($order_id, '_both_order_shipping_total_price', get_post_meta($this->original_order_id, '_both_order_shipping_total_price', true));
+        update_post_meta($order_id, '_both_order_tax_total_price', get_post_meta($this->original_order_id, '_both_order_tax_total_price', true));
 	}
 	
 	/**

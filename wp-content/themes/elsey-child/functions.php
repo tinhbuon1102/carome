@@ -2217,6 +2217,11 @@ function elsey_woocommerce_order_status_changed ($order_id, $order)
 	{
 		global $elsey_order_type;
 		
+		// Store total price to use for showing message
+		update_post_meta($order_id, '_both_order_total_price', $order->get_total());
+		update_post_meta($order_id, '_both_order_shipping_total_price', $order->get_shipping_total());
+		update_post_meta($order_id, '_both_order_tax_total_price', $order->get_tax_totals());
+		
 		// Clone order
 		$cloneOrder = new CloneOrder();
 		$clone_order_id = $cloneOrder->clone_order($order_id);
@@ -2375,5 +2380,27 @@ function elsey_woocommerce_after_shipping_price_custom()
 		else {
 			echo '<div class="order__summary__row shipping_fee_message"><span class="small-text">' . __('This shipping fee is for 2 orders of normal order and pre-order', 'elsey') . '<span></div>';
 		}
+	}
+}
+
+add_action( 'woocommerce_email_before_order_table', 'elsey_woocommerce_email_before_order_table_show_both_order_total', 1, 4 );
+function elsey_woocommerce_email_before_order_table_show_both_order_total ($order, $sent_to_admin, $plain_text, $email)
+{
+	$second_order_id = get_post_meta($order->get_id(), '_wc_pre_orders_with_normal', true);
+	if ($second_order_id)
+	{
+		$both_total_price = get_post_meta( $order->id, '_both_order_total_price', true );
+		
+		if ($sent_to_admin)
+		{
+			$message = sprintf(__('Ordered #%s and #%s has total amount is %s', 'elsey'), $order->get_id(), $second_order_id, wc_price($both_total_price));
+		}
+		else {
+			$message = sprintf(__('Your ordered #%s and #%s has total amount is %s', 'elsey'), $order->get_id(), $second_order_id, wc_price($both_total_price));
+		}
+		
+		echo '<div class="order__summary__row shipping_fee_message">
+ 				<span class="big-text both_order_total"  style="font-size: 20px;">'. $message . '<hr /></span>
+ 			</div>';
 	}
 }

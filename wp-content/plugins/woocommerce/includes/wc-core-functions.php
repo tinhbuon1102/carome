@@ -225,8 +225,9 @@ function wc_get_template( $template_name, $args = array(), $template_path = '', 
  * @return string
  */
 function wc_get_template_html( $template_name, $args = array(), $template_path = '', $default_path = '' ) {
-	ob_start();
+// 	ob_start();
 	wc_get_template( $template_name, $args, $template_path, $default_path );
+	die('xxx');
 	return ob_get_clean();
 }
 /**
