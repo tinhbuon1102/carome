@@ -37,9 +37,8 @@ if (count($orders) > 1) {
 	echo '<div class="order__summary__row shipping_fee_message">
  			<span class="big-text both_order_total">'. 
  				sprintf(__('Total payment amount is %s for below orders', 'elsey'), wc_price($both_total_price)) .
- 			'<hr />
- 			</span>
- 			</div>';
+ 			'</span>
+ 			</div><hr />';
 }
 foreach ($orders as $order_index => $order) {
 ?>
