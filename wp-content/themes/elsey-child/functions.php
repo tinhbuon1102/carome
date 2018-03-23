@@ -2404,3 +2404,17 @@ function elsey_woocommerce_email_before_order_table_show_both_order_total ($orde
  			</div><hr />';
 	}
 }
+
+add_filter( 'woocommerce_reports_get_order_report_data_args', 'elsey_woocommerce_reports_get_order_report_data_args_add_pre_order', 1000, 1);
+function elsey_woocommerce_reports_get_order_report_data_args_add_pre_order($args)
+{
+	if (isset($args['order_status']) && is_array($args['order_status']) && in_array('processing', $args['order_status']))
+	{
+		$args['order_status'][] = 'pre-ordered';
+	}
+	if (isset($args['parent_order_status']) && is_array($args['parent_order_status']) && in_array('processing', $args['parent_order_status']))
+	{
+		$args['parent_order_status'][] = 'pre-ordered';
+	}
+	return $args;
+}
