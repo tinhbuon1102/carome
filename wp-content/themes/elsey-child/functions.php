@@ -2418,3 +2418,14 @@ function elsey_woocommerce_reports_get_order_report_data_args_add_pre_order($arg
 	}
 	return $args;
 }
+
+add_filter( 'woocommerce_reports_order_statuses', 'elsey_woocommerce_reports_order_statuses_add_pre_order', 1000, 1);
+function elsey_woocommerce_reports_order_statuses_add_pre_order($statuses)
+{
+	if(in_array('processing', $statuses) && !in_array('pre-ordered', $statuses))
+	{
+		$statuses[] = 'pre-ordered';
+	}
+	
+	return $statuses;
+}
