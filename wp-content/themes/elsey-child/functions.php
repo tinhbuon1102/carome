@@ -2400,7 +2400,7 @@ function elsey_woocommerce_email_before_order_table_show_both_order_total ($orde
 		}
 		
 		echo '<div class="order__summary__row shipping_fee_message">
- 				<span class="big-text both_order_total"  style="font-size: 20px;">'. $message . '<hr /></span>
- 			</div>';
+ 				<span class="big-text both_order_total"  style="font-size: 20px;">'. $message . '</span>
+ 			</div><hr />';
 	}
 }
