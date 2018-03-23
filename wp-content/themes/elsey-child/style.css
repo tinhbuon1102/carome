@@ -216,10 +216,15 @@ h3.waitlist_error {
 }
 
 .order__summary__row.shipping_fee_message span.big-text{
-	margin-bottom: 30px;
-    font-size: 20px;
+    font-size: 14px;
 }
-
+.order__summary__row.shipping_fee_message {
+    color: #AC260D;
+    background-color: #F2DEDC;
+    border: #EBCCCF solid 1px;
+    padding: 5px 10px;
+    margin-bottom: 20px;
+}
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
