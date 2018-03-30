@@ -124,12 +124,12 @@ if ( class_exists( 'WooCommerce' ) ) {
         $args['post__in'] = $args_pr_ids;
       }
 
-      $args['meta_query'] =array(
-        array(
-            'key' => '_stock_status',
-            'value' => 'instock',
-            'compare' => '=',
-        ));
+//       $args['meta_query'] =array(
+//         array(
+//             'key' => '_stock_status',
+//             'value' => 'instock',
+//             'compare' => '=',
+//         ));
       
 	    $elsey_products = new WP_Query($args);
 
