@@ -36,6 +36,42 @@ function update_nag_admin_only() {
 }
 add_action( 'admin_init', 'update_nag_admin_only' );
 
+/*hide menu for other roles*/
+function remove_menus () {
+    if (!current_user_can('administrator')) { //管理者ではない場合
+        remove_menu_page( 'wpcf7' );
+		remove_menu_page( 'edit.php?post_type=acf-field-group' );
+		remove_menu_page( 'elsey_options' ); //not working for Elsey Options
+		remove_menu_page( 'productsize_chart' ); //not working for Size Chart
+		remove_menu_page( 'wcst-shipping-companies' );//not working for Shipping tracking
+		remove_menu_page( 'yith_wcwl_panel' );//not working for YITH Plugins
+		remove_menu_page( 'yikes-inc-easy-mailchimp' );//not working for Easy Forms
+		remove_menu_page( 'duplicator-tools' );//not working for Duplicator
+		remove_menu_page( 'regenerate-thumbnails' );
+		remove_menu_page( 'zoo-cw-settings' );
+		remove_menu_page( 'mailchimp-for-wp' );
+		remove_menu_page( 'wp_file_manager' );
+		remove_menu_page( 'wpml_plugin_log' );
+		remove_menu_page( 'siteguard' );
+		remove_menu_page( 'vc-general' );
+		remove_menu_page('tools.php');	// Tools
+		remove_menu_page('options-general.php'); //setting
+		remove_menu_page('upload.php'); //Media
+		remove_submenu_page( 'index.php', 'ae_license' );
+    }
+}
+add_action('admin_menu', 'remove_menus');
+/*hide woocommerce submenu for other roles*/
+function wooninja_remove_items() {
+ $remove = array( 'wc-settings', 'wc-status', 'wc-addons', 'wc4jp-epsilon-output','checkout_form_designer', );
+  foreach ( $remove as $submenu_slug ) {
+   if ( ! current_user_can( 'update_core' ) ) {
+    remove_submenu_page( 'woocommerce', $submenu_slug );
+   }
+  }
+}
+
+add_action( 'admin_menu', 'wooninja_remove_items', 99, 0 );
 /*add class to body*/
 add_filter( 'body_class', 'add_page_slug_class_name' );
 function add_page_slug_class_name( $classes ) {
