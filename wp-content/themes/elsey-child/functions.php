@@ -37,8 +37,13 @@ function update_nag_admin_only() {
 add_action( 'admin_init', 'update_nag_admin_only' );
 
 /*hide menu for other roles*/
+add_action('admin_menu', 'remove_menus', 99999);
 function remove_menus () {
-    if (!current_user_can('administrator')) { //管理者ではない場合
+	global $menu;
+	$user = wp_get_current_user();
+	$allowed_roles = array('administrator');
+	
+	if (is_admin() && !array_intersect($allowed_roles, $user->roles ) ) {
         remove_menu_page( 'wpcf7' );
 		remove_menu_page( 'edit.php?post_type=acf-field-group' );
 		remove_menu_page( 'elsey_options' ); //not working for Elsey Options
