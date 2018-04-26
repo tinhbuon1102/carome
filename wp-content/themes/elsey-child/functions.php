@@ -43,9 +43,6 @@ function remove_menus () {
 	$user = wp_get_current_user();
 	$allowed_roles = array('administrator');
 	
-	pr($user->roles);
-	pr($allowed_roles);
-	die;
 	if (is_admin() && !array_intersect($allowed_roles, $user->roles ) ) {
         remove_menu_page( 'wpcf7' );
 		remove_menu_page( 'edit.php?post_type=acf-field-group' );
