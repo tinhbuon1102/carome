@@ -15,8 +15,6 @@ function main($config_path, $storage_path) {
     $config['storage_path'] = $storage_path;
 
     define('API_DEBUG', $config['debug'] === 'true');
-    define('SHARED_REGEXP', '#window\._sharedData\s?=\s?(.*);<\/script>#');
-
 
     index('config', $config);
 
@@ -59,7 +57,7 @@ function serve_media_shortcode($shortcode) {
         } else {
             switch ($page_res['http_code']) {
                 default:
-                    $result = error();
+                    $result = error('service is unavailable now 1');
                     break;
 
                 case 404:
@@ -71,7 +69,7 @@ function serve_media_shortcode($shortcode) {
                     $page_data = json_decode($page_res['body'], true);
 
                     if (empty($page_data['entry_data']['PostPage'][0]['media']) && empty($page_data['graphql']['shortcode_media'])) {
-                        $result = error();
+                        $result = error('service is unavailable now 2');
 
                     } else {
                         $raw_data = !empty($page_data['entry_data']['PostPage'][0]['media']) ? $page_data['entry_data']['PostPage'][0]['media'] : $page_data['graphql']['shortcode_media'];
@@ -127,7 +125,7 @@ function serve_user($username) {
         } else {
             switch ($page_res['http_code']) {
                 default:
-                    $result = error();
+                    $result = error('service is unavailable now 3');
                     break;
 
                 case 404:
@@ -138,14 +136,14 @@ function serve_user($username) {
                 case 200:
                     $page_data_matches = array();
 
-                    if (!preg_match(SHARED_REGEXP, $page_res['body'], $page_data_matches)) {
-                        $result = error();
+                    if (!preg_match('#window\._sharedData\s*=\s*(.*?)\s*;\s*</script>#', $page_res['body'], $page_data_matches)) {
+                        $result = error('service is unavailable now 4');
 
                     } else {
                         $page_data = json_decode($page_data_matches[1], true);
 
                         if (!$page_data || empty($page_data['entry_data']['ProfilePage'][0]['graphql']['user'])) {
-                            $result = error();
+                            $result = error('service is unavailable now 5');
 
                         } else {
                             $user_data = $page_data['entry_data']['ProfilePage'][0]['graphql']['user'];
@@ -177,9 +175,9 @@ function serve_user($username) {
             'id' => $raw_data['id'],
             'full_name' => $raw_data['full_name'],
             'counts' => array(
-                'media' => $raw_data['edge_owner_to_timeline_media']['count'],
-                'followed_by' => $raw_data['edge_followed_by']['count'],
-                'follows' => $raw_data['edge_follow']['count']
+                'media' => $raw_data['media']['count'],
+                'followed_by' => $raw_data['followed_by']['count'],
+                'follows' => $raw_data['follows']['count']
             )
         );
 
@@ -203,15 +201,16 @@ function serve_user_media_recent($username) {
         response(error_ext('specified username is not allowed'));
     }
 
+    $fallback = true;
     $result = null;
 
     $count = input('count', 33);
     $max_id = input('max_id');
 
     $cache_key = '@' . $username . '_media';
-    $storage_expired_or_empty = storage_expired_or_empty($cache_key);
+    $raw_data = storage_get($cache_key);
 
-    if ($storage_expired_or_empty) {
+    if (!$raw_data) {
         $page_res = client_request('get', '/' . $username . '/');
 
         if (!$page_res['status']) {
@@ -220,23 +219,24 @@ function serve_user_media_recent($username) {
         } else {
             switch ($page_res['http_code']) {
                 default:
-                    $result = error();
+                    $result = error('service is unavailable now 6');
                     break;
 
                 case 404:
                     $result = error('this user does not exist');
+                    $fallback = false;
                     break;
 
                 case 200:
                     $page_data_matches = array();
 
-                    if (!preg_match(SHARED_REGEXP, $page_res['body'], $page_data_matches)) {
-                        $result = error();
+                    if (!preg_match('#window\._sharedData\s*=\s*(.*?)\s*;\s*</script>#', $page_res['body'], $page_data_matches)) {
+                        $result = error('service is unavailable now 7');
                     } else {
                         $page_data = json_decode($page_data_matches[1], true);
 
-                        if (!$page_data || empty($page_data['entry_data']['ProfilePage'][0]['graphql']['user'])) {
-                            $result = error();
+                        if (!$page_data || (empty($page_data['entry_data']['ProfilePage'][0]['graphql']['user']) && empty($page_data['entry_data']['ProfilePage'][0]['user']))) {
+                            $result = error('service is unavailable now 8');
 
                         } else {
                             $user_data = $page_data['entry_data']['ProfilePage'][0]['graphql']['user'];
@@ -245,7 +245,46 @@ function serve_user_media_recent($username) {
                                 $result = error('you cannot view this resource');
 
                             } else {
-                                $formatted_data = user_media_recent_query_recursive($cache_key, $page_data, $user_data, array('id' => $user_data['id'], 'first' => 50), $limit);
+                                $query_res = client_request('get', '/graphql/query/', array(
+                                    'query' => array(
+                                        'query_id' => '17880160963012870',
+                                        'id' => $user_data['id'],
+                                        'first' => $limit
+                                    ),
+                                    'headers' => array(
+                                        'X-Csrftoken' => $page_res['cookies']['csrftoken'],
+                                        'X-Requested-With' => 'XMLHttpRequest',
+                                        'X-Instagram-Ajax' => '1'
+                                    )
+                                ));
+
+                                if ($query_res['http_code'] != 200) {
+                                    $result = error('service is unavailable now 9');
+
+                                } else {
+                                    $query_data = json_decode($query_res['body'], true);
+
+                                    if (!$query_data) {
+                                        $result = error('service is unavailable now 10');
+
+                                    } else if (empty($query_data['data']['user']['edge_owner_to_timeline_media']['edges'])) {
+                                        $nodes = array();
+                                        foreach ($query_data['data']['user']['edge_owner_to_timeline_media']['edges'] as $node) {
+                                            $nodes[] = $node['node'];
+                                        }
+                                        $user_data['media']['nodes'] = $nodes;
+                                        $raw_data = $user_data;
+
+                                    } else {
+                                        $nodes = array();
+                                        foreach ($query_data['data']['user']['edge_owner_to_timeline_media']['edges'] as $node) {
+                                            $nodes[] = $node['node'];
+                                        }
+                                        $user_data['media']['nodes'] = $nodes;
+                                        $raw_data = $user_data;
+                                        storage_set($cache_key, $raw_data);
+                                    }
+                                }
                             }
                         }
                     }
@@ -255,87 +294,38 @@ function serve_user_media_recent($username) {
         }
     }
 
-    $stored_data = storage_get($cache_key, false, true);
+    if (!$raw_data && $fallback) {
+        $raw_data = storage_get($cache_key, false);
+    }
 
-    if ($stored_data) {
-        list($pagination, $stored_data) = paginate($stored_data, 'max_id', $count, $max_id);
+    if ($raw_data) {
+        $formatted_data = array();
+
+        $formatted_user = array(
+            'username' => $raw_data['username'],
+            'profile_picture' => $raw_data['profile_pic_url'],
+            'id' => $raw_data['id'],
+            'full_name' => $raw_data['full_name']
+        );
+
+        foreach ($raw_data['media']['nodes'] as $media) {
+            $formatted_data[] = instagram_format_media($media, array(
+                'formatted_user' => $formatted_user
+            ));
+        }
+
+        list ($pagination, $formatted_data) = paginate($formatted_data, 'max_id', $count, $max_id);
 
         $result = array(
             'meta' => array(
                 'code' => 200
             ),
             'pagination' => $pagination,
-            'data' => $stored_data
+            'data' => $formatted_data
         );
-    } else {
-        if ($formatted_data) {
-            list($pagination, $formatted_data) = paginate($formatted_data, 'max_id', $count, $max_id);
-
-            $result = array(
-                'meta' => array(
-                    'code' => 200
-                ),
-                'pagination' => $pagination,
-                'data' => $formatted_data
-            );
-        } else {
-            $result = error();
-        }
     }
 
     response($result);
-}
-
-function user_media_recent_query_recursive($cache_key, $page_data, $user_data, $variables, $limit, $cursor = 0, $formatted_data = array()) {
-    $query_res = query_client_request($page_data, $variables, '42323d64886122307be10013ad2dcc44');
-
-    if ($query_res['http_code'] == 200) {
-        $query_data = json_decode($query_res['body'], true);
-
-        if ($query_data) {
-            $user_data['edge_owner_to_timeline_media']['edges'] = $query_data['data']['user']['edge_owner_to_timeline_media']['edges'];
-
-            $formatted_data = array_merge_recursive($formatted_data, user_media_recent_format_data($user_data));
-
-            $cursor += count($formatted_data);
-
-            if ($cursor < $limit) {
-                $variables['after'] = $query_data['data']['user']['edge_owner_to_timeline_media']['page_info']['end_cursor'];
-                user_media_recent_query_recursive($cache_key, $page_data, $user_data, $variables, $limit, $cursor, $formatted_data);
-            } else {
-                storage_set($cache_key, $formatted_data, true);
-            }
-        }
-    } else {
-        $formatted_data = user_media_recent_format_data($user_data);
-        storage_set($cache_key, $formatted_data, true);
-    }
-
-    return $formatted_data;
-}
-
-function user_media_recent_format_data($user_data) {
-    $formatted_data = array();
-
-    $formatted_user = array(
-        'username' => $user_data['username'],
-        'profile_picture' => $user_data['profile_pic_url'],
-        'id' => $user_data['id'],
-        'full_name' => $user_data['full_name']
-    );
-
-    $nodes = array();
-    foreach ($user_data['edge_owner_to_timeline_media']['edges'] as $node) {
-        $nodes[] = $node['node'];
-    }
-
-    foreach ($nodes as $media) {
-        $formatted_data[] = instagram_format_media($media, array(
-            'formatted_user' => $formatted_user
-        ));
-    }
-
-    return $formatted_data;
 }
 
 function serve_tag_media_recent($tag) {
@@ -354,307 +344,186 @@ function serve_tag_media_recent($tag) {
     $max_id = input('max_tag_id');
 
     $cache_key = '#' . $tag;
-    $storage_expired_or_empty = storage_expired_or_empty($cache_key);
+    $raw_data = storage_get($cache_key);
 
-    if ($storage_expired_or_empty) {
-        $page_res = client_request('get', '/explore/tags/' . $tag . '/');
+    if (!$raw_data) {
+        $csrf = uniqid();
 
-        if (!$page_res['status']) {
-            $result = error_ext($page_res);
+        $query_res = client_request('get', '/graphql/query/', array(
+            'query' => array(
+                'query_id' => '17882293912014529',
+                'tag_name' => $tag,
+                'first' => $limit
+            ),
+            'headers' => array(
+                'X-Csrftoken' => $csrf,
+                'X-Requested-With' => 'XMLHttpRequest',
+                'X-Instagram-Ajax' => '1',
+                'Cookie' => 'csrftoken=' . $csrf
+            )
+        ));
+
+        if ($query_res['http_code'] != 200) {
+            $result = error('service is unavailable now 11');
 
         } else {
-            switch ($page_res['http_code']) {
-                default:
-                    $result = error();
-                    break;
+            $query_data = json_decode($query_res['body'], true);
 
-                case 404:
-                    $result = error('this user does not exist');
-                    break;
+            if (!$query_data || !isset($query_data['data']['hashtag']) || (!isset($query_data['data']['hashtag']['edge_hashtag_to_media']) && !isset($query_data['data']['hashtag']['edge_hashtag_to_top_posts']))) {
+                $result = error('service is unavailable now 12');
 
-                case 200:
-                    $page_data_matches = array();
+            } else {
+                $tag_data = array(
+                    'media' => array(
+                        'nodes' => array()
+                    ),
+                );
 
-                    if (!preg_match(SHARED_REGEXP, $page_res['body'], $page_data_matches)) {
-                        $result = error();
-                    } else {
-                        $page_data = json_decode($page_data_matches[1], true);
+                $edge_hashtag_to_top_posts = $query_data['data']['hashtag']['edge_hashtag_to_top_posts']['edges'];
+                $edge_hashtag_to_media = $query_data['data']['hashtag']['edge_hashtag_to_media']['edges'];
 
-                        if (!$page_data) {
-                            $result = error();
+                $nodes = array_merge_recursive($edge_hashtag_to_top_posts, $edge_hashtag_to_media);
 
-                        } else {
-                            $hashtag_data = array(
-                                'edge_hashtag_to_media' => array(
-                                    'edges' => array()
-                                ),
-                                'edge_hashtag_to_top_posts' => array(
-                                    'edges' => array()
-                                )
-                            );
+                $ids_unique = array();
+                $nodes_unique = array();
+                $timestamp_data = array();
 
-                            if ($page_data && !empty($page_data['entry_data']['TagPage'][0]['graphql']['hashtag'])) {
-                                $hashtag_data = $page_data['entry_data']['TagPage'][0]['graphql']['hashtag'];
-                            }
+                foreach ($nodes as $item) {
+                    $node = $item['node'];
 
-                            $formatted_data = tag_media_recent_query_recursive($cache_key, $page_data, $hashtag_data, array('tag_name' => $tag, 'first' => 50), $limit);
-                        }
+                    if (!in_array($node['id'], $ids_unique)) {
+                        $ids_unique[] = $node['id'];
+                        $nodes_unique[$node['id']] = $node;
+
+                        $timestamp_data[$node['id']] = $node['taken_at_timestamp'];
                     }
+                }
 
-                    break;
+                arsort($timestamp_data);
+
+                foreach ($timestamp_data as $id => $node) {
+                    $tag_data['media']['nodes'][] = $nodes_unique[$id];
+                }
+
+                $raw_data = $tag_data;
+
+                storage_set($cache_key, $raw_data);
             }
         }
     }
 
-    $stored_data = storage_get($cache_key, false, true);
+    if (!$raw_data && $fallback) {
+        $raw_data = storage_get($cache_key, false);
+    }
 
-    if ($stored_data) {
-        list($pagination, $stored_data) = paginate($stored_data, 'max_tag_id', $count, $max_id);
+    if ($raw_data) {
+        $formatted_data = array();
+
+        foreach ($raw_data['media']['nodes'] as $media) {
+            $formatted_data[] = instagram_format_media($media);
+        }
+
+        list($pagination, $formatted_data) = paginate($formatted_data, 'max_tag_id', $count, $max_id);
 
         $result = array(
             'meta' => array(
                 'code' => 200
             ),
             'pagination' => $pagination,
-            'data' => $stored_data
+            'data' => $formatted_data
         );
-    } else {
-        if ($formatted_data) {
-            list($pagination, $formatted_data) = paginate($formatted_data, 'max_tag_id', $count, $max_id);
-
-            $result = array(
-                'meta' => array(
-                    'code' => 200
-                ),
-                'pagination' => $pagination,
-                'data' => $formatted_data
-            );
-        } else {
-            $result = error();
-        }
     }
 
     response($result);
-}
-
-function tag_media_recent_query_recursive($cache_key, $page_data, $hashtag_data, $variables, $limit, $cursor = 0, $formatted_data = array()) {
-    $query_res = query_client_request($page_data, $variables, 'ded47faa9a1aaded10161a2ff32abb6b');
-
-    if ($query_res['http_code'] == 200) {
-        $query_data = json_decode($query_res['body'], true);
-
-        if ($query_data) {
-            $hashtag_data['edge_hashtag_to_media']['edges'] = $query_data['data']['hashtag']['edge_hashtag_to_media']['edges'];
-            $hashtag_data['edge_hashtag_to_top_posts']['edges'] = $query_data['data']['hashtag']['edge_hashtag_to_top_posts']['edges'];
-
-            $formatted_data = array_merge_recursive($formatted_data, tag_media_recent_format_data($hashtag_data));
-
-            $cursor += count($formatted_data);
-
-            if ($cursor < $limit) {
-                $variables['after'] = $query_data['data']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor'];
-                tag_media_recent_query_recursive($cache_key, $page_data, $hashtag_data, $variables, $limit, $cursor, $formatted_data);
-            } else {
-                storage_set($cache_key, $formatted_data, true);
-            }
-        }
-    } else {
-        $formatted_data = tag_media_recent_format_data($hashtag_data);
-        storage_set($cache_key, $formatted_data, true);
-    }
-
-    return $formatted_data;
-}
-
-function tag_media_recent_format_data($hashtag_data) {
-    $formatted_data = array();
-
-    $edge_hashtag_to_top_posts = $hashtag_data['edge_hashtag_to_top_posts']['edges'];
-    $edge_hashtag_to_media = $hashtag_data['edge_hashtag_to_media']['edges'];
-
-    $nodes = array_merge_recursive($edge_hashtag_to_top_posts, $edge_hashtag_to_media);
-
-    $ids_unique = array();
-    $nodes_unique = array();
-    $timestamp_data = array();
-
-    foreach ($nodes as $item) {
-        $node = $item['node'];
-
-        if (!in_array($node['id'], $ids_unique)) {
-            $ids_unique[] = $node['id'];
-            $nodes_unique[$node['id']] = $node;
-
-            $timestamp_data[$node['id']] = $node['taken_at_timestamp'];
-        }
-    }
-
-    arsort($timestamp_data);
-
-    foreach ($timestamp_data as $id => $node) {
-        $hashtag_data['media']['nodes'][] = $nodes_unique[$id];
-    }
-
-    foreach ($hashtag_data['media']['nodes'] as $media) {
-        $formatted_data[] = instagram_format_media($media);
-    }
-
-    return $formatted_data;
 }
 
 function serve_location_media_recent($location_id) {
     $config = index('config');
     $limit = !empty($config['media_limit']) ? $config['media_limit'] : 100;
+    $allowed_tags = !empty($config['allowed_tags']) ? $config['allowed_tags'] : '*';
 
     $fallback = true;
     $result = null;
 
     $count = input('count', 33);
-    $max_id = input('max_id');
+    $max_id = input('end_cursor');
 
     $cache_key = '&' . $location_id;
-    $storage_expired_or_empty = storage_expired_or_empty($cache_key);
+    $raw_data = storage_get($cache_key);
 
-    if ($storage_expired_or_empty) {
-        $page_res = client_request('get', '/explore/locations/' . $location_id . '/');
+    if (!$raw_data) {
+        $csrf = uniqid();
 
-        if (!$page_res['status']) {
-            $result = error_ext($page_res);
+        $query_res = client_request('get', '/graphql/query/', array(
+            'query' => array(
+                'query_id' => '17881432870018455',
+                'id' => $location_id,
+                'first' => $limit
+            ),
+            'headers' => array(
+                'X-Csrftoken' => $csrf,
+                'X-Requested-With' => 'XMLHttpRequest',
+                'X-Instagram-Ajax' => '1',
+                'Cookie' => 'csrftoken=' . $csrf
+            )
+        ));
+
+
+        if ($query_res['http_code'] != 200) {
+            $result = error('service is unavailable now 13');
 
         } else {
-            switch ($page_res['http_code']) {
-                default:
-                    $result = error();
-                    break;
+            $query_data = json_decode($query_res['body'], true);
 
-                case 404:
-                    $result = error('this user does not exist');
-                    break;
+            if (!$query_data || !isset($query_data['data']['location']) || !isset($query_data['data']['location']['edge_location_to_media'])) {
+                $result = error('service is unavailable now 14');
 
-                case 200:
-                    $page_data_matches = array();
+            } else {
+                $location_data = array(
+                    'media' => array(
+                        'nodes' => array()
+                    ),
+                );
 
-                    if (!preg_match(SHARED_REGEXP, $page_res['body'], $page_data_matches)) {
-                        $result = error();
-                    } else {
-                        $page_data = json_decode($page_data_matches[1], true);
+                $nodes = $query_data['data']['location']['edge_location_to_media']['edges'];
 
-                        if (!$page_data) {
-                            $result = error();
+                foreach ($nodes as $item) {
+                    $location_data['media']['nodes'][] = $item['node'];
+                }
 
-                        } else {
-                            $location_data = array();
-
-                            if (!empty($page_data['entry_data']['LocationsPage'][0]['graphql']['location'])) {
-                                $location_data = $page_data['entry_data']['LocationsPage'][0]['graphql']['location'];
-                            }
-
-                            $formatted_data = location_media_recent_query_recursive($cache_key, $page_data, $location_data, array('id' => $location_id, 'first' => 50), $limit);
-                        }
-                    }
-
-                    break;
+                $raw_data = $location_data;
+                storage_set($cache_key, $raw_data);
             }
         }
     }
 
-    $stored_data = storage_get($cache_key, false, true);
+    if (!$raw_data && $fallback) {
+        $raw_data = storage_get($cache_key, false);
+    }
 
-    if ($stored_data) {
-        list($pagination, $stored_data) = paginate($stored_data, 'max_id', $count, $max_id);
+    if ($raw_data) {
+        $formatted_data = array();
+
+        foreach ($raw_data['media']['nodes'] as $media) {
+            $formatted_data[] = instagram_format_media($media);
+        }
+
+        list($pagination, $formatted_data) = paginate($formatted_data, 'end_cursor', $count, $max_id);
 
         $result = array(
             'meta' => array(
                 'code' => 200
             ),
             'pagination' => $pagination,
-            'data' => $stored_data
+            'data' => $formatted_data
         );
-    } else {
-        if ($formatted_data) {
-            list($pagination, $formatted_data) = paginate($formatted_data, 'max_id', $count, $max_id);
-
-            $result = array(
-                'meta' => array(
-                    'code' => 200
-                ),
-                'pagination' => $pagination,
-                'data' => $formatted_data
-            );
-        } else {
-            $result = error();
-        }
     }
 
     response($result);
 }
 
-function location_media_recent_query_recursive($cache_key, $page_data, $location_data, $variables, $limit, $cursor = 0, $formatted_data = array()) {
-    $query_res = query_client_request($page_data, $variables, 'ac38b90f0f3981c42092016a37c59bf7');
-
-    if ($query_res['http_code'] == 200) {
-        $query_data = json_decode($query_res['body'], true);
-
-        if ($query_data) {
-            $location_data['edge_location_to_media']['edges'] = $query_data['data']['location']['edge_location_to_media']['edges'];
-
-            $formatted_data = array_merge_recursive($formatted_data, location_media_recent_format_data($location_data));
-
-            $cursor += count($formatted_data);
-
-            if ($cursor < $limit) {
-                $variables['after'] = $query_data['data']['location']['edge_location_to_media']['page_info']['end_cursor'];
-                location_media_recent_query_recursive($cache_key, $page_data, $location_data, $variables, $limit, $cursor, $formatted_data);
-            } else {
-                storage_set($cache_key, $formatted_data, true);
-            }
-        }
-    } else {
-        $formatted_data = tag_media_recent_format_data($location_data);
-        storage_set($cache_key, $formatted_data, true);
-    }
-
-    return $formatted_data;
-}
-
-function location_media_recent_format_data($location_data) {
-    $formatted_data = array();
-
-    $nodes = array();
-    foreach ($location_data['edge_location_to_media']['edges'] as $node) {
-        $nodes[] = $node['node'];
-    }
-
-    foreach ($nodes as $media) {
-        $formatted_data[] = instagram_format_media($media);
-    }
-
-    return $formatted_data;
-}
-
 function serve_not_found() {
     response(error('bad request'));
-}
-
-function query_client_request($page_data, $variables, $query_hash) {
-    $client = index('client');
-    $gis = md5(join(':', array(
-        $page_data['rhx_gis'],
-        json_encode($variables)
-    )));
-
-    return client_request('get', '/graphql/query/', array(
-        'query' => array(
-            'query_hash' => $query_hash,
-            'variables' => json_encode($variables)
-        ),
-        'headers' => array(
-            'X-Csrftoken' => $page_data['config']['csrf_token'],
-            'X-Requested-With' => 'XMLHttpRequest',
-            'X-Instagram-Ajax' => '1',
-            'X-Instagram-Gis' => $gis
-        )
-    ));
 }
 
 function run($path, $routes) {
@@ -787,35 +656,7 @@ function storage_get_cache_time() {
     return isset($config['cache_time']) ? intval($config['cache_time']) : 3600;
 }
 
-function storage_expired_or_empty($key) {
-    $cache_time = storage_get_cache_time();
-
-    $hash = md5($key);
-    $index_path = storage_get_index_path($hash);
-    $record_path = $index_path . '/' . $hash . '.csv';
-
-    if (!is_readable($record_path)) {
-        return true;
-    }
-
-    $record_fref = fopen($record_path, 'r');
-    $row = fgetcsv($record_fref, null, ';');
-
-    if (!$row || count($row) !== 3 || (time() > $row[1] + $cache_time)) {
-        return true;
-    }
-
-    $raw = base64_decode($row[2]);
-    $data = json_decode($raw, true);
-
-    if (empty($data) || !is_array($data)) {
-        return true;
-    }
-
-    return false;
-}
-
-function storage_get($key, $check_expire = true, $format = false) {
+function storage_get($key, $check_expire = true) {
     $cache_time = storage_get_cache_time();
 
     $hash = md5($key);
@@ -834,31 +675,12 @@ function storage_get($key, $check_expire = true, $format = false) {
     }
 
     $raw = base64_decode($row[2]);
-
-    if ($format) {
-        $data_assoc = json_decode($raw, true);
-
-        if (!empty($data_assoc)) {
-            $data = array();
-
-            foreach ($data_assoc as $node) {
-                $data[] = $node;
-            }
-        } else {
-            return null;
-        }
-    } else {
-        $data = json_decode($raw, true);
-    }
+    $data = json_decode($raw, true);
 
     return !empty($data) && is_array($data) ? $data : null;
 }
 
-function storage_set($key, $value, $format = false) {
-    if ($format) {
-        $value = storage_merge($key, $value, $format);
-    }
-
+function storage_set($key, $value) {
     $hash = md5($key);
     $index_path = storage_get_index_path($hash);
     $record_path = $index_path . '/' . $hash . '.csv';
@@ -872,34 +694,6 @@ function storage_set($key, $value, $format = false) {
     fclose($record_fref);
 
     return true;
-}
-
-function storage_merge($key, $value) {
-    $config = index('config');
-    $limit = !empty($config['media_limit']) ? $config['media_limit'] : 100;
-
-    $value_assoc = array();
-
-    $storage_value = storage_get($key, false, true);
-    if (!empty($storage_value)) {
-        foreach ($storage_value as $i => $node) {
-            if ($i < $limit) {
-                $value_assoc[$node['code']] = $node;
-            }
-        }
-    }
-
-    foreach ($value as $node) {
-        $value_assoc[$node['code']] = $node;
-    }
-
-    usort($value_assoc, 'nodes_compare');
-
-    return array_slice($value_assoc, 0, $limit);
-}
-
-function nodes_compare($item1, $item2) {
-    return $item1['created_time'] == $item2['created_time'] ? 0 : $item2['created_time'] < $item1['created_time'] ? -1 : 1;
 }
 
 function client_request($type, $url, $options = null) {
@@ -1099,7 +893,7 @@ function client_request($type, $url, $options = null) {
     $response_cookies = array();
 
     foreach ($response_headers_raw_list as $header_row) {
-        list ($header_key, $header_value) = explode(': ', $header_row, 2);
+        list ($header_key, $header_value) = explode(': ', $header_row);
 
         if (strtolower($header_key) === 'set-cookie') {
             $cookie_params = explode('; ', $header_value);
@@ -1118,11 +912,6 @@ function client_request($type, $url, $options = null) {
     unset($header_row, $header_key, $header_value, $cookie_name, $cookie_value);
 
     if ($response_cookies) {
-        $response_cookies['ig_or'] = 'landscape-primary';
-        $response_cookies['ig_pr'] = '1';
-        $response_cookies['ig_vh'] = rand(500, 1000);
-        $response_cookies['ig_vw'] = rand(1100, 2000);
-
         $client['cookie_jar'][$host] = array_merge_assoc($client_cookies, $response_cookies);
         index('client', $client);
     }
@@ -1203,6 +992,7 @@ function instagram_format_media($raw_data, $external = null) {
 
     $image_ratio = $raw_data['dimensions']['height'] / $raw_data['dimensions']['width'];
 
+    $raw_data['display_src'] = $raw_data['display_src'] ? $raw_data['display_src'] : $raw_data['thumbnail_src'];
     $formatted_item = array(
         'attribution' => null,
         'video_url' => !empty($raw_data['video_url']) ? $raw_data['video_url'] : null,
@@ -1215,19 +1005,19 @@ function instagram_format_media($raw_data, $external = null) {
         'likes' => null,
         'images' => array(
             'low_resolution' => array(
-                'url' => !empty($raw_data['thumbnail_src']) ? $raw_data['thumbnail_src'] : instagram_resize_image(!empty($raw_data['display_src']) ? $raw_data['display_src'] : $raw_data['display_url'], 320, 320),
-                'width' => 320,
-                'height' => $image_ratio * 320
+                'url' => instagram_resize_image(!empty($raw_data['display_src']) ? $raw_data['display_src'] : $raw_data['display_url'], 640, 640),
+                'width' => 640,
+                'height' => $image_ratio * 640
             ),
 
             'thumbnail' => array(
-                'url' => !empty($raw_data['thumbnail_src']) ? $raw_data['thumbnail_src'] : instagram_resize_image(!empty($raw_data['display_src']) ? $raw_data['display_src'] : $raw_data['display_url'], 150, 150),
-                'width' => 150,
-                'height' => $image_ratio * 150
+                'url' => instagram_resize_image(!empty($raw_data['display_src']) ? $raw_data['display_src'] : $raw_data['display_url'], 640, 640),
+                'width' => 640,
+                'height' => $image_ratio * 640
             ),
 
             'standard_resolution' => array(
-                'url' => !empty($raw_data['thumbnail_src']) ? $raw_data['thumbnail_src'] : instagram_resize_image(!empty($raw_data['display_src']) ? $raw_data['display_src'] : $raw_data['display_url'], 640, 640),
+                'url' => instagram_resize_image(!empty($raw_data['display_src']) ? $raw_data['display_src'] : $raw_data['display_url'], 640, 640),
                 'width' => 640,
                 'height' => $image_ratio * 640
             ),
@@ -1245,73 +1035,6 @@ function instagram_format_media($raw_data, $external = null) {
         'code' => !empty($raw_data['code']) ? $raw_data['code'] : $raw_data['shortcode'],
         'user' => $formatted_user
     );
-
-    if (!empty($raw_data['display_resources'])) {
-        $formatted_item['images']['thumbnail'] = array();
-        $formatted_item['images']['low_resolution'] = array();
-
-        foreach ($raw_data['display_resources'] as $thumbnail) {
-            switch ($thumbnail['config_width']) {
-                case 150:
-                    $formatted_item['images']['thumbnail'] = array(
-                        'url' => $thumbnail['src'],
-                        'width' => $thumbnail['config_width'],
-                        'height' => $thumbnail['config_height']
-                    );
-                    break;
-                case 320:
-                    $formatted_item['images']['low_resolution'] = array(
-                        'url' => $thumbnail['src'],
-                        'width' => $thumbnail['config_width'],
-                        'height' => $thumbnail['config_height']
-                    );
-                    break;
-                case 640:
-                    $formatted_item['images']['standard_resolution'] = array(
-                        'url' => $thumbnail['src'],
-                        'width' => $thumbnail['config_width'],
-                        'height' => $thumbnail['config_height']
-                    );
-                    break;
-            }
-        }
-
-        if (empty($formatted_item['images']['thumbnail'])) {
-            $formatted_item['images']['thumbnail'] = $formatted_item['images']['standard_resolution'];
-        }
-
-        if (empty($formatted_item['images']['low_resolution'])) {
-            $formatted_item['images']['low_resolution'] = $formatted_item['images']['standard_resolution'];
-        }
-    }
-
-    if (!empty($raw_data['thumbnail_resources'])) {
-        foreach ($raw_data['thumbnail_resources'] as $thumbnail) {
-            switch ($thumbnail['config_width']) {
-                case 150:
-                    $formatted_item['images']['thumbnail'] = array(
-                        'url' => $thumbnail['src'],
-                        'width' => $thumbnail['config_width'],
-                        'height' => $thumbnail['config_height']
-                    );
-                    break;
-                case 320:
-                    $formatted_item['images']['low_resolution'] = array(
-                        'url' => $thumbnail['src'],
-                        'width' => $thumbnail['config_width'],
-                        'height' => $thumbnail['config_height']
-                    );
-                    break;
-                case 640:
-                    $formatted_item['images']['standard_resolution'] = array(
-                        'url' => $thumbnail['src'],
-                        'width' => $thumbnail['config_width'],
-                        'height' => $thumbnail['config_height']
-                    );
-                    break;
-            }
-        }
-    }
 
     if (!empty($raw_data['caption'])) {
         $formatted_item['caption'] = array(
@@ -1471,13 +1194,13 @@ function instagram_format_media($raw_data, $external = null) {
 
 function instagram_resize_image($url, $width, $height) {
     if (preg_match('#/s\d+x\d+/#', $url)) {
-        return preg_replace('/\/vp\//', '/', preg_replace('#/s\d+x\d+/#', '/s' . $width . 'x' . $height . '/', $url));
+        return preg_replace('#/s\d+x\d+/#', '/s' . $width . 'x' . $height . '/', $url);
 
     } else if (preg_match('#/e\d+/#', $url)) {
-        return preg_replace('/\/vp\//', '/', preg_replace('#/e(\d+)/#', '/s' . $width . 'x' . $height . '/e$1/', $url));
+        return preg_replace('#/e(\d+)/#', '/s' . $width . 'x' . $height . '/e$1/', $url);
 
     } else if (preg_match('#(\.com/[^/]+)/#', $url)) {
-        return preg_replace('/\/vp\//', '/', preg_replace('#(\.com/[^/]+)/#', '$1/s' . $width . 'x' . $height . '/', $url));
+        return preg_replace('#(\.com/[^/]+)/#', '$1/s' . $width . 'x' . $height . '/', $url);
     }
 
     return null;

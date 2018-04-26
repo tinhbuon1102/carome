@@ -1,0 +1,523 @@
+<!-- Elfsight © elfsight.com -->
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Elfsight Instagram Feed Documentation</title>
+
+		<link href="http://fonts.googleapis.com/css?family=Roboto:400,300,500&subset=latin,cyrillic-ext,cyrillic" rel="stylesheet">
+		<link rel="stylesheet" href="assets/vendor/css/normalize.css">
+		<link rel="stylesheet" href="assets/vendor/lib/foundation/foundation.min.css">
+		<link rel="stylesheet" href="assets/vendor/lib/highlight/default.css">
+		<link rel="stylesheet" href="assets/css/main.css">
+
+		<script src="assets/vendor/js/modernizr.js"></script>
+		<script src="assets/vendor/js/jquery-1.11.2.min.js"></script>
+		<script src="assets/vendor/lib/highlight/highlight.pack.js"></script>
+		<script src="assets/js/elfsight-instagram-feed.js"></script>
+		<script src="assets/vendor/lib/foundation/foundation.min.js"></script>
+		<script src="assets/js/main.js"></script>
+	</head>
+
+	<body>
+		<header class="header container">
+			<div class="row">
+				<div class="medium-12 columns">
+					<h1>Get started with Elfsight Instagram Feed 3.4.0</h1>
+
+					<div class="header-social">
+						<a class="icon-facebook icon" href="http://facebook.com/elfsight" target="_blank"></a>
+						<a class="icon-twitter icon" href="http://twitter.com/elfsight" target="_blank"></a>
+						<a class="icon-google-plus icon" href="https://plus.google.com/+Elfsight/" target="_blank"></a>
+						<a class="icon-instagram icon" href="http://instagram.com/elfsight" target="_blank"></a>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<section class="update-to-3-0 container">
+			<div class="row">
+				<div class="medium-12 columns">
+					<h2>How to update to 3 from previous versions</h2>
+
+					<p>If you've been using InstaShow before, here is an article we've written specially for you. It will explain how to update to version 3.</p>
+					
+					<p><a href="https://elfsight.com/help/update-wordpress-instashow-plugin-version-3-0/" target="_blank">How to update WordPress InstaShow plugin to version 3</a></p>
+				</div>
+			</div>
+		</section>
+
+		<section class="install container">
+			<div class="row">
+				<div class="medium-12 columns">
+					<h2>Installation</h2>
+				</div>
+			</div>
+
+			<div class="install-step row">
+				<div class="medium-12 columns">
+					<p>1. Install Elfsight Instagram Feed WordPress Plugin <code>elfsight-instagram-feed-cc.zip</code> to your website. Don't know how? <a href="https://codex.wordpress.org/Managing_Plugins" target="_blank">Please learn here</a>.</p>
+				</div>
+			</div>
+
+			<div class="install-step row">
+				<div class="medium-12 columns">
+					<p>2. Go to Instagram Feed page in WordPress admin menu.</p>
+				</div>
+			</div>
+
+			<div class="install-step row">
+				<div class="medium-12 columns">
+					<p>3. Create a new widget, adjust all settings and get a ready-made shortcode.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="wordpress-shortcode container">
+			<div class="row">
+				<div class="medium-4 columns">
+					<h3>Use Instagram Feed as a <strong>WordPress Shortcode</strong></h3>
+
+					<br><br>
+					<h4>1. Create a new widget</h4>
+					<p>You can use Elfsight Instagram Feed as a WordPress shortcode. To do this, you have to create a new widget, set all options in the Elfsight editor and save it.</p>
+				</div>
+
+				<div class="medium-8 columns">
+					<figure>
+						<img src="assets/img/edit-widget.jpg" width="556" height="686">
+					</figure>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="medium-4 columns">
+					<h4>2. Copy-paste the shortcode</h4>
+					<p>You will see the new widget's shortcode in the widgets list. You can copy-paste it into the required place of your website.</p>
+
+					<p>Example of the Elfsight Instagram Feed shortcode:<br>
+					<pre><code class="html hljs xml">[elfsight_instagram_feed id="1"]</code></pre>
+				</div>
+
+				<div class="medium-8 columns">
+					<figure>
+						<img src="assets/img/widgets-list.jpg" width="556" height="312">
+					</figure>
+				</div>
+			</div>
+		</section>
+
+		<section class="wordpress-vc container">
+			<div class="row">
+				<div class="medium-4 columns">
+					<h3>Use Instagram Feed as a<br> <strong>WordPress Widget</strong></h3>
+
+					<p>To use Elfsight Instagram Feed as a WordPress widget, go to Appearance&nbsp;->&nbsp;Widgets, and drag Elfsight Instagram Feed WordPress widget to any widget section. Next, select one of available Instagram Feed widgets from the list.</p>
+				</div>
+
+				<div class="medium-8 columns">
+					<figure>
+						<img src="assets/img/wordpress-widget.jpg" width="556" height="388">
+					</figure>
+				</div>
+			</div>
+		</section>
+
+		<section class="wordpress-vc container">
+			<div class="row">
+				<div class="medium-4 columns" style="margin-top:60px;">
+					<h3>Use Instagram Feed as a<br> <strong>Visual Composer Element</strong></h3>
+
+					<p>You can use Elfsight Instagram Feed as a Visual Composer element. Just add it to your page during page building and select one of the available Instagram Feed widgets from the list.</p>
+				</div>
+
+				<div class="medium-8 columns">
+					<figure>
+						<img src="assets/img/visual-composer.jpg" width="556" height="361">
+					</figure>
+				</div>
+			</div>
+		</section>
+
+		<section class="options container">
+			<div class="row">
+				<div class="medium-12 columns">
+					<h2>Options</h2>
+
+					<table class="options-table">
+						<thead>
+							<tr>
+								<th>Option</th>
+								<th>Shortcode param</th>
+								<th>Default Value</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<td class="options-category-title" colspan="4">Content</td>
+							</tr>
+
+							<tr>
+								<td>Instagram sources <span class="options-required" title="Required option">*</span></td>
+								<td>source</td>
+								<td>&mdash;</td>
+								<td>A source list for getting Instagram images.<br>Use the following variants:
+			                        <ul>
+			                            <li><b>@</b>username - Instagram posts from username</li>
+			                            <li><b>#</b>hashtag - Instagram posts with hashtag</li>
+			                            <li>location URL - Instagram posts by location (<a href="https://elfsight.com/help/how-to-display-instagram-images-by-location-in-instashow/" target="_blank">See tutorial</a>)</li>
+			                            <li>post URL - specific Instagram posts</li>
+			                        </ul>
+			                        It’s possible to specify several sources through the gap or separated by commas.
+		                        </td>
+							</tr>
+
+							<tr>
+								<td>Display only from</td>
+								<td>filter_only</td>
+								<td>&mdash;</td>
+								<td>It filters the images to the ones from the specified sources. If this filter is applied, the image will display only if it's posted in each source. The filter accepts @username, #hashtag, location URL or post URL.</td>
+							</tr>
+
+							<tr>
+								<td>Exclude by source</td>
+								<td>filter_except</td>
+								<td>&mdash;</td>
+								<td>It allows to exclude specific images by their URL, by specific hashtags, source usernames or locations.</td>
+							</tr>
+
+							<tr>
+			                    <td>Filter</td>
+			                    <td>filter</td>
+			                    <td>&mdash;</td>
+			                    <td>It allows to specify custom filter using javascript function or its name.
+                        Using it you can define which posts will be shown in gallery.
+                        The function will be applied for each post. If it returns true then post will be shown,
+                        if it returns false - post will not be displayed.
+
+                        Note: filter function should be defined in global scope (window object)
+
+                        For example:
+
+                        <pre><code class="html">&lt;script&gt;
+    function myInstaShowFilter(image) {
+        // returns true if filter equals Sutro
+        return image.filter === 'Sutro';
+    }
+&lt;/script&gt;
+
+[elfsight_instagram_feed id="1"
+ filter="myInstaShowFilter"
+]</code></pre>
+                    			</td>
+			                </tr>
+
+							<tr>
+								<td>Number of posts to display</td>
+								<td>limit</td>
+								<td>0</td>
+								<td>Set the required number to restrict the count of loaded posts. Leave this option empty or "0" to show all available posts.</td>
+							</tr>
+
+							<tr>
+								<td class="options-category-title" colspan="4">Layout</td>
+							</tr>
+
+							<tr>
+								<td>Feed Layout</td>
+								<td>layout</td>
+								<td>slider</td>
+								<td>Choose one of the two feed layouts: slider or grid.</td>
+							</tr>
+
+							<tr>
+								<td>Post Template</td>
+								<td>post_template</td>
+								<td>tile</td>
+								<td>Select one of post templates: tile or classic.</td>
+							</tr>
+
+							<tr>
+								<td>Columns</td>
+								<td>columns</td>
+								<td>4</td>
+								<td>Number of columns in the feed.</td>
+							</tr>
+
+							<tr>
+								<td>Rows</td>
+								<td>rows</td>
+								<td>2</td>
+								<td>Number of rows in the feed.</td>
+							</tr>
+
+							<tr>
+								<td>Space between images (px)</td>
+								<td>gutter</td>
+								<td>0</td>
+								<td>The space between the images in the feed in pixels.</td>
+							</tr>
+
+							<tr>
+								<td>Mobile optimization</td>
+								<td>responsive</td>
+								<td>-</td>
+								<td>Specify the breakpoints to set the columns, rows and space between images in the feed depending on a window width.</td>
+							</tr>
+
+							<tr>
+								<td>Width (px, auto)</td>
+								<td>width</td>
+								<td>auto</td>
+								<td>Feed width (any CSS valid value: px, %, em, etc). Set "auto" to make the feed full width and responsive.</td>
+							</tr>
+
+							<tr>
+								<td>Call to action buttons</td>
+								<td>call_to_action_buttons</td>
+								<td>-</td>
+								<td>Set the call to action buttons. The buttons will be displayed on the popup. You can set a specific call to action for each post. Call to action buttons encourage your visitors to perform the actions you need (buy a product, register at your service or contact you).</td>
+							</tr>
+
+							<tr>
+								<td>Display post elements</td>
+								<td>post_elements</td>
+								<td>user, date, instagramLink, likesCount, commentsCount, share, text</td>
+								<td>Choose the post elements to display them in the feed.</td>
+							</tr>
+
+							<tr>
+								<td>Display popup elements</td>
+								<td>popup_elements</td>
+								<td>user, location, followButton, instagramLink, likesCount, share, text, comments, date</td>
+								<td>Choose the elements to display in popup.</td>
+							</tr>
+
+							<tr>
+								<td>Action on image click</td>
+								<td>image_click_action</td>
+								<td>popup</td>
+								<td>Select the action on image click. Open the image in popup, open the image on Instagram in a new browser tab or do nothing.</td>
+							</tr>
+
+							<tr>
+								<td>Arrows control</td>
+								<td>slider_arrows</td>
+								<td>true</td>
+								<td>Activate/Deactivate arrows in the slider.</td>
+							</tr>
+
+							<tr>
+								<td>Drag control</td>
+								<td>slider_drag</td>
+								<td>true</td>
+								<td>Activate/Deactivate drag in the slider.</td>
+							</tr>
+
+							<tr>
+								<td>Slide switch speed (sec)</td>
+								<td>slider_speed</td>
+								<td>0.6</td>
+								<td>Animation speed of slide switching (sec).</td>
+							</tr>
+
+							<tr>
+								<td>Autoplay speed (sec)</td>
+								<td>slider_autoplay</td>
+								<td>0</td>
+								<td>Autoplay in the slider (in seconds). If this option is set to "0" autoplay is turned off.</td>
+							</tr>
+
+							<tr>
+								<td class="options-category-title" colspan="4">Colors</td>
+							</tr>
+
+							<tr>
+								<td>Color scheme</td>
+								<td>-</td>
+								<td>default</td>
+								<td>To get the perfect look for your feed, choose one of the 10 ready-made color schemes, and adjust it using available color options.</td>
+							</tr>
+
+							<tr>
+								<td>Post overlay background color</td>
+								<td>color_post_overlay_bg</td>
+								<td>rgba(0, 0, 0, 0.8)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Post overlay text color</td>
+								<td>color_post_overlay_text</td>
+								<td>rgb(255, 255, 255)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Post background color</td>
+								<td>color_post_bg</td>
+								<td>rgb(255, 255, 255)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Post text color</td>
+								<td>color_post_text</td>
+								<td>rgb(0, 0, 0)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Post links color</td>
+								<td>color_post_links</td>
+								<td>rgb(0, 53, 107)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Slider arrows color</td>
+								<td>color_slider_arrows</td>
+								<td>rgb(255, 255, 255)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Slider arrows background color</td>
+								<td>color_slider_arrows_bg</td>
+								<td>rgba(0, 0, 0, 0.9)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Grid load more button color</td>
+								<td>color_grid_load_more_button</td>
+								<td>rgb(56, 151, 240)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Popup overlay color</td>
+								<td>color_popup_overlay</td>
+								<td>rgba(43, 43, 43, 0.9)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Popup background color</td>
+								<td>color_popup_bg</td>
+								<td>rgb(255, 255, 255)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Popup text color</td>
+								<td>color_popup_text</td>
+								<td>rgb(0, 0, 0)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Popup links color</td>
+								<td>color_popup_links</td>
+								<td>rgb(0, 53, 105)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Popup follow button color</td>
+								<td>color_popup_follow_button</td>
+								<td>rgb(56, 151, 240)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td>Popup call to action button color</td>
+								<td>color_popup_cta_button</td>
+								<td>rgb(56, 151, 240)</td>
+								<td></td>
+							</tr>
+
+							<tr>
+								<td class="options-category-title" colspan="4">More</td>
+							</tr>
+
+							<tr>
+								<td>Feed Title</td>
+								<td>widget_title</td>
+								<td>Follow us on Instagram</td>
+								<td>Set the feed title. URLs, hashtags (with #) and Instagram usernames (with @) will be automatically displayed as clickable links.</td>
+							</tr>
+
+							<tr>
+								<td>Feed Language</td>
+								<td>lang</td>
+								<td>en</td>
+								<td>Choose one of the available languages for the feed.</td>
+							</tr>
+
+							<tr>
+								<td>Cache time (sec)</td>
+								<td>cache_time</td>
+								<td>300</td>
+								<td>It defines how long the data from Instagram will be cached in your browser. Set "0" to turn the cache off.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+
+		<section class="example container">
+			<div class="row">
+				<div class="medium-12 columns">
+					<h2>Example</h2>
+					
+				
+					<script>
+						window.onEappsInstagramFeedReady = function() {
+							jQuery('.example-instagram-feed').eappsInstagramFeed({
+								accessToken: '789617263.ca52b37.ab20907bf50c4693b3da6ad1a010d868'
+							});
+						};
+					</script>
+
+					<div class="example-instagram-feed"></div>
+
+					<br><br>
+					<p>Congratulations! You have successfully installed your Elfsight Instagram Feed plugin.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="support container">
+			<div class="row">
+				<div class="medium-12 columns">
+					<h2>Support, questions and offers</h2>
+
+					<p>Your questions and issue reports are processed on the first-come, first-served basis. Expect an answer from 10 a.m. to 7 p.m. CET, Monday through Friday.</p>
+
+					<a href="https://elfsight.ticksy.com/submit/#100003625" target="_blank">
+	                    <span>Visit Support Center</span>
+	                </a>
+
+	                <br><br>
+				</div>
+			</div>
+		</section>
+
+		<footer class="footer container">
+			<div class="row">
+				<div class="medium-12 columns">
+					<h2>Keep in Touch</h2>
+					<a class="icon-facebook icon" href="http://facebook.com/elfsight" target="_blank"></a>
+					<a class="icon-twitter icon" href="http://twitter.com/elfsight" target="_blank"></a>
+					<a class="icon-google-plus icon" href="https://plus.google.com/+Elfsight/" target="_blank"></a>
+					<a class="icon-instagram icon" href="http://instagram.com/elfsight" target="_blank"></a>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html> 

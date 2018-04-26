@@ -73,18 +73,20 @@ jQuery(function($){
 				  {
 					  var insta_list = '';
 					  $.each(response.data, function(index, item){
-						  var related_number = (insta_related_products[item.code] && insta_related_products[item.code]['products']) ? Object.keys(insta_related_products[item.code]['products']).length : 0;
-						  var hide_post = insta_related_products[item.code] && insta_related_products[item.code]['hide'] && insta_related_products[item.code]['hide'] == 1 ? true : false;
-						  insta_list += '<li class="'+ (hide_post ? "hide-post" : "") +'">';
-						  insta_list += '<img src="'+ item.images.__original.url +'"/>';
-						  
-						  insta_list += '<div>';
-						  insta_list += '<a class="edit_insta" href="javascript:void(0)" data-insta-id="'+ item.code +'">Edit</a>';
-						  insta_list += '<a class="hide_insta" href="javascript:void(0)" data-insta-id="'+ item.code +'">'+ (hide_post ? "Un-hide" : "Hide") +'</a>';
-						  insta_list += '</div>';
-						  
-						  insta_list += '<span class="related_number '+ (related_number ? 'has_related' : '') +'" data-insta-id="'+ item.code +'">'+ related_number +'</span>';
-						  insta_list += '</li>';
+						  if (item && item.images && item.images.__original && item.images.__original.url) {
+							  var related_number = (insta_related_products[item.code] && insta_related_products[item.code]['products']) ? Object.keys(insta_related_products[item.code]['products']).length : 0;
+							  var hide_post = insta_related_products[item.code] && insta_related_products[item.code]['hide'] && insta_related_products[item.code]['hide'] == 1 ? true : false;
+							  insta_list += '<li class="'+ (hide_post ? "hide-post" : "") +'">';
+							  insta_list += '<img src="'+ item.images.__original.url +'"/>';
+							  
+							  insta_list += '<div>';
+							  insta_list += '<a class="edit_insta" href="javascript:void(0)" data-insta-id="'+ item.code +'">Edit</a>';
+							  insta_list += '<a class="hide_insta" href="javascript:void(0)" data-insta-id="'+ item.code +'">'+ (hide_post ? "Un-hide" : "Hide") +'</a>';
+							  insta_list += '</div>';
+							  
+							  insta_list += '<span class="related_number '+ (related_number ? 'has_related' : '') +'" data-insta-id="'+ item.code +'">'+ related_number +'</span>';
+							  insta_list += '</li>';
+						  }
 					  });
 					  if (max_id)
 					  {

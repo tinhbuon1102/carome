@@ -1,0 +1,492 @@
+# Change Log
+
+## April 18, 2018 - Version 3.4.0
+
+### Added
+ * Automatic updates functionality
+ * Opening a ticket form on Support page
+
+### Fixed
+ * Fixed the issue with limited images display, caused by the latest changes in Instagram
+
+
+## April 12, 2018 - Version 3.3.0
+
+### Added
+ * Functionality of checking for Instagram Feed API performance
+
+### Changed
+ * Admin design updated
+
+### Fixed
+ * Fixed the issue with limited images display, caused by the latest changes in Instagram
+
+
+## April 07, 2018 - Version 3.2.3
+
+### Fixed
+ * Hotfix for Instagram update
+
+
+## March 23, 2018 - Version 3.2.2
+
+### Fixed
+ * Thumbnail loading issue
+ 
+
+## March 14, 2018 - Version 3.2.1
+
+### Fixed
+ * Hotfix for Instagram update
+
+
+## March 02, 2018 - Version 3.2.0
+
+### Added
+ * Plugin access roles
+ * Persian language
+ * Arabic language
+
+### Changed
+ * Image resolution optimization
+
+### Fixed
+ * Following theme conflicts are fixed: video display issue, broken image size
+ * Icons size issue in classic template fixed for Firefox and IE
+ * Encoded responsive breakpoints issue
+ * Blurred images in preview
+ * Some typos in translations
+ * Likes counter issue in popup
+ * Function exist conflict
+ * Default settings widget saving issue
+
+
+## January 19, 2018 - Version 3.1.1
+
+### Fixed
+ * Issue with the likes and comments counters position on some resolutions
+ * Posts loading animation issue
+ * https websites issue 
+
+
+## January 18, 2018 - Version 3.1.0
+
+### Added
+ * Translation for like notification
+ * Video loader in popup
+ * Slovak translation
+
+### Changed
+ * Tile post template responsiveness improved
+
+### Fixed
+ * Bug with videos in popup and carousels on mobile devices
+ * Carousel responsiveness bug 
+ * Responsive breakpoints format issue (data-attributes)
+ * Widget initialization issue (data-attributes)
+ * Noise on high-resolution photos in post
+ * Bug in popup with posts with no likes
+ * Doesn't show other likes element when post has 1 like 
+ * Other likes counter calculation issue
+ * Carousel height issue in popup
+ * German language typos
+ * Hebrew language name in editor typo
+ * Shortcode params issue
+
+
+## January 12, 2018 - Version 3.0.1
+
+### Fixed
+ * Hotfix for Instagram changes
+ 
+
+## December 21, 2017 - Version 3.0.0
+
+### Added
+ * Layout option - slider and grid
+ * New infinite popup
+ * New post template - classic
+ * Call to action buttons
+ * Share feature
+ * Widget title above the feed
+ * Video support for carousel posts
+ * Hebrew language
+ * Simplified Chinese language
+ * Traditional Chinese language
+
+### Changed
+ * All new design
+ * New widget editor
+ * Regrouped settings tabs
+ * Improved mobile device interaction (touch, swipe moves)
+ * Optimized color settings
+ * Improved support for carousel Instagram posts
+ * Optimized Instagram images loading
+
+
+## September 21, 2017 - Version 2.5.2
+
+### Fixed
+ * Version issue fixed
+
+
+## September 12, 2017 - Version 2.5.1
+
+### Fixed
+ * Minor fixes
+ 
+
+## August 14, 2017 - Version 2.5.0
+
+### Added
+ * Finnish language
+ * Slovenian language
+ * Vietnamese language
+
+### Changed
+ * Popup scroll minor improvement
+ * Other minor CSS improvements
+
+### Fixed
+ * Non-existent users in filter options bug
+ * Plugin activation bug in Safari
+ * Popup hr images option bug
+ * Video element black bottom line issue
+
+
+## June 20, 2017 - Version 2.4.1
+
+### Fixed 
+ * Minor fixes
+
+
+## June 16, 2017 - Version 2.4.0
+
+### Added
+ * Instagram image carousel support
+ 
+### Changed
+ * All new popup design
+ * New carousel and video icons in the gallery
+ * Default values for some color options
+
+### Fixed
+ * Instagram changes: Video playing bug
+ * Instagram changes: Filter option bug
+ * Instagram changes: Username and profile image displaying bug
+
+
+June 14, 2017 – Version 2.3.3
+
+### Fixed
+ * Quick fix for Instagram update
+
+
+April 20, 2017 – Version 2.3.2
+
+### Fixed
+ * Specific image URL as a source issue
+ 
+
+## March 01, 2017 - Version 2.3.1
+
+### Fixed
+ * jQuery UI conflict
+
+
+## February 21, 2017 - Version 2.3.0
+
+### Fixed
+ * Multiple filters bug
+ * Custom filter option bug
+ * Antivirus conflict
+ * Location filter bug
+ * Preferences saving in Safari bug
+ * Deep linking option inside admin panel bug
+
+### Added
+ * WordPress widget support
+
+
+## December 02, 2016 - Version 2.2.0
+
+### Changed
+ * Improvement in loading speed for the hashtag source type
+
+### Added
+ * New source type - Instagram Location
+
+
+## September 21, 2016 - Version 2.1.0
+
+### Fixed
+ * Visual Composer checkbox options bug
+ * Old PHP versions error 
+ * JSON quotes issue in API
+ 
+### Changed
+ * The auto option is off when popup is open
+ * "View in Instagram" label changed to "View on Instagram"
+ 
+### Added
+ * Empty account message
+ * CSS property clear: both added to the gallery
+
+
+## July 27, 2016 - Version 2.0.3
+
+### Fixed
+ * Missing photos by hashtags issue
+ * API SSL certificate verification issue
+ * API timeout issue
+ * jQuery 3.1.0 compatibility issue
+ * Saving of API settings issue
+ * Bug with comments option in the popup info 
+
+### Added
+ * Clearing of server-side cache after changes in API settings
+
+
+## July 21, 2016 - Version 2.0.2
+
+### Fixed
+ * Client id & Access token issue
+
+
+## July 21, 2016 - Version 2.0.1
+
+### Fixed
+ * Responsive option bug
+ * Navigation controls bug
+ * Safari issue in the admin panel
+
+
+## July 14, 2016 - Version 2.0.0
+
+### Fixed
+ * Deleted photo bug
+ * Hashtag uppercase bug
+
+### Added
+ * New Admin UI
+
+
+## June 11, 2016 - Version 1.9.5
+
+### Fixed 
+ * API paths parsing issue
+ * API url issue
+ 
+### Added
+ * API transport fallback
+
+
+## June 07, 2016 - Version 1.9.4
+
+### Fixed
+ * Hashtag loading issue
+ * Filter option bug
+
+### Added
+ * Internal API new transport
+ * Old browser prefixes
+
+
+## June 02, 2016 - Version 1.9.3
+
+### Fixed
+ * Hashtags media order bug
+ * Hashtags restriction issue
+
+
+## May 31, 2016 - Version 1.9.2
+
+### Fixed
+ * Thumbnails display bug 
+ * Popup deep linking option bug
+ * Needless query param issue 
+ * API trailing slash issue
+
+
+## May 27, 2016 - Version 1.9.1
+
+### Fixed
+ * Instagram API compatibility bug
+
+
+## May 26, 2016 - Version 1.9.0
+
+### Fixed
+ * Repeated images bug
+ * RTL mode bug
+ * Feed loading bug when there is a broken source
+
+### Added
+ * New Instagram API requirements support 
+
+
+## April 14, 2016 - Version 1.8.0
+
+### Fixed
+ * Specific image in source option bug
+ * Mobile drag control bug
+ * Scroll control default value bug
+ * Not working with mailchimp bug
+ 
+### Changed
+ * Grid calculation
+ 
+### Added
+ * VC preview
+ * 'instaShowReady' jQuery event
+
+
+## March 29, 2016 - Version 1.7.0
+
+### Fixed
+ * Source uppercase bug
+ * Video in popup starts playing on description click
+ * Popup image width bug
+ * Arrows blinking during loading
+ * Empty info options bug
+ 
+### Changed
+ * Analytics module changed
+ * Second page loading on initialization prevented
+ * Don't show error messages by default
+ * Error messages text
+ * Don't hide video marker in the gallery on media hover
+
+### Added
+ * Loop gallery option
+ * Debug mode
+ * Description links in plain-text converting to HTML tags
+ * Experimental option to support high resolution images (1080x1080)
+ * Gallery arrows active effect
+
+
+## February 5, 2016 - Version 1.6.0
+
+### Fixed
+ * Instagram API response data changes issue
+ * Square images fitting bug
+ * Old php versions issue
+
+### Changed
+ * target="_blank" and rel="nofollow" for all anchors
+
+### Added
+ * Custom templates support
+ * Custom CSS and JS editor
+ * Option to add InstaShow script on every page (for ajax websites)
+
+
+## December 28, 2015 - Version 1.5.0
+
+### Fixed
+ * Arrows in popup disappearing
+ * The widget fell by using jQuery 1.9.1
+
+### Changed
+ * Image loading optimization breakpoints
+ * Handlebars included in package version
+
+### Added
+ * Mode option
+ * Filter option
+ * Play icon on videos in gallery
+ * Defer script loading support
+ * Admin UI translation support
+
+
+## November 26, 2015 - Version 1.4.3
+
+### Fixed
+ * Responsive options sorting breakpoints bug
+ * Internationalization, descriptions and comments special characters bug 
+ 
+
+## November 22, 2015 - Version 1.4.2
+
+### Fixed
+ * Shortcode source bug
+ * Responsive option bug
+ * Empty comments array in response from Instagram API bug
+
+### Changed
+ * Option responsive allows url encoded string
+
+
+## November 21, 2015 - Version 1.4.1
+
+### Fixed
+ * Multiple sources images duplication bug
+ * Option source specific media shortcode extended characters
+
+### Changed
+ * clientId is deprecated. Use accessToken instead. (More info https://elfsight.com/blog/2015/11/no-more-need-in-instagram-client-id-after-november-17-2015/)
+ * Default value of cacheMediaTime option is decreased to 0
+
+### Added
+ * Live updates functionality
+ * Images count limit option
+ * Responsive breakpoints option
+ * Images loading optimization
+ * Scripts loading optimization
+
+
+## October 29, 2015 - Version 1.3.0
+
+### Fixed
+ * Album-oriented images deformation bug
+ * Over last view translation moving backward bug
+ * Images with different sizes don't fit in popup bug
+ * Gallery transitions glitches
+ 
+### Changed
+ * Gallery layout markup
+ 
+### Added
+ * Access Token support
+ * Set specific image as source or filter
+ * URL as source or filter support
+ * Gallery info dynamic resize
+ * Packaged edition (dependencies free)
+
+
+## October 15, 2015 - Version 1.2.0
+
+### Fixed
+ * Popup animation shaking
+ * @username and #hashtags links in description and comments
+
+### Added
+ * Non-square images support (more details http://elfsight.com/blog/2015/10/how-to-make-websites-instagram-feed-with-non-square-photos/)
+ * Popup deep linking
+ * Popup video icon
+ * Media list cache expiry time option
+ * Shortcode generator autosave settings
+
+
+## October 4, 2015 - Version 1.1.0
+
+### Fixed
+ * Fade translation animation bug
+ * Touchend popup initiation bug
+ * Visual Composer Scroll Control bug
+ * WordPress error message box position on InstaShow Page
+
+### Changed
+ * Popup close control for mobile devices
+ * Info and Popup Info Visual Composer controls to checkboxes
+
+### Added
+ * Analytics
+ * colorPopupMobileControlsBg option
+
+
+## September 27, 2015 - Version 1.0.1
+
+### Fixed
+ * WP plugin name conflict
+ * Generator width and height input issue
