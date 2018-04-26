@@ -236,7 +236,6 @@ h3.waitlist_error {
 	}
 }
 .header__promo-banner {
-	display: none !important;
     background-color: #000;
     color: #fff;
     text-align: center;
@@ -265,10 +264,8 @@ h3.waitlist_error {
   width: 100%;
   position: relative;
 }
-
 .header__promo-banner ul li {
   width: 100%;
-  display: none;
 }
 .footer-banner {
     margin-bottom: 60px;

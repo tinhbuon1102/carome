@@ -1,0 +1,13 @@
+/*Added 20180425*/
+.header__promo-banner a:hover, .header__promo-banner a:focus {
+	text-decoration: underline;
+}
+#infotick {
+	display: block !important;
+}
+#infotick ul li {
+	display: block;
+}
+.header__promo-banner ul, .header__promo-banner ul li {
+	list-style: none;
+}

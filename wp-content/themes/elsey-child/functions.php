@@ -5,6 +5,7 @@ define('CONTACT_EMAIL_ADMIN_WITH_FILE', 'return@carome.net');
  */
 function elsey_enqueue_child_theme_styles() {
 	wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri(), array(), null );
+	//wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri(), array(), filemtime( get_stylesheet_directory() . '/style.css' ) );
 }
 add_action( 'wp_enqueue_scripts', 'elsey_enqueue_child_theme_styles', 11 );
 
@@ -42,15 +43,12 @@ function remove_menus () {
 	global $menu;
 	$user = wp_get_current_user();
 	$allowed_roles = array('administrator');
-	
-	pr($user->roles);
-	pr($allowed_roles);
-	die;
 	if (is_admin() && !array_intersect($allowed_roles, $user->roles ) ) {
         remove_menu_page( 'wpcf7' );
 		remove_menu_page( 'edit.php?post_type=acf-field-group' );
 		remove_menu_page( 'elsey_options' ); //not working for Elsey Options
 		remove_menu_page( 'productsize_chart' ); //not working for Size Chart
+		remove_menu_page( 'edit.php?post_type=chart' ); //not working for Size Chart
 		remove_menu_page( 'wcst-shipping-companies' );//not working for Shipping tracking
 		remove_menu_page( 'yith_wcwl_panel' );//not working for YITH Plugins
 		remove_menu_page( 'yikes-inc-easy-mailchimp' );//not working for Easy Forms
@@ -726,6 +724,7 @@ function smoke_scripts ()
 	wp_enqueue_style('smoke_css', get_stylesheet_directory_uri() . '/js/smoke/css/smoke.min.css');
 	wp_enqueue_script('smoke_js', get_stylesheet_directory_uri() . '/js/smoke/js/smoke.min.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('smoke_lang', get_stylesheet_directory_uri() . '/js/smoke/lang/ja.js', array( 'jquery' ),'', true);
+	wp_enqueue_style( 'overwrite_css', get_stylesheet_directory_uri(), array(), filemtime( get_stylesheet_directory_uri() . '/overwrite.css' ) );
 }
 add_action('wp_enqueue_scripts', 'smoke_scripts');
 
