@@ -73,7 +73,7 @@ jQuery(function($){
 				  {
 					  var insta_list = '';
 					  $.each(response.data, function(index, item){
-						  if (item) {
+						  if (item && item.images && item.images.__original && item.images.__original.url) {
 							  var related_number = (insta_related_products[item.code] && insta_related_products[item.code]['products']) ? Object.keys(insta_related_products[item.code]['products']).length : 0;
 							  var hide_post = insta_related_products[item.code] && insta_related_products[item.code]['hide'] && insta_related_products[item.code]['hide'] == 1 ? true : false;
 							  insta_list += '<li class="'+ (hide_post ? "hide-post" : "") +'">';
