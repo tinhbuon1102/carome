@@ -29,7 +29,6 @@ if ($elsey_meta) {
 <?php if ( !is_product() ){ echo '</div>'; } ?>
 <!-- Content Background End -->
 <?php if ( !is_product() ){ ?>
-<div id="modelaud" class="footer-banner"><a href="https://carome-audition.com" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/carome_model_aud_banner-wide.jpg" class="xs-hide" /><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/carome_model_aud_banner-sp_ver04.jpg" class="xs-show" /></a></div>
 <?php } ?>
 </div>
 <!-- max-width--site End -->
@@ -82,6 +81,18 @@ wp_footer(); ?>
       </div>
     </div>
   </div>
+</div>
+
+<div class="remodal" data-remodal-id="modal" role="dialog" aria-labelledby="modal1Title" aria-describedby="modal1Desc">
+  <button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
+  <div>
+    <h2 id="modal1Title" class="modal_smallhead">予約注文分マルチストーンチェーンピアス発送日に関しまして</h2>
+    <p id="modal1Desc">
+      3月18日から予約注文をお受けさせていただきましたマルチストーンチェーンピアスの発送日に関しまして、商品の方は5月9日から順に発送させていただきます。<br/>大変お待たせをしておりまして、誠に申し訳ございません。<br/>商品到着まで、もう少々おまちくださいませ。
+    </p>
+  </div>
+  <br>
+  <button data-remodal-action="cancel" class="remodal-cancel close_jabtn">閉じる</button>
 </div>
 <script>
 //Custom Js

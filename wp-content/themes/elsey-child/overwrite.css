@@ -11,3 +11,15 @@
 .header__promo-banner ul, .header__promo-banner ul li {
 	list-style: none;
 }
+.header__promo-banner ul li, .header__promo-banner ul {
+	list-style: none;
+}
+#modal1Title.modal_smallhead {
+    font-size: 16px;
+    font-weight: bold;
+}
+.remodal-cancel.close_jabtn {
+    background: #000;
+    padding: 8px 0;
+    min-width: 90px;
+}
