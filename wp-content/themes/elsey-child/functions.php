@@ -49,7 +49,7 @@ function remove_menus () {
 		remove_menu_page( 'elsey_options' ); //not working for Elsey Options
 		remove_menu_page( 'productsize_chart' ); //not working for Size Chart
 		remove_menu_page( 'edit.php?post_type=chart' ); //not working for Size Chart
-		remove_menu_page( 'wcst-shipping-tracking' );//not working for Shipping tracking
+		//remove_menu_page( 'wcst-shipping-tracking' );//not working for Shipping tracking
 		remove_menu_page( 'yit_plugin_panel' );//not working for YITH Plugins
 		remove_menu_page( 'yikes-inc-easy-mailchimp' );//not working for Easy Forms
 		remove_menu_page( 'duplicator-tools' );//not working for Duplicator
