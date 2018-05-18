@@ -500,7 +500,10 @@ footer .els-footer-widget-area .widget-title {
 .els-main-menu li.els-megamenu .els-megamenu-wrap, .els-main-menu ul > li > ul {
     top: 138px;
 }
-
+header .els-menubar .els-main-menu li a {
+	font-family: "brandon-grotesque",sans-serif;
+	font-weight: 400;
+}
 #calc_shipping_country_field {display: none;}
 .woocommerce-NoticeGroup-checkout{width: 100%;}
 .header-search {
@@ -613,6 +616,10 @@ footer .edit-link {
 }
 fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
     margin-top: 24px;
+}
+.header-search label {
+	font-family: "brandon-grotesque",sans-serif;
+    font-weight: 400;
 }
 @media only screen and (min-width: 48em) {
 	.header__primary {
@@ -1529,7 +1536,9 @@ h2.order--details__number .value {
 /*Home Layout*/
 #justarrived .heading--main {
     margin-bottom: 45px;
-	font-size: 40px;
+	font-size: 24px;
+	font-family: "brandon-grotesque",sans-serif;
+    font-weight: 300;
 }
 #sliderhome .wpb_revslider_element {
     margin-bottom: 0;
@@ -1540,7 +1549,7 @@ h2.order--details__number .value {
 }
 @media only screen and (min-width: 48em) {
 	.home .section_home_first {
-    padding-top: 100px;
+    padding-top: 20px;
 	}
 	.home .section_home_last {
     /*padding-bottom: 110px;*/
@@ -1552,13 +1561,10 @@ h2.order--details__number .value {
     padding: 24px 0;
 	}
 	.home .section_home_first {
-    padding-top: 62px;
+    
 	}
 	.els-content-col .section_home_first .heading.heading--main {
     margin-bottom: 36px;
-	}
-	#justarrived .heading--main {
-	font-size: 32px;
 	}
 }
 /*Home Cat List*/
@@ -1594,7 +1600,7 @@ h2.order--details__number .value {
 .masonry-grid__item:before {
     display: block;
     content: '';
-    padding-bottom: 132%;
+    padding-bottom: 100%;
     width: 100%;
 }
 .masonry-grid__item .overlay {
@@ -1637,7 +1643,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
 	}
 }
 .els-pr-price {
-	font-weight: 400 !important;
+	font-weight: 300 !important;
     font-family: 'Lato', sans-serif !important;
 	color: #000;
 }
@@ -2262,11 +2268,18 @@ body.checkout-template .els-titlebar {
     margin-bottom: 10px;
 }
 .magazine-article__col-content .headline h3 {
-	font-family: 'Poppins', sans-serif;
-    font-weight: 600;
+	font-family: 'Lato', sans-serif;
+    font-weight: 300;
 	}
 .magazine-article__col-content .headline p {
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+	letter-spacing: 1px;
     margin-bottom: 15px;
+}
+ul.mag-tags {
+	font-family: "brandon-grotesque",sans-serif;
+    font-weight: 300;
 }
 .magazine-article__col-content .wpb_content_element {
 	margin-bottom: 0;
@@ -2289,8 +2302,10 @@ ul.mag-tags li {
     font-size: 32px;
 	}
 ul.mag-tags li {
-    line-height: 2;
+    line-height: 2.5;
     font-size: 20px;
+    color: #9b9b9b;
+    letter-spacing: .15em;
 }
 .woocommerce .woo-col-4 ul.products {
 	margin-left: -12px;
@@ -2301,10 +2316,10 @@ ul.mag-tags li {
 	}
 @media only screen and (min-width: 48em) {
 	.magazine-article__col-content .headline h3 {
-    font-size: 42px;
+    font-size: 40px;
 	}
 	ul.mag-tags li {
-	font-size: 26px;
+	font-size: 20px;
 	}
 	.font_section {
 		margin-bottom: 70px;
@@ -2358,7 +2373,7 @@ ul.mag-tags li {
     height: 100%;
 	}
 	.magazine-article__col-content .headline > .headline_inner > .headline_inner_abs {
-	background: #f4f4f4;
+	background: rgba(248,238,239,1);
     height: 100%;
     position: absolute;
     width: 160%;
@@ -2461,14 +2476,13 @@ ul.products .els-product-title {
     margin-bottom: 0px;
     width: 100%;
     margin-top: 0;
-    line-height: 14px;
-	font-family: 'Poppins', sans-serif;
-	font-weight: 600;
+	font-family: "brandon-grotesque",sans-serif;
+	font-weight: 300;
 }
 .woocommerce ul.products .els-product-title h3 a {
-    font-size: 14px;
+    font-size: 15px;
     color: #000;
-    letter-spacing: .2px;
+    letter-spacing: 0;
     min-height: 0;
     line-height: 1;
     margin: 0;

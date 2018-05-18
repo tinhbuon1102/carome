@@ -19,7 +19,7 @@ add_action( 'woocommerce_single_product_summary', 'woocommerce_output_product_da
 
 // google fonts
 function custom_add_google_fonts() {
-	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato|Poppins:300,400,500,600', false );
+	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,400|Poppins:300,400,500,600', false );
 }
 add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
 
@@ -119,7 +119,7 @@ function custom_menu_item_actions ( $items2, $args ) {
 	if ($args->theme_location == 'primary') {
 		$items2 .= '<li class="navActions"><ul>';
 		$elsey_myaccount_url = get_permalink(get_option('woocommerce_myaccount_page_id'));
-		$items2 .= '<li class="action-minibar els-user-icon"><a href="' . esc_url($elsey_myaccount_url) . '" class="link-actions"><i class="carome-icon carome-single-01"></i></a></li>';
+		$items2 .= '<li class="action-minibar els-user-icon"><a href="' . esc_url($elsey_myaccount_url) . '" class="link-actions"><i class="cmn-icon cmn-single-03-2"></i></a></li>';
 		$elsey_menubar_wishlist    = cs_get_option('menubar_wishlist');
 		if ( $elsey_menubar_wishlist && class_exists('WooCommerce') ) {
 			if ( defined( 'YITH_WCWL' ) ) {
@@ -127,7 +127,7 @@ function custom_menu_item_actions ( $items2, $args ) {
 				$els_wishlist_url   = get_permalink(get_option('yith_wcwl_wishlist_page_id'));
 				$elsey_icon_wishlist_black = ELSEY_IMAGES.'/wishlist-icon.png';
 				$els_wishlist_class = ($els_wishlist_count) ? 'els-wishlist-filled' : 'els-wishlist-empty';
-				$items2 .= '<li class="action-minibar els-wishlist-icon '. esc_attr($els_wishlist_class) .'"><a href="'. esc_url($els_wishlist_url) .'" class="link-actions"><i class="carome-icon carome-heart-2"></i></a></li>';
+				$items2 .= '<li class="action-minibar els-wishlist-icon '. esc_attr($els_wishlist_class) .'"><a href="'. esc_url($els_wishlist_url) .'" class="link-actions"><i class="cmn-icon cmn-heart-2-3"></i></a></li>';
 			}
 		}
 		$elsey_menubar_cart        = cs_get_option('menubar_cart');
@@ -140,7 +140,7 @@ function custom_menu_item_actions ( $items2, $args ) {
 			} else {
 				$items2 .= '<span class="els-cart-count">'. esc_attr($woocommerce->cart->get_cart_contents_count()) .'</span>';
 			}
-			$items2 .= '<i class="carome-icon carome-bag-09"></i></span>';
+			$items2 .= '<i class="cmn-icon cmn-bag-09-2"></i></span>';
 			$items2 .= '</a></li>';
 		}
 		$items2 .= '</li></ul>';
