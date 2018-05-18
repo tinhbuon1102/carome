@@ -241,7 +241,8 @@ h3.waitlist_error {
 	margin-bottom: 20px;
 }
 .remodal-close {
-	right: 0;
+	right: 0 !important;
+	left: auto;
 }
 
 @media only screen and (min-width: 64.01em) {
