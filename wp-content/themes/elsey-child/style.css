@@ -225,6 +225,22 @@ h3.waitlist_error {
     padding: 5px 10px;
     margin-bottom: 20px;
 }
+
+#retal_kimono_popup_content_wraper {
+	text-align: left;
+    padding-left: 10%;
+}
+#retal_kimono_popup_content_wraper .contact_popup_title {
+	font-size: 30px;
+    margin-bottom: 20px;
+}
+#retal_kimono_popup_content .form-list label {
+	width: 150px;
+}
+#retal_kimono_popup_content .form-theme {
+	margin-bottom: 20px;
+}
+
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
