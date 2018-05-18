@@ -2579,17 +2579,15 @@ add_action( 'wp_ajax_retal_submition', 'retal_submition' );
 function retal_submition() {
 	$user_email = $_POST['contact']['email'];
 	$admin_email = get_option( 'admin_email' );
-	//@TODO remove below
-	$admin_email = 'quocthang.2001@gmail.com';
 	
 	$site_title = get_bloginfo( 'name' );
 	$headers = 'Content-type: text/plain;charset=utf-8' . "\r\n";
 	$headers .= 'From: '.$site_title.' <info@carome.net>' . "\r\n";
-// 	$bcc_email = 'kyoooko1122@gmail.com,quocthang.2001@gmail.com';
-// 	if ($bcc_email)
-// 	{
-// 		$headers .= 'Bcc: '.$bcc_email."\r\n";
-// 	}
+	$bcc_email = 'kyoooko1122@gmail.com,quocthang.2001@gmail.com';
+	if ($bcc_email)
+	{
+		$headers .= 'Bcc: '.$bcc_email."\r\n";
+	}
 
 	// Send to user
 	$html_user = get_retal_contact_email_template(false, false);
