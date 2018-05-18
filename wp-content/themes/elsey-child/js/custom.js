@@ -439,6 +439,66 @@ jQuery(document).ready(function($){
 	  }
    });
   
+  if ($('.retal_kimono_form').length)
+  {
+	  $(document).on('click', '#retal_confirm_btn', function(){
+		  $("form.retal_kimono_form").validationEngine({promptPosition: 'inline', addFailureCssClassToField: "inputError", bindMethod:"live"});
+			var isFormValid = $("form.retal_kimono_form").validationEngine('validate');
+			if (isFormValid)
+			{
+				var form = $(this).closest('form');
+				var row_html = '';
+				var aLabels = [];
+				form.find('.form-row').each(function(){
+					var row = $(this);
+					var label = ''
+					var label_row = row.closest('.form-row').find('label:eq(0)').text().replace('*', '');
+					var aTextVal = [];
+					row.find('input[type="checkbox"]:checked, input[type="text"], input[type="date"], input[type="email"], input[type="tel"], select, textarea').each(function(){
+						var label_col = $(this).closest('div').find('label:eq(0)').text().replace('*', '');
+						var text_val = $(this).val().replace(/(?:\r\n|\r|\n)/g, '<br />');
+						label = label_col ? label_col : label_row;
+						text_val = text_val.replace(/<br \/>/g, '<br />');
+						aTextVal.push(text_val.replace(/<br \/>/g, '<br />'));
+						if (!row.hasClass('date-wraper'))
+						{
+							row_html += '<div class="form-list"><label>'+ label +' : </label><span class="wpcf7-form-control-wrap">'+ text_val +'</span></div>'
+						}
+					});
+					if (row.hasClass('date-wraper'))
+					{
+						row_html += '<div class="form-list"><label>'+ label +' : </label><span class="wpcf7-form-control-wrap">'+ aTextVal.join('-') +'</span></div>'
+					}
+				});
+				
+				$('#retal_kimono_popup_content .form-theme').html(row_html);
+				
+				var inst = $('[data-remodal-id=retal_kimono_popup]').remodal();
+				inst.open();
+			}
+		});
+	  
+	  $(document).on('click', '.submit_confirm', function(){
+		  $('body').LoadingOverlay('show');
+		  $.ajax({
+		        type: "post",
+		        url: gl_siteUrl + woocommerce_params.ajax_url + '?action=retal_submition',
+		        data: $('form.retal_kimono_form').serialize(),
+		        crossDomain: false,
+		        dataType : "json",
+		        scriptCharset: 'utf-8'
+		    }).done(function(response){
+		    		$('body').LoadingOverlay('hide');
+		    		if (response.success)
+		    		{
+		    			location.href = response.redirect;
+		    		}
+		    		else {
+		    			alert('Email server got issue, please try again later or contact Site admin!');
+		    		}
+		    }); 
+	  });
+  }
   // Contact form 
   if ($('.wpcf7 select[name="contact-type"]').length)
   {

@@ -213,6 +213,43 @@ function getArrayYearMonthDay()
 	}
 	return $aTimes;
 }
+
+function getRetailYearMonthDay()
+{
+	$aTimes = array();
+
+	$aTimes['years'][''] = __('Select Year', 'elsey');
+	$aTimes['months'][''] = __('Select Month', 'elsey');
+	$aTimes['days'][''] = __('Select Day', 'elsey');
+	
+	$max_year = date("Y", strtotime("+6 months"));
+	$max_month = date("m", strtotime("+6 months"));
+	
+	$current_month = date('m');
+	$current_day = date('d');
+	$current_year = date('Y');
+	
+	// If has 1 year option, remove the title
+	if ($current_year == $max_year) unset($aTimes['years']['']);
+	
+	for($i = date('Y'); $i <= $max_year; $i++)
+	{
+		$aTimes['years'][$i] = $i;
+	}
+
+	for($i = date('n'); $i <= $max_month; $i++)
+	{
+		$i = strlen($i) == 1 ? '0' . $i : $i;
+		$aTimes['months'][$i] = $i;
+	}
+
+	for($i = 1; $i <= 31; $i++)
+	{
+		$i = strlen($i) == 1 ? '0' . $i : $i;
+		$aTimes['days'][$i] = $i;
+	}
+	return $aTimes;
+}
 /*remove country field from checkout*/
 function custom_override_checkout_fields( $fields )
 {
@@ -729,6 +766,12 @@ function smoke_scripts ()
 	wp_enqueue_style('remodal_css', get_stylesheet_directory_uri() . '/js/remodal/remodal.css');
 	wp_enqueue_style('remodaltheme_css', get_stylesheet_directory_uri() . '/js/remodal/remodal-default-theme.css');
 	wp_enqueue_style( 'overwrite_css', get_stylesheet_directory_uri() . '/overwrite.css', array(), filemtime( get_stylesheet_directory() . '/overwrite.css' ) );
+	
+	wp_enqueue_style('validation_engine_css', get_stylesheet_directory_uri() . '/css/validationEngine.jquery.css');
+	wp_enqueue_script('validation_engine_js', get_stylesheet_directory_uri() . '/js/jquery.validationEngine.js', array('jquery'));
+	wp_enqueue_script('validation_engine_ja_js', get_stylesheet_directory_uri() . '/js/jquery.validationEngine-ja.js', array('jquery'));
+	
+	wp_enqueue_script('overlay', get_stylesheet_directory_uri() . '/js/loadingoverlay.js', array('jquery'));
 }
 add_action('wp_enqueue_scripts', 'smoke_scripts');
 
@@ -2475,4 +2518,89 @@ function elsey_woocommerce_reports_order_statuses_add_pre_order($statuses)
 	}
 	
 	return $statuses;
+}
+
+function get_retal_contact_email_template($is_admin, $has_html = true)
+{
+	if ($is_admin)
+	{
+		$html = 'CAROME.サイトにて、着物レンタルの申し込みがありました。
+申し込み詳細は以下となります。
+
+申し込み詳細_______________________________________________
+●レンタル情報
+レンタル第１希望日：{year1}年 {month1}月 {date1}日
+レンタル第２希望日：{year2}年 {month2}月 {date2}日
+レンタル第３希望日：{year3}年 {month3}月 {date3}日
+
+●お客様情報
+お名前：{last_name} {first_name}
+ふりがな：{last_name_kana} {first_name_kana}
+電話番号：{tel}
+メールアドレス：{email}
+お届け先住所：〒{postcode}  {state}{city}{address1}{address2}';
+	}
+	else {
+		$html = 'この度はCAROME.にて、着物レンタルのお申し込みをいただき、
+まことにありがとうございます。
+
+この時点で、レンタルのお申し込みは確定しておりません。
+
+お申し込み内容から、レンタル日の決定、
+レンタル受け付け完了までは、メールにて担当者から
+連絡させていただきます。
+
+担当者から、折り返し連絡させていただきますので、
+いましばらくお待ちください。
+
+お申し込み内容は以下となります。
+
+お申し込み詳細_______________________________________________
+●レンタル情報
+レンタル第１希望日：{year1}年 {month1}月 {date1}日
+レンタル第２希望日：{year2}年 {month2}月 {date2}日
+レンタル第３希望日：{year3}年 {month3}月 {date3}日
+
+●お客様情報
+お名前：{last_name} {first_name} 様
+ふりがな：{last_name_kana} {first_name_kana}
+電話番号：{tel}
+メールアドレス：{email}
+お届け先住所：〒{postcode}  {state}{city}{address1}{address2}';
+	}
+	foreach ($_POST['contact'] as $field_name => $field)
+	{
+		$html = str_replace('{'.$field_name.'}', $field, $html);
+	}
+	return $html;
+}
+add_action( 'wp_ajax_nopriv_retal_submition', 'retal_submition' );
+add_action( 'wp_ajax_retal_submition', 'retal_submition' );
+function retal_submition() {
+	$user_email = $_POST['email'];
+	$admin_email = get_option( 'admin_email' );
+	
+	$site_title = get_bloginfo( 'name' );
+	$headers = 'Content-type: text/plain;charset=utf-8' . "\r\n";
+	$headers .= 'From: '.$site_title.' <info@carome.net>' . "\r\n";
+	$bcc_email = 'kyoooko1122@gmail.com,quocthang.2001@gmail.com';
+	if ($bcc_email)
+	{
+		$headers .= 'Bcc: '.$bcc_email."\r\n";
+	}
+
+	// Send to user
+	$html_user = get_retal_contact_email_template(false, false);
+	$subject = __(' 着物レンタルの申し込みを受け付けました | CAROME.', 'elsey') . "\r\n";
+	$success = wp_mail($user_email, $subject, $email_content, $headers );
+
+	if ($success)
+	{
+		// Now send to admin
+		$html_admin = get_retal_contact_email_template(true, false);
+		$subject = __(' 着物レンタルの申し込みがありました | CAROME.', 'elsey') . "\r\n";
+		$success = wp_mail($admin_email, $subject, $email_content, $headers );
+	}
+
+	return json_encode(array('success' => $success, 'redirect' => get_site_url() . '/kimono-rental-thanks'));
 }
