@@ -240,6 +240,9 @@ h3.waitlist_error {
 #retal_kimono_popup_content .form-theme {
 	margin-bottom: 20px;
 }
+.remodal-close {
+	right: 0;
+}
 
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
