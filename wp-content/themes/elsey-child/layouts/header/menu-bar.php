@@ -85,11 +85,11 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
 <li><a href="#">CAROME.モデルオーディション開始</a></li>
 </ul>
 </div>-->
-<div id="infotick" class="header__promo-banner">
+<!--<div id="infotick" class="header__promo-banner">
 <ul>
 <li><a href="#modal"><span class="date">2018.05.01</span>【重要なお知らせ】予約注文分マルチストーンチェーンピアス発送日に関しまして</a></li>
 </ul>
-</div>
+</div>-->
 <!-- Menubar Starts -->
 <div class="els-menubar <?php echo esc_attr($elsey_menubar_position_class); ?>" style="<?php echo esc_attr($elsey_menubar_bg); ?>">
   <div class="o-row">
@@ -149,7 +149,7 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
       	<ul>
 			<li class="els-user-icon display--small-up">
 				<?php $elsey_myaccount_url = get_permalink(get_option('woocommerce_myaccount_page_id')); ?>
-				<a href="<?php echo esc_url($elsey_myaccount_url); ?>"><i class="carome-icon carome-single-01"></i></a>
+				<a href="<?php echo esc_url($elsey_myaccount_url); ?>"><i class="cmn-icon cmn-single-03-2"></i></a>
 			</li>
           <?php if ( $elsey_menubar_wishlist && class_exists('WooCommerce') ) {
           	if ( defined( 'YITH_WCWL' ) ) {
@@ -158,7 +158,7 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
               $els_wishlist_class = ($els_wishlist_count) ? 'els-wishlist-filled' : 'els-wishlist-empty'; ?>
 							<li class="els-wishlist-icon display--small-up <?php echo esc_attr($els_wishlist_class); ?>">
 							  <a href="<?php echo esc_url( home_url( '/my-account/favorite-list/' ) ); ?>">
-							  	<i class="carome-icon carome-heart-2"></i>					    
+							  	<i class="cmn-icon cmn-heart-2-3"></i>					    
 							  </a>
 							</li>
           <?php } } if ( $elsey_menubar_cart && class_exists('WooCommerce') ) {
@@ -171,7 +171,7 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
                   <span class="els-cart-count"><?php echo esc_attr($woocommerce->cart->get_cart_contents_count()); ?></span>
                 <?php } ?>            
 
-                <i class="carome-icon carome-bag-09"></i>	
+                <i class="cmn-icon cmn-bag-09-2"></i>	
 
               </a>
               <div class="widget_shopping_cart_content">
