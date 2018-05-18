@@ -2592,17 +2592,16 @@ function retal_submition() {
 // 	}
 
 	// Send to user
-	$html_user = get_retal_contact_email_template(false, false);
+	$email_content = get_retal_contact_email_template(false, false);
 	$subject = __(' 着物レンタルの申し込みを受け付けました | CAROME.', 'elsey') . "\r\n";
 	$success = wp_mail($user_email, $subject, $email_content, $headers );
-
 	if ($success)
 	{
 		// Now send to admin
-		$html_admin = get_retal_contact_email_template(true, false);
+		$email_content = get_retal_contact_email_template(true, false);
 		$subject = __(' 着物レンタルの申し込みがありました | CAROME.', 'elsey') . "\r\n";
 		$success = wp_mail($admin_email, $subject, $email_content, $headers );
 	}
-
-	return json_encode(array('success' => $success, 'redirect' => get_site_url() . '/kimono-rental-thanks'));
+	echo json_encode(array('success' => $success, 'redirect' => get_site_url() . '/kimono-rental-thanks'));
+	die;
 }
