@@ -94,6 +94,9 @@ get_header(); ?>
 	<?php if( ! ( end($request) == 'my-account' && is_account_page() ) ){ ?>
 	<?php
             // echo json_encode( get_option('_cs_options') ); // BrixeyWP - JSON File, json, Json.
+	        if(is_page('kimono-rental')):
+			get_template_part( 'template-parts/content', 'rentalform' );
+			else:
             while ( have_posts() ) : the_post();
               the_content();
               // If comments are open or we have at least one comment, load up the comment template.
@@ -101,6 +104,7 @@ get_header(); ?>
                 comments_template();
               endif;
             endwhile;
+	        endif;
             ?>
 	<?php } else { ?>
 	<div class="max-width--large">

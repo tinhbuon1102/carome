@@ -77,6 +77,8 @@ if ( is_product() ) {
 	$maincontent_class = 'max-width--site child-account-page';
 }else if ( ( end($request) == 'my-account' && is_account_page() ) ) {
 	$maincontent_class = 'max-width--site';
+}else if ( is_page('kimono-rental') ) {
+	$maincontent_class = 'max-width--large main-con';
 } else {
 	$maincontent_class = 'max-width--site';
 }
