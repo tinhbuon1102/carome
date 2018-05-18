@@ -2577,7 +2577,7 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 add_action( 'wp_ajax_nopriv_retal_submition', 'retal_submition' );
 add_action( 'wp_ajax_retal_submition', 'retal_submition' );
 function retal_submition() {
-	$user_email = $_POST['email'];
+	$user_email = $_POST['contact']['email'];
 	$admin_email = get_option( 'admin_email' );
 	//@TODO remove below
 	$admin_email = 'quocthang.2001@gmail.com';
