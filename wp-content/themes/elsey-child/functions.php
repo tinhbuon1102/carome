@@ -225,6 +225,10 @@ function getRetailYearMonthDay()
 	$max_year = date("Y", strtotime("+6 months"));
 	$max_month = date("m", strtotime("+6 months"));
 	
+	$min_year = date('Y', strtotime("+7 days"));
+	$min_month = date('m', strtotime("+7 days"));
+	$min_day = date('d', strtotime("+7 days"));
+	
 	$current_month = date('m');
 	$current_day = date('d');
 	$current_year = date('Y');
@@ -232,12 +236,12 @@ function getRetailYearMonthDay()
 	// If has 1 year option, remove the title
 	if ($current_year == $max_year) unset($aTimes['years']['']);
 	
-	for($i = date('Y'); $i <= $max_year; $i++)
+	for($i = $min_year; $i <= $max_year; $i++)
 	{
 		$aTimes['years'][$i] = $i;
 	}
 
-	for($i = date('n'); $i <= $max_month; $i++)
+	for($i = $min_month; $i <= $max_month; $i++)
 	{
 		$i = strlen($i) == 1 ? '0' . $i : $i;
 		$aTimes['months'][$i] = $i;
@@ -248,6 +252,9 @@ function getRetailYearMonthDay()
 		$i = strlen($i) == 1 ? '0' . $i : $i;
 		$aTimes['days'][$i] = $i;
 	}
+	$aTimes['min_year'] = $min_year;
+	$aTimes['min_month'] = $min_month;
+	$aTimes['min_day'] = $min_day;
 	return $aTimes;
 }
 /*remove country field from checkout*/

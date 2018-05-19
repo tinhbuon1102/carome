@@ -1,19 +1,4 @@
 // JavaScript Document
-$ = jQuery;
-$(window).scroll(function(){
-	var scroll_top = $(this).scrollTop();
-	var mainhead_height = $('.mainhead').height();
-	var post_content_top = $('.post_content').offset().top;
-	var share_article = $('.share-article');
-	
-	if (scroll_top >= post_content_top - 100)
-	{
-		share_article.addClass('fixed');
-	}
-	else {
-		share_article.removeClass('fixed');
-	}
-});
 jQuery(document).ready(function($){
 	$(window).on('load resize click',function(){
 		var windowW = $(window).width();
@@ -512,6 +497,27 @@ jQuery(document).ready(function($){
 		    			alert('Email server got issue, please try again later or contact Site admin!');
 		    		}
 		    }); 
+	  });
+	  
+	  $(document).on('change', '.select-month', function(){
+		  var date_row = $(this).closest('.date-wraper');
+		  var year_field = date_row.find('.select-year');
+		  var month_field = $(this);
+		  var day_field = date_row.find('.select-day');
+		  if (parseInt(year_field.val()) == min_year && parseInt(month_field.val()) == min_month)
+		  {
+			  // Set min day for day selector
+			  day_field.find('option').each(function(){
+				 var day_val = parseInt($(this).val());
+				  if (day_val < min_day) 
+				  {
+					  $(this).hide();
+				  }
+			  });
+		  }
+		  else {
+			  day_field.find('option').show();
+		  }
 	  });
   }
   // Contact form 

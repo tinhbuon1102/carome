@@ -22,6 +22,11 @@ if ( $current_user && $current_user->ID )
 }
 
 ?>
+<script type="text/javascript">
+	var min_year = <?php echo (int)$aTimes['min_year']?>;
+	var min_month = <?php echo (int)$aTimes['min_month']?>;
+	var min_day = <?php echo (int)$aTimes['min_day']?>;
+</script>
 <form class="retal_kimono_form" method="POST">
 <div class="row">
 	<div class="els-product-image-col col-md-6 col-xs-12 images"></div>
@@ -33,7 +38,7 @@ if ( $current_user && $current_user->ID )
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[year1]" class="validate[required] date-field">
+								<select name="contact[year1]" class="validate[required] date-field select-year">
 								<?php foreach ($aTimes['years'] as $year_index => $year) {?>
 								<option value="<?php echo $year_index?>"><?php echo $year?></option>
 								<?php }?>
@@ -42,7 +47,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[month1]" class="validate[required] date-field">
+								<select name="contact[month1]" class="validate[required] date-field select-month">
 								<?php foreach ($aTimes['months'] as $month_index => $month) {?>
 								<option value="<?php echo $month_index?>"><?php echo $month?></option>
 								<?php }?>
@@ -51,7 +56,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[date1]" class="validate[required] date-field">
+								<select name="contact[date1]" class="validate[required] date-field select-day">
 								<?php foreach ($aTimes['days'] as $day_index => $day) {?>
 								<option value="<?php echo $day_index?>"><?php echo $day?></option>
 								<?php }?>
@@ -68,7 +73,7 @@ if ( $current_user && $current_user->ID )
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[year2]" class="validate[required] date-field">
+								<select name="contact[year2]" class="validate[required] date-field select-year">
 								<?php foreach ($aTimes['years'] as $year_index => $year) {?>
 								<option value="<?php echo $year_index?>"><?php echo $year?></option>
 								<?php }?>
@@ -77,7 +82,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[month2]" class="validate[required] date-field">
+								<select name="contact[month2]" class="validate[required] date-field select-month">
 								<?php foreach ($aTimes['months'] as $month_index => $month) {?>
 								<option value="<?php echo $month_index?>"><?php echo $month?></option>
 								<?php }?>
@@ -86,7 +91,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[date2]" class="validate[required] date-field">
+								<select name="contact[date2]" class="validate[required] date-field select-day">
 								<?php foreach ($aTimes['days'] as $day_index => $day) {?>
 								<option value="<?php echo $day_index?>"><?php echo $day?></option>
 								<?php }?>
@@ -103,7 +108,7 @@ if ( $current_user && $current_user->ID )
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[year3]" class="validate[required] date-field">
+								<select name="contact[year3]" class="validate[required] date-field select-year">
 								<?php foreach ($aTimes['years'] as $year_index => $year) {?>
 								<option value="<?php echo $year_index?>"><?php echo $year?></option>
 								<?php }?>
@@ -112,7 +117,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[month3]" class="validate[required] date-field">
+								<select name="contact[month3]" class="validate[required] date-field select-month">
 								<?php foreach ($aTimes['months'] as $month_index => $month) {?>
 								<option value="<?php echo $month_index?>"><?php echo $month?></option>
 								<?php }?>
@@ -121,7 +126,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[date3]" class="validate[required] date-field">
+								<select name="contact[date3]" class="validate[required] date-field select-day">
 								<?php foreach ($aTimes['days'] as $day_index => $day) {?>
 								<option value="<?php echo $day_index?>"><?php echo $day?></option>
 								<?php }?>
