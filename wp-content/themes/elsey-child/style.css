@@ -245,6 +245,8 @@ h3.waitlist_error {
 	left: auto;
 }
 
+body.home .pre-notice {display: none;}
+
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
