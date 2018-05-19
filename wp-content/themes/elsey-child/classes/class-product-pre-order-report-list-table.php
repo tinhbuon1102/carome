@@ -100,19 +100,19 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 	
 		global $wpdb;
 
-		$where = " WHERE post_type = 'shop_order' AND post_status NOT IN ('wc-cancelled')
+		$where = " WHERE p.post_type = 'shop_order' AND p.post_status IN ('wc-pre-ordered')
 			AND ot.order_item_type = 'line_item'
 			AND om1.meta_key = '_qty' AND om2.meta_key = '_product_id' 
-			AND pm.meta_key = '_wc_pre_orders_is_pre_order'
-			AND pm.meta_value = 1 " . $this->get_where();
+			 " . $this->get_where();
 		
 		$sql = "
-		SELECT om2.meta_value as product_id, ot.order_item_name as product_name, COUNT(om1.meta_value) as quantity
+		SELECT om2.meta_value as product_id, post.post_title as product_name, COUNT(om1.meta_value) as quantity
 		FROM wp_posts p
 			INNER JOIN {$wpdb->prefix}woocommerce_order_items ot ON p.ID = ot.order_id
 			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta om1 ON ot.order_item_id = om1.order_item_id
 			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta om2 ON ot.order_item_id = om2.order_item_id
-			INNER JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+			INNER JOIN {$wpdb->prefix}posts post ON om2.meta_value = post.ID
+			
 		 ";
 	
 		$sql .= $where;
@@ -143,20 +143,19 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 	public function record_count($statuses = array(), $product_id = 0) {
 		global $wpdb;
 	
-		$statuses = empty($statuses) ? array('wc-cancelled') : $statuses;
+		$statuses = empty($statuses) ? array('wc-pre-ordered') : $statuses;
 		$sql = "
 		SELECT COUNT(*) as quantity
 		FROM wp_posts p
 			INNER JOIN {$wpdb->prefix}woocommerce_order_items ot ON p.ID = ot.order_id
 			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta om1 ON ot.order_item_id = om1.order_item_id
 			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta om2 ON ot.order_item_id = om2.order_item_id
-			INNER JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+			
 		WHERE
-			post_type = 'shop_order' AND post_status NOT IN ('". implode("','", $statuses) . "')
+			post_type = 'shop_order' AND post_status IN ('". implode("','", $statuses) . "')
 			AND ot.order_item_type = 'line_item'
 			AND om1.meta_key = '_qty' AND om2.meta_key = '_product_id' 
-			AND pm.meta_key = '_wc_pre_orders_is_pre_order'
-			AND pm.meta_value = 1 ". $this->get_where($product_id) ."
+			 ". $this->get_where($product_id) ."
 			GROUP BY om2.meta_value";
 	
 		if (!$product_id)
