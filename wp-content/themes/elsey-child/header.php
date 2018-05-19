@@ -171,6 +171,9 @@ var gl_alertStateNotAllowed = '';
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
+	//$thisTrueCat = get_category( get_query_var( 'cat' ) ); 
+	//print $thisTrueCat->term_id;
+	//$thisCat = get_category( get_query_var( 'cat' ) ); 
  foreach ($all_categories as $cat) {
     if($cat->category_parent == 0) {
         $category_id = $cat->term_id;       
