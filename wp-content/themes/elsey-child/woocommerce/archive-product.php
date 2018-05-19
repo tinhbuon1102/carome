@@ -52,6 +52,7 @@ get_header( 'shop' ); ?>
 
     </header>
 
+
 		<?php if ( have_posts() ) : ?>
 
 			<?php

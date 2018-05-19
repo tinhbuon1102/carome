@@ -147,7 +147,58 @@ var gl_alertStateNotAllowed = '';
 		
     </header>
     <?php } ?>
+	  <?php if (is_shop()) {?>
+	  <div class="woo-catmenu swiper-container swiper-container-horizontal xs-show">
+		  <ol class="swiper-wrapper">
+<?php
 
+  $taxonomy     = 'product_cat';
+  $orderby      = 'name';  
+  $show_count   = 0;      // 1 for yes, 0 for no
+  $pad_counts   = 0;      // 1 for yes, 0 for no
+  $hierarchical = 1;      // 1 for yes, 0 for no  
+  $title        = '';  
+  $empty        = 1;
+
+  $args = array(
+         'taxonomy'     => $taxonomy,
+         'orderby'      => $orderby,
+         'show_count'   => $show_count,
+         'pad_counts'   => $pad_counts,
+         'hierarchical' => $hierarchical,
+         'title_li'     => $title,
+	     'exclude'    => '77',
+         'hide_empty'   => $empty
+  );
+ $all_categories = get_categories( $args );
+ foreach ($all_categories as $cat) {
+    if($cat->category_parent == 0) {
+        $category_id = $cat->term_id;       
+        echo '<li class="swiper-slide"><a href="'. get_term_link($cat->slug, 'product_cat') .'">'. $cat->name .'</a></li>';
+
+        $args2 = array(
+                'taxonomy'     => $taxonomy,
+                'child_of'     => 0,
+                'parent'       => $category_id,
+                'orderby'      => $orderby,
+                'show_count'   => $show_count,
+                'pad_counts'   => $pad_counts,
+                'hierarchical' => $hierarchical,
+                'title_li'     => $title,
+                'hide_empty'   => $empty
+        );
+        $sub_cats = get_categories( $args2 );
+        if($sub_cats) {
+            foreach($sub_cats as $sub_category) {
+                echo  '<li class="swiper-slide"><a href="'. get_term_link($sub_category->slug, 'product_cat') .'">'. $sub_category->name .'</a></li>' ;
+            }   
+        }
+    }       
+}
+?>
+	</ol>
+	  </div>
+	  <?php }?>
     <!-- Elsey Wrapper Start -->
     <div class="els-wrapper">
       <?php if ($elsey_titlebar_show) { ?>

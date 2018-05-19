@@ -42,7 +42,7 @@
 				<div class="magazine-article__col-content vertical--align-center wpb_column vc_column_container vc_col-sm-4">
 					<div class="vc_column-inner">
 						<div class="wpb_wrapper">
-							<?php echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" visibility="visible"]'); ?>
+							<?php echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="8166,8152,8946,8953," visibility="visible"]'); ?>
 						</div>
 					</div>
 				</div>

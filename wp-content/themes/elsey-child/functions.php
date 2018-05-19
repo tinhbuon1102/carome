@@ -19,7 +19,7 @@ add_action( 'woocommerce_single_product_summary', 'woocommerce_output_product_da
 
 // google fonts
 function custom_add_google_fonts() {
-	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,400|Poppins:300,400,500,600', false );
+	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,400|Pathway+Gothic+One|Poppins:300,400,500,600', false );
 }
 add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
 
