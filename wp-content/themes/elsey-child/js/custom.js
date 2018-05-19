@@ -1,4 +1,19 @@
 // JavaScript Document
+$ = jQuery;
+$(window).scroll(function(){
+	var scroll_top = $(this).scrollTop();
+	var mainhead_height = $('.mainhead').height();
+	var post_content_top = $('.post_content').offset().top;
+	var share_article = $('.share-article');
+	
+	if (scroll_top >= post_content_top - 100)
+	{
+		share_article.addClass('fixed');
+	}
+	else {
+		share_article.removeClass('fixed');
+	}
+});
 jQuery(document).ready(function($){
 	$(window).on('load resize click',function(){
 		var windowW = $(window).width();
