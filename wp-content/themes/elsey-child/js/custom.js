@@ -514,6 +514,7 @@ jQuery(document).ready(function($){
 					  $(this).hide();
 				  }
 			  });
+			  day_field.val('');
 		  }
 		  else {
 			  day_field.find('option').show();
