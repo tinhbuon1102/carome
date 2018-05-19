@@ -171,3 +171,22 @@ if($elsey_titlebar_layout === 'vertical') {
 
 }
 }
+if (is_product_category()) {
+	$term = get_queried_object();
+	$children = get_terms( $term->taxonomy, array(
+        'parent'    => $term->term_id,
+        'hide_empty' => false
+    ) );
+	if ( $children ) {
+	echo '<div class="child-categories xs-show">';
+	echo '<ol>';
+	 
+        foreach( $children as $subcat )
+        {
+            echo '<li><a href="' . esc_url(get_term_link($subcat, $subcat->taxonomy)) . '">' . $subcat->name . '</a></li>';
+        }
+	echo '</ol>';
+	}
+	echo '</div>';
+}
+

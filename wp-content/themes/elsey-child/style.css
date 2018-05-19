@@ -2244,6 +2244,10 @@ body.checkout-template .els-titlebar {
     height: 380px;
     background-position: center;
 }
+.post-type-archive-product .els-titlebar-plain .page-title {
+    font-family: "brandon-grotesque",sans-serif;
+    font-weight: 300;
+}
 @media only screen and (min-width: 48em) {
 	.els-titlebar-title {
 		padding-bottom: 40px;
@@ -2487,6 +2491,10 @@ ul.mag-tags li {
 	
 }
 @media only screen and (max-width: 47.99em) {
+	.post-type-archive-product .els-titlebar {
+    border-bottom: none;
+		padding-bottom: 0;
+	}
 	.row .headline {
     position: absolute;
     width: 100%;
@@ -3816,12 +3824,47 @@ div#epsilon-stored-info p {
 .wpb_text_column > .wpb_wrapper p:not(:last-child) {
 	margin-bottom: 15px;
 }
+.child-categories ol {
+    list-style: none;
+	display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-flow: row wrap;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+}
+.child-categories ol > li:not(:last-child) {
+	margin-right: 15px;
+    margin-bottom: 10px;
+}
+.child-categories ol > li > a {
+	font-family: "brandon-grotesque",sans-serif;
+    font-weight: 300;
+	text-transform: uppercase;
+}
 @media only screen and (max-width: 47.99em) {
 	.show-pc {
 		display: none;
 	}
 	.els-shop-sidebar {
 		display: none;
+	}
+	.els-order-filter {
+    text-align: right;
+	}
+	.post-type-archive-product .els-has-left-col.els-content-col {
+    margin-top: 0;
 	}
 	#about h4 {
 	font-size: 20px;
@@ -3832,8 +3875,11 @@ div#epsilon-stored-info p {
 	.post-type-archive-product .max-width--site {
     padding: 0;
 	}
-	.els-has-left-col > .els-content-area > .woocommerce {
+	.els-has-left-col > .els-content-area > .woocommerce, .child-categories {
     padding: 0 24px;
+	}
+	.child-categories {
+		margin-bottom: 20px;
 	}
 }
 .modal-backdrop.fade.in.sisfy-modal-backdrop {
@@ -3999,12 +4045,12 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
     text-align: center;
     width: auto;
     border-top: none;
-    border-bottom: 1px solid #dcdcdc;
-    border-right: 1px solid #dcdcdc;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
     border-left: none;
 }
 .woo-catmenu ol > li:first-child {
-    border-left: 1px solid #dcdcdc;
+    border-left: 1px solid #ddd;
 }
 .woo-catmenu ol > li a {
     font-size: 13px;
@@ -4017,7 +4063,7 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
 	text-transform: uppercase;
     height: 100%;
     white-space: nowrap;
-	background: #eeeeee;
+	background: #fbfbfb;
 }
 .woo-catmenu ol > li a {
 	width: 100%;

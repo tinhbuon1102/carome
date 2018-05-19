@@ -138,7 +138,7 @@ var gl_alertStateNotAllowed = '';
    if (function_exists('elsey_right_slide_menu')) { echo elsey_right_slide_menu(); } else { echo ''; }
   } ?>
   <!-- Elsey Wrap Start -->
-  <div id="els-wrap" class="<?php echo esc_attr($elsey_sticky_header_cls.' '.$elsey_transparent_class); ?>">
+  <div id="els-wrap" class="<?php echo esc_attr($elsey_sticky_header_cls.' '.$elsey_transparent_class); ?><?php if (is_product_category()) {?> post-type-archive-product<?php } ?>">
 
     <?php if (!$elsey_hide_header) { ?>
     <header class="els-header" style="<?php echo esc_attr($elsey_bottom_border); ?>">
@@ -147,7 +147,7 @@ var gl_alertStateNotAllowed = '';
 		
     </header>
     <?php } ?>
-	  <?php if (is_shop()) {?>
+	  <?php if (is_shop() || is_product_category()) {?>
 	  <div class="woo-catmenu swiper-container swiper-container-horizontal xs-show">
 		  <ol class="swiper-wrapper">
 <?php
