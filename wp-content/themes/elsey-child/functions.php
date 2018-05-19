@@ -779,6 +779,10 @@ function smoke_scripts ()
 	wp_enqueue_script('validation_engine_ja_js', get_stylesheet_directory_uri() . '/js/jquery.validationEngine-ja.js', array('jquery'));
 	
 	wp_enqueue_script('overlay', get_stylesheet_directory_uri() . '/js/loadingoverlay.js', array('jquery'));
+	
+	// Swiper
+	wp_enqueue_script('swiper', get_stylesheet_directory_uri() . '/js/swiper/swiper.min.js', array('jquery'));
+	wp_enqueue_style('swiper', get_stylesheet_directory_uri() . '/js/swiper/swiper.css');
 }
 add_action('wp_enqueue_scripts', 'smoke_scripts');
 

@@ -521,6 +521,12 @@ jQuery(document).ready(function($){
 		  }
 	  });
   }
+  
+  if ($('.swiper-container').length)
+  {
+	  var swiper = new Swiper('.swiper-container');
+  }
+  
   // Contact form 
   if ($('.wpcf7 select[name="contact-type"]').length)
   {
