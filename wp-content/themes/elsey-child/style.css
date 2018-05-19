@@ -1559,6 +1559,7 @@ h2.order--details__number .value {
 	font-size: 24px;
 	font-family: "brandon-grotesque",sans-serif;
     font-weight: 300;
+	text-align: center;
 }
 #sliderhome .wpb_revslider_element {
     margin-bottom: 0;
@@ -2327,11 +2328,11 @@ ul.mag-tags li {
     color: #9b9b9b;
     letter-spacing: .15em;
 }
-.woocommerce .woo-col-4 ul.products {
+.woocommerce .woo-col-4 ul.products, .woocommerce.columns-4 ul.products {
 	margin-left: -12px;
 	margin-right: -12px;
 }
-.woocommerce .woo-col-4 ul.products li.product {
+.woocommerce .woo-col-4 ul.products li.product, .woocommerce.columns-4 ul.products li {
     padding: 0 12px;
 	}
 @media only screen and (min-width: 48em) {
@@ -2444,11 +2445,11 @@ ul.mag-tags li {
     left: -25px;
     bottom: -20px;
 	}
-	.woocommerce .woo-col-4 ul.products {
+	.woocommerce .woo-col-4 ul.products, .woocommerce.columns-4 ul.products {
     margin-left: -12px;
     margin-right: -12px;
 	}
-	.woocommerce .woo-col-4 ul.products li.product {
+	.woocommerce .woo-col-4 ul.products li.product, .woocommerce.columns-4 ul.products li {
     width: 50% !important;
 	padding: 0 12px;
 	}
@@ -2476,7 +2477,7 @@ ul.mag-tags li {
 	.els-content-col .c-table .c-thead__th, .els-content-col .c-table .c-table__td, .els-product-summary-col #size-chart td, .els-product-summary-col #size-chart th {
     padding: 15px 10px;
 	}
-	.woocommerce .woo-col-4 ul.products li.product {
+	.woocommerce .woo-col-4 ul.products li.product, .woocommerce.columns-4 ul.products li {
     width: 25%;
 	}
 }

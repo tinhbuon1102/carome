@@ -152,7 +152,9 @@ var gl_alertStateNotAllowed = '';
     <div class="els-wrapper">
       <?php if ($elsey_titlebar_show) { ?>
 		<?php /*Title Bar*/ get_template_part( 'layouts/header/title', 'bar' ); ?>
-		<?php } else { ?>
+		<?php } elseif (is_front_page()) {
+	
+	} else { ?>
 		<div class="max-width--site gutter-padding--full">
 		<?php } ?>
 		
