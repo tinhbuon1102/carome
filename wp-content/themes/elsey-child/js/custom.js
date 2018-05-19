@@ -524,18 +524,11 @@ jQuery(document).ready(function($){
   
   if ($('.swiper-container').length)
   {
-//	  var swiper = new Swiper('.swiper-container', {
-//	      //pagination: '.swiper-pagination',
-//	      // nextButton: '.swiper-button-next',
-//	      // prevButton: '.swiper-button-prev',
-//	      paginationClickable: true,
-//	      autoplay: 4000,
-//	      speed: 800,
-//	      //centeredSlides: true,
-//	      spaceBetween: 0,
-//	      slidesPerView: '1',
-//	      //loop: true
-//	    });
+	  var swiper = new Swiper('.swiper-container', {
+	      slidesPerView: 'auto',
+	      freeMode: true,
+	      respondTo: true
+	    });
 
   }
   
