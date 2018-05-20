@@ -245,7 +245,7 @@ h3.waitlist_error {
 	left: auto;
 }
 
-body.home .pre-notice{display: none;}
+body.home .pre-notice, .single-product .related .pre-notice{display: none;}
 ul.product-categories span.count {
     display: none;
 }
