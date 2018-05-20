@@ -93,8 +93,12 @@ function add_page_slug_class_name( $classes ) {
 	}
 	return $classes;
 }
-
-
+//woo category sidebar widget
+add_filter( 'woocommerce_product_categories_widget_args', 'rv_exclude_wc_widget_categories' );
+function rv_exclude_wc_widget_categories( $cat_args ) {
+	$cat_args['exclude'] = array('77','72'); // Insert the product category IDs you wish to exclude
+	return $cat_args;
+}
 /*add custom logo menu for sticky*/
 add_filter( 'wp_nav_menu_items', 'custom_menu_item_logo', 10, 2 );
 function custom_menu_item_logo ( $items, $args ) {

@@ -186,7 +186,8 @@ if (is_product_category()) {
             echo '<li><a href="' . esc_url(get_term_link($subcat, $subcat->taxonomy)) . '">' . $subcat->name . '</a></li>';
         }
 	echo '</ol>';
-	}
 	echo '</div>';
+	}
+	
 }
 

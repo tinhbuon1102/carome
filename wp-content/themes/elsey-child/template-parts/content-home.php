@@ -6,6 +6,61 @@
 	<section id="justarrived" class="vc_section section_home_first">
 		<h3 class="heading heading--main upper">Just Arrived</h3>
 		<?php echo do_shortcode('[products limit="4" columns="4" orderby="date" order="DESC" visibility="visible"]'); ?>
+		<div class="view_more"><a href="<?php echo get_permalink( wc_get_page_id( 'shop' ) ); ?>" class="minmal_link">View more</a></div>
+	</section>
+	<section id="mobilecat" class="full_section xs-show">
+		<?php
+		$taxonomy     = 'product_cat';
+		$orderby      = 'name';
+		$show_count   = 0;      // 1 for yes, 0 for no
+		$pad_counts   = 0;      // 1 for yes, 0 for no
+		$hierarchical = 1;      // 1 for yes, 0 for no
+		$title        = '';
+		$empty        = 1;
+		
+		$args = array(
+         'taxonomy'     => $taxonomy,
+         'orderby'      => $orderby,
+         'show_count'   => $show_count,
+         'pad_counts'   => $pad_counts,
+         'hierarchical' => $hierarchical,
+         'title_li'     => $title,
+	     'exclude'    => '77,92',
+         'hide_empty'   => $empty
+		);
+		$all_categories = get_categories( $args );
+		?>
+		<ul class="spcat_links">
+			<?php
+			 foreach ($all_categories as $cat) {
+    if($cat->category_parent == 0) {
+        $category_id = $cat->term_id;       
+        echo '<li><a href="'. get_term_link($cat->slug, 'product_cat') .'">'. $cat->name .'</a></li>';
+
+        $args2 = array(
+                'taxonomy'     => $taxonomy,
+                'child_of'     => 0,
+                'parent'       => $category_id,
+                'orderby'      => $orderby,
+                'show_count'   => $show_count,
+                'pad_counts'   => $pad_counts,
+                'hierarchical' => $hierarchical,
+                'title_li'     => $title,
+			    'exclude'    => '157,161,158,159,163',
+                'hide_empty'   => $empty
+        );
+        $sub_cats = get_categories( $args2 );
+        if($sub_cats) {
+            foreach($sub_cats as $sub_category) {
+                echo  '<li><a href="'. get_term_link($sub_category->slug, 'product_cat') .'">'. $sub_category->name .'</a></li>' ;
+            }   
+        }
+    }       
+}
+			echo '<li class="viewall"><a href="'.get_permalink( wc_get_page_id( 'shop' ) ).'">View All</a></li>';
+			?>
+		</ul>
+		
 	</section>
 	<section id="front-magazine" class="vc_section">
 		<div class="magazine-article__section">
@@ -49,14 +104,14 @@
 			</div>
 		</div>
 	</section>
-	<section id="cat-links-home" class="vc_section section_home_last">
+	<section id="cat-links-home" class="vc_section section_home_last show-pc">
 		<div class="els-cat-default els-cat-wrap">
 			<div class="row">
 				<?php
 				$prod_categories = get_terms( 'product_cat', array(
 					'orderby'    => 'name',
 					'order'      => 'ASC',
-					'exclude'    => '69, 77',
+					'exclude'    => '69, 77,157,161,158,159,163,162',
 					'number'     => 8,
 					'hide_empty' => 1
 				));

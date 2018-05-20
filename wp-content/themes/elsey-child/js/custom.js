@@ -108,7 +108,7 @@ jQuery(document).ready(function($){
 		$('.header__primary').toggleClass('toggle--active');
 		$('.header__secondary').toggleClass('toggle--active');
 	});
-	$('footer > .footer__container > .container > .row > div:not(:last-child)').on("click", function(e) {
+	$('footer > .footer__container > .container > .row > .footer_menu_links > .row > div').on("click", function(e) {
 			$(this).toggleClass('toggle--active');
 			$(this).find('.main-navigation').toggleClass('toggle--active');
 			$(this).find('.widget-title').toggleClass('toggle--active');
@@ -531,7 +531,21 @@ jQuery(document).ready(function($){
 	    });
 
   }
-  
+  //sidebar scroll
+	$(window).scroll(function(){
+		var scroll_top = $(this).scrollTop();
+		var mainhead_height = $('.header__secondary').height();
+		var sidebar_top = $('.sidebar-shop-widget').offset().top;
+		var shop_sidebar = $('.sidebar-shop-widget');
+
+		if (scroll_top >= sidebar_top - 100)
+		{
+			shop_sidebar.addClass('fixed');
+		}
+		else {
+			shop_sidebar.removeClass('fixed');
+		}
+	});
   // Contact form 
   if ($('.wpcf7 select[name="contact-type"]').length)
   {
