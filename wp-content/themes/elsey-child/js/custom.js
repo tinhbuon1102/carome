@@ -533,17 +533,20 @@ jQuery(document).ready(function($){
   }
   //sidebar scroll
 	$(window).scroll(function(){
-		var scroll_top = $(this).scrollTop();
-		var mainhead_height = $('.header__secondary').height();
-		var sidebar_top = $('.sidebar-shop-widget').offset().top;
-		var shop_sidebar = $('.sidebar-shop-widget');
-
-		if (scroll_top >= sidebar_top - 100)
+		if ($('.sidebar-shop-widget').length)
 		{
-			shop_sidebar.addClass('fixed');
-		}
-		else {
-			shop_sidebar.removeClass('fixed');
+			var scroll_top = $(this).scrollTop();
+			var mainhead_height = $('.header__secondary').height();
+			var sidebar_top = $('.sidebar-shop-widget').offset().top;
+			var shop_sidebar = $('.sidebar-shop-widget');
+			
+			if (scroll_top >= sidebar_top - 100)
+			{
+				shop_sidebar.addClass('fixed');
+			}
+			else {
+				shop_sidebar.removeClass('fixed');
+			}
 		}
 	});
   // Contact form 
