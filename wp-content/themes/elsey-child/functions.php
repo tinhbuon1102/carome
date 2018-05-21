@@ -2614,8 +2614,13 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 　URL: https://www.carome.net/
 ━━━━━━━━━━━━━━━━━━━━━━━━━━';
 	}
+	$states = WC()->countries->get_states('JP');
 	foreach ($_POST['contact'] as $field_name => $field)
 	{
+		if ($field_name == 'state')
+		{
+			$field = $states[$field];
+		}
 		$html = str_replace('{'.$field_name.'}', $field, $html);
 	}
 	return $html;
