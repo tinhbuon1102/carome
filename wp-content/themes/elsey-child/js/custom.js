@@ -455,8 +455,9 @@ jQuery(document).ready(function($){
 					var label_row = row.closest('.form-row').find('label:eq(0)').text().replace('*', '');
 					var aTextVal = [];
 					row.find('input[type="checkbox"]:checked, input[type="text"], input[type="date"], input[type="email"], input[type="tel"], select, textarea').each(function(){
+						var field_val = $(this).is('select') ? $(this).find('option:selected').text() : $(this).val();
 						var label_col = $(this).closest('div').find('label:eq(0)').text().replace('*', '');
-						var text_val = $(this).val().replace(/(?:\r\n|\r|\n)/g, '<br />');
+						var text_val = field_val.replace(/(?:\r\n|\r|\n)/g, '<br />');
 						label = label_col ? label_col : label_row;
 						text_val = text_val.replace(/<br \/>/g, '<br />');
 						aTextVal.push(text_val.replace(/<br \/>/g, '<br />'));
