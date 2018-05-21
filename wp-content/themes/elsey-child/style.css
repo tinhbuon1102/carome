@@ -226,20 +226,6 @@ h3.waitlist_error {
     margin-bottom: 20px;
 }
 
-#retal_kimono_popup_content_wraper {
-	text-align: left;
-    padding-left: 10%;
-}
-#retal_kimono_popup_content_wraper .contact_popup_title {
-	font-size: 30px;
-    margin-bottom: 20px;
-}
-#retal_kimono_popup_content .form-list label {
-	width: 150px;
-}
-#retal_kimono_popup_content .form-theme {
-	margin-bottom: 20px;
-}
 .remodal-close {
 	right: 0 !important;
 	left: auto;
@@ -4393,25 +4379,44 @@ table.size-chart td {
 	padding: 0;
 	text-align: left;
 }
-#rental_kimono_openform h4 {
+#retal_kimono_popup {
+    padding: 0;
+}
+#retal_kimono_popup_content_wraper {
+	text-align: left;
+}
+#retal_kimono_popup_content .form-list label {
+	width: 150px;
+}
+#retal_kimono_popup_content .form-theme {
+	margin-bottom: 20px;
+}
+#retal_kimono_popup_content {
+    padding: 0 24px;
+    font-size: 13px;
+}
+#retal_kimono_popup_content .form-theme .form-list:not(:last-child) {
+    margin-bottom: 10px;
+}
+.modal_style01 h4 {
 	font-size: 14px;
     line-height: 40px;
     padding: 0 24px;
     border-bottom: 1px solid #ececec;
     margin-bottom: 20px;
 }
-#rental_kimono_openform .remodal-close {
+.modal_style01 .remodal-close {
 	width: 40px;
 	height: 40px;
 }
-#rental_kimono_openform .remodal-close:before {
+.modal_style01 .remodal-close:before {
 	width: 40px;
 	line-height: 40px;
 }
 #retal_kimono_form_content {
     padding: 0 24px;
 }
-#rental_kimono_openform .modal_button_wraper {
+.modal_style01 .modal_button_wraper {
     padding: 20px 0;
 }
 ul.product__slider {
@@ -4434,17 +4439,22 @@ ul.product__slider {
     padding-left: 10px;
     display: inline-block;
 }
+.price_helper {
+    font-weight: 400;
+    font-size: 12px;
+    margin-top: 20px;
+}
 @media only screen and (min-width: 48em) {
 	.remtal_kimono_content .button--primary {
 		font-size: 14px;
 	}
-	#rental_kimono_openform h4 {
+	.modal_style01 h4 {
 		line-height: 60px;
 	}
-	#rental_kimono_openform .remodal-close {
+	.modal_style01 .remodal-close {
 		height: 60px;
 	}
-	#rental_kimono_openform .remodal-close:before {
+	.modal_style01 .remodal-close:before {
 		line-height: 60px;
 	}
 	.remtal_kimono_content .item_headline {

@@ -2574,7 +2574,9 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 お届け先住所：〒{postcode}  {state}{city}{address1}{address2}';
 	}
 	else {
-		$html = 'この度はCAROME.にて、着物レンタルのお申し込みをいただき、
+		$html = '{last_name} {first_name} 様
+		
+この度はCAROME.にて、着物レンタルのお申し込みをいただき、
 まことにありがとうございます。
 
 この時点で、レンタルのお申し込みは確定しておりません。
@@ -2589,6 +2591,9 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 お申し込み内容は以下となります。
 
 お申し込み詳細_______________________________________________
+●レンタル商品
+着物セット 50,000円(税抜)
+
 ●レンタル情報
 レンタル第１希望日：{year1}年 {month1}月 {date1}日
 レンタル第２希望日：{year2}年 {month2}月 {date2}日
@@ -2599,7 +2604,15 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 ふりがな：{last_name_kana} {first_name_kana}
 電話番号：{tel}
 メールアドレス：{email}
-お届け先住所：〒{postcode}  {state}{city}{address1}{address2}';
+お届け先住所：〒{postcode}  {state}{city}{address1}{address2}
+		
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+　CAROME. ONLINE STORE
+  レンタル着物カスタマーセンター
+　お問い合わせ時間：平日 9:00〜18:00
+  E-mail: rental@carome.net
+　URL: https://www.carome.net/
+━━━━━━━━━━━━━━━━━━━━━━━━━━';
 	}
 	foreach ($_POST['contact'] as $field_name => $field)
 	{

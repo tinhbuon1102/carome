@@ -45,6 +45,7 @@ if ( $current_user && $current_user->ID )
 				<h1 class="product_title entry-title ja-product-name">着物セット</h1>
 				<div class="els-single-product-price price">
 					<div class="els-pr-price"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">¥</span>50,000</span><span class="ja tax">(税抜)</span></div>
+					<div class="price_helper">*返却の送料はお客様負担となり、レンタル料金には含まれておりません。</div>
 				</div>
 			</div>
 			<div class="els-product-stock-status"></div>
@@ -106,7 +107,7 @@ if ( $current_user && $current_user->ID )
 <div class="sticky-stopper"></div>
 </div>
 <!--open form--> 
-<div class="remodal" data-remodal-id="rental_kimono_openform" id="rental_kimono_openform" aria-labelledby="modalTitle" aria-describedby="modalDesc"   data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
+<div class="remodal modal_style01" data-remodal-id="rental_kimono_openform" id="rental_kimono_openform" aria-labelledby="modalTitle" aria-describedby="modalDesc"   data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
 	<button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
 	<div id="retal_kimono_form_content_wraper">
 		<h4 class="contact_popup_title">着物レンタル申し込み</h4>
@@ -293,25 +294,25 @@ if ( $current_user && $current_user->ID )
 		</div>
 			</div>
 			<div class="modal_button_wraper">
-				<button type="button" class="button--primary button" id="retal_confirm_btn">Confirm</button>
-				<button data-remodal-action="cancel" class="button remodal-cancel">Cancel</button>
+				<button type="button" class="button--primary button" id="retal_confirm_btn">確認画面</button>
+				<button data-remodal-action="cancel" class="button remodal-cancel">キャンセル</button>
 			</div>
 		</div>
 		</form>
 	</div>
 </div>
 <!--confirm-->
-<div class="remodal" data-remodal-id="retal_kimono_popup" id="retal_kimono_popup" aria-labelledby="modalTitle" aria-describedby="modalDesc"   data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
+<div class="remodal modal_style01" data-remodal-id="retal_kimono_popup" id="retal_kimono_popup" aria-labelledby="modalTitle" aria-describedby="modalDesc"   data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
 	<button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
 	<div id="retal_kimono_popup_content_wraper">
-		<h4 class="contact_popup_title">Confirm</h4>
+		<h4 class="contact_popup_title">お申し込み内容の確認</h4>
 		<div id="retal_kimono_popup_content">
 			<div class="form-theme">
 				
 			</div>
 			<div class="modal_button_wraper">
-				  <button data-remodal-action="cancel" class="remodal-cancel">編集</button>
-				  <button class="remodal-confirm submit_confirm">送信</button>
+				  <button data-remodal-action="cancel" class="button remodal-cancel">編集</button>
+				  <button class="button--primary button remodal-confirm submit_confirm">申し込む</button>
 			</div>
 		</div>
 	</div>
