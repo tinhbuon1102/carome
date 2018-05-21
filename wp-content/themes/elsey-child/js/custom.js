@@ -480,7 +480,7 @@ jQuery(document).ready(function($){
 		});
 	  
 	  $(document).on('click', '.remodal-cancel-confim', function(){
-		  var inst = $('[data-remodal-id=retal_kimono_popup]').remodal();
+		  var inst = $('[data-remodal-id=rental_kimono_openform]').remodal();
 		  inst.open();
 	  });
 	  
