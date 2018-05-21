@@ -243,6 +243,12 @@ _:-ms-fullscreen, :root body{
 	text-shadow:none;
 }
 
+#cspio-optin-confirm-wrapper{
+  text-align:left;
+  font-size:14px;
+}
+
+
 
 
 /* Mobile */
@@ -258,7 +264,11 @@ _:-ms-fullscreen, :root body{
 		margin-left:0;
 		width:100%;
 		display:block;
-	}
+  }
+  
+  #cspio-field-wrapper{
+    width:100% !important;
+  }
 	
 	.cspio .input-group .form-control:first-child, .cspio .input-group-addon:first-child, .cspio .input-group-btn:first-child>.btn, .cspio .input-group-btn:first-child>.dropdown-toggle, .cspio .input-group-btn:last-child>.btn:not(:last-child):not(.dropdown-toggle) {
 		border-bottom-right-radius: 4px;
@@ -283,7 +293,8 @@ _:-ms-fullscreen, :root body{
 
 	#cspio-langs-wrapper{
 		position:static;
-	}
+  }
+  
 
 	.flexbox #cspio-page{
     display: -webkit-box;   /* OLD: Safari,  iOS, Android browser, older WebKit browsers.  */

@@ -99,8 +99,10 @@ $url = '';
 	<![endif]-->	
 
 	<!-- Font Awesome -->
-    <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/v4-shims.js"></script>
+	<?php if (!defined('SEED_CSPV5_REMOVE_FONTAWESOME')): ?>
+    <script defer src="<?php echo SEED_CSPV5_PLUGIN_URL; ?>template/js/fontawesome-all.min.js"></script>
+	<script defer src="<?php echo SEED_CSPV5_PLUGIN_URL; ?>template/js/fa-v4-shims.min.js"></script>
+	<?php endif; ?>
 
 	<!-- Bootstrap and default Style -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -246,6 +248,16 @@ $url = '';
 	}
 	<?php endif; ?>
 
+	<?php 
+	if(!empty($settings->form_width) && $settings->form_width < 100 ): 
+	?>
+	#cspio-field-wrapper{
+		width: <?php echo $settings->form_width; ?>%;
+	}
+	<?php endif; ?>
+
+
+
 	.flexbox #cspio-page{
 	<?php if($settings->container_position == '1'): ?>
 		-webkit-align-items: center;
@@ -306,8 +318,8 @@ $url = '';
 	/* IE 11 Flexbox hack */
 	@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
 		.flexbox #cspio-page{
-			align-items: flex-start;
-			overflow:auto;
+			flex-shrink: 0;
+			overflow:visible;
 		}
 	}
 
@@ -450,7 +462,7 @@ $url = '';
 		@btnColor: {$settings->button_color};
 		@btnDarkColor: darken(@btnColor, 15%);
 		@btnDarkColor: darken(@btnColor, 15%);
-		.cspio a.btn-primary, .cspio .btn-primary, .cspio .btn-primary:focus, .gform_button, #mc-embedded-subscribe, .mymail-wrapper .submit-button, .mailster-wrapper .submit-button,  input[type='button'].ninja-forms-field, .wpcf7-submit {
+		.cspio a.btn-primary, .cspio .btn-primary, .cspio .btn-primary:focus, .gform_button, #mc-embedded-subscribe, .mymail-wrapper .submit-button, .mailster-wrapper .submit-button,  input[type='button'].ninja-forms-field, .wpcf7-submit, .frm_button_submit {
 		  .lightordark (@btnColor);
 		  .buttonBackground(@btnColor, @btnDarkColor);
 		  //border-color: darken(@btnColor, 0%);
@@ -649,7 +661,7 @@ $url = '';
 	<?php
 		$css = "
 		@primaryColor: {$settings->button_color};
-		.cspio a.btn-primary,.cspio .progress-bar, .countdown_section, .cspio .btn-primary,.cspio .btn-primary:focus, .gform_button, .mymail-wrapper .submit-button, .mailster-wrapper .submit-button, input[type='button'].ninja-forms-field, .wpcf7-submit{
+		.cspio a.btn-primary,.cspio .progress-bar, .countdown_section, .cspio .btn-primary,.cspio .btn-primary:focus, .gform_button, .mymail-wrapper .submit-button, .mailster-wrapper .submit-button, input[type='button'].ninja-forms-field, .wpcf7-submit,.frm_button_submit{
 			background-image:none;
 			text-shadow:none;
 		}
@@ -679,7 +691,7 @@ $url = '';
 		<?php if(empty($settings->bg_video)): ?>
 		<?php if($settings->background_size == 'cover' && !empty($settings->background_image)): ?>
 
-
+			@supports (-webkit-overflow-scrolling: touch) {
 				html {
 				height: 100%;
 				overflow: hidden;
@@ -690,6 +702,7 @@ $url = '';
 				overflow: auto;
 				-webkit-overflow-scrolling: touch;
 				}
+			}
 
 		<?php endif; ?>
 		<?php endif; ?>
@@ -777,6 +790,66 @@ $url = '';
 	  echo $style;
 
 	}
+
+	if($settings->emaillist == 'formidable'){
+	  $css = "
+	  @primaryColor: {$settings->button_color};
+	  @secondaryColor: darken(@primaryColor, 15%);
+
+	  .cspio input, .cspio textarea{
+	    border-width:0px !important;
+	    border-radius: 4px !important;
+	    background-color: $settings->form_color !important;
+	  }
+
+	.lightordark (@c) when (lightness(@c) >= 65%) {
+		color: black;
+		text-shadow: 0 -1px 0 rgba(256, 256, 256, 0.3);
+	}
+	.lightordark (@c) when (lightness(@c) < 65%) {
+		color: white;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+	}
+
+	.frm_button_submit {
+		.lightordark (@primaryColor) !important;
+		background: @primaryColor !important;
+		border: none !important;
+		box-shadow: none !important;
+	}
+
+	  ";
+
+
+	  $less = new seed_cspv5_lessc();
+	  $style = $less->parse($css);
+	  echo $style;
+
+	  ?>
+	  .cspio label{
+		    font-family: <?php echo $settings->text_font; ?> !important;
+			font-weight: <?php echo preg_replace('/[a-zA-Z]/', '', $settings->text_weight); ?> !important;
+			font-style: <?php echo preg_replace('/[0-9]/', '', $settings->text_weight); ?> !important;
+	        font-size: <?php echo $settings->text_size; ?>px !important;
+	        line-height: <?php echo $settings->text_line_height; ?>em !important;
+	        <?php if(!empty($settings->text_color)): ?>
+	        color:<?php echo $settings->text_color; ?> !important;
+	        <?php endif; ?>
+	  }
+
+	  .frm_description{
+		font-family: <?php echo $settings->text_font; ?> !important;
+		font-weight: <?php echo preg_replace('/[a-zA-Z]/', '', $settings->text_weight); ?> !important;
+		<?php if(!empty($settings->text_color)): ?>
+	        color:<?php echo $settings->text_color; ?> !important;
+	        <?php endif; ?>
+	  }
+
+	  <?php
+
+	}
+
+
     ?>
 
 
@@ -787,6 +860,8 @@ $url = '';
 		    }
 		<?php } ?>
 	<?php } ?>
+
+
 
 	</style>
 
@@ -998,9 +1073,9 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 		<?php endif; ?>
 	</div>
 
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<!-- Contact Form -->
 	<?php if(!empty($settings->enable_cf_form)){ ?>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<div id="cspio-cf-modal" class="modal fade" tabindex="-1" role="dialog">
 	  <div class="modal-dialog" role="document">
 	    <div class="modal-content">
@@ -1088,6 +1163,21 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 
 		}
 	</script>
+	<?php } ?>
+
+	
+	<?php if(!empty($settings->privacy_policy)){ ?>
+	<!-- Privacy Policy -->
+	<div id="cspio-pp-modal" class="modal fade" tabindex="-1" role="dialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-body">
+	        <?php echo $settings->privacy_policy ?>
+	      </div>
+
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 	<?php } ?>
 
 

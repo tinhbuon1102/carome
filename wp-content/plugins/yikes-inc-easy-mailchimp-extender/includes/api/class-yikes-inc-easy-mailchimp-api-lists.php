@@ -171,6 +171,8 @@ class Yikes_Inc_Easy_MailChimp_API_Lists extends Yikes_Inc_Easy_MailChimp_API_Ab
 			'_links'        => array(),
 		);
 
+		$email_field = apply_filters( 'yikes-easy-mailchimp-email-address-field', $email_field, $list_id );
+
 		array_unshift( $merge_fields, $email_field );
 		$merge_object['merge_fields'] = $merge_fields;
 		set_transient( "yikes_eme_merge_variables_{$list_id}", $merge_object, HOUR_IN_SECONDS );
@@ -416,6 +418,24 @@ class Yikes_Inc_Easy_MailChimp_API_Lists extends Yikes_Inc_Easy_MailChimp_API_Ab
 
 		// Clear the list members transient
 		delete_transient( "yikes_eme_members_{$list_id}" );
+
+		return $this->maybe_return_error( $response );
+	}
+
+	/**
+	 * Add a note to a member's profile
+	 *
+	 * @author Kevin Utz
+	 *
+	 * @param string $list_id    The list ID.
+	 * @param string $member_id  The member ID. This is the MD5 hash of the email address.
+	 * @param array  $notes_data The data for the user's note
+	 *
+	 * @return array|WP_Error
+	 */
+	public function create_member_note( $list_id, $member_id, $notes_data ) {
+		$path     = "{$this->base_path}/{$list_id}/members/{$member_id}/notes";
+		$response = $this->post_to_api( $path, $notes_data );
 
 		return $this->maybe_return_error( $response );
 	}

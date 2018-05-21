@@ -267,7 +267,7 @@ function seed_cspv5_emaillist_campaignmonitor_add_subscriber($args){
                 }
 
                 // If tracking enabled
-                if(!empty($enable_reflink)){
+                if(!empty($enable_reflink) || !empty( $display_optin_confirm )){
                     seed_cspv5_emaillist_database_add_subscriber($args);
                 }
 

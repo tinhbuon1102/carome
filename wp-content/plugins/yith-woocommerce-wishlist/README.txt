@@ -4,7 +4,7 @@ Contributors: yithemes
 Tags: wishlist, woocommerce, products, yit, e-commerce, shop, ecommerce wishlist, yith, woocommerce wishlist, shop wishlist
 Requires at least: 4.0
 Tested up to: 4.9.2
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,6 +108,11 @@ you should ask theme developers to update custom templates and replace the old t
 4. The Wishlist settings page
 
 == Changelog ==
+
+= 2.2.1 - Released: Jan, 31 - 2018 =
+
+* New: tested with WooCommerce 3.3.0
+* Fix: issue with Add to Wishlist shortcode when global $product not defined
 
 = 2.2.0 - Released: Jan, 11 - 2018 =
 
@@ -447,14 +452,7 @@ Full documentation is available [here](http://yithemes.com/docs-plugins/yith-woo
 
 == Upgrade notice ==
 
-= 2.2.0 - Released: Jan, 11 - 2018 =
+= 2.2.1 - Released: Jan, 31 - 2018 =
 
-* New: WooCommerce 3.2.6 compatibility
-* New: plugin-fw 3.0
-* New: added js compatibility to Infinite Scrolling
-* Tweak: improved wishlist-view template checks and params
-* Tweak: wishlist now registers (and shows) "date added" param for unauthenticated users too
-* Tweak: added check over product object, to avoid Fatal when printing Add to Wishlist shortcode
-* Fix: fixed security vulnerability, causing possible SQL Injections (huge thanks to John C. and Sucuri Vulnerability Research team)
-* Dev: added yith_wcwl_removing_from_wishlist / yith_wcwl_removed_from_wishlist hooks
-* Dev: added params to main triggers in wishlist js code
+* New: tested with WooCommerce 3.3.0
+* Fix: issue with Add to Wishlist shortcode when global $product not defined

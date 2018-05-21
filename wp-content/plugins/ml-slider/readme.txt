@@ -3,7 +3,7 @@ Contributors: matchalabs, DavidAnderson, dnutbourne, kbat82
 Tags: wordpress slideshow,seo,slideshow,slider,widget,wordpress slider,image slider,flexslider,flex slider,nivoslider,nivo slider,responsive,responsive slides,coinslider,coin slider,slideshow,carousel,responsive slider,vertical slides
 Donate link: https://david.dw-perspective.org.uk/donate
 Requires at least: 3.5
-Stable tag: 3.7.0
+Stable tag: 3.7.2
 Tested up to: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -150,6 +150,15 @@ See https://www.metaslider.com/documentation/image-cropping/
 6. Administration panel - selecting slides
 
 == Changelog ==
+
+= 3.7.2 - 2018/Mar/20 =
+
+* TWEAK: Remove an obsolete admin notice
+* SECURITY: Prevent a non-persistent logged-in XSS attack. The attacker must persuade a logged-in admin-level WP user to click on a malicious link specifically targeted to your site; this can result in his chosen JavaScript being run inside your browser on the MetaSlider page. Hence, the risk is low, but you should certainly update.
+
+= 3.7.1 - 2018/Mar/13 =
+
+* FIX: Updates FlexSlider to remove flash on page load. 
 
 = 3.7.0 - 2018/Feb/26 =
 
@@ -633,4 +642,4 @@ More info/Comments: http://www.metaslider.com/coming-soon-meta-slider-2-6-free/
 * Initial version
 
 == Upgrade Notice ==
-* 3.7.0 : One new feature, one bug-fix, one tweak; a recommended update for all
+* 3.7.2 : Fix non-persistent admin XSS attack (requiring clicking on a targeted, crafted link specific to your site leading to one-time execution of his chosen JavaScript in your browser - so, low risk but you should certainly update)

@@ -73,6 +73,22 @@ if(!empty($form_settings)){
 				echo $output;
 				}
 			}
+}elseif($settings->emaillist == 'formidable'){
+	//  Emaillist Settings
+	$settings_name = 'seed_cspv5_'.$settings->page_id.'_'.$settings->emaillist;
+	$e_settings = get_option($settings_name);
+	$e_settings = maybe_unserialize($e_settings);
+	extract($e_settings);
+
+	if(!empty($formidable_form_id)){
+	ob_start();
+	echo do_shortcode("[formidable id=$formidable_form_id]");
+	$dump = ob_get_contents();
+	ob_end_clean();
+
+	$output = $dump;
+	echo $output;
+	}
 }elseif($settings->emaillist == 'mymail'){
 				//  Emaillist Settings
 	        $settings_name = 'seed_cspv5_'.$settings->page_id.'_'.$settings->emaillist;
@@ -166,18 +182,32 @@ if(!empty($form_settings)){
 
 			<?php }}}}}}}?>
 
-			<?php if(1 == 0) { ?>
-				<div class="col-md-12"><div class="input-group"><input id="cspio-email" name="email" class="form-control input-lg form-el" type="text" placeholder="<?php echo esc_attr($settings->txt_email_field); ?>"/>
-				<span class="input-group-btn"><button id="cspio-subscribe-btn" type="submit" class="btn btn-lg btn-primary form-el noglow"><?php echo esc_html($settings->txt_subscribe_button); ?></button></span></div></div>
+			<?php if(!empty($settings->display_optin_confirm) && $settings->display_optin_confirm == '1') { ?>
+				<div class="col-md-12"><input id="cspio-email" name="email" class="form-control input-lg form-el" type="text" placeholder="<?php echo esc_attr($settings->txt_email_field); ?>"/>
+				</div>
+
+				<div class="col-md-12" id="cspio-optin-confirm-wrapper">
+				<label>
+					<input id="cspio-optin-confirm" name="optin_confirmation" class="" type="checkbox" />
+					<span><?php echo $settings->optin_confirmation_text ?></span>
+				</label>
+				</div>
+			
+				<div class="col-md-12"><button id="cspio-subscribe-btn" type="submit" class="btn btn-lg btn-primary btn-block form-el noglow"><?php echo esc_html($settings->txt_subscribe_button); ?></button></div>
 			<?php }else{ ?>
 				<div class="col-md-12 seperate"><div class="input-group"><input id="cspio-email" name="email" class="form-control input-lg form-el" type="email" placeholder="<?php echo esc_attr($settings->txt_email_field); ?>" required/>
+			
 				<span class="input-group-btn"><button id="cspio-subscribe-btn" type="submit" class="btn btn-lg btn-primary form-el noglow"><?php echo esc_html($settings->txt_subscribe_button); ?></button></span></div></div>
 			<?php } ?>
 			</div>
 			</div>
 
 			</form>
+<?php if(empty($settings->privacy_policy)){ ?>	
 <span id="cspio-privacy-policy-txt"><?php echo $settings->privacy_policy_link_text; ?></span>
+<?php }else{ ?>
+<a href="javascript:void(0)" onclick="javascript:jQuery('#cspio-pp-modal').modal('show');"><span id="cspio-privacy-policy-txt" style="text-decoration:underline"><?php echo $settings->privacy_policy_link_text; ?></span></a>
+<?php } ?>
 <script>
 function send_request(){
 		jQuery.ajax({
@@ -255,7 +285,6 @@ jQuery("#cspio-href").val(location.href);
 
 if(return_user){
 	jQuery('#cspio-email').val(email_cookie);
-	jQuery('#cspio-name').val(email_cookie);
 	jQuery('#cspio-comment').val('1');
 	send_request();
 }

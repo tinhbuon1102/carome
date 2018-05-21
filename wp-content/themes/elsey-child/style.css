@@ -903,6 +903,9 @@ fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
     min-height: 480px;
     padding-bottom: 110px;
 }
+.els-titlebar-plain .page-title {
+	font-weight: 400;
+}
 @media only screen and (min-width: 48em) {
 	.auth__container {
     position: relative;
@@ -4247,6 +4250,9 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
     display: block;
     padding: 15px 20px 12px;
 }
+.woo-catmenu ol > li a.active {
+    background: rgba(248,238,239,1);
+}
 .view_more {
     text-align: center;
     font-size: 12px;
@@ -4262,6 +4268,10 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
 .minmal_link:hover, .minmal_link:focus {
 	 color: #a4a3a2;
 	text-decoration: underline;
+}
+.about-carome-template .page-title, .insta-shop-template .page-title {
+    font-family: "brandon-grotesque",sans-serif;
+    font-weight: 300;
 }
 /*shop page sidebar*/
 .widget_product_categories .widget-title {
@@ -4298,4 +4308,144 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
 .els-shop-sidebar {
     padding-top: 24px;
 	float: none;
+}
+fieldset.order--checkout__form__section .form-row.form-row-wide.create-account {
+    display: none;
+}
+span.red {
+	color: red !important;
+}
+/*Kimono Single Product*/
+.item_summary h3 {
+	font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+	letter-spacing: 1px;
+    border-bottom: 1px solid #DDDDDD;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+table.size-chart {
+	clear: both;
+    margin: 10px 0;
+    width: 100%;
+    border: 1px solid #ececec;
+    border-bottom: none;
+    table-layout: fixed;
+}
+table.size-chart th, table.size-chart td {
+	font-size: 12px;
+	font-weight: normal;
+	padding: 5px 10px;
+	vertical-align: middle;
+	text-align: center;
+}
+table.size-chart th {
+	background: #f6f6f6;
+}
+table.size-chart td {
+	border: 1px solid #ececec;
+	padding: 5px 10px;
+}
+.remtal_kimono_content .item_summary {
+	margin-top: 40px;
+    margin-bottom: 40px;
+}
+.remtal_kimono_content .item_summary .panel_item:not(:last-child) {
+    margin-bottom: 40px;
+}
+/*kimono open form*/
+#rental_kimono_openform {
+    max-width: 890px;
+	padding: 0;
+	text-align: left;
+}
+#rental_kimono_openform h4 {
+	font-size: 14px;
+    line-height: 40px;
+    padding: 0 24px;
+    border-bottom: 1px solid #ececec;
+    margin-bottom: 20px;
+}
+#rental_kimono_openform .remodal-close {
+	width: 40px;
+	height: 40px;
+}
+#rental_kimono_openform .remodal-close:before {
+	width: 40px;
+	line-height: 40px;
+}
+#retal_kimono_form_content {
+    padding: 0 24px;
+}
+#rental_kimono_openform .modal_button_wraper {
+    padding: 20px 0;
+}
+ul.product__slider {
+    list-style: none;
+}
+.sticky-stopper {
+    height: 1px;
+}
+.product__slider .slick-prev, .product__slider .slick-next {
+    width: 24px !important;
+}
+.product__slider .slick-dots {
+    bottom: 10px;
+    text-align: right;
+}
+.remtal_kimono_content .tax {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    padding-left: 10px;
+    display: inline-block;
+}
+@media only screen and (min-width: 48em) {
+	.remtal_kimono_content .button--primary {
+		font-size: 14px;
+	}
+	#rental_kimono_openform h4 {
+		line-height: 60px;
+	}
+	#rental_kimono_openform .remodal-close {
+		height: 60px;
+	}
+	#rental_kimono_openform .remodal-close:before {
+		line-height: 60px;
+	}
+	.remtal_kimono_content .item_headline {
+		padding-top: 20px;
+	}
+}
+@media only screen and (max-width: 47.99em) {
+	.modal_button_wraper .button:not(:last-child) {
+    margin-bottom: 10px;
+	}
+	.remtal_kimono_content .els-product-image-col {
+    padding-top: 24px;
+	}
+	.remtal_kimono_content .els-product-summary-col {
+    margin-top: 0;
+	}
+	.remtal_kimono_content .entry-summary.stick-content {
+    position: static !important;
+    top: auto !important;
+    width: 100% !important;
+	}
+	.slick-slider .slick-track {
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+	}
 }

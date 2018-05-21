@@ -30,6 +30,11 @@ function seed_cspv5_emaillist_database_add_subscriber($args){
             $name = $_REQUEST['name'];
         }
 
+        $optin_confirmation = 0;
+        if(!empty($_REQUEST['optin_confirmation'])){
+            $optin_confirmation = 1;
+        }
+
         if(empty($email)){
             $email = strtolower($_REQUEST['email']);
         }
@@ -59,7 +64,7 @@ function seed_cspv5_emaillist_database_add_subscriber($args){
         $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
 
         // Fraud Detection
-        if(!empty($enable_fraud_detection)){
+        if(!empty($enable_fraud_detection) && !empty($enable_reflink)){
             $sql = "SELECT * FROM $tablename WHERE ip = %s";
             $ip = seed_cspv5_get_ip();
             $safe_sql = $wpdb->prepare($sql,$ip);
@@ -79,34 +84,69 @@ function seed_cspv5_emaillist_database_add_subscriber($args){
         $safe_sql = $wpdb->prepare($sql,$email,$page_id);
         $select_result =$wpdb->get_row($safe_sql);
 
-        if(empty($select_result->email) || $select_result->email != $email){
-            $values = array(
-                'email' => $email,
-                'page_id' => $page_id,
-                'referrer' => $ref,
-                'ip' => seed_cspv5_get_ip(),
-                'fname' => $fname,
-                'lname' => $lname,
-                'meta' => $meta,
-            );
-            $format_values = array(
-                '%s',
-                '%d',
-                '%s',
-                '%s',
-                '%s',
-                '%s',
-            );
-            $insert_result = $wpdb->insert(
-                $tablename,
-                $values,
-                $format_values
-            );
-            // Record ref
-            if(!empty($ref)){
-                $sql = "UPDATE $tablename SET conversions = conversions + 1 WHERE id = %d AND page_id = %d";
-                $safe_sql = $wpdb->prepare($sql,$ref,$page_id);
-                $update_result =$wpdb->get_var($safe_sql);
+        if(!empty($optin_confirmation)){
+            if(empty($select_result->email) || $select_result->email != $email){
+                $values = array(
+                    'email' => $email,
+                    'page_id' => $page_id,
+                    'referrer' => $ref,
+                    'ip' => seed_cspv5_get_ip(),
+                    'fname' => $fname,
+                    'lname' => $lname,
+                    'meta' => $meta,
+                    'optin_confirm' => $optin_confirmation,
+                );
+                $format_values = array(
+                    '%s',
+                    '%d',
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%d',
+                );
+                $insert_result = $wpdb->insert(
+                    $tablename,
+                    $values,
+                    $format_values
+                );
+                // Record ref
+                if(!empty($ref)){
+                    $sql = "UPDATE $tablename SET conversions = conversions + 1 WHERE id = %d AND page_id = %d";
+                    $safe_sql = $wpdb->prepare($sql,$ref,$page_id);
+                    $update_result =$wpdb->get_var($safe_sql);
+                }
+            }
+        }else{
+            if(empty($select_result->email) || $select_result->email != $email){
+                $values = array(
+                    'email' => $email,
+                    'page_id' => $page_id,
+                    'referrer' => $ref,
+                    'ip' => seed_cspv5_get_ip(),
+                    'fname' => $fname,
+                    'lname' => $lname,
+                    'meta' => $meta,
+                );
+                $format_values = array(
+                    '%s',
+                    '%d',
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%s',
+                );
+                $insert_result = $wpdb->insert(
+                    $tablename,
+                    $values,
+                    $format_values
+                );
+                // Record ref
+                if(!empty($ref)){
+                    $sql = "UPDATE $tablename SET conversions = conversions + 1 WHERE id = %d AND page_id = %d";
+                    $safe_sql = $wpdb->prepare($sql,$ref,$page_id);
+                    $update_result =$wpdb->get_var($safe_sql);
+                }
             }
         }
 

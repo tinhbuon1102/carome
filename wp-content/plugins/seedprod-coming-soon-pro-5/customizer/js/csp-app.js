@@ -260,7 +260,9 @@ jQuery(document).ready(function() {
 	// Headline
 	jQuery('#headline').on('input',function(e){
 	    jQuery('#preview').contents().find('#cspio-headline').html(jQuery('#headline').val());
-	});
+    });
+    
+
 
 	// Description
 // 	jQuery('#description').summernote({
@@ -334,6 +336,29 @@ jQuery(document).ready(function() {
 	        save_page();
 	    }else{
 	        jQuery("#form_settings").fadeOut();
+	        save_page();
+	    }
+    });
+
+
+    // Optin Settings
+	jQuery('#optin_confirmation_text').on('input',function(e){
+	    jQuery('#preview').contents().find('#cspio-optin-confirm-wrapper span').html(jQuery('#optin_confirmation_text').val());
+    });
+    
+	if (jQuery('#display_optin_confirm').is(':checked')) {
+        jQuery("#optin_settings").show();
+    }else{
+        jQuery("#optin_settings").hide();
+    }
+    
+
+    jQuery("#display_optin_confirm").change(function() {
+	    if(this.checked) {
+	        jQuery("#optin_settings").fadeIn();
+	        save_page();
+	    }else{
+	        jQuery("#optin_settings").fadeOut();
 	        save_page();
 	    }
     });
@@ -735,6 +760,34 @@ jQuery(document).ready(function() {
         jQuery('#progressbar_percentage').val(value);
         jQuery('#preview').contents().find('.progress-bar').css('width',value + '%');
         jQuery('#preview').contents().find('.progress-bar span').text(value + '%');
+
+    });
+
+    // Form Width Slider
+    jQuery("#form_width_slider").noUiSlider({
+        start: form_width,
+        connect: "lower",
+        step: 1,
+        range: {
+            'min': 50,
+            'max': 100
+        },
+        format: wNumb({
+            decimals: 0
+        })
+    });
+
+    jQuery("#form_width_slider").Link('lower').to('-inline-<div class="tooltip fade top in" style="top: -33px;left: -7px;opacity: 0.7;"></div>', function(value) {
+        // The tooltip HTML is 'this', so additional
+        // markup can be inserted here.
+        jQuery(this).html(
+            '<div class="tooltip-inner">' +
+            '<span>' + value + '%</span>' +
+            '</div>'
+        );
+        jQuery('#form_width').val(value);
+        jQuery('#preview').contents().find('#cspio-field-wrapper').css('width',value + '%');
+
 
     });
 
@@ -1166,7 +1219,7 @@ jQuery(document).ready(function() {
     // Element Color
     jQuery('.button_color_picker').colorpicker({ component: '.form-control, .add-on, .input-group-addon' }).on('changeColor.colorpicker', function(event){
       //if(jQuery('#container_flat').val() == '1'){
-      jQuery('#preview').contents().find('#cspio-subscribe-btn,.cspio .progress-bar, a.btn-primary, .mailster-wrapper .submit-button, input[type="button"].ninja-forms-field').css('background-color',"rgba("+event.color.toRGB().r+","+event.color.toRGB().g+","+event.color.toRGB().b+","+event.color.toRGB().a+")");
+      jQuery('#preview').contents().find('#cspio-subscribe-btn,.cspio .progress-bar, a.btn-primary, .mailster-wrapper .submit-button, input[type="button"].ninja-forms-field, .frm_button_submit').css('background-color',"rgba("+event.color.toRGB().r+","+event.color.toRGB().g+","+event.color.toRGB().b+","+event.color.toRGB().a+")");
 
       if(jQuery('#preview').contents().find('#tmp-countdown-style').length == 0){
         jQuery('#preview').contents().find('head').append("<style id='tmp-countdown-style' type='text/css'></style>");
@@ -1176,10 +1229,10 @@ jQuery(document).ready(function() {
       var lightness = jQuery.Color(jQuery('#button_color').val()).lightness();
       if(lightness >= 0.65){
         var color = '#000';
-        jQuery('#preview').contents().find('#cspio-subscribe-btn,.cspio .progress-bar span,a.btn-primary,.mailster-wrapper .submit-button, input[type="button"].ninja-forms-field').css('color','#000');
+        jQuery('#preview').contents().find('#cspio-subscribe-btn,.cspio .progress-bar span,a.btn-primary,.mailster-wrapper .submit-button, input[type="button"].ninja-forms-field, .frm_button_submit').css('color','#000');
       }else{
         var color = '#fff';
-        jQuery('#preview').contents().find('#cspio-subscribe-btn,.cspio .progress-bar span,a.btn-primary, .mailster-wrapper .submit-button,input[type="button"].ninja-forms-field').css('color','#fff');
+        jQuery('#preview').contents().find('#cspio-subscribe-btn,.cspio .progress-bar span,a.btn-primary, .mailster-wrapper .submit-button,input[type="button"].ninja-forms-field, .frm_button_submit').css('color','#fff');
       }
 
       jQuery('#preview').contents().find('#tmp-countdown-style').html('.countdown_section{background-color:rgba('+event.color.toRGB().r+","+event.color.toRGB().g+","+event.color.toRGB().b+","+event.color.toRGB().a+');color:'+color+'}');
@@ -1798,7 +1851,7 @@ jQuery(document).ready(function() {
 	});
 
 	// Save Page Events
-	jQuery('#footer_text_color,#recaptcha_site_key,#url,#publish_method,#headline_color,#headline_line_height,#text_color,#text_size,#text_line_height,#container_color,#form_color,.note-editable,#socialprofile_color,#contactform_color,#background_color,#background_overlay,#footer_credit_text, #footer_credit_link, #footer_affiliate_link, #headline, #privacy_policy_link_text,#thankyou_msg,#cf_confirmation_msg,#tweet_text,#seo_title, #seo_description, #ga_analytics,#txt_subscribe_button,#txt_email_field,#txt_name_field,#txt_already_subscribed_msg,#txt_invalid_email_msg,#txt_invalid_name_msg,#txt_stats_referral_stats,#txt_stats_referral_url,#txt_stats_referral_clicks,#txt_stats_referral_subscribers').on('blur',function(e){
+	jQuery('#footer_text_color,#recaptcha_site_key,#url,#publish_method,#headline_color,#headline_line_height,#text_color,#text_size,#text_line_height,#container_color,#form_color,.note-editable,#socialprofile_color,#contactform_color,#background_color,#background_overlay,#footer_credit_text, #footer_credit_link, #footer_affiliate_link, #headline, #privacy_policy, #privacy_policy_link_text,#thankyou_msg,#cf_confirmation_msg,#tweet_text,#seo_title, #seo_description, #ga_analytics,#txt_subscribe_button,#txt_email_field,#txt_name_field,#txt_already_subscribed_msg,#txt_invalid_email_msg,#txt_invalid_name_msg,#txt_stats_referral_stats,#txt_stats_referral_url,#txt_stats_referral_clicks,#txt_stats_referral_subscribers').on('blur',function(e){
 	    save_page(false);
 	});
 
@@ -1807,7 +1860,7 @@ jQuery(document).ready(function() {
 	    save_page();
 	});
 
-	jQuery("#enable_reflink,#credit_type,#credit_position,#enable_fitvid,#enable_retinajs,#enable_invis_recaptcha,#enable_recaptcha,#enable_wp_head_footer,#bg_video_audio, #bg_video_loop,#display_name,#bg_slideshow_slide_transition,#progressbar_effect,#container_flat").change(function() {
+	jQuery("#enable_reflink,#credit_type,#credit_position,#enable_fitvid,#enable_retinajs,#enable_invis_recaptcha,#enable_recaptcha,#enable_wp_head_footer,#bg_video_audio, #bg_video_loop,#display_name,#display_optin_confirm,#bg_slideshow_slide_transition,#progressbar_effect,#container_flat").change(function() {
 	    save_page();
 	});
 

@@ -110,7 +110,7 @@ function seed_cspv5_get_options(){
         'id'        => 'include_url_pattern',
         'type'      => 'textarea',
         'label'     => __( "Include URLs", 'seedprod' ),
-        'desc'  => __( 'Include certain urls to display the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id.', 'seedprod' ),
+        'desc'  => __( 'Include certain urls to display the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id. Make sure to include http or https like: https://www.example.com/about/', 'seedprod' ),
         'class' => 'large-text'
     );
 
@@ -118,7 +118,7 @@ function seed_cspv5_get_options(){
         'id'        => 'exclude_url_pattern',
         'type'      => 'textarea',
         'label'     => __( "Exclude URLs", 'seedprod' ),
-        'desc'  => __( 'Exclude certain urls from displaying the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id.', 'seedprod' ),
+        'desc'  => __( 'Exclude certain urls from displaying the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id. Make sure to include http or https like: https://www.example.com/about/', 'seedprod' ),
         'class' => 'large-text'
     );
 
@@ -195,6 +195,8 @@ function seed_cspv5_get_options(){
                             '672' => "28 Days",
                             '696' => "29 Days",
                             '720' => "30 Days",
+                            '8760' => "1 Year",
+                            '87600' => "10 Year",
                             ),
     );
 

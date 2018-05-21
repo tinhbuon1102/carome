@@ -39,7 +39,7 @@ if(!empty($settings->enable_socialprofiles)){
 			}elseif($v->icon == 'fa-skype'){
 				$v->url = "skype:".str_replace(array("skype:",'?call'),"",$v->url).'?call';
 			}elseif($v->icon == 'fa-phone'){
-				$v->url = "tel:".str_replace(array("tel:",'?call'),"",$v->url).'?call';
+				$v->url = "tel:".str_replace(array("tel:",'?call'),"",$v->url).'';
 			}elseif($v->url == '[seed_contact_form]'){
 				$onclick = " onclick=\"javascript:jQuery('#cspio-cf-modal').modal('show')\" ";
 				$target = '';

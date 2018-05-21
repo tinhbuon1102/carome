@@ -27,14 +27,97 @@ if ( $current_user && $current_user->ID )
 	var min_month = <?php echo (int)$aTimes['min_month']?>;
 	var min_day = <?php echo (int)$aTimes['min_day']?>;
 </script>
+<div class="remtal_kimono_content">
 <form class="retal_kimono_form" method="POST">
 <div class="row">
-	<div class="els-product-image-col col-md-6 col-xs-12 images"></div>
+	<div class="els-product-image-col col-md-6 col-xs-12 images">
+		<div class="product__images">
+			<ul class="product__slider list--unstyled">
+				<li class="product__slider-item"><img src="<?php echo get_stylesheet_directory_uri(); ?>/images/kimono/kimono_01.jpg" /></li>
+				<li class="product__slider-item"><img src="<?php echo get_stylesheet_directory_uri(); ?>/images/kimono/kimono_02.jpg" /></li>
+				<li class="product__slider-item"><img src="<?php echo get_stylesheet_directory_uri(); ?>/images/kimono/kimono_03.jpg" /></li>
+			</ul>
+		</div>
+	</div>
 	<div class="els-product-summary-col col-md-6 col-xs-12">
-		<div class="form-box">
+		<div class="summary entry-summary stick-content">
+			<div class="item_headline">
+				<p class="pdp__name product_title_en">Kimono Set</p>
+				<h1 class="product_title entry-title ja-product-name">着物セット</h1>
+				<div class="els-single-product-price price">
+					<div class="els-pr-price"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">¥</span>50,000</span><span class="ja tax">(税抜)</span></div>
+				</div>
+			</div>
+			<div class="els-product-stock-status"></div>
+			<div class="pdp__actions product-add-to-cart">
+				<div class="input-list">
+					<a data-remodal-target="rental_kimono_openform" class="input-list--item single_add_to_cart_button button--primary button">レンタル申し込み</a>
+				</div>
+			</div>
+			<div class="item_summary">
+			<div class="panel_item">
+				<h3>レンタル期間</h3>
+				<div class="u-global-p">
+					<p>要相談</p>
+				</div>
+			</div>
+			<div class="panel_item">
+				<h3>セット内容</h3>
+				<div class="u-global-p">
+					<p>振袖/帯/長襦袢/ショール/帯揚げ/帯締め/ひよく衿/草履/バックセット/小物セット/足袋/かんざし</p>
+				</div>
+			</div>
+			<div class="panel_item">
+				<h3>サイズ</h3>
+				<table class="size-chart">
+					<tbody>
+						<tr>
+							<th>身長</th>
+							<th>身丈</th>
+							<th>裄</th>
+							<th>袖丈</th>
+							<th>ヒップ</th>
+							<th>前幅</th>
+							<th>後幅</th>
+						</tr>
+						<tr>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="panel_item">
+				<h3>素材</h3>
+				<div class="u-global-p">
+					<p>正絹</p>
+				</div>
+			</div>
+		</div>
+		</div>
+		
+		
+	</div>
+</div>
+<div class="sticky-stopper"></div>
+</form>
+</div>
+<!--open form--> 
+<div class="remodal" data-remodal-id="rental_kimono_openform" id="rental_kimono_openform" aria-labelledby="modalTitle" aria-describedby="modalDesc"   data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
+	<button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
+	<div id="retal_kimono_form_content_wraper">
+		<h4 class="contact_popup_title">着物レンタル申し込み</h4>
+		<div id="retal_kimono_form_content">
+			<div class="form-theme">
+				<div class="form-box">
 			<div class="form-row row required date-wraper">
 				<div class="col-xs-12">
-					<label class="form-row__label required"><?php echo __('Date1', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('ご利用日第1希望', 'elsey')?></label>
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
@@ -69,7 +152,7 @@ if ( $current_user && $current_user->ID )
 			<!--/form-row-->
 			<div class="form-row row required date-wraper">
 				<div class="col-xs-12">
-					<label class="form-row__label required"><?php echo __('Date2', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('ご利用日第2希望', 'elsey')?></label>
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
@@ -104,7 +187,7 @@ if ( $current_user && $current_user->ID )
 			<!--/form-row-->
 			<div class="form-row row required date-wraper">
 				<div class="col-xs-12">
-					<label class="form-row__label required"><?php echo __('Date3', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('ご利用日第3希望', 'elsey')?></label>
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
@@ -150,18 +233,18 @@ if ( $current_user && $current_user->ID )
 			<!--/form-row-->
 			<div class="form-row row required">
 				<div class="col-sm-6">
-					<label class="form-row__label required"><?php echo __('Last Name kana', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('姓(ふりがな)', 'elsey')?></label>
 					<input type="text" name="contact[last_name_kana]" value="<?php echo $last_name_kana?>" class="validate[required]">
 				</div>
 				<div class="col-sm-6">
-					<label class="form-row__label required"><?php echo __('First Name kana', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('名(ふりがな)', 'elsey')?></label>
 					<input type="text" name="contact[first_name_kana]" value="<?php echo $first_name_kana?>" class="validate[required]">
 				</div>
 			</div>
 			<!--/form-row-->
 			<div class="form-row row required">
 				<div class="col-sm-6">
-					<label class="form-row__label required"><?php echo __('Phone', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('Phone', 'woocommerce')?></label>
 					<input type="tel" name="contact[tel]" value="<?php echo $phone?>" class="validate[required], custom[phone]">
 				</div>
 				<div class="col-sm-6">
@@ -172,11 +255,11 @@ if ( $current_user && $current_user->ID )
 			<!--/form-row-->
 			<div class="form-row row required">
 				<div class="col-sm-6">
-					<label class="form-row__label required"><?php echo __('Postcode', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('ZIP', 'woocommerce')?></label>
 					<input type="text" name="contact[postcode]" id="billing_postcode" value="<?php echo $post_code?>" class="validate[required]">
 				</div>
 				<div class="col-sm-6">
-					<label class="form-row__label required"><?php echo __('State', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('Prefecture', 'woocommerce')?></label>
 					<span class="dropdown">
 						<select name="contact[state]" id="billing_state" class="validate[required]">
 					<?php foreach ($states as $jp_state_code => $jp_state) {?>
@@ -189,36 +272,35 @@ if ( $current_user && $current_user->ID )
 			<!--/form-row-->
 			<div class="form-row row required">
 				<div class="col-xs-12">
-					<label class="form-row__label required"><?php echo __('City', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('City', 'woocommerce')?></label>
 					<input type="text" name="contact[city]" value="<?php echo $city?>" id="billing_city" class="validate[required]">
 				</div>
 			</div>
 			<!--/form-row-->
 			<div class="form-row row required">
 				<div class="col-xs-12">
-					<label class="form-row__label required"><?php echo __('address1', 'elsey')?></label>
+					<label class="form-row__label required"><?php echo __('町名・番地', 'woocommerce')?></label>
 					<input type="text" name="contact[address1]" value="<?php echo $address_1?>" id="billing_address_1" class="validate[required]">
 				</div>
 			</div>
 			<!--/form-row-->
 			<div class="form-row row">
 				<div class="col-xs-12">
-					<label class="form-row__label"><?php echo __('address2', 'elsey')?></label>
+					<label class="form-row__label"><?php echo __('マンション・建物名', 'woocommerce')?></label>
 					<input type="text" name="contact[address2]" value="<?php echo $address_2?>">
 				</div>
 			</div>
 			<!--/form-row-->
-			<div class="form-row row">
-				<div class="col-xs-12">
-					<button type="button" class="button--primary button" id="retal_confirm_btn">Confirm Request</button>
-				</div>
+		</div>
+			</div>
+			<div class="modal_button_wraper">
+				<button type="button" class="button--primary button" id="retal_confirm_btn">Confirm</button>
+				<button data-remodal-action="cancel" class="button remodal-cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
 </div>
-</form>
-
-
+<!--confirm-->
 <div class="remodal" data-remodal-id="retal_kimono_popup" id="retal_kimono_popup" aria-labelledby="modalTitle" aria-describedby="modalDesc"   data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
 	<button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
 	<div id="retal_kimono_popup_content_wraper">

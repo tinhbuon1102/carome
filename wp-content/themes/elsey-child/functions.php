@@ -222,9 +222,9 @@ function getRetailYearMonthDay()
 {
 	$aTimes = array();
 
-	$aTimes['years'][''] = __('Select Year', 'elsey');
-	$aTimes['months'][''] = __('Select Month', 'elsey');
-	$aTimes['days'][''] = __('Select Day', 'elsey');
+	$aTimes['years'][''] = __('年を選択', 'elsey');
+	$aTimes['months'][''] = __('月を選択', 'elsey');
+	$aTimes['days'][''] = __('日を選択', 'elsey');
 	
 	$max_year = date("Y", strtotime("+6 months"));
 	$max_month = date("m", strtotime("+6 months"));
@@ -777,7 +777,8 @@ function smoke_scripts ()
 	wp_enqueue_style('remodal_css', get_stylesheet_directory_uri() . '/js/remodal/remodal.css');
 	wp_enqueue_style('remodaltheme_css', get_stylesheet_directory_uri() . '/js/remodal/remodal-default-theme.css');
 	wp_enqueue_style( 'overwrite_css', get_stylesheet_directory_uri() . '/overwrite.css', array(), filemtime( get_stylesheet_directory() . '/overwrite.css' ) );
-	
+	wp_enqueue_style('slick_css', get_stylesheet_directory_uri() . '/js/slick/slick.css');
+	wp_enqueue_style('slicktheme_css', get_stylesheet_directory_uri() . '/js/slick/slick-theme.css');
 	wp_enqueue_style('validation_engine_css', get_stylesheet_directory_uri() . '/css/validationEngine.jquery.css');
 	wp_enqueue_script('validation_engine_js', get_stylesheet_directory_uri() . '/js/jquery.validationEngine.js', array('jquery'));
 	wp_enqueue_script('validation_engine_ja_js', get_stylesheet_directory_uri() . '/js/jquery.validationEngine-ja.js', array('jquery'));
@@ -798,6 +799,9 @@ function custom_scripts ()
 
 	wp_register_script('simple-ticker', get_stylesheet_directory_uri() . '/js/jquery.simpleTicker/jquery.simpleTicker.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('simple-ticker');
+	
+	wp_register_script('slick_js', get_stylesheet_directory_uri() . '/js/slick/slick.min.js', array( 'jquery' ),'', true);
+	wp_enqueue_script('slick_js');
 
 	wp_register_script('custom_js', get_stylesheet_directory_uri() . '/js/custom.js?v=' . time(), array( 'jquery' ),'', true);
 	wp_enqueue_script('custom_js');
@@ -806,6 +810,20 @@ function custom_scripts ()
 	wp_enqueue_script('sticky-header', get_stylesheet_directory_uri() . '/js/sticky.min.js', array( 'jquery' ),'', true);
 }
 add_action('wp_enqueue_scripts', 'custom_scripts');
+
+function file_remove_scripts() {
+
+    // Check for the page you want to target
+    if ( is_page( 'insta-shop' ) ) {
+
+        // Remove Styles
+        wp_dequeue_style( 'slick_css' );
+        wp_dequeue_style( 'slicktheme_css' );
+        wp_deregister_style( 'slick_css' );
+        wp_deregister_style( 'slicktheme_css' );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
 
 function hide_plugin_order_by_product ()
 {

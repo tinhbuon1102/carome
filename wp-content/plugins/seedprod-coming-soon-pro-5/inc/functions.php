@@ -94,7 +94,8 @@ function seed_cspv5_get_page_default_settings(){
     $settings = seed_cspv5_array_add($settings,'headline','Coming Soon');
     $settings = seed_cspv5_array_add($settings,'description',"Get ready! Something really cool is coming!");
     $settings = seed_cspv5_array_add($settings,'emaillist','database');
-    $settings = seed_cspv5_array_add($settings,'privacy_policy_link_text','We promise to never spam you.');
+    $settings = seed_cspv5_array_add($settings,'privacy_policy_link_text','');
+    $settings = seed_cspv5_array_add($settings,'privacy_policy','');
     $settings = seed_cspv5_array_add($settings,'thankyou_msg','Thank You!');
     $settings = seed_cspv5_array_add($settings,'tweet_text','');
     $settings = seed_cspv5_array_add($settings,'facebook_thumbnail','');
@@ -323,6 +324,24 @@ function seed_cspv5_ref_link(){
     return $ref_link;
 }
 
+/* Delete Free Version Nag */
+
+function seed_cspv5_deactivate_free_version_notice() {
+   ?>
+   <div class="notice notice-error is-dismissible">
+      <p><?php echo sprintf( __( 'You need to deactivate the Free Version of the Coming Soon & Maintenance Mode by Seedprod plugin so there are no conflicts with the Pro Version.<br> %sClick this link to deactivate the Free Version.%s', 'seedprod-coming-soon-pro' ), '<a href="' . wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=coming-soon%2Fcoming-soon.php&amp;plugin_status=all&amp;paged=1&amp;s=', 'deactivate-plugin_coming-soon/coming-soon.php' ) . '">', '</a>' ); ?></p>
+   </div>
+   <?php
+}
+
+function seed_cspv5_remove_free_nag() {
+   if ( function_exists( 'seed_csp4_load_textdomain' ) ) {
+      add_action( 'admin_notices', 'seed_cspv5_deactivate_free_version_notice' );
+      return;
+   }
+}
+add_action( 'plugins_loaded', 'seed_cspv5_remove_free_nag' );
+
 /* Import nag */
 add_action( 'admin_menu', 'seed_cspv5_import_nag' );
 
@@ -408,7 +427,8 @@ function seed_cspv5_extensions() {
 		SEED_CSPV5_PLUGIN_PATH.'extentions/htmlwebform/htmlwebform.php',
 		SEED_CSPV5_PLUGIN_PATH.'extentions/gravityforms/gravityforms.php',
         SEED_CSPV5_PLUGIN_PATH.'extentions/ninjaforms/ninjaforms.php',
-		SEED_CSPV5_PLUGIN_PATH.'extentions/followupemails/followupemails.php',
+        SEED_CSPV5_PLUGIN_PATH.'extentions/followupemails/followupemails.php',
+        SEED_CSPV5_PLUGIN_PATH.'extentions/formidable/formidable.php',
 		SEED_CSPV5_PLUGIN_PATH.'extentions/getresponse/getresponse.php',
 		SEED_CSPV5_PLUGIN_PATH.'extentions/feedburner/feedburner.php',
 		SEED_CSPV5_PLUGIN_PATH.'extentions/constantcontact/constantcontact.php',
@@ -818,4 +838,12 @@ function seed_cspv5_array_insert(&$array, $position, $insert)
             array_slice($array, $pos)
         );
     }
+}
+
+function seed_cspv5_change_string_boolean_to_boolean(&$item){
+    if ($item == "true") {
+        $item = true;
+    } else if ($item == "false") {
+        $item = false;
+    } 
 }

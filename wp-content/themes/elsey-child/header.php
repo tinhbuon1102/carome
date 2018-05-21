@@ -171,13 +171,15 @@ var gl_alertStateNotAllowed = '';
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
-	//$thisTrueCat = get_category( get_query_var( 'cat' ) ); 
-	//print $thisTrueCat->term_id;
-	//$thisCat = get_category( get_query_var( 'cat' ) ); 
+	$current_term = is_tax ? get_queried_object() : null;
  foreach ($all_categories as $cat) {
     if($cat->category_parent == 0) {
-        $category_id = $cat->term_id;       
-        echo '<li class="swiper-slide"><a href="'. get_term_link($cat->slug, 'product_cat') .'">'. $cat->name .'</a></li>';
+        $category_id = $cat->term_id;  
+		$classactive = "";
+		if($current_term != null && $current_term->term_taxonomy_id == $cat->term_taxonomy_id) {
+			 $classactive = "active";
+		}
+        echo '<li class="swiper-slide"><a href="'. get_term_link($cat->slug, 'product_cat') .'" class="'.$classactive.'">'. $cat->name .'</a></li>';
 
         $args2 = array(
                 'taxonomy'     => $taxonomy,
@@ -188,12 +190,17 @@ var gl_alertStateNotAllowed = '';
                 'pad_counts'   => $pad_counts,
                 'hierarchical' => $hierarchical,
                 'title_li'     => $title,
+                'exclude'    => '157,161,162,163,159,160',
                 'hide_empty'   => $empty
         );
         $sub_cats = get_categories( $args2 );
         if($sub_cats) {
             foreach($sub_cats as $sub_category) {
-                echo  '<li class="swiper-slide"><a href="'. get_term_link($sub_category->slug, 'product_cat') .'">'. $sub_category->name .'</a></li>' ;
+				$classactive = "";
+				if($current_term != null && $current_term->term_taxonomy_id == $sub_category->term_taxonomy_id) {
+					$classactive = "active";
+				}
+                echo  '<li class="swiper-slide"><a href="'. get_term_link($sub_category->slug, 'product_cat') .'" class="'.$classactive.'">'. $sub_category->name .'</a></li>' ;
             }   
         }
     }       

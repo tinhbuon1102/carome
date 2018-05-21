@@ -85,6 +85,7 @@ if ( is_product() ) {
 if($elsey_titlebar_layout === 'vertical') { 
 
 	if ($elsey_titlebar_title_text || $elsey_titlebar_breadcrumb) { 
+		if ( !is_page('kimono-rental') ) {
 
 		if ($elsey_titlebar_parallax) {
 			echo '<div data-stellar-background-ratio="0.5" data-stellar-vertical-offset="" class="els-titlebar-bg" style="background-attachment: fixed;">';
@@ -114,7 +115,7 @@ if($elsey_titlebar_layout === 'vertical') {
 				echo '</div></div>';
 			echo '</div>';
 		echo '</div>';
-
+	}
   }
 
 } else {
@@ -137,6 +138,7 @@ if($elsey_titlebar_layout === 'vertical') {
 			
 		} else {
 			
+		if ( !is_page('kimono-rental') ) {
 		
 		echo '<div class="els-titlebar els-titlebar-plain '.$titlebar_class.'" style="'.esc_attr($elsey_titlebar_custom_padding).'">';
 				  if($elsey_titlebar_title_text) { 
@@ -167,6 +169,7 @@ if($elsey_titlebar_layout === 'vertical') {
 				  }
 
 		echo '</div>';
+		}//end not kimono
 	}
 
 }

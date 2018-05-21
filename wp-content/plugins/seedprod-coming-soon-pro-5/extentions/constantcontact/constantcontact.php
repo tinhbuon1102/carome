@@ -218,7 +218,7 @@ function seed_cspv5_emaillist_constantcontact_add_subscriber($args){
                 require_once( SEED_CSPV5_PLUGIN_PATH.'lib/nameparse.php' );
 
                 // If tracking enabled
-                if(!empty($enable_reflink)){
+                if(!empty($enable_reflink) || !empty( $display_optin_confirm )){
                     seed_cspv5_emaillist_database_add_subscriber($args);
                 }
 

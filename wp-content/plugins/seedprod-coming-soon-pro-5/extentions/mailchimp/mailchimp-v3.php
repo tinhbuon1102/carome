@@ -281,6 +281,9 @@ function seed_cspv5_get_mailchimp_v3_lists(){
         );
         $mailchimp_api_url = "https://{$dc[1]}.api.mailchimp.com/3.0/lists?fields=lists.id,lists.name&count=100";
         $response = wp_remote_get(  $mailchimp_api_url, $args );
+        if(isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true'){
+            var_dump($response);
+        }
         if ( is_wp_error( $response ) ) {
            $error_message = $response->get_error_message();
            $lists['false'] = $error_message;
@@ -331,7 +334,7 @@ function seed_cspv5_emaillist_mailchimp_add_subscriber_v3($args){
         require_once( SEED_CSPV5_PLUGIN_PATH.'lib/nameparse.php' );
 
         // If tracking enabled
-        if(!empty($enable_reflink)){
+        if(!empty($enable_reflink) || !empty( $display_optin_confirm )){
             seed_cspv5_emaillist_database_add_subscriber($args);
         }
 

@@ -667,6 +667,7 @@ if(seed_cspv5_cu('none')){
                 <label class="control-label"><?php _e('Enable Form','seedprod-coming-soon-pro') ?></label>
                 <input id="enable_form" class="switchery" name="enable_form" type="checkbox" value="1" <?php echo (!empty($settings->enable_form) && $settings->enable_form == '1') ? 'checked' : '' ?>>       
             </div>
+            
             <div id="form_settings">
                 
                 <div class="form-group adv">
@@ -677,6 +678,27 @@ if(seed_cspv5_cu('none')){
                     <br>
                     
                 </div>
+                <div class="form-group">
+                    <label class="control-label"><?php _e('Optin Confirmation Checkbox','seedprod-coming-soon-pro') ?></label>
+                    <input id="display_optin_confirm" class="switchery" name="display_optin_confirm" type="checkbox" value="1" <?php echo (!empty($settings->display_optin_confirm) && $settings->display_optin_confirm == '1') ? 'checked' : '' ?>>       
+                    
+                </div>
+                <div id="optin_settings">
+                <div class="form-group">
+                    <label class="control-label" ><?php _e('Optin Confirmation Text','seedprod-coming-soon-pro'); ?></label>
+                    
+                    <input id="optin_confirmation_text" class="form-control input-sm" name="optin_confirmation_text" type="text" value="<?php echo htmlentities((!empty($settings->optin_confirmation_text)) ? $settings->optin_confirmation_text : 'Yes, Please Send Me Marketing Emails',ENT_QUOTES, "UTF-8") ?>">        
+                </div>
+                </div>
+
+               
+                <div class="form-group">
+                    <label class="control-label"><?php _e('Form Width','seedprod-coming-soon-pro') ?></label>
+                    <input id="form_width" name="form_width" type="hidden" value="<?php echo (empty($settings->form_width)) ? '100' : $settings->form_width ?>">
+                    <div class="bg-master m-b-10 m-t-40" id="form_width_slider"></div>
+                </div>
+               
+
                 <?php if(seed_cspv5_cu('fb')){ ?>
                             <div class="form-group">
                                 <button type="button" id="form-builder" class="button-primary"><?php _e('Manage Form Fields','seedprod-coming-soon-pro') ?></button>  
@@ -1136,9 +1158,13 @@ if(seed_cspv5_cu('none')){
                             </div>
                             <div class="form-group">
                                 <label class="control-label" ><?php _e('Privacy Policy Text','seedprod-coming-soon-pro') ?></label>
-                                <input id="privacy_policy_link_text" class="form-control input-sm" name="privacy_policy_link_text" type="text" value="<?php echo htmlentities($settings->privacy_policy_link_text,ENT_QUOTES, "UTF-8") ?>">       
+                                <input id="privacy_policy_link_text" class="form-control input-sm" name="privacy_policy_link_text" type="text" value="<?php echo htmlentities((empty($settings->privacy_policy_link_text))?'':$settings->privacy_policy_link_text,ENT_QUOTES, "UTF-8") ?>">       
                             </div>
 
+                            <div class="form-group">
+                                <label class="control-label" ><?php _e('Privacy Policy More Text (This will open a pop up with more text.)','seedprod-coming-soon-pro') ?></label>
+                                <input id="privacy_policy" class="form-control input-sm" name="privacy_policy" type="text" value="<?php echo htmlentities((empty($settings->privacy_policy))?'':$settings->privacy_policy,ENT_QUOTES, "UTF-8") ?>">       
+                            </div>
                             <div class="form-group">
                                 <label class="control-label"><?php _e('Already Subscribed','seedprod-coming-soon-pro') ?></label>
                                 <input id="txt_already_subscribed_msg" class="form-control input-sm" name="txt_already_subscribed_msg" type="text" value="<?php echo htmlentities($settings->txt_already_subscribed_msg,ENT_QUOTES, "UTF-8") ?>">       
@@ -1147,9 +1173,15 @@ if(seed_cspv5_cu('none')){
                                 <label class="control-label"><?php _e('Invalid Email','seedprod-coming-soon-pro') ?></label>
                                 <input id="txt_invalid_email_msg" class="form-control input-sm" name="txt_invalid_email_msg" type="text" value="<?php echo htmlentities($settings->txt_invalid_email_msg,ENT_QUOTES, "UTF-8") ?>">   
                             </div>
+
                             <div class="form-group">
                                 <label class="control-label"><?php _e('Invalid Name','seedprod-coming-soon-pro') ?></label>
-                                <input id="txt_invalid_name_msg" class="form-control input-sm" name="txt_invalid_name_msg" type="text" value="<?php echo htmlentities($settings->txt_invalid_name_msg,ENT_QUOTES, "UTF-8") ?>">      
+                                <input id="txt_invalid_name_msg" class="form-control input-sm" name="txt_invalid_name_msg" type="text" value="<?php echo htmlentities($settings->txt_invalid_name_msg,ENT_QUOTES, "UTF-8") ?>">   
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label"><?php _e('Optin Confirmation Required','seedprod-coming-soon-pro') ?></label>
+                                <input id="txt_optin_confirmation_required" class="form-control input-sm" name="txt_optin_confirmation_required" type="text" value="<?php echo htmlentities((!empty($settings->txt_optin_confirmation_required)) ?$settings->txt_optin_confirmation_required : 'Optin Confirmation Required',ENT_QUOTES, "UTF-8") ?>">   
                             </div>
                             <div class="form-group">
                                 <label class="control-label"><?php _e('Referral URL Message','seedprod-coming-soon-pro') ?></label>
@@ -1342,6 +1374,7 @@ if(seed_cspv5_cu('none')){
             </form>
 
         </div>
+        <div id="dragbar">drag bar</div>
         <!-- /.sidebar -->
         <div class="clearfix"></div>
     </div>
@@ -1429,6 +1462,8 @@ var preview_url = '<?php echo home_url('/','relative'); ?>?seed_cspv5_preview=<?
 var path = '<?php echo admin_url(); ?>';
 var s_c = <?php echo $s_c; ?>;
 var progressbar_percentage = <?php echo ( empty($settings->progressbar_percentage) ) ? '0' : $settings->progressbar_percentage ?>;
+
+var form_width = <?php echo ( empty($settings->form_width) ) ? '100' : $settings->form_width ?>;
 <?php $backgrounds_ajax_url = html_entity_decode(wp_nonce_url('admin-ajax.php?action=seed_cspv5_backgrounds','seed_cspv5_backgrounds')); ?>
 var index_backgrounds = "<?php echo $backgrounds_ajax_url; ?>";
 <?php $backgrounds_sideload_ajax_url = html_entity_decode(wp_nonce_url('admin-ajax.php?action=seed_cspv5_backgrounds_sideload','seed_cspv5_backgrounds_sideload')); ?>
@@ -1441,7 +1476,7 @@ var container_effect_animation = '<?php echo $settings->container_effect_animati
 var container_radius = <?php echo ( empty($settings->container_radius) ) ? '0' : $settings->container_radius ?>;
 var bg_slideshow_slide_speed = <?php echo ( empty($settings->bg_slideshow_slide_speed) ) ? '0' : $settings->bg_slideshow_slide_speed ?>;
 var container_width = <?php echo ( empty($settings->container_width) ) ? '0' : absint($settings->container_width) ?>;
-var form_width = <?php echo ( empty($settings->form_width) ) ? '0' : $settings->form_width ?>;
+
 var headline_size = <?php echo ( empty($settings->headline_size) || $settings->headline_size == 'false' ) ? '42' : $settings->headline_size ?>;
 var headline_line_height = <?php echo ( empty($settings->headline_line_height) || $settings->headline_line_height == 'false' ) ? '1' : $settings->headline_line_height ?>;
 var text_size = <?php echo ( empty($settings->text_size) || $settings->text_size == 'false' ) ? '16' : $settings->text_size ?>;
@@ -1514,7 +1549,24 @@ var import_page_ajax_url = "<?php echo $import_page_ajax_url; ?>";
     jQuery("#collapse-email-form").collapse('show');
     <?php } ?>
     
+    // Sidebar drag
+    var i = 0;
+    jQuery('#dragbar').mousedown(function(e) {
 
+    e.preventDefault();
+    jQuery("#preview").hide();
+    jQuery(window.top).mousemove(function(e) {
+        if(e.pageX > 300){    
+        jQuery('#seed-cspv5-sidebar,#preview-actions').css("width", e.pageX + 2);
+        jQuery('.page-container').css("padding-left", e.pageX + 2);
+        }
+    });
+    });
+
+    jQuery(window.top).mouseup(function(e) {
+        jQuery(window.top).unbind('mousemove');
+        jQuery("#preview").show();
+    });
     
 </script>
 

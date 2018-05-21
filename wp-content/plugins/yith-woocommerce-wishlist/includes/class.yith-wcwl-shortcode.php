@@ -322,7 +322,7 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 			$current_product = ( isset( $atts['product_id'] ) ) ? wc_get_product( $atts['product_id'] ) : false;
 			$current_product = $current_product ? $current_product : $product;
 
-			if( ! $product ){
+			if( ! $current_product ){
 				return '';
 			}
 

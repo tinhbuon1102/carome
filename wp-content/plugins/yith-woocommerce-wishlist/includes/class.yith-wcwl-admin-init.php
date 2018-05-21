@@ -1050,7 +1050,7 @@ if ( ! class_exists( 'YITH_WCWL_Admin_Init' ) ) {
 
 				'wishlist_enable' => array(
 					'name'    => __( 'Enable YITH Wishlist', 'yith-woocommerce-wishlist' ),
-					'desc'    => sprintf( __( 'Enable all plugin features. <strong>Be sure to select at least one option in the Wishlist page menu in this settings page.</strong> Also, please read the plugin <a href="%d" target="_blank">documentation</a>.', 'yith-woocommerce-wishlist' ), esc_url( $this->doc_url ) ),
+					'desc'    => sprintf( __( 'Enable all plugin features. <strong>Be sure to select at least one option in the Wishlist page menu in this settings page.</strong> Also, please read the plugin <a href="%s" target="_blank">documentation</a>.', 'yith-woocommerce-wishlist' ), esc_url( $this->doc_url ) ),
 					'id'      => 'yith_wcwl_enabled',
 					'default' => 'yes',
 					'type'    => 'checkbox'

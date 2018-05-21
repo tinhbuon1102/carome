@@ -3,7 +3,7 @@
 Plugin Name: SeedProd Coming Soon Page Pro
 Plugin URI: https://www.seedprod.com
 Description: The Ultimate Coming Soon & Maintenance Mode Plugin
-Version:  5.10.6
+Version:  5.11.2
 Author: SeedProd
 Author URI: http://www.seedprod.com
 Text Domain: seedprod-coming-soon-pro
@@ -19,7 +19,7 @@ define( 'SEED_CSPV5_SHORTNAME', 'seed_cspv5' ); // Used to reference namespace f
 define( 'SEED_CSPV5_SLUG', 'seedprod-coming-soon-pro-5/seedprod-coming-soon-pro-5.php' ); // Used for settings link.
 define( 'SEED_CSPV5_TEXTDOMAIN', 'seedprod-coming-soon-pro' ); // Your textdomain
 define( 'SEED_CSPV5_PLUGIN_NAME', __( 'Coming Soon Page Pro', 'seedprod-coming-soon-pro' ) ); // Plugin Name shows up on the admin settings screen.
-define( 'SEED_CSPV5_VERSION', '5.10.6'); // Plugin Version Number.
+define( 'SEED_CSPV5_VERSION', '5.11.2'); // Plugin Version Number.
 define( 'SEED_CSPV5_PLUGIN_PATH', plugin_dir_path( __FILE__ ) ); // Example output: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/seed_cspv5/
 define( 'SEED_CSPV5_PLUGIN_URL', plugin_dir_url( __FILE__ ) ); // Example output: http://localhost:8888/wordpress/wp-content/plugins/seed_cspv5/
 define( 'SEED_CSPV5_SUBSCRIBERS_TABLENAME', 'csp3_subscribers' );
@@ -294,4 +294,46 @@ if(defined('SEED_CSP_API_KEY')){
 * ManageWP Updates
 */
 require_once( SEED_CSPV5_PLUGIN_PATH.'managewp-plugins-api.php' );
+
+// Clear caches
+add_action( 'update_option_seed_cspv5_settings_content', 'seed_cspv5_clear_known_caches', 10, 3 );
+
+function seed_cspv5_clear_known_caches($o,$n){
+  try {
+    if(isset($o['status']) && isset($n['status'])){
+      if($o['status'] != $n['status']){
+
+        // Clear Litespeed cache
+        method_exists( 'LiteSpeed_Cache_API', 'purge_all' ) && LiteSpeed_Cache_API::purge_all() ;
+
+        // WP Super Cache
+        if ( function_exists( 'wp_cache_clear_cache' ) ) {
+          wp_cache_clear_cache();
+        }
+
+        // W3 Total Cahce
+        if ( function_exists( 'w3tc_pgcache_flush' ) ) {
+          w3tc_pgcache_flush();
+        }
+
+        // Site ground
+        if ( class_exists( 'SG_CachePress_Supercacher' ) && method_exists( 'SG_CachePress_Supercacher ',  'purge_cache' )) {
+          SG_CachePress_Supercacher::purge_cache(true);
+        }
+
+        // Endurance Cache
+        if ( class_exists( 'Endurance_Page_Cache' ) ) {
+          $e = new Endurance_Page_Cache;
+          $e->purge_all();
+        }
+
+        // WP Fastest Cache
+        if ( isset($GLOBALS['wp_fastest_cache'] ) && method_exists( $GLOBALS['wp_fastest_cache'], 'deleteCache') ) {
+          $GLOBALS['wp_fastest_cache']->deleteCache(true);
+        }
+
+      }
+    }
+  } catch (Exception $e) {}
+}
 

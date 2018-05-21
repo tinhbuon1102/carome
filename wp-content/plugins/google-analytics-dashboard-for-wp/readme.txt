@@ -1,10 +1,11 @@
 === Google Analytics Dashboard for WP (GADWP) ===
-Contributors: deconf
-Donate link: https://deconf.com/donate/
-Tags: analytics,google analytics,google analytics dashboard,google analytics plugin,google analytics widget
+Contributors: chriscct7, smub
+Donate link: http://www.wpbeginner.com/wpbeginner-needs-your-help/
+Tags: analytics,google analytics,google analytics dashboard,google analytics plugin,google analytics widget,gtag
 Requires at least: 3.5
-Tested up to: 4.9.4
-Stable tag: 5.2.2
+Tested up to: 4.9
+Stable tag: 5.3.3
+Requires PHP: 5.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,8 +41,8 @@ In addition, you can control who can view specific Google Analytics reports by s
 
 Installs the latest Google Analytics tracking code and allows full code customization:
 
-- Universal Google Analytics tracking code
-- IP address anonymization
+- Universal Google Analytics (analytics.js) tracking code
+- Global Site Tag (gtag.js) tracking code
 - Enhanced link attribution
 - Remarketing, demographics and interests tracking
 - Page Speed sampling rate control
@@ -50,6 +51,12 @@ Installs the latest Google Analytics tracking code and allows full code customiz
 - Exclude user roles from tracking
 - Accelerated Mobile Pages (AMP) support for Google Analytics
 - Ecommerce support for Google Analytics
+
+User privacy oriented features:
+
+- IP address anonymization
+- option to follow Do Not Track (DNT) sent by browsers
+- support for user tracking opt-out
 
 Google Analytics Dashboard for WP enables you to easily track events like:
  
@@ -79,7 +86,6 @@ As an alternative to Google Analytics tracking code, you can use Google Tag Mana
 
 - Google Tag Manager code
 - Data Layer variables: authors, publication year, publication month, categories, tags, user type
-- Additional Data Layer variables for page scrolling depth
 - Exclude user roles from tracking
 - Accelerated Mobile Pages (AMP) support for Google Tag Manager
 
@@ -106,13 +112,7 @@ This plugin is fully compatible with multisite network installs, allowing three 
 - Mode 3: network deactivated using multiple Google Analytics accounts
 
 > <strong>Google Analytics Dashboard for WP on GitHub</strong><br>
-> You can submit feature requests or bugs on [Google Analytics Dashboard for WP](https://github.com/deconf/Google-Analytics-Dashboard-for-WP) repository.
-
-= Further reading =
-
-* Homepage of [Google Analytics Dashboard for WP](https://deconf.com/google-analytics-dashboard-wordpress/)
-* Other [WordPress Plugins](https://deconf.com/wordpress/) by same author
-* [Google Analytics | Partners](https://www.google.com/analytics/partners/company/5127525902581760/gadp/5629499534213120/app/5707702298738688/listing/5639274879778816) Gallery
+> You can submit feature requests or bugs on [Google Analytics Dashboard for WP](https://github.com/awesomemotive/Google-Analytics-Dashboard-for-WP) repository.
 
 == Installation ==
 
@@ -135,11 +135,11 @@ We are constantly improving Google Analytics Dashboard for WP, sometimes the vid
 
 = How can I suggest a new feature, contribute or report a bug? =
 
-You can submit pull requests, feature requests and bug reports on [our GitHub repository](https://github.com/deconf/Google-Analytics-Dashboard-for-WP).
+You can submit pull requests, feature requests and bug reports on [our GitHub repository](https://github.com/awesomemotive/Google-Analytics-Dashboard-for-WP).
 
 = Documentation, Tutorials and FAQ =
 
-For documentation, tutorials, FAQ and videos check out: [Google Analytics Dashboard for WP documentation](https://deconf.com/google-analytics-dashboard-wordpress/).
+For documentation, tutorials, FAQ and videos check out: [Google Analytics Dashboard for WP documentation](https://exactmetrics.com/).
 
 == Screenshots ==
 
@@ -164,6 +164,52 @@ Google Analytics Dashboard for WP it's released under the GPLv2, you can use it 
 == Upgrade Notice ==
 
 == Changelog ==
+
+[GADWP v5.3 release notes](https://exactmetrics.com/adding-gtag-js-to-your-site/)
+
+= 5.3.3 =
+* Bug Fixes:
+	* Updated endpoint for GA auth to use updated system.
+	* Fixed a bug where the opt-out and exclude DNT options were listed twice.
+
+= 5.3.2 =
+* Bug Fixes:	
+	* fixes for user opt-out feature 
+* Enhancements: 
+	* use <em>gadwp_useroptout</em> shortcode to easily generate opt-out buttons and links, [more details](https://exactmetrics.com/google-analytics-gdpr-and-user-data-privacy-compliance)
+	* adding <em>gadwp_gtag_commands</em> and <em>gadwp_gtag_script_path</em> hooks to allow further gtag (Global Site Tag) code customization
+	* adds opt-out and DNT support for Google Tag Manager	
+	
+= 5.3.1.1 =
+* Bug Fixes:	
+	* avoid tracking issues by not clearing the profiles list on automatic token resets
+
+= 5.3.1 =
+* Bug Fixes:	
+	* frontend_item_reports PHP notice when upgrading from a version lower than v4.8.0.1   
+
+= 5.3 =
+* Enhancements: 
+	* adds full support for Global Site Tag (gtag.js)
+	* remove Scroll Depth functionality, since this is now available as a trigger on Google Tag Manager
+	* adds custom dimensions support for AMP pages with Google Tag Manager tracking
+	* adds support for button submits
+* Bug Fixes:	
+	* form submit events were not following the non-interaction settings   
+	
+= 5.2.3.1 =
+* Bug Fixes:	
+	* fixing a small reporting issue 
+	
+= 5.2.3 =
+* Enhancements:
+	* add Google Analytics user opt-out support
+	* add option to exclude tracking for users sending the <em>Do Not Track</em> header
+	* add System tab to Errors & Debug screen
+	* check to avoid using a redeemed access code
+* Bug Fixes:	
+	* remove a debugging message
+	* cURL options were overwritten during regular API calls	
 
 = 5.2.2 =
 * Enhancements:  
@@ -198,4 +244,4 @@ Google Analytics Dashboard for WP it's released under the GPLv2, you can use it 
 	* fix for inline SVG links, props by [Andrew Minion](https://github.com/macbookandrew)
 	* fixes a bug on affiliate events tracking
 
-The full changelog is [available here](https://deconf.com/changelog-google-analytics-dashboard-for-wp/).
+The full changelog is [available here](https://exactmetrics.com/changelog-google-analytics-dashboard-for-wp/).

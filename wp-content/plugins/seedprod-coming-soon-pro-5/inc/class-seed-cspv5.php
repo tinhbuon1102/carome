@@ -288,9 +288,12 @@ class SEED_CSPV5{
             // Get Page
             global $wpdb;
             $tablename = $wpdb->prefix . SEED_CSPV5_PAGES_TABLENAME;
-            $sql = "SELECT * FROM $tablename WHERE id= %d";
+            $sql = "SELECT * FROM $tablename WHERE id= %d and deactivate = 0";
             $safe_sql = $wpdb->prepare($sql,$page_id);
             $page = $wpdb->get_row($safe_sql);
+            if(empty($page)){
+                return false;
+            }
 
             // Check for base64 encoding of settings
             if ( base64_encode(base64_decode($page->settings, true)) === $page->settings){
@@ -529,12 +532,9 @@ class SEED_CSPV5{
                 $_GET['bypass'] = false;
             }
 
-            if(empty($_GET['cs_preview'])){
-                $_GET['cs_preview'] = false;
-            }
-
+            if($is_preview == false){
             //Check for Client View
-            if (isset($_COOKIE['wp-client-view']) && ((strtolower(basename($_SERVER['REQUEST_URI'])) == trim(strtolower($client_view_url))) || (strtolower($_GET['bypass']) == trim(strtolower($client_view_url))) ) && !empty($client_view_url)) {
+            if ( isset($_COOKIE['wp-client-view']) && ((strtolower(basename($_SERVER['REQUEST_URI'])) == trim(strtolower($client_view_url))) || (strtolower($_GET['bypass']) == trim(strtolower($client_view_url))) ) && !empty($client_view_url)) {
 
   			if(!empty($_REQUEST['return'])){
                         nocache_headers();
@@ -551,7 +551,7 @@ class SEED_CSPV5{
 
             // Don't show Coming Soon Page if client View is active
             $client_view_hash = md5($client_view_url . get_current_blog_id());
-            if (isset($_COOKIE['wp-client-view']) && $_COOKIE['wp-client-view'] == $client_view_hash && $_GET['cs_preview'] != 'true' && !empty($client_view_url)) {
+            if (isset($_COOKIE['wp-client-view']) && $_COOKIE['wp-client-view'] == $client_view_hash  && !empty($client_view_url)) {
                 nocache_headers();
                 header('Cache-Control: max-age=0, private');
                 return false;
@@ -594,6 +594,8 @@ class SEED_CSPV5{
 	                }
                 }
             }
+        }
+        
 
         }else{
 

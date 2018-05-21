@@ -100,7 +100,7 @@ a:focus {
 }
 
 #seed-cspv5-sidebar{
-  width:350px !important;
+  width:350px;
 }
 
 #seed-back{
@@ -594,15 +594,15 @@ th{
 }
 
 
-
-/*.select2-results__options li div {
-  background: url("../img/fontsList.gif") !important;
-  background-repeat: no-repeat;
-  overflow: hidden;
-  text-indent: -999px;
-  height: 29px;
-}*/
-
+#dragbar{
+  background-color: #ccc;
+  height: 100%;
+  width: 3px;
+  cursor: col-resize;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
 
 
 

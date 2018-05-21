@@ -163,7 +163,7 @@ function seed_cspv5_after_gravity_subscribed_record_record_into_cspv5($entry, $f
                     }
 
                     // If tracking enabled
-                    if(!empty($enable_reflink)){
+                    if(!empty($enable_reflink) || !empty( $display_optin_confirm )){
                         $_REQUEST['email'] = $data['email'];
                         seed_cspv5_emaillist_database_add_subscriber($settings);
                     }

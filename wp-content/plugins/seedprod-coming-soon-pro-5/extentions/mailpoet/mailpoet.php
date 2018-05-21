@@ -176,7 +176,7 @@ function seed_cspv5_emaillist_mailpoet_add_subscriber($args){
                 $userHelper= WYSIJA::get('user','helper');
                 $data=array('user'=>array('email'=>$email,'firstname'=>$fname,'lastname'=>$lname),'user_list'=>array('list_ids'=>array($list_id)));
                 $test = $userHelper->addSubscriber($data);
-                if(!empty($enable_reflink)){
+                if(!empty($enable_reflink) || !empty( $display_optin_confirm )){
                     seed_cspv5_emaillist_database_add_subscriber($args);
                 }
                 if(empty($seed_cspv5_post_result['status']))
@@ -185,7 +185,7 @@ function seed_cspv5_emaillist_mailpoet_add_subscriber($args){
                 $user_id=$userData['user_id'];
                 $userHelper= WYSIJA::get('user','helper');
                 $userHelper->addToLists(array($list_id), $user_id);
-                if(!empty($enable_reflink)){
+                if(!empty($enable_reflink) || !empty( $display_optin_confirm )){
                     seed_cspv5_emaillist_database_add_subscriber($args);
                 }
                 if(empty($seed_cspv5_post_result['status'])){

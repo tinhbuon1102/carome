@@ -531,24 +531,43 @@ jQuery(document).ready(function($){
 	    });
 
   }
-  //sidebar scroll
-	$(window).scroll(function(){
-		if ($('.sidebar-shop-widget').length)
-		{
-			var scroll_top = $(this).scrollTop();
-			var mainhead_height = $('.header__secondary').height();
-			var sidebar_top = $('.sidebar-shop-widget').offset().top;
-			var shop_sidebar = $('.sidebar-shop-widget');
-			
-			if (scroll_top >= sidebar_top - 100)
-			{
-				shop_sidebar.addClass('fixed');
-			}
-			else {
-				shop_sidebar.removeClass('fixed');
-			}
-		}
+	//kimono slick for sp
+	$(window).on('load resize', function(){
+    var w = $(window).width();
+    var x = 768;
+    if (w <= x) {
+        $('.product__slider').slick({
+			dots: true
+		});
+    }
 	});
+	//kimono sticky and sidebar for archive
+	$(window).load(function() {//1読み込んだ時
+		
+var side = $(".stick-content");
+var foot = $(".sticky-stopper");
+var sideW = $('.els-product-summary-col').width();
+var menuH = $('.header__secondary').height();
+var sideHeight = side.outerHeight(true);
+var sideTop = side.offset().top;
+$(window).scroll(function() {//2スクロールした時
+var scrollTop = $(this).scrollTop();
+var footTop = foot.offset().top;
+winTop = footTop - (scrollTop + sideHeight);
+if(scrollTop > sideTop) {//2-1サイドの上部が画面より上になったとき
+if(scrollTop + sideHeight > footTop){//3-1フッターが出てきたら
+//フッターにあわせて移動
+side.css({position: "fixed", top: winTop + "px"});
+/*3-1*/} else {//3-2フッターはまだ出てこない
+//固定
+side.css({position: "fixed", top: menuH + "px", width: sideW + "px"});
+/*3-2*/}
+/*2-1*/} else {//2-2サイドの上部が画面より下になったとき
+//固定解除
+side.css({position: "static", top: "auto", width: sideW + "px"});
+/*2-2*/}
+/*2*/});
+/*1*/});
   // Contact form 
   if ($('.wpcf7 select[name="contact-type"]').length)
   {

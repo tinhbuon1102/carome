@@ -66,6 +66,9 @@ class SEED_CSPV5_ADMIN
             // Save Page Ajqx
             add_action( 'wp_ajax_seed_cspv5_save_page', array(&$this,'save_page'));
 
+            // Save Page Ajqx
+            add_action( 'wp_ajax_seed_cspv5_save_page_v2', array(&$this,'save_page_v2'));
+
             // Duplicate Page
             add_action( 'wp_ajax_seed_cspv5_duplicate_page', array(&$this,'duplicate_page_process'));
 
@@ -378,6 +381,7 @@ class SEED_CSPV5_ADMIN
               conversions int(11) NOT NULL DEFAULT '0',
               referrer int(11) NOT NULL DEFAULT '0',
               confirmed int(11) NOT NULL DEFAULT '0',
+              optin_confirm int(11) NOT NULL DEFAULT '0',
               ip varchar(255) DEFAULT NULL,
               meta text DEFAULT NULL,
               created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -718,6 +722,64 @@ class SEED_CSPV5_ADMIN
             echo $html; 
         }
         exit();
+    }
+
+
+    /**
+     * Reset the settings page. Reset works per settings id.
+     *
+     */
+    function save_page_v2( )
+    {
+        if(check_ajax_referer('seed_cspv5_save_page_v2')){
+
+            array_walk_recursive ( $_REQUEST, 'seed_cspv5_change_string_boolean_to_boolean');
+        
+
+            // Vars
+            $request = stripslashes_deep($_REQUEST); 
+
+            $page_id = $request['page']['id'];
+            $name = $request['page']['name'];
+            $settings = $request['settings'];
+
+            $mailprovider = $settings['emaillist'];
+        
+            $settings = base64_encode(serialize($settings));
+
+                
+            // DB setup
+            global $wpdb;
+            $tablename = $wpdb->prefix . SEED_CSPV5_PAGES_TABLENAME;
+            
+            // Update Row
+            $r = $wpdb->update( 
+                $tablename, 
+                array( 
+                    'name' => stripslashes($name),
+                    //'url' => $url,
+                    'settings' => $settings,
+                    'mailprovider' => $mailprovider,
+                    
+                ), 
+                array( 'ID' => $page_id ), 
+                array( 
+                    '%s',
+                    '%s',
+                    '%s',
+                ), 
+                array( '%d' ) 
+            );
+            
+            
+            
+            if($r !== false){
+                echo 'true';
+            }else{
+                echo 'false';
+            }
+            exit();
+        }
     }
     
     
@@ -1248,6 +1310,15 @@ class SEED_CSPV5_ADMIN
             array( &$this , 'customizer' )
             );
 
+    $this->plugin_screen_customizer_hook_suffix = add_submenu_page(
+        NULL,
+        __( "Customizer", 'seedprod-coming-soon-pro' ),
+        __( "Customizer", 'seedprod-coming-soon-pro' ),
+        'manage_options',
+        'seed_cspv5_customizer_v2',
+        array( &$this , 'customizer_v2' )
+        );
+
     $this->plugin_screen_themes_hook_suffix = add_submenu_page(
             NULL,
             __( "Themes", 'seedprod-coming-soon-pro' ),
@@ -1283,6 +1354,15 @@ class SEED_CSPV5_ADMIN
         'seed_cspv5_duplicate',
         array( &$this , 'duplicate_page' )
         );
+
+    $this->plugin_screen_duplicate_hook_suffix = add_submenu_page(
+            NULL,
+            __( "Duplicate", 'seedprod-coming-soon-pro' ),
+            __( "Duplicate", 'seedprod-coming-soon-pro' ),
+            'manage_options',
+            'seed_cspv5_deactivate',
+            array( &$this , 'deactivate_page' )
+            );
 
     $this->plugin_screen_form_hook_suffix = add_submenu_page(
         NULL,
@@ -1502,6 +1582,186 @@ class SEED_CSPV5_ADMIN
     function duplicate_page( ){
        require_once(SEED_CSPV5_PLUGIN_PATH.'admin/duplicate.php');
     }
+
+    function deactivate_page( ){
+       $page_id = $_GET['id'];
+       global $wpdb;
+
+       $tablename = $wpdb->prefix . SEED_CSPV5_PAGES_TABLENAME;
+       $sql = "SELECT * FROM $tablename WHERE id= %d";
+       $safe_sql = $wpdb->prepare($sql,$page_id);
+       $page = $wpdb->get_row($safe_sql);
+
+       if(empty($page->deactivate)){
+           // deactive
+           $wpdb->update( 
+            $tablename, 
+            array( 
+                'deactivate' => 1,	// string
+            ), 
+            array( 'id' => $page_id ), 
+            array( 
+                '%d'	// value2
+            ), 
+            array( '%d' ) 
+            );
+
+       }else{
+           // activate
+           $wpdb->update( 
+            $tablename, 
+            array( 
+                'deactivate' => 0,	// string
+            ), 
+            array( 'id' => $page_id ), 
+            array( 
+                '%d'	// value2
+            ), 
+            array( '%d' ));
+       }
+
+       echo '<script>window.location = "options-general.php?page=seed_cspv5&tab=seed_cspv5_tab_pages";</script>';
+ 
+     }
+
+    function customizer_v2( ){
+    //var_dump($_GET['seed_cspv5_customize']);
+
+        
+
+    // Page auth make sure user can perform this action
+    
+    // Page Info
+    $page_id = 0;
+    if(isset($_GET['seed_cspv5_customize'])){
+        $page_id = $_GET['seed_cspv5_customize'];
+    }
+    
+    
+    $fontfile = SEED_CSPV5_PLUGIN_PATH . 'customizer/webfonts.json';
+    $fonts_json = file_get_contents($fontfile);
+    $fonts[0] = 'Inherit';
+    $fonts['Standard Fonts'] = array(
+        "Helvetica, Arial, sans-serif"                         => "Helvetica, Arial, sans-serif",
+        "'Arial Black', Gadget, sans-serif"                    => "'Arial Black', Gadget, sans-serif",
+        "'Bookman Old Style', serif"                           => "'Bookman Old Style', serif",
+        "'Comic Sans MS', cursive"                             => "'Comic Sans MS', cursive",
+        "Courier, monospace"                                   => "Courier, monospace",
+        "Garamond, serif"                                      => "Garamond, serif",
+        "Georgia, serif"                                       => "Georgia, serif",
+        "Impact, Charcoal, sans-serif"                         => "Impact, Charcoal, sans-serif",
+        "'Lucida Console', Monaco, monospace"                  => "'Lucida Console', Monaco, monospace",
+        "'Lucida Sans Unicode', 'Lucida Grande', sans-serif"   => "'Lucida Sans Unicode', 'Lucida Grande', sans-serif",
+        "'MS Sans Serif', Geneva, sans-serif"                  => "'MS Sans Serif', Geneva, sans-serif",
+        "'MS Serif', 'New York', sans-serif"                   => "'MS Serif', 'New York', sans-serif",
+        "'Palatino Linotype', 'Book Antiqua', Palatino, serif" => "'Palatino Linotype', 'Book Antiqua', Palatino, serif",
+        "Tahoma,Geneva, sans-serif"                            => "Tahoma, Geneva, sans-serif",
+        "'Times New Roman', Times,serif"                       => "'Times New Roman', Times, serif",
+        "'Trebuchet MS', Helvetica, sans-serif"                => "'Trebuchet MS', Helvetica, sans-serif",
+        "Verdana, Geneva, sans-serif"                          => "Verdana, Geneva, sans-serif",
+    );
+    $gfonts = json_decode($fonts_json,true);
+    foreach($gfonts as $k => $v){
+        $font_families["'".$k."'"] = $k;
+    }
+    $fonts['Google Fonts'] = $font_families;
+
+    $font_families = $fonts;
+    
+    $emaillist = apply_filters( 'seed_cspv5_providers', array(
+                                    'database' => __( 'Database', 'seedprod-coming-soon-pro' ),
+                                    'feedblitz' => 'FeedBlitz',
+                                    'drip' => 'Drip',
+                                    'feedburner' => 'FeedBurner',
+                                    'activecampaign' => 'Active Campaign',
+                                    'aweber' => 'Aweber',
+                                    'campaignmonitor' => 'Campaign Monitor',
+                                    'constantcontact' => 'Constant Contact',
+                                    'convertkit' => 'ConvertKit',
+                                    'getresponse' => 'Get Response',
+                                    'gravityforms' => 'Gravity Forms',
+                                    'ninjaforms' => 'Ninja Forms',
+                                    'followupemails' => 'Follow-Up Emails',
+                                    'formidable' => 'Formidable',
+                                    'icontact' => 'iContact',
+                                    'infusionsoft' => 'Infusionsoft',
+                                    'madmimi' => 'Mad Mimi',
+                                    'mailchimp' => 'MailChimp',
+                                    'sendy' => 'Sendy',
+                                    'zapier' => 'Zapier',
+                                    'mailpoet' => 'MailPoet',
+                                    'mymail' => 'Mailster formerly MyMail',
+                                    'htmlwebform' => 'HTML Web Form / Shortcode',
+                                ) );
+    
+    natcasesort($emaillist);
+    $emaillist = array('database'=>'Database') + $emaillist;
+    
+    
+    
+    // Get Page
+    global $wpdb;
+    $tablename = $wpdb->prefix . SEED_CSPV5_PAGES_TABLENAME;
+    $sql = "SELECT * FROM $tablename WHERE id= %d";
+    $safe_sql = $wpdb->prepare($sql,$page_id);
+    $page = $wpdb->get_row($safe_sql);
+
+    // Check for base64 encoding of settings
+    if ( base64_encode(base64_decode($page->settings, true)) === $page->settings){
+        $settings = unserialize(base64_decode($page->settings));
+    } else {
+        $settings = unserialize($page->settings);
+    }
+
+    if($settings === false){
+        echo '<br><br><strong>There was an issue retrieving your settings. Please open a ticket &amp; copy and paste in this text below.</strong><br><br>';
+        echo '<div style="width:500px;white-space: pre-wrap; word-wrap: break-word; ">';
+        var_dump($page->settings);
+        echo '</div>';
+        die();
+        
+    }
+
+    $blocks = array('logo','headline','description','form','progress_bar','countdown','social_profiles','share_buttons','contact_form','column');
+    if(!empty($settings->blocks)){
+        foreach($block as $v){
+            $settings->blocks = seed_cspv5_array_add($v);
+        }
+        $blocks = $settings->blocks;
+    }
+    // else{
+    //     array_splice($blocks, -1, "contact_form");
+    //     $settings->blocks = $blocks;
+    //     // die();
+    // }
+
+    $settings = seed_cspv5_array_add($settings,'blocks',$blocks);
+    
+    // Add contact_form block
+    if(!in_array('contact_form',$settings['blocks'])){
+        $key = array_search('column',$settings['blocks']);
+        seed_cspv5_array_insert(
+            $settings['blocks'],
+            $key,
+            "contact_form"
+        );
+    }
+
+    
+    $settings = json_decode(json_encode($settings), FALSE);
+
+  
+     // var_dump($settings);
+     // die();
+        if($settings !== false){
+            ?>
+
+            <div id="seed-cspv5-customizer">
+              <?php require_once(SEED_CSPV5_PLUGIN_PATH.'customizer/customizer_v2.php'); ?>
+            </div>
+            <?php
+        }
+    }
     
     function customizer( ){
 
@@ -1562,6 +1822,7 @@ class SEED_CSPV5_ADMIN
                                     'gravityforms' => 'Gravity Forms',
                                     'ninjaforms' => 'Ninja Forms',
                                     'followupemails' => 'Follow-Up Emails',
+                                    'formidable' => 'Formidable',
                                     'icontact' => 'iContact',
                                     'infusionsoft' => 'Infusionsoft',
                                     'madmimi' => 'Mad Mimi',
@@ -2353,6 +2614,11 @@ class SEED_CSPV5_ADMIN
                 $name = sanitize_text_field($_REQUEST['name']);
             }
 
+            $optin_confirmation = 0;
+            if(!empty($_REQUEST['optin_confirmation'])){
+                $optin_confirmation = 1;
+            }
+
 
             // Sanitize random fields
             if(seed_cspv5_cu('fb')){
@@ -2365,7 +2631,7 @@ class SEED_CSPV5_ADMIN
 
 
             
-            $bypassed_emaillist = apply_filters('seed_cspv5_bypassed_emaillist',array('gravityforms','ninjaforms'));
+            $bypassed_emaillist = apply_filters('seed_cspv5_bypassed_emaillist',array('gravityforms','ninjaforms','formidable'));
 
             // Check it we need to validate recaptcha
             if(!in_array($emaillist, $bypassed_emaillist)){
@@ -2416,7 +2682,7 @@ class SEED_CSPV5_ADMIN
             // Check it we need to validate name
             if(!in_array($emaillist, $bypassed_emaillist)){
                 if(!empty($display_name)){
-                    if(!empty($require_name)){
+                    if(!empty($require_name) && !$cookie_submit){
                         if(empty($name)){
                              $seed_cspv5_post_result['status'] = '400';
                              if(!empty($lang_settings['txt_invalid_name_msg']) && !empty($lang_id)){
@@ -2432,13 +2698,29 @@ class SEED_CSPV5_ADMIN
                         }
                     }
                 }
+                // Validate Optin Confirmation
+                if(!empty($display_optin_confirm)){
+                    if(empty($optin_confirmation) && !$cookie_submit){
+                            $seed_cspv5_post_result['status'] = '400';
+                            if(!empty($lang_settings['txt_optin_confirmation_required']) && !empty($lang_id)){
+                            $seed_cspv5_post_result['msg'] = $lang_settings['txt_optin_confirmation_required'];
+                            }else{
+                            $seed_cspv5_post_result['msg'] = $txt_optin_confirmation_required;
+                            }
+                            $seed_cspv5_post_result['msg_class'] = 'alert-danger';
+                            $errors[] = $seed_cspv5_post_result['msg'];
+                            
+    
+                            $emaillist = '';
+                    }
+                }
 
                 //Check custom fields for required
                 if(!empty($form_settings) && seed_cspv5_cu('fb')){
                 foreach($form_settings as $k => $v){
                     if(is_array($v)){
                         if(substr( $k, 0, 6 ) === "field_" && $k != 'field_name'){
-                            if(!empty($v['required']) && !empty($v['visible'])){
+                            if(!empty($v['required']) && !empty($v['visible']) && !$cookie_submit){
                                 if(empty($_REQUEST[$k])){
                                     $seed_cspv5_post_result['status'] = '400';
                                      // if(!empty($lang_settings['txt_invalid_name_msg']) && !empty($lang_id)){
@@ -2513,6 +2795,9 @@ class SEED_CSPV5_ADMIN
                         if(strrpos($k, "prize_") !== false){
                         if(!empty($v['description'])){
                             $class='';
+                            if(empty($seed_cspv5_post_result['subscribers'])){
+                                $seed_cspv5_post_result['subscribers'] = 0;
+                            }
                             if($seed_cspv5_post_result['subscribers'] >= $v['number']){
                                 $class='cspio-reveal';
                             }
@@ -2632,9 +2917,11 @@ class SEED_CSPV5_ADMIN
         }
         
         $content = '';
+        if($status == '200' || $status == '409'){
         ob_start();
         include(SEED_CSPV5_PLUGIN_PATH.'template/show_share_buttons_ty.php');
         $content = ob_get_clean();
+        }
         header('Content-Type: text/javascript; charset=utf8');
         // Return jsonp results
         $html = $html.$content;
@@ -2654,7 +2941,7 @@ class SEED_CSPV5_ADMIN
         ob_get_clean();
         global $wpdb;
         $csv_output = '';
-        $csv_output .= "Page,Email,Fname,Lname,Clicks,Conversions,City,Country,IP,Created,Referrer,Meta";
+        $csv_output .= "Page,Email,Fname,Lname,Clicks,Conversions,City,Country,IP,Created,Referrer,Optin Confirm,Meta";
         $csv_output .= "\n";
         $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
         $sql = "SELECT * FROM " . $tablename;
@@ -2701,7 +2988,8 @@ class SEED_CSPV5_ADMIN
                 $city = '';
                 $country = '';
             }
-           $csv_output .= $page .",".$result->email ."," . $result->fname . ",". $result->lname . "," . $result->clicks . "," . $result->conversions . "," . $city . "," . $country . "," . $result->ip . "," . $result->created . "," . $referrer."," . $print_meta."\n";
+           $csv_output .= $page .",".$result->email ."," . $result->fname . ",". $result->lname . "," . $result->clicks . "," . $result->conversions . "," . $city . "," . $country . "," . $result->ip . "," . $result->created . "," . $referrer."," . $result->optin_confirm. "," .
+           $print_meta."\n";
         }
 
         $filename = "subscribers_".date("Y-m-d_H-i",time());
@@ -2843,7 +3131,7 @@ class SEED_CSPV5_ADMIN
 
             $seed_cspv5_subscribers = new SEED_CSPV5_SUBSCRIBERS();
             $seed_cspv5_subscribers->prepare_items();
-            echo '<strong>Page</strong> <select id="seed_cspv5_page_id">'.implode($options).'</select>';
+            echo '<strong>Page</strong> <select id="seed_cspv5_page_id" style="width:100%">'.implode($options).'</select>';
             ?>
             <script>
             jQuery( document ).ready(function($) {
@@ -2911,7 +3199,7 @@ class SEED_CSPV5_ADMIN
                 }
                 echo '</ul>';
             }
-            echo '<form id="seed_cspv5_search"" method="post">';
+            echo '<form id="seed_cspv5_search" method="post">';
             $seed_cspv5_subscribers->search_box('Search Emails', 'email'); 
             echo '</form>';
             echo '<form id="seed_cspv5_bulk_actions" method="post">';
@@ -3049,14 +3337,30 @@ class SEED_CSPV5_PAGES extends WP_List_Table {
     function get_data($current_page,$per_page){
         // Get records
         global $wpdb;
-        $l1 = ($current_page-1)* $per_page;
-        $l2 = $per_page;
+
         $tablename = $wpdb->prefix . SEED_CSPV5_PAGES_TABLENAME;
-        $email = '%'.$_POST['s'].'%';
-        $q = "WHERE path LIKE %s AND type = 'lp' ";
-        $sql = "SELECT * FROM $tablename $q LIMIT $l1,$l2";
-        $safe_sql = $wpdb->prepare($sql,$email);
-        $results = $wpdb->get_results($safe_sql);
+
+        $sql = "SELECT * FROM $tablename WHERE type = 'lp' ";
+
+        if(!empty($_POST['s'])){
+            $sql .= ' AND id LIKE "%'. esc_sql(trim($_POST['s'])) .'%" OR path LIKE "%'. esc_sql(trim($_POST['s'])) .'%"';
+        }
+
+        if ( ! empty( $_GET['orderby'] ) ) {
+            $sql .= ' ORDER BY ' . esc_sql( $_GET['orderby'] );
+            $sql .= ! empty( $_GET['order'] ) ? ' ' . esc_sql( $_GET['order'] ) : ' ASC';
+        }else{
+            $sql .= ' ORDER BY created DESC';
+        }
+
+        $sql .= " LIMIT $per_page";
+        if(empty($_POST['s'])){
+            $sql .= ' OFFSET ' . ( $current_page - 1 ) * $per_page;
+        }
+        //var_dump($sql);
+        //$safe_sql = $wpdb->prepare($sql,$email,$page_id);
+        $results = $wpdb->get_results($sql);
+
         $data = array();
         foreach($results as $v){
             // Path
@@ -3074,6 +3378,7 @@ class SEED_CSPV5_PAGES extends WP_List_Table {
                 'name' => esc_html($name),
                 'path' => '<a href="'.home_url().'/'.esc_html($path).'" target="_blank">'.home_url().'/'.esc_html($path).'</a>',
                 'created' => $created,
+                'deactivate' => $v->deactivate,
             );
         }
         return $data;
@@ -3081,15 +3386,16 @@ class SEED_CSPV5_PAGES extends WP_List_Table {
 
     function get_data_total(){
         global $wpdb;
-        if(empty($_POST['s']))
-            $_POST['s'] = '';
 
         $tablename = $wpdb->prefix . SEED_CSPV5_PAGES_TABLENAME;
-        $email = '%'.$_POST['s'].'%';
-        $q = "WHERE path LIKE %s AND type = 'lp' ";
-        $sql = "SELECT count(id) FROM $tablename $q";
-        $safe_sql = $wpdb->prepare($sql,$email);
-        $results = $wpdb->get_var($safe_sql);
+
+        $sql = "SELECT count(id) FROM $tablename WHERE type = 'lp' ";
+
+        if(!empty($_POST['s'])){
+            $sql .= ' AND path LIKE "%'. esc_sql($_POST['s']) .'%"';
+        }
+
+        $results = $wpdb->get_var($sql);
         return $results;
     }
 
@@ -3100,17 +3406,6 @@ class SEED_CSPV5_PAGES extends WP_List_Table {
         'created'   => array('created',false)
       );
       return $sortable_columns;
-    }
-
-    function usort_reorder( $a, $b ) {
-      // If no sort, default to created
-      $orderby = ( ! empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'created';
-      // If no order, default to asc
-      $order = ( ! empty($_GET['order'] ) ) ? $_GET['order'] : 'desc';
-      // Determine sort order
-      $result = strcmp( $a[$orderby], $b[$orderby] );
-      // Send final sort direction to usort
-      return ( $order === 'asc' ) ? $result : -$result;
     }
 
     function get_columns(){
@@ -3134,9 +3429,8 @@ class SEED_CSPV5_PAGES extends WP_List_Table {
         'total_items' => $total_items,
         'per_page'    => $per_page
       ) );
-      $data = $this->get_data($current_page,$per_page);
-      usort( $data, array( &$this, 'usort_reorder' ) );
-      $this->items = $data;
+      $customvar = ( isset($_REQUEST['customvar']) ? $_REQUEST['customvar'] : 'all');
+      $this->items = $this->get_data($current_page,$per_page);
     }
 
     function column_default( $item, $column_name ) {
@@ -3166,9 +3460,14 @@ class SEED_CSPV5_PAGES extends WP_List_Table {
     
 
     function column_name($item) {
+      $label = 'Activate';
+      if(empty($item['deactivate'])){
+        $label = 'Deactivate';
+      }
       $actions = array(
                 'edit'      => sprintf('<a href="options-general.php?page=seed_cspv5_customizer&seed_cspv5_customize=%s">Edit</a>',$item['ID']),
                 'duplicate'      => sprintf('<a href="options-general.php?page=seed_cspv5_duplicate&id=%s">Duplicate</a>',$item['ID']),
+                'deactivate'      => sprintf('<a href="options-general.php?page=seed_cspv5_deactivate&id=%s">%s</a>',$item['ID'],$label),
             );
       return sprintf('%1$s %2$s', $item['name'], $this->row_actions($actions, true) );
     }
@@ -3179,25 +3478,21 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
     function get_data($current_page,$per_page){
         // Get records
         global $wpdb;
-        $l1 = ($current_page-1)* $per_page;
-        $l2 = $per_page;
+
         $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
-        if(empty($_POST['s'])){
-            $_POST['s'] = '';
-        }
-        $email = '%'.$_POST['s'].'%';
-        $page_id = '';
 
-        if(isset($_GET['page_id']) && $_GET['page_id'] != '' ){
-            $page_id = $_GET['page_id'];
-            $q = "WHERE email LIKE %s AND page_id = %d ";
-        }else{
-            $q = "WHERE email LIKE %s ";
+        $sql = "SELECT * FROM $tablename WHERE 1 = 1 ";
+
+        if(!empty($_POST['s'])){
+            $sql .= ' AND email LIKE "%'. esc_sql(trim($_POST['s'])) .'%"';
         }
 
-        $prize_level = '';
+        if(!empty($_REQUEST['page_id'])){
+            $sql .= ' AND page_id = "'. esc_sql(trim($_GET['page_id'])) .'"';
+        }
+
         if(isset($_GET['prize_level'])){
-            $prize_level = $_GET['prize_level'];
+            $prize_level = esc_sql($_GET['prize_level']);
             // get prize
             $prize_settings_name = 'seed_cspv5_'.$page_id.'_prizes';
             $prize_settings = get_option($prize_settings_name);
@@ -3205,17 +3500,24 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
                 $prize_settings = maybe_unserialize($prize_settings);
             }
 
-            $q = $q . " AND conversions >= ".$prize_settings[$prize_level]['number'];
+            $sql .= " AND conversions >= ".$prize_settings[$prize_level]['number'];
         }
 
-        $sql = "SELECT * FROM $tablename $q LIMIT $l1,$l2";
-        if(empty($page_id)){
-            $safe_sql = $wpdb->prepare($sql,$email);
+        if ( ! empty( $_GET['orderby'] ) ) {
+            $sql .= ' ORDER BY ' . esc_sql( $_GET['orderby'] );
+            $sql .= ! empty( $_GET['order'] ) ? ' ' . esc_sql( $_GET['order'] ) : ' ASC';
         }else{
-            $safe_sql = $wpdb->prepare($sql,$email,$page_id);
+            $sql .= ' ORDER BY created DESC';
         }
-        $results = $wpdb->get_results($safe_sql);
-        //var_dump($safe_sql);
+
+
+        $sql .= " LIMIT $per_page";
+        if(empty($_POST['s'])){
+            $sql .= ' OFFSET ' . ( $current_page - 1 ) * $per_page;
+        }
+
+        $results = $wpdb->get_results($sql);
+        //var_dump($sql);
         $data = array();
         foreach($results as $v){
             // Sep
@@ -3319,48 +3621,43 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
 
     function get_data_total_all(){
         global $wpdb;
-        if(empty($_POST['s']))
-            $_POST['s'] = '';
-        $page_id = '';
-        if(isset($_GET['page_id']) && $_GET['page_id'] != '' ){
-            $page_id = $_GET['page_id'];
-            $q = "WHERE email LIKE %s AND page_id = %d ";
-        }else{
-            $q = "WHERE email LIKE %s ";
-
-        }
 
         $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
-        $email = '%'.$_POST['s'].'%';
-        $sql = "SELECT count(id) FROM $tablename $q";
-        if(empty($page_id)){
-            $safe_sql = $wpdb->prepare($sql,$email);
-        }else{
-            $safe_sql = $wpdb->prepare($sql,$email,$page_id);
+
+        $sql = "SELECT count(id) FROM $tablename WHERE 1 = 1 ";
+
+        if(!empty($_POST['s'])){
+            $sql .= ' AND email LIKE "%'. esc_sql(trim($_POST['s'])) .'%"';
         }
-        $results = $wpdb->get_var($safe_sql);
+
+        if(!empty($_REQUEST['page_id'])){
+            $sql .= ' AND page_id = "'. esc_sql(trim($_GET['page_id'])) .'"';
+        }
+
+        $results = $wpdb->get_var($sql);
+        
         return $results;
     }
 
 
     function get_data_total_filter($prize_level = null, $passed_page_id = null){
         global $wpdb;
-        if(empty($_POST['s']))
-            $_POST['s'] = '';
-        $page_id = '';
-        if(isset($_GET['page_id']) && $_GET['page_id'] != '' ){
-            $page_id = $_GET['page_id'];
-            $q = "WHERE email LIKE %s AND page_id = %d ";
-        }else{
-            $q = "WHERE email LIKE %s ";
-            $page_id = $passed_page_id;
+
+        $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
+
+        $sql = "SELECT count(id) FROM $tablename WHERE 1 = 1 ";
+
+        if(!empty($_POST['s'])){
+            $sql .= ' AND email LIKE "%'. esc_sql(trim($_POST['s'])) .'%"';
+        }
+
+        if(!empty($_REQUEST['page_id'])){
+            $sql .= ' AND page_id = "'. esc_sql(trim($_GET['page_id'])) .'"';
         }
 
         if(isset($_GET['prize_level'])){
-            //$prize_level = $_GET['prize_level'];
+            //$prize_level = esc_sql($_GET['prize_level']);
         }
-
-
 
         $number_required = '';
         if(!empty($prize_level)){
@@ -3379,35 +3676,32 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
         }
 
         if(!empty($number_required)){
-            $q = $q . " AND conversions >= ".$number_required;
+            $sql .= " AND conversions >= ".$number_required;
         }
 
-        $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
-        $email = '%'.$_POST['s'].'%';
-        $sql = "SELECT count(id) FROM $tablename $q";
-        $safe_sql = $wpdb->prepare($sql,$email,$page_id);
-        $results = $wpdb->get_var($safe_sql);
+        $results = $wpdb->get_var($sql);
+
         return $results;
     }
 
     function get_data_total($prize_level = null, $passed_page_id = null){
         global $wpdb;
-        if(empty($_POST['s']))
-            $_POST['s'] = '';
-        $page_id = '';
-        if(isset($_GET['page_id']) && $_GET['page_id'] != '' ){
-            $page_id = $_GET['page_id'];
-            $q = "WHERE email LIKE %s AND page_id = %d ";
-        }else{
-            $q = "WHERE email LIKE %s ";
-            $page_id = $passed_page_id;
+
+        $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
+
+        $sql = "SELECT count(id) FROM $tablename WHERE 1 = 1 ";
+
+        if(!empty($_POST['s'])){
+            $sql .= ' AND email LIKE "%'. esc_sql(trim($_POST['s'])) .'%"';
+        }
+
+        if(!empty($_REQUEST['page_id'])){
+            $sql .= ' AND page_id = "'. esc_sql(trim($_GET['page_id'])) .'"';
         }
 
         if(isset($_GET['prize_level'])){
-            $prize_level = $_GET['prize_level'];
+            $prize_level = esc_sql($_GET['prize_level']);
         }
-
-
 
         $number_required = '';
         if(!empty($prize_level)){
@@ -3426,18 +3720,11 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
         }
 
         if(!empty($number_required)){
-            $q = $q . " AND conversions >= ".$number_required;
+            $sql .= " AND conversions >= ".$number_required;
         }
 
-        $tablename = $wpdb->prefix . SEED_CSPV5_SUBSCRIBERS_TABLENAME;
-        $email = '%'.$_POST['s'].'%';
-        $sql = "SELECT count(id) FROM $tablename $q";
-        if(empty($page_id)){
-            $safe_sql = $wpdb->prepare($sql,$email);
-        }else{
-            $safe_sql = $wpdb->prepare($sql,$email,$page_id);
-        }
-        $results = $wpdb->get_var($safe_sql);
+        $results = $wpdb->get_var($sql);
+
         return $results;
     }
 
@@ -3452,16 +3739,6 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
       return $sortable_columns;
     }
 
-    function usort_reorder( $a, $b ) {
-      // If no sort, default to created
-      $orderby = ( ! empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'created';
-      // If no order, default to asc
-      $order = ( ! empty($_GET['order'] ) ) ? $_GET['order'] : 'asc';
-      // Determine sort order
-      $result = strcmp( $a[$orderby], $b[$orderby] );
-      // Send final sort direction to usort
-      return ( $order === 'asc' ) ? $result : -$result;
-    }
 
     function get_columns(){
       $columns = array(
@@ -3488,9 +3765,8 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
         'total_items' => $total_items,
         'per_page'    => $per_page
       ) );
-      $data = $this->get_data($current_page,$per_page);
-      usort( $data, array( &$this, 'usort_reorder' ) );
-      $this->items = $data;
+      $customvar = ( isset($_REQUEST['customvar']) ? $_REQUEST['customvar'] : 'all');
+      $this->items = $this->get_data($current_page,$per_page);
     }
 
     function column_default( $item, $column_name ) {
