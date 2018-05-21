@@ -1,6 +1,6 @@
 <div id="sliderhome">
-	<div class="xs-hide"><?php echo do_shortcode('[metaslider id="5379"]'); ?></div>
-	<div class="xs-show"><?php echo do_shortcode('[metaslider id="5383"]'); ?></div>
+	<div class="xs-hide"><?php echo do_shortcode('[metaslider id="6851"]'); ?></div>
+	<div class="xs-show"><?php echo do_shortcode('[metaslider id="6861"]]'); ?></div>
 </div>
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">
