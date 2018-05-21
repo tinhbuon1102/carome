@@ -311,7 +311,7 @@ if ( $current_user && $current_user->ID )
 				
 			</div>
 			<div class="modal_button_wraper">
-				  <button data-remodal-action="cancel" class="button remodal-cancel">編集</button>
+				  <button data-remodal-action="cancel" class="button remodal-cancel-confim">編集</button>
 				  <button class="button--primary button remodal-confirm submit_confirm">申し込む</button>
 			</div>
 		</div>

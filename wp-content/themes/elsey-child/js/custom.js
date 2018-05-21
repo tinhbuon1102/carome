@@ -479,6 +479,11 @@ jQuery(document).ready(function($){
 			}
 		});
 	  
+	  $(document).on('click', '.remodal-cancel-confim', function(){
+		  var inst = $('[data-remodal-id=retal_kimono_popup]').remodal();
+		  inst.open();
+	  });
+	  
 	  $(document).on('click', '.submit_confirm', function(){
 		  $('body').LoadingOverlay('show');
 		  $.ajax({
