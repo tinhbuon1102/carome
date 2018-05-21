@@ -190,7 +190,7 @@ var gl_alertStateNotAllowed = '';
                 'pad_counts'   => $pad_counts,
                 'hierarchical' => $hierarchical,
                 'title_li'     => $title,
-                'exclude'    => '157,161,162,163,159,160',
+                'exclude'    => '157,161,162,163,159,160,145,146,147,148,151,150,149',//live from 145
                 'hide_empty'   => $empty
         );
         $sub_cats = get_categories( $args2 );

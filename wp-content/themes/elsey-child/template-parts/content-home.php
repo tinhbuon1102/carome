@@ -46,7 +46,7 @@
                 'pad_counts'   => $pad_counts,
                 'hierarchical' => $hierarchical,
                 'title_li'     => $title,
-			    'exclude'    => '157,161,158,159,163',
+			    'exclude'    => '157,161,158,159,163,145,146,147,148,151,150,149',//live from 145
                 'hide_empty'   => $empty
         );
         $sub_cats = get_categories( $args2 );
@@ -111,7 +111,7 @@
 				$prod_categories = get_terms( 'product_cat', array(
 					'orderby'    => 'name',
 					'order'      => 'ASC',
-					'exclude'    => '69, 77,157,161,158,159,163,162',
+					'exclude'    => '69, 77,157,161,158,159,163,162,145,146,147,148,151,150,149',
 					'number'     => 8,
 					'hide_empty' => 1
 				));
