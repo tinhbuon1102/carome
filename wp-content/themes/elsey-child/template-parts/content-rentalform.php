@@ -28,7 +28,6 @@ if ( $current_user && $current_user->ID )
 	var min_day = <?php echo (int)$aTimes['min_day']?>;
 </script>
 <div class="remtal_kimono_content">
-<form class="retal_kimono_form" method="POST">
 <div class="row">
 	<div class="els-product-image-col col-md-6 col-xs-12 images">
 		<div class="product__images">
@@ -105,13 +104,13 @@ if ( $current_user && $current_user->ID )
 	</div>
 </div>
 <div class="sticky-stopper"></div>
-</form>
 </div>
 <!--open form--> 
 <div class="remodal" data-remodal-id="rental_kimono_openform" id="rental_kimono_openform" aria-labelledby="modalTitle" aria-describedby="modalDesc"   data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
 	<button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
 	<div id="retal_kimono_form_content_wraper">
 		<h4 class="contact_popup_title">着物レンタル申し込み</h4>
+		<form class="retal_kimono_form" method="POST">
 		<div id="retal_kimono_form_content">
 			<div class="form-theme">
 				<div class="form-box">
@@ -298,6 +297,7 @@ if ( $current_user && $current_user->ID )
 				<button data-remodal-action="cancel" class="button remodal-cancel">Cancel</button>
 			</div>
 		</div>
+		</form>
 	</div>
 </div>
 <!--confirm-->
