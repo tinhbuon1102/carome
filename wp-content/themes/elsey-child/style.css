@@ -906,7 +906,40 @@ fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
 .els-titlebar-plain .page-title {
 	font-weight: 400;
 }
+.static_textblock p:not(:last-child) {
+    margin-bottom: 20px;
+}
+.block_style01 h3 {
+    font-size: 14px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+	position: relative;
+}
+.block_style01 h3:before, .block_style01 h3:after {
+    content: '';
+    display: block;
+    position: absolute;
+    height: 2px;
+	left: 0;
+    bottom: 0;
+}
+.block_style01 h3:before {
+    background: #e8e8e8;
+    width: 100%;
+}
+.block_style01 h3:after {
+    background: rgba(241,221,222,1);
+	width: 120px;
+}
 @media only screen and (min-width: 48em) {
+	.block_style01 h3 {
+		font-size: 18px;
+		margin-bottom: 40px;
+	}
+	.hr_style01 {
+    margin-top: 40px;
+    margin-bottom: 40px;
+	}
 	.auth__container {
     position: relative;
 	}

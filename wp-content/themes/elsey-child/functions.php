@@ -2636,3 +2636,8 @@ function retal_submition() {
 	echo json_encode(array('success' => $success, 'redirect' => get_site_url() . '/kimono-rental-thanks'));
 	die;
 }
+//shortcode url
+add_shortcode('homeurl', 'shortcode_url');
+function shortcode_url() {
+return get_bloginfo('url');
+}
