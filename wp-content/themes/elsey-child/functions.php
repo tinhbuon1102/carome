@@ -96,7 +96,7 @@ function add_page_slug_class_name( $classes ) {
 //woo category sidebar widget
 add_filter( 'woocommerce_product_categories_widget_args', 'rv_exclude_wc_widget_categories' );
 function rv_exclude_wc_widget_categories( $cat_args ) {
-	$cat_args['exclude'] = array('77','72'); // Insert the product category IDs you wish to exclude
+	$cat_args['exclude'] = array('77','72','152','153'); // Insert the product category IDs you wish to exclude
 	return $cat_args;
 }
 /*add custom logo menu for sticky*/
@@ -2634,7 +2634,7 @@ function retal_submition() {
 	$site_title = get_bloginfo( 'name' );
 	$headers = 'Content-type: text/plain;charset=utf-8' . "\r\n";
 	$headers .= 'From: '.$site_title.' <info@carome.net>' . "\r\n";
-	$bcc_email = 'kyoooko1122@gmail.com,quocthang.2001@gmail.com';
+	$bcc_email = 'kyoooko1122@gmail.com,quocthang.2001@gmail.com,yagi@libera-japan.com';
 	if ($bcc_email)
 	{
 		$headers .= 'Bcc: '.$bcc_email."\r\n";
