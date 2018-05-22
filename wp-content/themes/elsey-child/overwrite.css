@@ -23,3 +23,7 @@
     padding: 8px 0;
     min-width: 90px;
 }
+.els-shop-sidebar li.cat-item.cat-item-153, .els-shop-sidebar li.cat-item.cat-item-152, .els-shop-sidebar li.cat-item.cat-item-154 {
+	display: none !important;
+	
+}
