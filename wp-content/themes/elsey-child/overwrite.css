@@ -27,6 +27,8 @@
 	display: none !important;
 	
 }
+@media only screen and (min-width: 48em) {
 .sub_banner {
     padding: 20px;
+}
 }

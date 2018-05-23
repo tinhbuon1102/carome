@@ -5,9 +5,14 @@
 	endwhile;
 	?>
 </div>
-<!--<div class="sub_banner xs-show">
-	<img src="http://carome.xsrv.jp/wp-content/uploads/2018/05/springfaier2018_banner_slidersp.jpg" alt="springfair" />
-</div>-->
+<?php if ( date_i18n('YmdHi') >= "201805231200" ) { ?>
+<div class="sub_banner xs-hide">
+	<a href="<?php echo home_url('/spring-fair'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SpringFairTopBanner-Desktop.jpg" alt="springfair" /></a>
+</div>
+<div class="sub_banner xs-show">
+	<a href="<?php echo home_url('/spring-fair'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SpringFairTopBanner-Mobile.jpg" alt="springfair" /></a>
+</div>
+<?php } ?><!--time set end-->
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">
 		<h3 class="heading heading--main upper">Just Arrived</h3>
