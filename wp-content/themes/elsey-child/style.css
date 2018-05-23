@@ -2523,6 +2523,25 @@ ul.mag-tags li {
     left: 0;
     top: -7%;
 	}
+	.magazine-article__section .mag_media_content_wrap {
+    width: 65%;
+    -webkit-box-flex: 0!important;
+    -webkit-flex: none!important;
+    -ms-flex: none!important;
+    flex: none!important;
+}
+
+.magazine-article__section .mag_items {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+}
+
+.mag_items .woocommerce {
+    max-width: 80%;
+    margin: 0 auto;
+}
 }
 @media only screen and (max-width: 64em) and (min-width: 48em) {
 	.woocommerce.columns-2 ul.products li.product {
@@ -2556,6 +2575,7 @@ ul.mag-tags li {
 	.mag_media_content_wrap {
     margin-bottom: 40px;
 	}
+	
 	
 }
 @media only screen and (max-width: 47.99em) {
