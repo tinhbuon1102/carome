@@ -1,7 +1,13 @@
 <div id="sliderhome">
-	<div class="xs-hide"><?php echo do_shortcode('[metaslider id="6851"]'); ?></div>
-	<div class="xs-show"><?php echo do_shortcode('[metaslider id="6861"]]'); ?></div>
+	<?php
+	while ( have_posts() ) : the_post();
+	the_content();
+	endwhile;
+	?>
 </div>
+<!--<div class="sub_banner xs-show">
+	<img src="http://carome.xsrv.jp/wp-content/uploads/2018/05/springfaier2018_banner_slidersp.jpg" alt="springfair" />
+</div>-->
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">
 		<h3 class="heading heading--main upper">Just Arrived</h3>
