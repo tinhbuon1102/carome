@@ -67,6 +67,57 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 			</div><!--/o-accordion__tabset-->
 			<?php endforeach; ?>
 	<!--manual tabs content-->
+	
+	<!--ACF size tab-->
+	<?php
+	$table = get_field( 'product_size' );
+	if ( $table ) {
+	?>
+	<div id="product_size__panel" class="o-accordion__tabset" data-add-class="js_collapsible js_collapsed">
+				<div data-toggle="#product_size__panel">
+				<div class="o-row">
+					<div class="o-column o-extra-small--12">
+						<a class="o-accordion__tab" href=""><h3 class="o-accordion__label"><?php esc_html_e( 'サイズ情報', 'elsey' ); ?></h3><span class="o-accordion__control c-product-details__collapse"></span></a>
+					</div>
+				</div>
+				</div>
+				<div class="o-accordion__panel">
+					<div class="o-row">
+						<div class="o-column o-extra-small--12">
+							
+							<?php
+								echo '<table class="c-table" border="0">';
+								if ( $table['header'] ) {
+									echo '<thead class="c-thead">';
+									echo '<tr>';
+									foreach ( $table['header'] as $th ) {
+										echo '<th class="c-thead__th">';
+										echo $th['c'];
+										echo '</th>';
+									}
+									echo '</tr>';
+									echo '</thead>';
+								}
+								echo '<tbody>';
+								foreach ( $table['body'] as $tr ) {
+									echo '<tr class="c-table__tr">';
+									foreach ( $tr as $td ) {
+										echo '<td class="c-table__td">';
+										echo $td['c'];
+										echo '</td>';
+									}
+									echo '</tr>';
+								}
+								echo '</tbody>';
+								echo '</table>';
+								?>
+						</div>
+					</div>
+				</div>
+			</div>
+	<?php } ?>
+	
+	<!--description tab-->
 			<div id="product_description__panel" class="o-accordion__tabset" data-add-class="js_collapsible">
 				<div data-toggle="#product_description__panel">
 				<div class="o-row">
@@ -106,6 +157,7 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 				</div>
 			</div>
 	
+	<!--shipping info tab-->
 			<div id="product_notice__panel" class="o-accordion__tabset" data-add-class="js_collapsible js_collapsed">
 				<div data-toggle="#product_notice__panel">
 				<div class="o-row">
