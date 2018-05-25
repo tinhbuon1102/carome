@@ -27,6 +27,25 @@
 	display: none !important;
 	
 }
+.form-row .withunit {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+	-webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+.form-row .withunit input {
+    width: auto;
+}
+.form-row .withunit .unit {
+	padding-left: 10px;
+}
 @media only screen and (min-width: 48em) {
 .sub_banner {
     padding: 20px;

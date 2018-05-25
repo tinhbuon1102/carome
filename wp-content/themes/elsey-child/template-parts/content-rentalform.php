@@ -56,18 +56,31 @@ if ( $current_user && $current_user->ID )
 			</div>
 			<div class="item_summary">
 			<div class="panel_item">
-				<h3>レンタル期間</h3>
-				<div class="u-global-p">
-					<p>要相談</p>
-				</div>
-			</div>
-			<div class="panel_item">
 				<h3>セット内容</h3>
 				<div class="u-global-p">
 					<p>振袖/帯/長襦袢/ショール/帯揚げ/帯締め/ひよく衿/草履/バックセット/小物セット/足袋/かんざし</p>
 				</div>
 			</div>
 			<div class="panel_item">
+				<h3>レンタル期間</h3>
+				<div class="u-global-p">
+					<p>要相談</p>
+				</div>
+			</div>
+			<div class="panel_item">
+				<h3>注意事項</h3>
+				<div class="u-global-p">
+					<p>髪飾り等は、入っておりませんのでご注意下さい。<br/>162センチでの作りになってますので155センチくらいから168センチくらいの方がおススメです。<br/>成人式当日のレンタルは、承っておりません。</p>
+				</div>
+			</div>
+			<div class="panel_item">
+				<h3>素材</h3>
+				<div class="u-global-p">
+					<p>正絹</p>
+				</div>
+			</div>
+			
+			<!--<div class="panel_item">
 				<h3>サイズ</h3>
 				<table class="size-chart">
 					<tbody>
@@ -91,13 +104,8 @@ if ( $current_user && $current_user->ID )
 						</tr>
 					</tbody>
 				</table>
-			</div>
-			<div class="panel_item">
-				<h3>素材</h3>
-				<div class="u-global-p">
-					<p>正絹</p>
-				</div>
-			</div>
+			</div>-->
+			
 		</div>
 		</div>
 		
@@ -220,6 +228,16 @@ if ( $current_user && $current_user->ID )
 				</div>
 			</div>
 			<!--/form-row-->
+					
+			<!--added newly-->
+			<div class="form-row row required date-wraper">
+				<div class="col-xs-12">
+					<label class="form-row__label required"><?php echo __('身長', 'elsey')?></label>
+					<span class="withunit"><input type="text" name="contact[height]" value="" placeholder="158" class="validate[required]"><span class="unit">cm</span></span>
+				</div>
+			</div>
+			<!--/added newly-->
+					
 			<div class="form-row row required">
 				<div class="col-sm-6">
 					<label class="form-row__label required"><?php echo __('Last Name', 'elsey')?></label>
