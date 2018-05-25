@@ -2566,6 +2566,8 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 レンタル第２希望日：{year2}年 {month2}月 {date2}日
 レンタル第３希望日：{year3}年 {month3}月 {date3}日
 
+●身長 {height} cm
+		
 ●お客様情報
 お名前：{last_name} {first_name}
 ふりがな：{last_name_kana} {first_name_kana}
@@ -2599,6 +2601,8 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 レンタル第２希望日：{year2}年 {month2}月 {date2}日
 レンタル第３希望日：{year3}年 {month3}月 {date3}日
 
+●身長 {height} cm
+		
 ●お客様情報
 お名前：{last_name} {first_name} 様
 ふりがな：{last_name_kana} {first_name_kana}
