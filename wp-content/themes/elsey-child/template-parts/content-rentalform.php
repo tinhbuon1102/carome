@@ -58,7 +58,7 @@ if ( $current_user && $current_user->ID )
 			<div class="panel_item">
 				<h3>セット内容</h3>
 				<div class="u-global-p">
-					<p>振袖/帯/長襦袢/ショール/帯揚げ/帯締め/ひよく衿/草履/バックセット/小物セット/足袋/かんざし</p>
+					<p>振袖/帯/長襦袢/ショール/帯揚げ/帯締め/ひよく衿/草履/バックセット/小物セット/足袋</p>
 				</div>
 			</div>
 			<div class="panel_item">
