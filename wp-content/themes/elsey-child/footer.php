@@ -86,9 +86,13 @@ wp_footer(); ?>
 <div class="remodal" data-remodal-id="modal" role="dialog" aria-labelledby="modal1Title" aria-describedby="modal1Desc">
   <button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
   <div>
-    <h2 id="modal1Title" class="modal_smallhead">予約注文分マルチストーンチェーンピアス発送日に関しまして</h2>
+    <h2 id="modal1Title" class="modal_smallhead">ご予約注文商品の発送に関しまして</h2>
     <p id="modal1Desc">
-      3月18日から予約注文をお受けさせていただきましたマルチストーンチェーンピアスの発送日に関しまして、商品の方は5月1日から順に発送させていただきます。<br/>大変ながらくおまたせをいたしました。<br/>商品到着まで、もう少々おまちくださいませ。
+      いつもCAROME.えおご利用いただきまして、誠にありがとうございます。<br/>
+ご予約注文をいただいております、『一粒ドロップストーンネックレス・一粒ハートストーンネックレス』
+の発送に関しまして、6月6日（水）から順に発送させていただきます。<br/>
+この度は、発送が遅れました事、大変申し訳ございませんでした。<br/>
+商品到着まで、今しばらくお待ちくださいませ。
     </p>
   </div>
   <br>

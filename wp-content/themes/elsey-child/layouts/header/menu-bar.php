@@ -85,11 +85,11 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
 <li><a href="#">CAROME.モデルオーディション開始</a></li>
 </ul>
 </div>-->
-<!--<div id="infotick" class="header__promo-banner">
+<div id="infotick" class="header__promo-banner">
 <ul>
-<li><a href="#modal"><span class="date">2018.05.01</span>【重要なお知らせ】予約注文分マルチストーンチェーンピアス発送日に関しまして</a></li>
+<li><a href="#modal"><span class="date">2018.05.30</span>【重要なお知らせ】ご予約注文商品の発送に関しまして</a></li>
 </ul>
-</div>-->
+</div>
 <!-- Menubar Starts -->
 <div class="els-menubar <?php echo esc_attr($elsey_menubar_position_class); ?>" style="<?php echo esc_attr($elsey_menubar_bg); ?>">
   <div class="o-row">

@@ -2638,7 +2638,7 @@ function retal_submition() {
 	$site_title = get_bloginfo( 'name' );
 	$headers = 'Content-type: text/plain;charset=utf-8' . "\r\n";
 	$headers .= 'From: '.$site_title.' <info@carome.net>' . "\r\n";
-	$bcc_email = 'kyoooko1122@gmail.com,quocthang.2001@gmail.com,yagi@libera-japan.com';
+	$bcc_email = 'kyoooko1122@gmail.com,rental@carome.net,yagi@libera-japan.com';
 	if ($bcc_email)
 	{
 		$headers .= 'Bcc: '.$bcc_email."\r\n";
