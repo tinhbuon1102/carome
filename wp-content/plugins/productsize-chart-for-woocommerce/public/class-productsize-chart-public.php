@@ -248,11 +248,11 @@ class productsize_chart_Public {
 	public function productsize_chart_id( $id )
 	{
 		
-		
+		$chart_id = 0;
 		if($this->productsize_chart_check($id)):
 			$chart_id=$this->productsize_chart_check($id);
 		else:
-			$chart_id=$this->productsize_chart_id_by_categories($id);
+			//$chart_id=$this->productsize_chart_id_by_categories($id);
 		endif;
 		return $chart_id;
 		
