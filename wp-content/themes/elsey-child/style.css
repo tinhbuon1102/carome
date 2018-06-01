@@ -235,6 +235,15 @@ body.home .pre-notice, .single-product .related .pre-notice{display: none;}
 ul.product-categories span.count {
     display: none;
 }
+.slick-slide.woocommerce-product-gallery__image {
+	display: none !important;
+}
+
+.slick-slide.woocommerce-product-gallery__image.slick-active {
+	display: block !important;
+	left: 0 !important;
+} 
+
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
