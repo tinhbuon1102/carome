@@ -110,6 +110,10 @@ class WC_Gateway_Epsilon_Pro_CC extends WC_Payment_Gateway {
 		}else{
 			// Mark as pending
 			$order->update_status( 'pending', __( 'Paydesign Payment Processing.', 'woo-paydesign' ) );
+			
+			update_post_meta($order_id, 'epsilon_response', $response_array);
+			update_post_meta($order_id, 'epsilon_type', 'creditcard');
+			
 			return array(
 				'result'   => 'success',
 				'redirect' => $response_array['redirect_url']

@@ -108,6 +108,10 @@ class WC_Gateway_Epsilon_Pro_SC extends WC_Payment_Gateway {
 			$order->add_order_note('Error : '.mb_convert_encoding($response_array['error_msg'],'UTF-8','SJIS'));
 			if(is_checkout())wc_add_notice( mb_convert_encoding($response_array['error_msg'],'UTF-8','SJIS'), $notice_type = 'error' );
 		}else{
+			
+			update_post_meta($order_id, 'epsilon_response', $response_array);
+			update_post_meta($order_id, 'epsilon_type', 'smartphone');
+			
 			return array(
 				'result'   => 'success',
 				'redirect' => $response_array['redirect_url']

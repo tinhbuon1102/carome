@@ -1435,6 +1435,13 @@ function elsey_restrict_manage_posts(){
 		    </select>
 		</span>
 		
+		<span id="epsilon_type_wrap">
+		    <select name="epsilon_type" id="epsilon_type">
+		    	<option value=""><?php _e('Epsilon Payment Type', 'elsey'); ?></option>
+		    	<option value="creditcard" <?php echo $_REQUEST['epsilon_type'] == "creditcard" ? 'selected' : '';?>><?php _e('Credit Card', 'elsey'); ?></option>
+		    	<option value="smartphone" <?php echo $_REQUEST['epsilon_type'] == "smartphone" ? 'selected' : '';?>><?php _e('Smart Phone', 'elsey'); ?></option>
+		    </select>
+		</span>
 		
 		<span id="kana_name_search_wraper">
 		    <input name="kana_name" placeholder="<?php echo __('Search Kana name', 'elsey')?>" value="<?php echo $_REQUEST['kana_name'] ? $_REQUEST['kana_name'] : ''?>"/>
@@ -1453,6 +1460,16 @@ function else_parse_query ( $query )
 			'key' => woe_order_exported,
 			'value' => 1,
 			'compare' => $_GET['woe_order_exported'] ? '=' : 'NOT EXISTS'
+		);
+	}
+	
+	if ( 'shop_order' == $_GET['post_type'] && is_admin() && $pagenow == 'edit.php' && isset($_GET['epsilon_type']) && $_GET['epsilon_type'] !== '' )
+	{
+		$query->query_vars['meta_query'] = isset($query->query_vars['meta_query']) ? $query->query_vars['meta_query'] : array();
+		$query->query_vars['meta_query'][] = array(
+			'key' => epsilon_type,
+			'value' => 1,
+			'compare' => $_GET['epsilon_type'] ? '=' : 'NOT EXISTS'
 		);
 	}
 	
