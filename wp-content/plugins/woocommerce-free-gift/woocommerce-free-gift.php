@@ -933,7 +933,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 				echo '
 					<tr>
 					<td class="product-name">' .
-					'<span class="product-gift-image"><img src="'. $image[0] .'" /></span>' .
+					'<span class="product-gift-image"><img style="width: 94px;" src="'. $image[0] .'" /></span>' .
 					'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
 					'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>' .
 					'</td>
