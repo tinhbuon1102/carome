@@ -929,15 +929,22 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 				&& ( get_option( 'wc_free_gift_only_logged', 'no' ) == 'no' || is_user_logged_in() )
 			) { // eligible for a free item
 				$price = __( 'Free!', 'woocommerce' );
-				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $_product->post->ID ), 'thumbnail' );
+				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $prod_id ), 'thumbnail' );
 				echo '
 					<tr>
 					<td class="product-name">' .
-					'<span class="product-gift-image"><img style="width: 94px;" src="'. $image[0] .'" /></span>' .
-					'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
-					'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>' .
+					'<div class="minicart__product mini-product--group cart_item">' .
+						'<a class="product-gift-image" href="'. get_permalink($prod_id) .'"><img style="width: 94px;" src="'. $image[0] .'" /></a>' .
+						'<div class="mini-product__info">' .
+							'<div class="mini-product__item name">' .
+								'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
+								'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>&nbsp;' .
+								'<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>' .
+							'</div>' .
+						'</div>' .
+					'</div>' .
 					'</td>
-					<td class="product-total" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</td>
+					<td></td>
 					</tr>';
 			}
 
