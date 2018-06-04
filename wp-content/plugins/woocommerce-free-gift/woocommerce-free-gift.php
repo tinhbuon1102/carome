@@ -929,11 +929,13 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 				&& ( get_option( 'wc_free_gift_only_logged', 'no' ) == 'no' || is_user_logged_in() )
 			) { // eligible for a free item
 				$price = __( 'Free!', 'woocommerce' );
+				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $_product->post->ID ), 'thumbnail' );
 				echo '
 					<tr>
 					<td class="product-name">' .
-					apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' ' .
-					'<strong class="product-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>' .
+					'<span class="product-gift-image"><img src="'. $image[0] .'" /></span>' .
+					'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
+					'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>' .
 					'</td>
 					<td class="product-total" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</td>
 					</tr>';

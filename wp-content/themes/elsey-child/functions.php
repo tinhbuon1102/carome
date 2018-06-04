@@ -830,7 +830,8 @@ function hide_plugin_order_by_product ()
 	global $wp_list_table;
 	$hidearr = array(
 		'remove-admin-menus-by-role/remove-admin-menus-by-role.php',
-		'productsize-chart-for-woocommerce/productsize-chart-for-woocommerce.php'
+		'productsize-chart-for-woocommerce/productsize-chart-for-woocommerce.php',
+		'woocommerce-free-gift/woocommerce-free-gift.php'
 	);
 	$active_plugins = get_option('active_plugins');
 
