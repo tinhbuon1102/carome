@@ -1468,7 +1468,7 @@ function else_parse_query ( $query )
 		$query->query_vars['meta_query'] = isset($query->query_vars['meta_query']) ? $query->query_vars['meta_query'] : array();
 		$query->query_vars['meta_query'][] = array(
 			'key' => 'epsilon_type',
-			'value' => 1,
+			'value' => $_GET['epsilon_type'],
 			'compare' => $_GET['epsilon_type'] ? '=' : 'NOT EXISTS'
 		);
 	}
