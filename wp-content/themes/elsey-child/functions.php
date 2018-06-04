@@ -1457,7 +1457,7 @@ function else_parse_query ( $query )
 	{
 		$query->query_vars['meta_query'] = isset($query->query_vars['meta_query']) ? $query->query_vars['meta_query'] : array();
 		$query->query_vars['meta_query'][] = array(
-			'key' => woe_order_exported,
+			'key' => 'woe_order_exported',
 			'value' => 1,
 			'compare' => $_GET['woe_order_exported'] ? '=' : 'NOT EXISTS'
 		);
@@ -1467,7 +1467,7 @@ function else_parse_query ( $query )
 	{
 		$query->query_vars['meta_query'] = isset($query->query_vars['meta_query']) ? $query->query_vars['meta_query'] : array();
 		$query->query_vars['meta_query'][] = array(
-			'key' => epsilon_type,
+			'key' => 'epsilon_type',
 			'value' => 1,
 			'compare' => $_GET['epsilon_type'] ? '=' : 'NOT EXISTS'
 		);

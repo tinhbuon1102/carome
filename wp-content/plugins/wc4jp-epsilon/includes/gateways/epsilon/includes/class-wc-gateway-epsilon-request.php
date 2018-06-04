@@ -43,6 +43,7 @@ class WC_Gateway_Epsilon_Request {
 	 * @return string
 	 */
 	protected function get_request_url( $testmode = false ) {
+		var_dump($testmode);die;
 		if($testmode=='yes'){
 			$epsilon_pro_url = EPSILON_TESTMODE_URL_REQUEST ;
 		}else{
