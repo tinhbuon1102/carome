@@ -379,7 +379,7 @@ jQuery( function( $ ) {
 
 						// Add new errors returned by this event
 						if ( data.messages ) {
-							$form.prepend( '<div class="woocommerce-NoticeGroup woocommerce-NoticeGroup-updateOrderReview">' + data.messages + '</div>' );
+							$form.closest('.woocommerce').prepend( '<div class="woocommerce-NoticeGroup woocommerce-NoticeGroup-updateOrderReview">' + data.messages + '</div>' );
 						} else {
 							$form.prepend( data );
 						}

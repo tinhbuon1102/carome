@@ -1435,6 +1435,7 @@ function elsey_restrict_manage_posts(){
 		    </select>
 		</span>
 		
+		<?php if (false) { ?> 
 		<span id="epsilon_type_wrap">
 		    <select name="epsilon_type" id="epsilon_type">
 		    	<option value=""><?php _e('Epsilon Payment Type', 'elsey'); ?></option>
@@ -1442,6 +1443,7 @@ function elsey_restrict_manage_posts(){
 		    	<option value="smartphone" <?php echo $_REQUEST['epsilon_type'] == "smartphone" ? 'selected' : '';?>><?php _e('Smart Phone', 'elsey'); ?></option>
 		    </select>
 		</span>
+		<?php }?>
 		
 		<span id="kana_name_search_wraper">
 		    <input name="kana_name" placeholder="<?php echo __('Search Kana name', 'elsey')?>" value="<?php echo $_REQUEST['kana_name'] ? $_REQUEST['kana_name'] : ''?>"/>
