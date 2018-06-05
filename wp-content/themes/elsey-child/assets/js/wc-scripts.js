@@ -635,7 +635,6 @@
 
 		////************************************* Product Single Page Script Starts ********************************////
 
-		$(document).on('init_slider', '.els-product-image-col', function(){
 		var $productImageSlider = $('#els-product-featured-image-slider');
 		var $productThumbSlider = $('#els-product-thumbnails-slider');
 		var $productImages = $productImageSlider.children('div');
@@ -691,9 +690,9 @@
 				$productImageSlider.slick('slickGoTo', $this.index(), false);
 			});
 		});
-//edited 20180605
+
 		$productThumbSlider.slick({
-			slidesToShow: 4,
+			slidesToShow: 5,
 			slidesToScroll: 1,
 			arrows: false,
 			infinite: false,
@@ -702,65 +701,8 @@
 			draggable: false,
 			swipe: false,
 			touchMove: false,
-			speed: productAnimSpeed,
-			 responsive: [
-    {
-      breakpoint: 480,
-      settings: {
-        slidesToShow: 6,
-        slidesToScroll: 1
-      }
-    }
-    // You can unslick at a given breakpoint now by adding:
-    // settings: "unslick"
-    // instead of a settings object
-  ]
+			speed: productAnimSpeed
 		});
-
-			// Magnific Popup Gallery
-		$productImageSlider.magnificPopup({
-				delegate: 'a',
-				type: 'image',
-				closeOnContentClick: false,
-				closeBtnInside: false,
-				mainClass: 'mfp-with-zoom',
-				image: {
-					verticalFit: true,
-				},
-				gallery: {
-					enabled: true,
-				},
-				zoom: {
-					enabled: true,
-					duration: 300,
-					opener: function(element) {
-						return element.find("img");
-					}
-				}
-			});
-
-			// Magnific Popup Single Image
-			$(".els-img-popup").magnificPopup({
-				type: 'image',
-				closeOnContentClick: false,
-				closeOnBgClick: true,
-				closeBtnInside: false,
-				mainClass: 'mfp-with-zoom',
-				image: {
-					verticalFit: true
-				},
-				zoom: {
-					enabled: true,
-					duration: 300,
-					opener: function(element) {
-						return element.find("img");
-					}
-				}
-			});
-		});
-		
-		
-		$('.els-product-image-col').trigger('init_slider');
 
 		// Tab Activation Class
 		$('.els-wc-tabs-details .woocommerce-Tabs-panel').removeClass('els-current-tab');
