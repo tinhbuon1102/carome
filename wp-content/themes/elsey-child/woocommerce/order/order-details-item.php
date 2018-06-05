@@ -23,14 +23,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! apply_filters( 'woocommerce_order_item_visible', true, $item ) ) {
 	return;
 }
+
+$order_items = $order->get_items();
+$is_free_gift = '';
+foreach ($order_items as $order_item_id => $order_item)
+{
+	$free_gift_id = wc_get_order_item_meta( $order_item_id, '_product_id', true );
+	if ($product->get_id() == $free_gift_id)
+	{
+		$is_free_gift = wc_get_order_item_meta( $order_item_id, '_free_gift', true );
+		if ($is_free_gift == 'yes')
+		{
+			break;
+		}
+	}
+}
 ?>
 <div class="product-list__item line-item">
 	<div class="mini-product--group">
 		<?php
 			$is_visible        = $product && $product->is_visible();
-			$product_permalink = apply_filters( 'woocommerce_order_item_permalink', $is_visible ? $product->get_permalink( $item ) : '', $item, $order );
 
-			echo apply_filters( 'woocommerce_order_item_thumbnail', '<a class="mini-product__link" href="'.$product_permalink.'"><img src="' . ( $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'shop_thumbnail' ) ) : wc_placeholder_img_src() ) . '" alt="' . esc_attr__( 'Product image', 'woocommerce' ) . '" class="mini-product__img" /></a>', $item );
+			if ($is_free_gift)
+			{
+				$product_permalink = '';
+				echo apply_filters( 'woocommerce_order_item_thumbnail', '<img src="' . ( $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'shop_thumbnail' ) ) : wc_placeholder_img_src() ) . '" alt="' . esc_attr__( 'Product image', 'woocommerce' ) . '" class="mini-product__img" />', $item );
+			}
+			else {
+				$product_permalink = apply_filters( 'woocommerce_order_item_permalink', $is_visible ? $product->get_permalink( $item ) : '', $item, $order );
+				echo apply_filters( 'woocommerce_order_item_thumbnail', '<a class="mini-product__link" href="'.$product_permalink.'"><img src="' . ( $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'shop_thumbnail' ) ) : wc_placeholder_img_src() ) . '" alt="' . esc_attr__( 'Product image', 'woocommerce' ) . '" class="mini-product__img" /></a>', $item );
+			}
 		?>
 	<div class="mini-product__info">
 	<p class="mini-product__item mini-product__name heading heading--small">
@@ -53,20 +75,6 @@ if ( ! apply_filters( 'woocommerce_order_item_visible', true, $item ) ) {
 		<?php echo $order->get_formatted_line_subtotal( $item ); ?>
 	</div>
 	<?php
-	$order_items = $order->get_items();
-	$is_free_gift = '';
-	foreach ($order_items as $order_item_id => $order_item)
-	{
-		$free_gift_id = wc_get_order_item_meta( $order_item_id, '_product_id', true );
-		if ($product->get_id() == $free_gift_id)
-		{
-			$is_free_gift = wc_get_order_item_meta( $order_item_id, '_free_gift', true );
-			if ($is_free_gift == 'yes')
-			{
-				break;
-			}
-		}
-	}
 	
 	if ($is_free_gift)
 	{

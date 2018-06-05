@@ -942,14 +942,12 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 					<tr>
 					<td class="product-name">' .
 					'<div class="minicart__product mini-product--group cart_item">' .
-						'<a class="product-gift-image" href="'. get_permalink($prod_id) .'"><img style="width: 94px;" src="'. $image[0] .'" /></a>' .
+						'<img style="width: 94px;" src="'. $image[0] .'" />' .
 						'<div class="mini-product__info">' .
 							'<div class="mini-product__item name">' .
-								'<a class="product-gift-image" href="'. get_permalink($prod_id) .'">' .
 								'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
 								'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>&nbsp;' .
 								'<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>' .
-								'</a>' .
 							'</div>' .
 						'</div>' .
 					'</div>' .
