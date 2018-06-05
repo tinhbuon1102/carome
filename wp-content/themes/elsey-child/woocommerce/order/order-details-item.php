@@ -59,7 +59,7 @@ foreach ($order_items as $order_item_id => $order_item)
 		<?php 
 		if ($is_free_gift)
 		{
-			echo apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, $is_visible );
+			echo $item->get_name();
 		}
 		else {
 			echo apply_filters( 'woocommerce_order_item_name', $product_permalink ? sprintf( '<a href="%s" class="link">%s</a>', $product_permalink, $item->get_name() ) : $item->get_name(), $item, $is_visible ); 
