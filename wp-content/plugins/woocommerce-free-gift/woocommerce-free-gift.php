@@ -416,6 +416,14 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 					'css' => 'width:100%;',
 					'default' => 'color: #00aa00;'
 				),
+				array(
+					'name' => __( 'Message text In thanks page', 'wc_free_gift' ),
+					'id' => 'wc_free_gift_message_thanks',
+					'type' => 'textarea',
+					'css' => 'width:100%;',
+					'default' => __( '', 'wc_free_gift' ),
+					'desc' => __( 'Message text showing under free gift product in thanks page', 'wc_free_gift' )
+				),
 
 				array( 'type' => 'sectionend', 'id' => 'wc_free_gift_options' ),
 

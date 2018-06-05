@@ -53,7 +53,26 @@ if ( ! apply_filters( 'woocommerce_order_item_visible', true, $item ) ) {
 		<?php echo $order->get_formatted_line_subtotal( $item ); ?>
 	</div>
 	<?php
-		if ( !empty($product->get_sku()) ) {
+	$order_items = $order->get_items();
+	$is_free_gift = '';
+	foreach ($order_items as $order_item_id => $order_item)
+	{
+		$free_gift_id = wc_get_order_item_meta( $order_item_id, '_product_id', true );
+		if ($product->get_id() == $free_gift_id)
+		{
+			$is_free_gift = wc_get_order_item_meta( $order_item_id, '_free_gift', true );
+			if ($is_free_gift == 'yes')
+			{
+				break;
+			}
+		}
+	}
+	
+	if ($is_free_gift)
+	{
+		echo get_option('wc_free_gift_message_thanks');
+	}
+	elseif ( !empty($product->get_sku()) ) {
 									echo '<div class="mini-product__item mini-product__id light-copy">';
 									echo '<span class="label">商品番号: </span><span class="value">' . $product->get_sku() . '</span>';
 									echo '</div>';//sku
