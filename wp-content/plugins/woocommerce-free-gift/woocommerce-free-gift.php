@@ -60,7 +60,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 			add_action( 'woocommerce_calculate_totals', array( $this, 'cart_info' ), 10, 1 );
 			add_action( 'woocommerce_checkout_order_processed', array( $this, 'fix_messages' ) );
 			add_action( 'woocommerce_review_order_after_cart_contents', array( $this, 'order_info' ) );
-			add_action( 'woocommerce_new_order', array( $this, 'add_to_order' ), 10, 1 );
+			add_action( 'woocommerce_new_order', array( $this, 'add_to_order' ), 100000, 1 );
 
 			if ( version_compare( WOOCOMMERCE_VERSION, "2.6.0" ) >= 0 ) {
 				add_action( 'woocommerce_after_cart_table', array( $this, 'choose_gift' ) );
