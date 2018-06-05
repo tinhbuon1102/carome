@@ -60,7 +60,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 			add_action( 'woocommerce_calculate_totals', array( $this, 'cart_info' ), 10, 1 );
 			add_action( 'woocommerce_checkout_order_processed', array( $this, 'fix_messages' ) );
 			add_action( 'woocommerce_review_order_after_cart_contents', array( $this, 'order_info' ) );
-			add_action( 'woocommerce_new_order', array( $this, 'add_to_order' ), 100000, 1 );
+			add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'add_to_order' ), 10, 2 );
 
 			if ( version_compare( WOOCOMMERCE_VERSION, "2.6.0" ) >= 0 ) {
 				add_action( 'woocommerce_after_cart_table', array( $this, 'choose_gift' ) );
@@ -938,9 +938,9 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 						'<div class="mini-product__info">' .
 							'<div class="mini-product__item name">' .
 								'<a class="product-gift-image" href="'. get_permalink($prod_id) .'">' .
-									'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
-									'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>&nbsp;' .
-									'<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>' .
+								'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
+								'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>&nbsp;' .
+								'<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>' .
 								'</a>' .
 							'</div>' .
 						'</div>' .
@@ -957,7 +957,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 		 *
 		 * @param $order_id
 		 */
-		public function add_to_order( $order_id ) {
+		public function add_to_order( $order_id, $posted ) {
 
 			global $woocommerce;
 
