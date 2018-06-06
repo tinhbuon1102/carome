@@ -29,6 +29,7 @@ $is_free_gift = '';
 foreach ($order_items as $order_item_id => $order_item)
 {
 	$free_gift_id = wc_get_order_item_meta( $order_item_id, '_product_id', true );
+	$free_gift_id = $free_gift_id ? $free_gift_id : wc_get_order_item_meta( $order_item_id, '_variation_id', true );
 	if ($product->get_id() == $free_gift_id)
 	{
 		$is_free_gift = wc_get_order_item_meta( $order_item_id, '_free_gift', true );
