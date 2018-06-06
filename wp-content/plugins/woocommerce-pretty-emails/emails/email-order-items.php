@@ -55,6 +55,7 @@ foreach ( $items as $item_id => $item ) :
 				// SKU
 				if ($is_free_gift)
 				{
+					echo '<br />';
 					echo get_option('wc_free_gift_message_thanks');
 				}
 				elseif ( $show_sku && is_object( $product ) && $product->get_sku() ) {
@@ -140,6 +141,7 @@ foreach ( $items as $item ) :
 			// SKU
 			if ($is_free_gift)
 			{
+				echo '<br />';
 				echo get_option('wc_free_gift_message_thanks');
 			}
 			elseif( $show_sku && is_object( $_product ) && $_product->get_sku() ) {
