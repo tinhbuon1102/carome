@@ -1112,10 +1112,11 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 			}
 
 			extract( shortcode_atts( array(
-				'class' => 'wc_free_gift_message'
+				'class' => 'wc_free_gift_message',
+				'amount' => ''
 			), $atts ) );
 
-			$the_amount = $woocommerce->cart->subtotal;
+			$the_amount = $amount ? $amount : $woocommerce->cart->subtotal;
 
 			$possible_products = $this->get_possible_products( false, false, $the_amount );
 

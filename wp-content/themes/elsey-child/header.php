@@ -118,6 +118,7 @@ if ( ! function_exists( 'has_site_icon' ) || ! has_site_icon() ) {
   $elsey_transparent_class = ($elsey_menubar_trans) ? 'els-trans-menubar' : '';
   $elsey_transparent_class.= ($elsey_menubar_trans_color) ? ' els-trans-other-color' : '';
   $elsey_bottom_border     = ($elsey_menubar_border) ? '-webkit-box-shadow:0px 1px 1px '.$elsey_menubar_border.';-moz-box-shadow:0px 1px 1px '.$elsey_menubar_border.';box-shadow:0px 1px 1px '.$elsey_menubar_border.';' : '';
+  
 ?>
 <script type="text/javascript">
 var gl_siteUrl = '<?= site_url(); ?>';

@@ -1615,6 +1615,12 @@ function change_orders_detail_name(){
 	die('done');
 }
 
+add_action( 'woocommerce_email_order_details', 'kitt_woocommerce_email_order_details', 10, 4 );
+function kitt_woocommerce_email_order_details($order, $sent_to_admin, $plain_text, $email){
+	$order_subtotal = $order->get_subtotal();
+	echo do_shortcode('[wc_free_gift_message amount="'. $order_subtotal .'"]');
+}
+
 add_action( 'woocommerce_email_before_order_table', 'add_order_email_instructions', 10, 2 );
  
 function add_order_email_instructions( $order, $sent_to_admin ) {
