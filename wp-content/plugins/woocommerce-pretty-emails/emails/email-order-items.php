@@ -101,7 +101,7 @@ foreach ( $items as $item ) :
 
 			if($link_product && !$is_free_gift){
 
-				echo '<a href="'.get_permalink($_product->id).'" style="text-decoration:none;'.$missingstyle.'">';
+				//echo '<a href="'.get_permalink($_product->id).'" style="text-decoration:none;'.$missingstyle.'">';
 
 			}
 
@@ -115,12 +115,16 @@ foreach ( $items as $item ) :
 
 			if($link_product  && !$is_free_gift){
 
-				echo '</a>';
+				//echo '</a>';
 
 			}
 
 			// SKU
-			if ( $show_sku && is_object( $_product ) && $_product->get_sku() ) {
+			if ($is_free_gift)
+			{
+				echo get_option('wc_free_gift_message_thanks');
+			}
+			elseif( $show_sku && is_object( $_product ) && $_product->get_sku() ) {
 				echo ' (#' . $_product->get_sku() . ')';
 			}
 
