@@ -21,11 +21,12 @@ $text_align = is_rtl() ? 'right' : 'left';
 foreach ( $items as $item_id => $item ) :
 	if ( apply_filters( 'woocommerce_order_item_visible', true, $item ) ) {
 		$product = $item->get_product();
+		$is_free_gift = isFreeGiftOrderProduct($order, $product);
 		?>
 		<tr>
 			<td style="<?php echo $missingstyle;?>text-align:<?php echo is_rtl() ? 'right' : 'left' ?>; vertical-align:middle; border: solid 1px <?php echo $bordercolor;?>; word-wrap:break-word;"><?php
 
-				if($link_product){
+				if($link_product && !$is_free_gift){
 
 					echo '<a href="'.get_permalink( $product->get_id() ).'" style="text-decoration:none;'.$missingstyle.'">';
 
@@ -39,14 +40,18 @@ foreach ( $items as $item_id => $item ) :
 				// Product name
 				echo apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false );
 
-				if($link_product){
+				if($link_product && !$is_free_gift){
 
 					echo '</a>';
 
 				}
 
 				// SKU
-				if ( $show_sku && is_object( $product ) && $product->get_sku() ) {
+				if ($is_free_gift)
+				{
+					echo get_option('wc_free_gift_message_thanks');
+				}
+				elseif ( $show_sku && is_object( $product ) && $product->get_sku() ) {
 					echo ' (#' . $product->get_sku() . ')';
 				}
 
@@ -101,7 +106,7 @@ foreach ( $items as $item ) :
 
 			if($link_product && !$is_free_gift){
 
-				//echo '<a href="'.get_permalink($_product->id).'" style="text-decoration:none;'.$missingstyle.'">';
+				echo '<a href="'.get_permalink($_product->id).'" style="text-decoration:none;'.$missingstyle.'">';
 
 			}
 
@@ -115,7 +120,7 @@ foreach ( $items as $item ) :
 
 			if($link_product  && !$is_free_gift){
 
-				//echo '</a>';
+				echo '</a>';
 
 			}
 
