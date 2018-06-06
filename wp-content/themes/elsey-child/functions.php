@@ -1650,7 +1650,7 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
   }
   
   $order_subtotal = $order->get_subtotal();
-  echo '<div style="margin-top: 20px; margin-bottom: 30px;" class="gift_message">' . do_shortcode('[wc_free_gift_message amount="'. $order_subtotal .'"]') . '</div>';
+  //echo '<div style="margin-top: 20px; margin-bottom: 30px;" class="gift_message">' . do_shortcode('[wc_free_gift_message amount="'. $order_subtotal .'"]') . '</div>';
 }
 
 add_action('woocommerce_review_order_before_submit','wpdreamer_woocommerce_proceed_to_checkout',9999);
