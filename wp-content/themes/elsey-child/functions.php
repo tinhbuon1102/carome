@@ -1615,12 +1615,6 @@ function change_orders_detail_name(){
 	die('done');
 }
 
-add_action( 'woocommerce_email_order_details', 'kitt_woocommerce_email_order_details', 10, 4 );
-function kitt_woocommerce_email_order_details($order, $sent_to_admin, $plain_text, $email){
-	$order_subtotal = $order->get_subtotal();
-	echo '<div style="margin-top: 20px; margin-bottom: 30px;" class="gift_message">' . do_shortcode('[wc_free_gift_message amount="'. $order_subtotal .'"]') . '</div>';
-}
-
 add_action( 'woocommerce_email_before_order_table', 'add_order_email_instructions', 10, 2 );
  
 function add_order_email_instructions( $order, $sent_to_admin ) {
@@ -1654,6 +1648,9 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
     	echo '<p>お届け日が異なる商品がこの注文にあるため、それぞれの商品は別日に発送されます。</p>';
     }
   }
+  
+  $order_subtotal = $order->get_subtotal();
+  echo '<div style="margin-top: 20px; margin-bottom: 30px;" class="gift_message">' . do_shortcode('[wc_free_gift_message amount="'. $order_subtotal .'"]') . '</div>';
 }
 
 add_action('woocommerce_review_order_before_submit','wpdreamer_woocommerce_proceed_to_checkout',9999);
