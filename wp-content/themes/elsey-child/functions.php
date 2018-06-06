@@ -2682,5 +2682,37 @@ function retal_submition() {
 //shortcode url
 add_shortcode('homeurl', 'shortcode_url');
 function shortcode_url() {
-return get_bloginfo('url');
+	return get_bloginfo('url');
+}
+
+add_filter('woocommerce_free_gift_settings_fields', 'kitt_add_free_gift_settings_fields', 10, 1);
+function kitt_add_free_gift_settings_fields($fields)
+{
+	$new_fields = array();
+	foreach ($fields as $index => $field)
+	{
+		if ($index == count($fields) - 1)
+		{
+			$new_fields[] = array(
+				'name' => __( 'Message text In thanks page 1', 'wc_free_gift' ),
+				'id' => 'wc_free_gift_message_thanks',
+				'type' => 'textarea',
+				'css' => 'width:100%;',
+				'default' => __( '', 'wc_free_gift' ),
+				'desc' => __( 'Message text showing under free gift product in thanks page', 'wc_free_gift' )
+			);
+			
+			$new_fields[] = array(
+				'name' => __( 'Message text In thanks page 2', 'wc_free_gift' ),
+				'id' => 'wc_free_gift_message_thanks_top',
+				'type' => 'textarea',
+				'css' => 'width:100%;',
+				'default' => __( '', 'wc_free_gift' ),
+				'desc' => __( 'Message text showing on top in thanks page', 'wc_free_gift' )
+			);
+		}
+		$new_fields[] = $field;
+	}
+	
+	return $new_fields;
 }

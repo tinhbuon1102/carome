@@ -60,6 +60,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 			add_action( 'woocommerce_calculate_totals', array( $this, 'cart_info' ), 10, 1 );
 			add_action( 'woocommerce_checkout_order_processed', array( $this, 'fix_messages' ) );
 			add_action( 'woocommerce_review_order_after_cart_contents', array( $this, 'order_info' ) );
+			// thangtqvn modified function "woocommerce_new_order" to "woocommerce_checkout_update_order_meta" - BEGIN
 			add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'add_to_order' ), 10, 2 );
 
 			if ( version_compare( WOOCOMMERCE_VERSION, "2.6.0" ) >= 0 ) {
@@ -416,15 +417,6 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 					'css' => 'width:100%;',
 					'default' => 'color: #00aa00;'
 				),
-				array(
-					'name' => __( 'Message text In thanks page', 'wc_free_gift' ),
-					'id' => 'wc_free_gift_message_thanks',
-					'type' => 'textarea',
-					'css' => 'width:100%;',
-					'default' => __( '', 'wc_free_gift' ),
-					'desc' => __( 'Message text showing under free gift product in thanks page', 'wc_free_gift' )
-				),
-
 				array( 'type' => 'sectionend', 'id' => 'wc_free_gift_options' ),
 
 			) ); // End settings
@@ -594,7 +586,30 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 
 				if ( $this->is_customer_eligible( $the_amount ) ) {
 					if ( get_option( 'wc_free_gift_eligible_message_enabled', 'yes' ) == 'yes' && ( $this->get_from_session() == '' || is_cart() ) ) {
-						$eligible_msg = get_option( 'wc_free_gift_eligible_message', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+						// thangtqvn modified - BEGIN
+						if (isset($_REQUEST['wc-ajax']) && $_REQUEST['wc-ajax'] == 'checkout')
+						{
+							$eligible_msg_default = get_option( 'wc_free_gift_eligible_message', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+							$notices = WC()->session->get('wc_notices', array());
+							if (!empty($notices['success']))
+							{
+								foreach ($notices['success'] as $key_notice => $notice)
+								{
+									if ($notice == $eligible_msg_default)
+									{
+										unset( $notices['success'][$key_notice] );
+										WC()->session->set( 'wc_notices', $notices );
+										break;
+									}
+								}
+							}
+							
+							$eligible_msg = get_option( 'wc_free_gift_message_thanks_top', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+						}
+						else {
+							$eligible_msg = get_option( 'wc_free_gift_eligible_message', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+						}
+						// thangtqvn modified - END
 						$eligible_msg = $this->str_replace_products( $possible_products, '%PRODUCT%', $eligible_msg );
 						$this->add_wc_message( apply_filters( 'woocommerce_free_gift_eligible_message', $eligible_msg ) );
 						$this->last_msg = $eligible_msg;
@@ -937,6 +952,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 				&& ( get_option( 'wc_free_gift_only_logged', 'no' ) == 'no' || is_user_logged_in() )
 			) { // eligible for a free item
 				$price = __( 'Free!', 'woocommerce' );
+				// thangtqvn added - BEGIN
 				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $prod_id ), 'thumbnail' );
 				echo '
 					<tr>
@@ -954,6 +970,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 					'</td>
 					<td></td>
 					</tr>';
+				// thangtqvn added - END
 			}
 
 		}
@@ -963,6 +980,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 		 *
 		 * @param $order_id
 		 */
+		// thangtqvn modified function "woocommerce_new_order" to "woocommerce_checkout_update_order_meta" - END
 		public function add_to_order( $order_id, $posted ) {
 
 			global $woocommerce;
