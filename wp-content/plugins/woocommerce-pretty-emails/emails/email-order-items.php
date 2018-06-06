@@ -82,6 +82,7 @@ else :
 foreach ( $items as $item ) :
 
 	$_product     = apply_filters( 'woocommerce_order_item_product', $order->get_product_from_item( $item ), $item );
+	$is_free_gift = isFreeGiftOrderProduct($order, $_product);
 	
 	if ( version_compare( WOOCOMMERCE_VERSION, '2.4', '<' ) ){
 
@@ -98,7 +99,7 @@ foreach ( $items as $item ) :
 	<tr>
 		<td style="<?php echo $missingstyle;?>text-align:<?php echo is_rtl() ? 'right' : 'left' ?>; vertical-align:middle; border: solid 1px <?php echo $bordercolor;?>; word-wrap:break-word;"><?php
 
-			if($link_product){
+			if($link_product && !$is_free_gift){
 
 				echo '<a href="'.get_permalink($_product->id).'" style="text-decoration:none;'.$missingstyle.'">';
 
@@ -112,7 +113,7 @@ foreach ( $items as $item ) :
 			// Product name
 			echo apply_filters( 'woocommerce_order_item_name', $item['name'], $item );
 
-			if($link_product){
+			if($link_product  && !$is_free_gift){
 
 				echo '</a>';
 
