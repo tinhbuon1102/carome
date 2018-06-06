@@ -2719,3 +2719,25 @@ function kitt_add_free_gift_settings_fields($fields)
 	
 	return $new_fields;
 }
+
+function isFreeGiftOrderProduct($order, $product)
+{
+	$order_items = $order->get_items();
+	$is_free_gift = '';
+	foreach ($order_items as $order_item_id => $order_item)
+	{
+		$free_gift_id = wc_get_order_item_meta( $order_item_id, '_product_id', true );
+		$free_gift_id = $free_gift_id ? $free_gift_id : wc_get_order_item_meta( $order_item_id, '_variation_id', true );
+		$item_price = $order->get_line_subtotal( $item );
+	
+		if ($product->get_id() == $free_gift_id && !$item_price)
+		{
+			$is_free_gift = wc_get_order_item_meta( $order_item_id, '_free_gift', true );
+			if ($is_free_gift == 'yes')
+			{
+				break;
+			}
+		}
+	}
+	return $is_free_gift;
+}
