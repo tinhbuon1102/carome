@@ -1111,6 +1111,7 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 				return '';
 			}
 
+			// thangtqvn modified - BEGIN
 			extract( shortcode_atts( array(
 				'class' => 'wc_free_gift_message',
 				'amount' => ''
@@ -1129,6 +1130,17 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 				if ( $this->is_customer_eligible( $the_amount ) ) { // eligible for a free gift?
 					if ( get_option( 'wc_free_gift_eligible_message_enabled', 'yes' ) == 'yes' ) {
 						$eligible_msg = get_option( 'wc_free_gift_eligible_message', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+						
+						// thangtqvn modified - BEGIN
+						if ($amount)
+						{
+							$eligible_msg = get_option( 'wc_free_gift_message_thanks_top', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+						}
+						else {
+							$eligible_msg = get_option( 'wc_free_gift_eligible_message', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+						}
+						// thangtqvn modified - END
+						
 						$eligible_msg = $this->str_replace_products( $possible_products, '%PRODUCT%', $eligible_msg );
 						$this->last_msg = $eligible_msg;
 						return '<div class="' . $class . '">' . apply_filters( 'woocommerce_free_gift_eligible_message', $eligible_msg ) . '</div>';
@@ -1146,6 +1158,8 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 					}
 				}
 			}
+			
+			// thangtqvn modified - END
 
 			return '';
 
