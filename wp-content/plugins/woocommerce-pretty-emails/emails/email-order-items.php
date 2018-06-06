@@ -38,7 +38,13 @@ foreach ( $items as $item_id => $item ) :
 				}
 
 				// Product name
-				echo apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false );
+				if ($is_free_gift)
+				{
+					echo $product->get_name();
+				}	
+				else {
+					echo apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false );
+				}
 
 				if($link_product && !$is_free_gift){
 
@@ -116,7 +122,14 @@ foreach ( $items as $item ) :
 			}
 
 			// Product name
-			echo apply_filters( 'woocommerce_order_item_name', $item['name'], $item );
+			if ($is_free_gift)
+			{
+				echo $_product->get_name();
+			}
+			else {
+				echo apply_filters( 'woocommerce_order_item_name', $item['name'], $item );
+			}
+			
 
 			if($link_product  && !$is_free_gift){
 
