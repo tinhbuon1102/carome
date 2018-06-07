@@ -584,26 +584,36 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 
 			if ( get_option( 'wc_free_gift_only_logged', 'no' ) == 'no' || is_user_logged_in() ) {
 
+				$motivating_msg = get_option( 'wc_free_gift_motivating_message', __( 'By spending at least %PRICE%, you will be eligible for a free gift after checkout.', 'wc_free_gift' ) );
+				$motivating_msg = $this->str_replace_products( $possible_products, '%PRODUCT%', $motivating_msg );
+				$motivating_msg = str_replace( '%PRICE%', $this->get_price( get_option( 'wc_free_gift_minimal_total' ) ), $motivating_msg );
+				$motivating_msg = str_replace( '%PRICE_BETTER%', $this->get_price( get_option( 'wc_free_gift_minimal_total2' ) ), $motivating_msg );
+				$motivating_msg = str_replace( '%REMAINING_AMOUNT%', $this->get_price( floatval( get_option( 'wc_free_gift_minimal_total' ) ) - floatval( $the_amount ) ), $motivating_msg );
+				$motivating_msg = str_replace( '%REMAINING_AMOUNT_BETTER%', $this->get_price( floatval( get_option( 'wc_free_gift_minimal_total2' ) ) - floatval( $the_amount ) ), $motivating_msg );
+				
+				$eligible_msg_default = get_option( 'wc_free_gift_eligible_message', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
+				$notices = WC()->session->get('wc_notices', array());
+				if (!empty($notices['success']))
+				{
+					foreach ($notices['success'] as $key_notice => $notice)
+					{
+						if ($notice == $eligible_msg_default)
+						{
+							unset( $notices['success'][$key_notice] );
+						}
+						elseif ($notice == $motivating_msg)
+						{
+							unset( $notices['success'][$key_notice] );
+						}
+					}
+					WC()->session->set( 'wc_notices', $notices );
+				}
+				
 				if ( $this->is_customer_eligible( $the_amount ) ) {
 					if ( get_option( 'wc_free_gift_eligible_message_enabled', 'yes' ) == 'yes' && ( $this->get_from_session() == '' || is_cart() ) ) {
 						// thangtqvn modified - BEGIN
 						if (isset($_REQUEST['wc-ajax']) && $_REQUEST['wc-ajax'] == 'checkout')
 						{
-							$eligible_msg_default = get_option( 'wc_free_gift_eligible_message', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
-							$notices = WC()->session->get('wc_notices', array());
-							if (!empty($notices['success']))
-							{
-								foreach ($notices['success'] as $key_notice => $notice)
-								{
-									if ($notice == $eligible_msg_default)
-									{
-										unset( $notices['success'][$key_notice] );
-										WC()->session->set( 'wc_notices', $notices );
-										break;
-									}
-								}
-							}
-							
 							$eligible_msg = get_option( 'wc_free_gift_message_thanks_top', __( 'You are eligible for a free gift after checkout.', 'wc_free_gift' ) );
 						}
 						else {
@@ -616,12 +626,6 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 					}
 				} else {
 					if ( get_option( 'wc_free_gift_motivating_message_enabled', 'yes' ) == 'yes' && ( $this->get_from_session() == '' || is_cart() ) ) {
-						$motivating_msg = get_option( 'wc_free_gift_motivating_message', __( 'By spending at least %PRICE%, you will be eligible for a free gift after checkout.', 'wc_free_gift' ) );
-						$motivating_msg = $this->str_replace_products( $possible_products, '%PRODUCT%', $motivating_msg );
-						$motivating_msg = str_replace( '%PRICE%', $this->get_price( get_option( 'wc_free_gift_minimal_total' ) ), $motivating_msg );
-						$motivating_msg = str_replace( '%PRICE_BETTER%', $this->get_price( get_option( 'wc_free_gift_minimal_total2' ) ), $motivating_msg );
-						$motivating_msg = str_replace( '%REMAINING_AMOUNT%', $this->get_price( floatval( get_option( 'wc_free_gift_minimal_total' ) ) - floatval( $the_amount ) ), $motivating_msg );
-						$motivating_msg = str_replace( '%REMAINING_AMOUNT_BETTER%', $this->get_price( floatval( get_option( 'wc_free_gift_minimal_total2' ) ) - floatval( $the_amount ) ), $motivating_msg );
 						$this->add_wc_message( apply_filters( 'woocommerce_free_gift_motivating_message', $motivating_msg ) );
 						$this->last_msg = $motivating_msg;
 					}
