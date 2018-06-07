@@ -76,7 +76,19 @@ foreach ( $items as $item_id => $item ) :
 
 			?></td>
 			<td align="center" style="<?php echo $missingstyle;?>text-align:center; vertical-align:middle; border: 1px solid <?php echo $bordercolor;?>;"><?php echo apply_filters( 'woocommerce_email_order_item_quantity', $item->get_quantity(), $item ); ?></td>
-			<td align="center" style="<?php echo $missingstyle;?>text-align:center; vertical-align:middle; border: 1px solid <?php echo $bordercolor;?>;"><?php echo $order->get_formatted_line_subtotal( $item ); ?></td>
+			<td align="center" style="<?php echo $missingstyle;?>text-align:center; vertical-align:middle; border: 1px solid <?php echo $bordercolor;?>;">
+				<?php 
+				if ($is_free_gift)
+				{
+					$price = __( 'Free!', 'woocommerce' );
+					echo '<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>';
+				}
+				else
+				{
+					echo $order->get_formatted_line_subtotal( $item );
+				}
+				?>
+			</td>
 		</tr>
 		<?php
 	}
@@ -174,7 +186,19 @@ foreach ( $items as $item ) :
 
 		?></td>
 		<td align="center" style="<?php echo $missingstyle;?>text-align:center; vertical-align:middle; border: 1px solid <?php echo $bordercolor;?>;"><?php echo $item['qty'] ;?></td>
-		<td align="center" style="<?php echo $missingstyle;?>text-align:center; vertical-align:middle; border: 1px solid <?php echo $bordercolor;?>;"><?php echo $order->get_formatted_line_subtotal( $item ); ?></td>
+		<td align="center" style="<?php echo $missingstyle;?>text-align:center; vertical-align:middle; border: 1px solid <?php echo $bordercolor;?>;">
+			<?php 
+			if ($is_free_gift)
+			{
+				$price = __( 'Free!', 'woocommerce' );
+				echo '<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>';
+			}
+			else
+			{
+				echo $order->get_formatted_line_subtotal( $item );
+			}
+			?>
+		</td>
 	</tr>
 
 	<?php if ( $show_purchase_note && is_object( $_product ) && $purchase_note = get_post_meta( $_product->id, '_purchase_note', true ) ) : ?>

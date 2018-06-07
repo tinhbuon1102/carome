@@ -66,7 +66,16 @@ $is_free_gift = isFreeGiftOrderProduct($order, $product);
 	?>
 
 	<div class="mini-product__item txt--bold serif">
-		<?php echo $order->get_formatted_line_subtotal( $item ); ?>
+		<?php 
+		if ($is_free_gift)
+		{
+			$price = __( 'Free!', 'woocommerce' );
+			echo '<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>';
+		}
+		else
+		{
+			echo $order->get_formatted_line_subtotal( $item ); 
+		}?>
 	</div>
 	<?php
 	
