@@ -962,9 +962,16 @@ if ( !class_exists( 'WooCommerce_Free_Gift' ) ) {
 						'<div class="mini-product__info">' .
 							'<div class="mini-product__item name">' .
 								'<span class="product-gift-name">' . apply_filters( 'woocommerce_checkout_product_title', $_product->get_title(), $_product ) . ' </span>' .
-								'<strong class="product-gift-quantity">&times; ' . get_option( 'wc_free_gift_quantity', 1 ) . '</strong>&nbsp;' .
-								'<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>' .
 							'</div>' .
+							'<div class="mini-product__item mini-product__attribute">
+								<span class="cart-label">数量: </span>
+								<span class="value">'.get_option( 'wc_free_gift_quantity', 1 ).'
+									<span class="product-gift-price" style="' . get_option( 'wc_free_gift_price_css', 'color: #00aa00;' ) . '">' . $price . '</span>
+								</span>
+							</div>' .
+							'<div class="mini-product__item mini-free-message">
+								<span class="cart-label">'. get_option('wc_free_gift_message_thanks') .'</span>
+							</div>' .
 						'</div>' .
 					'</div>' .
 					'</td>
