@@ -1,4 +1,24 @@
 /*Added 20180425*/
+.zoo-cw-page .vc_btn3.vc_btn3-color-pink.vc_btn3-style-modern {
+    border-color: rgba(220,130,145,1);
+    background: rgba(220,130,145,1);
+    font-family: 'Lato', Helvetica, Arial, sans-serif;
+    font-weight: 400;
+}
+.zoo-cw-page .vc_btn3.vc_btn3-color-pink.vc_btn3-style-modern:hover, .zoo-cw-page .vc_btn3.vc_btn3-color-pink.vc_btn3-style-modern:focus {
+	background: none;
+	color: rgba(220,130,145,1);
+	border-color: rgba(220,130,145,1);
+}
+.els-wrapper .woocommerce .woocommerce-message {
+    background: rgba(248,238,239,1);
+    padding: 10px 15px;
+    color: #000;
+    border-left: 10px solid rgba(241,221,222,1);
+}
+.mini-product--group .mini-product__info {
+	padding-left: 12px;
+}
 .header__promo-banner a:hover, .header__promo-banner a:focus {
 	text-decoration: underline;
 }
