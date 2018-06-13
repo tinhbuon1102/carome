@@ -1,4 +1,10 @@
 /*Added 20180425*/
+.metaslider .flex-control-nav {
+	bottom: 20px !important;
+}
+.els-wrapper .metaslider .flexslider {
+    margin-bottom: 0;
+}
 .zoo-cw-page .vc_btn3.vc_btn3-color-pink.vc_btn3-style-modern {
     border-color: rgba(220,130,145,1);
     background: rgba(220,130,145,1);
