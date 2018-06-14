@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2017 ServMask Inc.
+ * Copyright (C) 2014-2018 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class Ai1wm_Export_Download {
 		// Set progress
 		Ai1wm_Status::info( __( 'Renaming exported file...', AI1WM_PLUGIN_NAME ) );
 
-		// Close achive file
+		// Open the archive file for writing
 		$archive = new Ai1wm_Compressor( ai1wm_archive_path( $params ) );
 
 		// Append EOF block

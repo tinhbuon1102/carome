@@ -4,19 +4,22 @@ if(seed_cspv5_cu('none')){
 }
 
 
+wp_enqueue_script('jquery-ui-core');
+wp_enqueue_script('imagesloaded');
+wp_enqueue_script('masonry');
+
 ?>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
 <!-- css -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
-<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,300italic'>
 
 <!-- Plugins -->
 <link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 <link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/css/bootstrap-colorpicker.min.css" rel="stylesheet">
 <link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/css/jquery.nouislider.css" rel="stylesheet">
 <link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/css/switchery.min.css" rel="stylesheet">
-<link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/css/select2.min.css" rel="stylesheet">
+<link rel="stylesheet" href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/css/select2.min.css">
 <link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/css/fontawesome-iconpicker.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.css">
 <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/1.1.1/introjs.min.css"> -->
@@ -1427,7 +1430,7 @@ if(seed_cspv5_cu('none')){
 
 <!-- JS -->
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" ></script>
+<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/bootstrap.min.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/moment.min.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/bootstrap-datetimepicker.min.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/bootstrap-colorpicker.min.js"></script>
@@ -1437,13 +1440,11 @@ if(seed_cspv5_cu('none')){
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/jquery.liblink.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/switchery.min.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/wNumb.js"></script>
-<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/select2.min.js"></script>
+<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/select2.min.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/fontawesome-iconpicker.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/jquery.fitvids.min.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/jquery.color.min.js"></script>
 <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/csp-app.js"></script>
-<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/masonry.pkgd.js"></script>  
-<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>customizer/js/imagesloaded.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js" type="text/javascript"></script>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/1.1.1/intro.min.js" type="text/javascript"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js"></script> -->
@@ -1481,7 +1482,7 @@ var headline_size = <?php echo ( empty($settings->headline_size) || $settings->h
 var headline_line_height = <?php echo ( empty($settings->headline_line_height) || $settings->headline_line_height == 'false' ) ? '1' : $settings->headline_line_height ?>;
 var text_size = <?php echo ( empty($settings->text_size) || $settings->text_size == 'false' ) ? '16' : $settings->text_size ?>;
 var text_line_height = <?php echo ( empty($settings->text_line_height) || $settings->text_line_height == 'false' ) ? '1.5' : $settings->text_line_height ?>;
-var headline_weight = '<?php echo $settings->headline_weight ?>';
+var headline_weight = '<?php echo (empty($settings->headline_weight))?'400':$settings->headline_weight ?>';
 var headline_subset = '<?php echo $settings->headline_subset ?>';
 var text_weight = '<?php echo $settings->text_weight ?>';
 var text_subset = '<?php echo $settings->text_subset ?>';

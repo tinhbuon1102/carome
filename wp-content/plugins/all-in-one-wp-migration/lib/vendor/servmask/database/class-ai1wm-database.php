@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2017 ServMask Inc.
+ * Copyright (C) 2014-2018 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,15 +35,13 @@ abstract class Ai1wm_Database {
 	/**
 	 * WordPress database handler
 	 *
-	 * @access protected
-	 * @var mixed
+	 * @var object
 	 */
 	protected $wpdb = null;
 
 	/**
 	 * Old table prefixes
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $old_table_prefixes = array();
@@ -51,7 +49,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * New table prefixes
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $new_table_prefixes = array();
@@ -59,7 +56,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * Old replace values
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $old_replace_values = array();
@@ -67,7 +63,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * New replace values
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $new_replace_values = array();
@@ -75,7 +70,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * Table where clauses
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $table_where_clauses = array();
@@ -83,7 +77,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * Table prefix columns
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $table_prefix_columns = array();
@@ -91,7 +84,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * Include table prefixes
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $include_table_prefixes = array();
@@ -99,7 +91,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * Exclude table prefixes
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $exclude_table_prefixes = array();
@@ -107,7 +98,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * List all tables that should not be affected by the timeout of the current request
 	 *
-	 * @access protected
 	 * @var array
 	 */
 	protected $atomic_tables = array();
@@ -115,7 +105,6 @@ abstract class Ai1wm_Database {
 	/**
 	 * Visual Composer
 	 *
-	 * @access protected
 	 * @var bool
 	 */
 	protected $visual_composer = false;
@@ -123,8 +112,7 @@ abstract class Ai1wm_Database {
 	/**
 	 * Constructor
 	 *
-	 * @param  object $wpdb WPDB instance
-	 * @return Ai1wm_Database
+	 * @param object $wpdb WPDB instance
 	 */
 	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
@@ -779,7 +767,7 @@ abstract class Ai1wm_Database {
 	 */
 	protected function get_version() {
 		$result = $this->query( "SHOW VARIABLES LIKE 'version'" );
-		$row = $this->fetch_assoc( $result );
+		$row    = $this->fetch_assoc( $result );
 
 		// Close result cursor
 		$this->free_result( $result );
@@ -797,7 +785,7 @@ abstract class Ai1wm_Database {
 	 */
 	protected function get_max_allowed_packet() {
 		$result = $this->query( "SHOW VARIABLES LIKE 'max_allowed_packet'" );
-		$row = $this->fetch_assoc( $result );
+		$row    = $this->fetch_assoc( $result );
 
 		// Close result cursor
 		$this->free_result( $result );
@@ -816,7 +804,7 @@ abstract class Ai1wm_Database {
 	 */
 	protected function get_collation( $collation_name ) {
 		$result = $this->query( "SHOW COLLATION LIKE '{$collation_name}'" );
-		$row = $this->fetch_assoc( $result );
+		$row    = $this->fetch_assoc( $result );
 
 		// Close result cursor
 		$this->free_result( $result );
@@ -835,7 +823,7 @@ abstract class Ai1wm_Database {
 	 */
 	protected function get_create_table( $table_name ) {
 		$result = $this->query( "SHOW CREATE TABLE `{$table_name}`" );
-		$row = $this->fetch_assoc( $result );
+		$row    = $this->fetch_assoc( $result );
 
 		// Close result cursor
 		$this->free_result( $result );
@@ -901,7 +889,7 @@ abstract class Ai1wm_Database {
 	 */
 	protected function replace_table_prefixes( $input, $position = false ) {
 		// Get table prefixes
-		$search = $this->get_old_table_prefixes();
+		$search  = $this->get_old_table_prefixes();
 		$replace = $this->get_new_table_prefixes();
 
 		// Replace first occurance at a specified position
@@ -929,13 +917,13 @@ abstract class Ai1wm_Database {
 	protected function replace_table_values( $input ) {
 		// Replace base64 encoded values (Visual Composer)
 		if ( $this->get_visual_composer() ) {
-			$input = preg_replace_callback( '/\[vc_raw_html\]([a-zA-Z0-9+\/=]*+)\[\/vc_raw_html\]/S', array( $this, 'replace_base64_values_callback' ), $input );
+			$input = preg_replace_callback( '/\[vc_raw_html\](.+?)\[\/vc_raw_html\]/S', array( $this, 'replace_base64_values_callback' ), $input );
 		}
 
 		// Replace serialized values
 		foreach ( $this->get_old_replace_values() as $old_value ) {
 			if ( strpos( $input, $this->escape( $old_value ) ) !== false ) {
-				$input = preg_replace_callback( "/'([^'\\\\]*+(?:\\\\.[^'\\\\]*)*+)'/S", array( $this, 'replace_table_values_callback' ), $input );
+				$input = preg_replace_callback( "/'(.*?)(?<!\\\\)'/S", array( $this, 'replace_table_values_callback' ), $input );
 				break;
 			}
 		}
@@ -984,7 +972,7 @@ abstract class Ai1wm_Database {
 	 * @return string
 	 */
 	protected function replace_table_collations( $input ) {
-		static $search = array();
+		static $search  = array();
 		static $replace = array();
 
 		// Replace table collations
@@ -1118,7 +1106,7 @@ abstract class Ai1wm_Database {
 	 */
 	protected function replace_table_options( $input ) {
 		// Set table replace options
-		$search = array(
+		$search  = array(
 			'TYPE=InnoDB',
 			'TYPE=MyISAM',
 			'ENGINE=Aria',
@@ -1158,7 +1146,7 @@ abstract class Ai1wm_Database {
 	 */
 	protected function replace_table_engines( $input ) {
 		// Set table replace engines
-		$search = array(
+		$search  = array(
 			'ENGINE=MyISAM',
 			'ENGINE=Aria',
 		);

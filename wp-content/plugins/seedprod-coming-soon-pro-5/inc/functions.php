@@ -33,7 +33,7 @@ function seed_bypass_form_func( $atts ){
     <div class="row">
     <div class="col-md-12 seperate">
     <div class="input-group">
-    <input id="cspio-bypass" class="form-control input-lg form-el" placeholder="<?php echo $a['msg'] ?>"></input>
+    <input type="password" id="cspio-bypass" class="form-control input-lg form-el" placeholder="<?php echo $a['msg'] ?>"></input>
     <span class="input-group-btn">
     <button id="cspio-bypass-btn" class="btn btn-lg btn-primary form-el noglow"><?php echo $a['button-txt'] ?></button>
     </span>

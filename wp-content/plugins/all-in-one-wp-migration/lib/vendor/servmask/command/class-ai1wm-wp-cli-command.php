@@ -1,7 +1,7 @@
 <?php
 /**
  * All-in-One WP Migration Command
- * Copyright (C) 2014-2017 ServMask Inc.
+ * Copyright (C) 2014-2018 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -211,7 +211,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::error_multi_line( array(
 					__( 'A valid backup name must be provided in order to proceed with the restore process.', AI1WM_PLUGIN_NAME ),
 					__( 'Example: wp ai1wm restore migration-wp-20170913-095743-931.wpress', AI1WM_PLUGIN_NAME ),
-				));
+				) );
 				exit;
 			}
 

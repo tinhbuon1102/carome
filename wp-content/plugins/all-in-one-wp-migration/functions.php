@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2017 ServMask Inc.
+ * Copyright (C) 2014-2018 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,6 +107,16 @@ function ai1wm_import_path( $params ) {
 }
 
 /**
+ * Get multipart.list absolute path
+ *
+ * @param  array  $params Request parameters
+ * @return string
+ */
+function ai1wm_multipart_path( $params ) {
+	return ai1wm_storage_path( $params ) . DIRECTORY_SEPARATOR . AI1WM_MULTIPART_NAME;
+}
+
+/**
  * Get filemap.list absolute path
  *
  * @param  array  $params Request parameters
@@ -144,6 +154,16 @@ function ai1wm_multisite_path( $params ) {
  */
 function ai1wm_blogs_path( $params ) {
 	return ai1wm_storage_path( $params ) . DIRECTORY_SEPARATOR . AI1WM_BLOGS_NAME;
+}
+
+/**
+ * Get settings.json absolute path
+ *
+ * @param  array  $params Request parameters
+ * @return string
+ */
+function ai1wm_settings_path( $params ) {
+	return ai1wm_storage_path( $params ) . DIRECTORY_SEPARATOR . AI1WM_SETTINGS_NAME;
 }
 
 /**
@@ -227,6 +247,26 @@ function ai1wm_backup_bytes( $params ) {
  */
 function ai1wm_database_bytes( $params ) {
 	return filesize( ai1wm_database_path( $params ) );
+}
+
+/**
+ * Get package size in bytes
+ *
+ * @param  array   $params Request parameters
+ * @return integer
+ */
+function ai1wm_package_bytes( $params ) {
+	return filesize( ai1wm_package_path( $params ) );
+}
+
+/**
+ * Get multisite size in bytes
+ *
+ * @param  array   $params Request parameters
+ * @return integer
+ */
+function ai1wm_multisite_bytes( $params ) {
+	return filesize( ai1wm_multisite_path( $params ) );
 }
 
 /**
@@ -326,6 +366,36 @@ function ai1wm_archive_folder( $blog_id = null ) {
 
 	// Add domain
 	$name[] = parse_url( get_site_url( $blog_id ), PHP_URL_HOST );
+
+	// Add path
+	if ( ( $path = explode( '/', parse_url( get_site_url( $blog_id ), PHP_URL_PATH ) ) ) ) {
+		foreach ( $path as $directory ) {
+			if ( $directory ) {
+				$name[] = $directory;
+			}
+		}
+	}
+
+	return strtolower( implode( '-', $name ) );
+}
+
+/**
+ * Get archive bucket name
+ *
+ * @param  integer $blog_id Blog ID
+ * @return string
+ */
+function ai1wm_archive_bucket( $blog_id = null ) {
+	$name = array();
+
+	// Add domain
+	if ( ( $domain = explode( '.', parse_url( get_site_url( $blog_id ), PHP_URL_HOST ) ) ) ) {
+		foreach ( $domain as $subdomain ) {
+			if ( $subdomain ) {
+				$name[] = $subdomain;
+			}
+		}
+	}
 
 	// Add path
 	if ( ( $path = explode( '/', parse_url( get_site_url( $blog_id ), PHP_URL_PATH ) ) ) ) {
@@ -503,39 +573,25 @@ function ai1wm_plugin_filters( $filters = array() ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration';
 	}
 
+	// Box Extension
+	if ( defined( 'AI1WMBE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMBE_PLUGIN_BASENAME );
+	} else {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-box-extension';
+	}
+
+	// DigitalOcean Extension
+	if ( defined( 'AI1WMIE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMIE_PLUGIN_BASENAME );
+	} else {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-digitalocean-extension';
+	}
+
 	// Dropbox Extension
 	if ( defined( 'AI1WMDE_PLUGIN_BASENAME' ) ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMDE_PLUGIN_BASENAME );
 	} else {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-dropbox-extension';
-	}
-
-	// Google Drive Extension
-	if ( defined( 'AI1WMGE_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMGE_PLUGIN_BASENAME );
-	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-gdrive-extension';
-	}
-
-	// Amazon S3 Extension
-	if ( defined( 'AI1WMSE_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMSE_PLUGIN_BASENAME );
-	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-s3-extension';
-	}
-
-	// Multisite Extension
-	if ( defined( 'AI1WMME_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMME_PLUGIN_BASENAME );
-	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-multisite-extension';
-	}
-
-	// Unlimited Extension
-	if ( defined( 'AI1WMUE_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMUE_PLUGIN_BASENAME );
-	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-unlimited-extension';
 	}
 
 	// FTP Extension
@@ -545,11 +601,25 @@ function ai1wm_plugin_filters( $filters = array() ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-ftp-extension';
 	}
 
-	// URL Extension
-	if ( defined( 'AI1WMLE_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMLE_PLUGIN_BASENAME );
+	// Google Drive Extension
+	if ( defined( 'AI1WMGE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMGE_PLUGIN_BASENAME );
 	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-url-extension';
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-gdrive-extension';
+	}
+
+	// Mega Extension
+	if ( defined( 'AI1WMEE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMEE_PLUGIN_BASENAME );
+	} else {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-mega-extension';
+	}
+
+	// Multisite Extension
+	if ( defined( 'AI1WMME_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMME_PLUGIN_BASENAME );
+	} else {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-multisite-extension';
 	}
 
 	// OneDrive Extension
@@ -559,18 +629,25 @@ function ai1wm_plugin_filters( $filters = array() ) {
 		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-onedrive-extension';
 	}
 
-	// Box Extension
-	if ( defined( 'AI1WMBE_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMBE_PLUGIN_BASENAME );
+	// Amazon S3 Extension
+	if ( defined( 'AI1WMSE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMSE_PLUGIN_BASENAME );
 	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-box-extension';
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-s3-extension';
 	}
 
-	// Mega Extension
-	if ( defined( 'AI1WMEE_PLUGIN_BASENAME' ) ) {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMEE_PLUGIN_BASENAME );
+	// Unlimited Extension
+	if ( defined( 'AI1WMUE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMUE_PLUGIN_BASENAME );
 	} else {
-		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-mega-extension';
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-unlimited-extension';
+	}
+
+	// URL Extension
+	if ( defined( 'AI1WMLE_PLUGIN_BASENAME' ) ) {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . dirname( AI1WMLE_PLUGIN_BASENAME );
+	} else {
+		$filters[] = 'plugins' . DIRECTORY_SEPARATOR . 'all-in-one-wp-migration-url-extension';
 	}
 
 	return $filters;
@@ -587,29 +664,19 @@ function ai1wm_active_servmask_plugins( $plugins = array() ) {
 		$plugins[] = AI1WM_PLUGIN_BASENAME;
 	}
 
+	// Box Extension
+	if ( defined( 'AI1WMBE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMBE_PLUGIN_BASENAME;
+	}
+
+	// DigitalOcean Extension
+	if ( defined( 'AI1WMIE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMIE_PLUGIN_BASENAME;
+	}
+
 	// Dropbox Extension
 	if ( defined( 'AI1WMDE_PLUGIN_BASENAME' ) ) {
 		$plugins[] = AI1WMDE_PLUGIN_BASENAME;
-	}
-
-	// Google Drive Extension
-	if ( defined( 'AI1WMGE_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMGE_PLUGIN_BASENAME;
-	}
-
-	// Amazon S3 Extension
-	if ( defined( 'AI1WMSE_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMSE_PLUGIN_BASENAME;
-	}
-
-	// Multisite Extension
-	if ( defined( 'AI1WMME_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMME_PLUGIN_BASENAME;
-	}
-
-	// Unlimited Extension
-	if ( defined( 'AI1WMUE_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMUE_PLUGIN_BASENAME;
 	}
 
 	// FTP Extension
@@ -617,9 +684,19 @@ function ai1wm_active_servmask_plugins( $plugins = array() ) {
 		$plugins[] = AI1WMFE_PLUGIN_BASENAME;
 	}
 
-	// URL Extension
-	if ( defined( 'AI1WMLE_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMLE_PLUGIN_BASENAME;
+	// Google Drive Extension
+	if ( defined( 'AI1WMGE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMGE_PLUGIN_BASENAME;
+	}
+
+	// Mega Extension
+	if ( defined( 'AI1WMEE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMEE_PLUGIN_BASENAME;
+	}
+
+	// Multisite Extension
+	if ( defined( 'AI1WMME_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMME_PLUGIN_BASENAME;
 	}
 
 	// OneDrive Extension
@@ -627,14 +704,19 @@ function ai1wm_active_servmask_plugins( $plugins = array() ) {
 		$plugins[] = AI1WMOE_PLUGIN_BASENAME;
 	}
 
-	// Box Extension
-	if ( defined( 'AI1WMBE_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMBE_PLUGIN_BASENAME;
+	// Amazon S3 Extension
+	if ( defined( 'AI1WMSE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMSE_PLUGIN_BASENAME;
 	}
 
-	// Mega Extension
-	if ( defined( 'AI1WMEE_PLUGIN_BASENAME' ) ) {
-		$plugins[] = AI1WMEE_PLUGIN_BASENAME;
+	// Unlimited Extension
+	if ( defined( 'AI1WMUE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMUE_PLUGIN_BASENAME;
+	}
+
+	// URL Extension
+	if ( defined( 'AI1WMLE_PLUGIN_BASENAME' ) ) {
+		$plugins[] = AI1WMLE_PLUGIN_BASENAME;
 	}
 
 	return $plugins;
@@ -778,6 +860,27 @@ function ai1wm_deactivate_plugins( $plugins ) {
 }
 
 /**
+ * Deactivate Jetpack modules
+ *
+ * @param  array   $modules List of modules
+ * @return boolean
+ */
+function ai1wm_deactivate_jetpack_modules( $modules ) {
+	$current = get_option( AI1WM_JETPACK_ACTIVE_MODULES, array() );
+
+	// Remove modules
+	foreach ( $modules as $module ) {
+		if ( ( $key = array_search( $module, $current ) ) !== false ) {
+			unset( $current[ $key ] );
+		}
+	}
+
+	sort( $current );
+
+	return update_option( AI1WM_JETPACK_ACTIVE_MODULES, $current );
+}
+
+/**
  * Flush WP options cache
  *
  * @return void
@@ -798,7 +901,6 @@ function ai1wm_cache_flush() {
 	wp_cache_delete( 'notoptions', 'options' );
 }
 
-
 /**
  * URL encode
  *
@@ -817,6 +919,21 @@ function ai1wm_urlencode( $value ) {
  */
 function ai1wm_urldecode( $value ) {
 	return is_array( $value ) ? array_map( 'ai1wm_urldecode', $value ) : urldecode( stripslashes( $value ) );
+}
+
+/**
+ * Set URL scheme
+ *
+ * @param  string $url    URL value
+ * @param  string $scheme URL scheme
+ * @return string
+ */
+function ai1wm_urlscheme( $url, $scheme = '' ) {
+	if ( empty( $scheme ) ) {
+		return preg_replace( '#^\w+://#', '//', $url );
+	}
+
+	return preg_replace( '#^\w+://#', $scheme . '://', $url );
 }
 
 /**
@@ -960,7 +1077,7 @@ function ai1wm_chmod( $file, $mode ) {
  * @param  string $destination_file File to copy the contents to
  */
 function ai1wm_copy( $source_file, $destination_file ) {
-	$source_handle = ai1wm_open( $source_file, 'rb' );
+	$source_handle      = ai1wm_open( $source_file, 'rb' );
 	$destination_handle = ai1wm_open( $destination_file, 'ab' );
 	while ( $buffer = ai1wm_read( $source_handle, 4096 ) ) {
 		ai1wm_write( $destination_handle, $buffer );
@@ -1059,17 +1176,6 @@ function ai1wm_fseek( $file_handle, Math_BigInteger $offset ) {
 }
 
 /**
- * Deactivate Jetpack Photon module
- *
- * @return mixed
- */
-function ai1wm_deactivate_jetpack_photon_module() {
-	if ( ( $jetpack = get_option( AI1WM_JETPACK_ACTIVE_MODULES, array() ) ) ) {
-		return update_option( AI1WM_JETPACK_ACTIVE_MODULES, array_values( array_diff( $jetpack, array( 'photon' ) ) ) );
-	}
-}
-
-/**
  * Verify secret key
  *
  * @param  string  $secret_key Secret key
@@ -1082,4 +1188,38 @@ function ai1wm_verify_secret_key( $secret_key ) {
 	}
 
 	return true;
+}
+
+/**
+ * Is scheduled backup?
+ *
+ * @return boolean
+ */
+function ai1wm_is_scheduled_backup() {
+	return empty( $_REQUEST['ai1wm_manual_export'] ) && empty( $_REQUEST['ai1wm_manual_import'] ) && empty( $_REQUEST['ai1wm_manual_restore'] );
+}
+
+/**
+ * PHP setup environment
+ *
+ * @return void
+ */
+function ai1wm_setup_environment() {
+	// Set whether a client disconnect should abort script execution
+	@ignore_user_abort( true );
+
+	// Set maximum execution time
+	@set_time_limit( 0 );
+
+	// Set maximum time in seconds a script is allowed to parse input data
+	@ini_set( 'max_input_time', '-1' );
+
+	// Set maximum backtracking steps
+	@ini_set( 'pcre.backtrack_limit', PHP_INT_MAX );
+
+	// Set error handler
+	@set_error_handler( 'Ai1wm_Handler::error' );
+
+	// Set shutdown handler
+	@register_shutdown_function( 'Ai1wm_Handler::shutdown' );
 }

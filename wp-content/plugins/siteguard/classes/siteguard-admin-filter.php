@@ -23,7 +23,7 @@ class SiteGuard_AdminFilter extends SiteGuard_Base {
 		CHARACTER SET 'utf8';";
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 		dbDelta( $sql );
-		$siteguard_config->set( 'admin_filter_exclude_path', 'css,images,admin-ajax.php' );
+		$siteguard_config->set( 'admin_filter_exclude_path', 'css,images,admin-ajax.php,load-styles.php' );
 		$siteguard_config->set( 'admin_filter_enable', '0' );
 		$siteguard_config->update( );
 	}

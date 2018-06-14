@@ -94,18 +94,17 @@ $url = '';
 	<?php endif; ?>
 
 	<!--[if lte IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/html5shiv.js"></script>
+      <script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/respond.min.js"></script>
 	<![endif]-->	
 
 	<!-- Font Awesome -->
 	<?php if (!defined('SEED_CSPV5_REMOVE_FONTAWESOME')): ?>
-    <script defer src="<?php echo SEED_CSPV5_PLUGIN_URL; ?>template/js/fontawesome-all.min.js"></script>
-	<script defer src="<?php echo SEED_CSPV5_PLUGIN_URL; ?>template/js/fa-v4-shims.min.js"></script>
+	<link rel="stylesheet" href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/css/all.css" >
 	<?php endif; ?>
 
 	<!-- Bootstrap and default Style -->
-	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/style.css">
 
 
@@ -149,7 +148,7 @@ $url = '';
 
 	<?php if(!empty($settings->container_effect_animation)): ?>
 	<!-- Animate CSS -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.1/animate.min.css">
+	<link rel="stylesheet" href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/css/animate.min.css">
 	<?php endif; ?>
 
 	<style type="text/css">
@@ -914,8 +913,10 @@ $url = '';
 
 
 
-	<?php if(seed_cspv5_cu('ml') && !empty($langs)){ ?>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
+	<?php 
+	//var_dump($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+	if(seed_cspv5_cu('ml') && !empty($langs)){ ?>
+	<link rel="stylesheet" href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/css/select2.min.css">
 	<?php } ?>
 	<!-- JS -->
 	<?php
@@ -929,7 +930,7 @@ $url = '';
 	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/modernizr-custom.js"></script>
 	<!-- Retina JS -->
 	<?php if(!empty($settings->enable_retinajs)){ ?>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/retina.js/1.3.0/retina.min.js"></script>
+	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/retina.min.js"></script>
 	<?php } ?>
 
 
@@ -998,8 +999,8 @@ if(!empty($settings->enable_wp_head_footer)){
 }
 ?>
 
-	<script src="https://cdn.jsdelivr.net/jquery.url.parser/2.3.1/purl.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/jquery.cookie/1.4.1/jquery.cookie.min.js"></script>
+	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/purl.min.js"></script>
+	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/jquery.cookie.min.js"></script>
 	<script>
 	var email_cookie = jQuery.cookie('email');
 	var return_user = false;
@@ -1073,7 +1074,7 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 		<?php endif; ?>
 	</div>
 
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/bootstrap.min.js"></script>
 	<!-- Contact Form -->
 	<?php if(!empty($settings->enable_cf_form)){ ?>
 	<div id="cspio-cf-modal" class="modal fade" tabindex="-1" role="dialog">
@@ -1207,7 +1208,7 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 
 	<?php if(!empty($settings->enable_fitvid)){ ?>
 	<!-- FitVid -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/fitvids/1.1.0/jquery.fitvids.min.js"></script>
+	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/jquery.fitvids.min.js"></script>
 	<script>jQuery(document).ready(function($){$("#cspio-description,#cspio-thankyoumsg").fitVids();});</script>
 	<?php } ?>
 	
@@ -1335,7 +1336,7 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 	<?php endif; ?>
 
 	<?php if(seed_cspv5_cu('ml') && !empty($langs)){ ?>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+	<script type="text/javascript" src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/select2.min.js"></script>
 	<script>
 	var langs_arr = '<?php echo json_encode($lang_settings_all); ?>';
 	function formatState (state) {

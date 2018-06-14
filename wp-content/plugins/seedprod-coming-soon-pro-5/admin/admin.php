@@ -150,20 +150,26 @@ class SEED_CSPV5_ADMIN
     }
 
     function deregister_scripts(){
+        // always remove
+        wp_dequeue_script( 'pirateforms_scripts_admin' );
+        wp_deregister_script( 'pirateforms_scripts_admin' );
+
+        // debug remove
         if(isset($_GET['page']) && $_GET['page'] == 'seed_cspv5_customizer'){
             if(isset($_GET['seed_cspv5_debug'])){
             // only ones we need are: common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js
-            $d = array();
-            if(!empty($_GET['d'])){
-                $d = explode("|",$_GET['d']); 
-            }
+
+            $d = explode("|",urldecode($_GET['seed_cspv5_debug'])); 
+        
             global $wp_scripts;
              foreach( $wp_scripts->queue as $handle ) :
-                echo $handle . '|';
+                //echo $handle . '|';
+                
                 if(!empty($d)){
                 if(!in_array($handle,$d)){
                     wp_dequeue_script( $handle );
                     wp_deregister_script( $handle );
+                    echo '<br>removed '.$handle;
                 }
                 }
             endforeach;
@@ -994,7 +1000,7 @@ class SEED_CSPV5_ADMIN
             if($theme_id != '0'){
             if($theme_id != ''){
                 // Get theme specifics
-                if ( false === ( get_transient( 'seed_cspv5_theme_id_'.$theme_id ) ) ) {
+                if ( false === ( get_transient( 'seed_cspv5_theme_id_'.$theme_id ) )  || SEED_CSPV5_THEME_DEV ) {
                    //echo 'miss';
                     $url = SEED_CSPV5_THEME_API_URL.'?theme_id='.$theme_id; 
                     $response = wp_remote_get( $url );
@@ -1300,6 +1306,15 @@ class SEED_CSPV5_ADMIN
             'seed_cspv5',
             array( &$this , 'option_page' )
             );
+
+    $this->plugin_screen_customizer_hook_suffix = add_submenu_page(
+            NULL,
+            __( "Export Theme", 'seedprod-coming-soon-pro' ),
+            __( "Export Theme", 'seedprod-coming-soon-pro' ),
+            'manage_options',
+            'seed_cspv5_export_theme',
+            array( &$this , 'export_theme' )
+            );
             
     $this->plugin_screen_customizer_hook_suffix = add_submenu_page(
             NULL,
@@ -1528,10 +1543,14 @@ class SEED_CSPV5_ADMIN
         }
         
         $themes = array();
-        if ( false === ( get_transient( 'seed_cspv5_themes_page_'.$paged ) ) ) {
-            //echo 'miss';
-            $url = SEED_CSPV5_THEME_API_URL.$paged.'&api_key='.get_option('seed_cspv5_license_key').'&domain='.urlencode(home_url()); 
-            //var_dump($url);
+        if ( false === ( get_transient( 'seed_cspv5_themes_page_'.$paged ) ) || SEED_CSPV5_THEME_DEV ) {
+            
+            $url = SEED_CSPV5_THEME_API_URL.$paged.'&api_key='.get_option('seed_cspv5_license_key').'&domain='.urlencode(home_url());
+            if(SEED_CSPV5_THEME_DEV ){
+                echo 'miss';
+                $url = $url.'&all=1';
+                var_dump($url);
+            } 
             $response = wp_remote_get( $url );
 
             if ( is_wp_error( $response ) ) {
@@ -1761,6 +1780,88 @@ class SEED_CSPV5_ADMIN
             </div>
             <?php
         }
+    }
+
+    function export_theme( ){
+        // Page Info
+        $page_id = 0;
+        if(isset($_GET['seed_cspv5_customize'])){
+            $page_id = $_GET['seed_cspv5_customize'];
+        }
+
+            
+        // Get Page
+        global $wpdb;
+        $tablename = $wpdb->prefix . SEED_CSPV5_PAGES_TABLENAME;
+        $sql = "SELECT * FROM $tablename WHERE id= %d";
+        $safe_sql = $wpdb->prepare($sql,$page_id);
+        $page = $wpdb->get_row($safe_sql);
+
+        // Check for base64 encoding of settings
+        if ( base64_encode(base64_decode($page->settings, true)) === $page->settings){
+            $settings = unserialize(base64_decode($page->settings));
+        } else {
+            $settings = unserialize($page->settings);
+        }
+     
+        $white_list = array(
+            "background_color",
+            "background_repeat",
+            "background_size",
+            "background_attachment",
+            "background_position",
+            "background_image",
+            "enable_background_adv_settings",
+            "background_overlay",
+            "enable_background_overlay",
+            "bg_slideshow",
+            "bg_video",
+            "text_font",
+            "text_weight",
+            "text_color",
+            "text_size",
+            "text_line_height",
+            "headline_font",
+            "headline_weight",
+            "headline_color",
+            "headline_size",
+            "headline_line_height",
+            "button_font",
+            "button_weight",
+            "container_radius",
+            "container_color",
+            "container_position",
+            "container_width",
+            "container_effect_animation",
+            "container_transparent",
+            "button_color",
+            "form_color",
+            "container_transparent",
+            "form_width",
+            "contactform_color",
+            "disabled_fields",
+        );
+
+        foreach($settings as $k => $v){
+            if (!in_array($k, $white_list)) {
+                unset($settings[$k]);
+            }
+        }
+
+        if(!array_key_exists('container_transparent',$settings)){
+            $settings['container_transparent'] = '0';
+        }
+     
+        if(!array_key_exists('enable_background_overlay',$settings)){
+            $settings['enable_background_overlay'] = '0';
+        }
+
+        //echo '<pre>';
+        echo '<textarea style="width:90%;height:500px">'.json_encode($settings).'</textarea>';
+        //echo '</pre>';
+
+
+
     }
     
     function customizer( ){
@@ -3491,6 +3592,13 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
             $sql .= ' AND page_id = "'. esc_sql(trim($_GET['page_id'])) .'"';
         }
 
+        $page_id = '';
+        if(!empty($passed_page_id)){
+            $page_id = $passed_page_id ;
+        }elseif(!empty($_REQUEST['page_id'])){
+            $page_id = $_REQUEST['page_id'];
+        }
+
         if(isset($_GET['prize_level'])){
             $prize_level = esc_sql($_GET['prize_level']);
             // get prize
@@ -3659,6 +3767,14 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
             //$prize_level = esc_sql($_GET['prize_level']);
         }
 
+        $page_id = '';
+        if(!empty($passed_page_id)){
+            $page_id = $passed_page_id ;
+        }elseif(!empty($_REQUEST['page_id'])){
+            $page_id = $_REQUEST['page_id'];
+        }
+
+
         $number_required = '';
         if(!empty($prize_level)){
             // get prize
@@ -3701,6 +3817,13 @@ class SEED_CSPV5_SUBSCRIBERS extends WP_List_Table {
 
         if(isset($_GET['prize_level'])){
             $prize_level = esc_sql($_GET['prize_level']);
+        }
+
+        $page_id = '';
+        if(!empty($passed_page_id)){
+            $page_id = $passed_page_id ;
+        }elseif(!empty($_REQUEST['page_id'])){
+            $page_id = $_REQUEST['page_id'];
         }
 
         $number_required = '';

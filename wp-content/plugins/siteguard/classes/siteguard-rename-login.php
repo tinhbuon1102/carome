@@ -102,7 +102,13 @@ class SiteGuard_RenameLogin extends SiteGuard_Base {
 		return $result;
 	}
 	function handler_wp_redirect( $link, $status_code ) {
-		$result = $this->convert_url( $link );
+		if ( ( ( strlen( $link ) <= 5 || 'http:' !== strtolower( substr( $link, 0, 5 ) ) ) && ( strlen( $link ) <= 6 || 'https:' !== strtolower( substr( $link, 0, 6 ) ) ) )
+		|| ( isset( $_SERVER['HTTPS'] ) && strtolower( $_SERVER['HTTPS'] ) !== 'off' && 'https' === strtolower( substr( $link, 0, strpos( $link, '://') ) ) )
+		|| ( ( ! isset( $_SERVER['HTTPS'] ) || strtolower( $_SERVER['HTTPS'] ) === 'off' ) && 'http' === strtolower( substr( $link, 0, strpos( $link, '://') ) ) ) ) {
+			$result = $this->convert_url( $link );
+		} else {
+			$result = $link;
+		}
 		return $result;
 	}
 	function insert_rewrite_rules( $rules ) {

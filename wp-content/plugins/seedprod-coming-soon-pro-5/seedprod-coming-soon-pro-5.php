@@ -3,13 +3,13 @@
 Plugin Name: SeedProd Coming Soon Page Pro
 Plugin URI: https://www.seedprod.com
 Description: The Ultimate Coming Soon & Maintenance Mode Plugin
-Version:  5.11.2
+Version:  5.11.4
 Author: SeedProd
 Author URI: http://www.seedprod.com
 Text Domain: seedprod-coming-soon-pro
 Domain Path: /languages
 License: PHP Licensed under the GPLv2, Javascript and CSS are Proprietary and can not be redistributed without consent of copyright holder.
-Copyright 2016 SeedProd LLC (email : john@seedprod.com, twitter : @seedprod)
+Copyright 2018 SeedProd LLC (email : john@seedprod.com, twitter : @seedprod)
 */
 
 /**
@@ -19,7 +19,7 @@ define( 'SEED_CSPV5_SHORTNAME', 'seed_cspv5' ); // Used to reference namespace f
 define( 'SEED_CSPV5_SLUG', 'seedprod-coming-soon-pro-5/seedprod-coming-soon-pro-5.php' ); // Used for settings link.
 define( 'SEED_CSPV5_TEXTDOMAIN', 'seedprod-coming-soon-pro' ); // Your textdomain
 define( 'SEED_CSPV5_PLUGIN_NAME', __( 'Coming Soon Page Pro', 'seedprod-coming-soon-pro' ) ); // Plugin Name shows up on the admin settings screen.
-define( 'SEED_CSPV5_VERSION', '5.11.2'); // Plugin Version Number.
+define( 'SEED_CSPV5_VERSION', '5.11.4'); // Plugin Version Number.
 define( 'SEED_CSPV5_PLUGIN_PATH', plugin_dir_path( __FILE__ ) ); // Example output: /Applications/MAMP/htdocs/wordpress/wp-content/plugins/seed_cspv5/
 define( 'SEED_CSPV5_PLUGIN_URL', plugin_dir_url( __FILE__ ) ); // Example output: http://localhost:8888/wordpress/wp-content/plugins/seed_cspv5/
 define( 'SEED_CSPV5_SUBSCRIBERS_TABLENAME', 'csp3_subscribers' );
@@ -29,6 +29,7 @@ define( 'SEED_CSPV5_API_URL', 'https://api.seedprod.com/v3/update' );
 define( 'SEED_CSPV5_THEME_API_URL', 'https://api.seedprod.com/v3/themes' );
 define( 'SEED_CSPV5_BACKGROUND_SEARCH_API_URL', 'https://api.seedprod.com/v3/background_search' );
 define( 'SEED_CSPV5_BACKGROUND_API_URL', 'https://api.seedprod.com/v3/backgrounds' );
+define( 'SEED_CSPV5_THEME_DEV', false);
 
 
 //define( 'SEED_CSPV5_BACKGROUND_API_URL', 'http://v3app.seedprod.dev/v3/background_search' );

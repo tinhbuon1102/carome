@@ -1,9 +1,23 @@
 <style>
 .grid-item {
-  margin-bottom: 6px;
+  margin-bottom: 0px;
+  float:left;
+  height:275px;
+  width:300px;
+  overflow: hidden;
+  margin-right: 5px;
+}
+
+.grid-item p{
+  margin:0;
 }
 #wpfooter{
   display:none;
+}
+
+.masonry p{
+  margin-top:0px;
+  margin-bottom:5px;
 }
 </style>
 <!-- Main Content -->
@@ -16,7 +30,7 @@
 <h1>Select a Theme</h1>
 <?php } ?>
 <div class="media-frame wp-core-ui mode-grid mode-edit hide-menu"> 
-Theme Page
+<h1>Themes</h1>
 <?php echo $themes; ?>
 </div>
 </div>
@@ -76,18 +90,19 @@ jQuery( ".grid-item a,.seed_cspv5_no_themes" ).on('click',function(e) {
 });
 
 
-jQuery( document ).ready(function() {
-jQuery(window).load(function() {
-imagesLoaded( document.querySelector('.grid'), function( instance ) {
-var elem = document.querySelector('.grid');
-var msnry = new Masonry( elem, {
-  // options
-  itemSelector: '.grid-item',
-  columnWidth: 300,
-  gutter: 6
-});
-});
-}); 
-});
+// jQuery( document ).ready(function() {
+// jQuery(window).load(function() {
+// imagesLoaded( document.querySelector('.grid'), function( instance ) {
+// var elem = document.querySelector('.grid');
+// var msnry = new Masonry( elem, {
+//   // options
+//   itemSelector: '.grid-item',
+//   columnWidth: 300,
+//   gutter: 6
+// });
+// });
+// }); 
+// });
 
 </script>
+<div style="clear:both"></div>
