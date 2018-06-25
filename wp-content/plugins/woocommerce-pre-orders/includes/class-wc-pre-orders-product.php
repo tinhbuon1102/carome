@@ -230,12 +230,15 @@ class WC_Pre_Orders_Product {
 			LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS items ON posts.ID = items.order_id
 			LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS item_meta ON items.order_item_id = item_meta.order_item_id
 			LEFT JOIN {$wpdb->postmeta} AS post_meta ON items.order_id = post_meta.post_id
+			LEFT JOIN {$wpdb->postmeta} AS mt1 ON items.order_id = mt1.post_id
 			WHERE
 				items.order_item_type = 'line_item' AND
 				item_meta.meta_key = '_product_id' AND
 				item_meta.meta_value = '%s' AND
 				post_meta.meta_key = '_wc_pre_orders_status' AND
 				post_meta.meta_value = 'active'
+				mt1.meta_key = '_wc_pre_orders_is_pre_order' AND
+				mt1.meta_value = 1
 			", $product->get_id()
 			)
 		);
