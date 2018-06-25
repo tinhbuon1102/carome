@@ -210,12 +210,12 @@ var gl_alertStateNotAllowed = '';
 	</ol>
 	  </div>
 	  <?php if ( date_i18n('YmdHi') >= "201806141800" ) { ?>
-<div class="sub_banner xs-hide">
+<!--<div class="sub_banner xs-hide">
 	<a href="<?php echo home_url('/spring-fair-2nd'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SpringFair_2ndTopBanner-Desktop.jpg" alt="springfair" /></a>
 </div>
 	  <div class="sub_banner xs-show">
 		  <a href="<?php echo home_url('/spring-fair-2nd'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SpringFair_2ndTopBanner-Mobile.jpg" alt="springfair" /></a>
-	  </div>
+	  </div>-->
 	  <?php } ?><!--time set end-->
 	  <?php }?>
     <!-- Elsey Wrapper Start -->
