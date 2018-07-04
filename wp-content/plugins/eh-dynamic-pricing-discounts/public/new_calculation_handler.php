@@ -410,6 +410,12 @@ class XA_NewCalculationHandler {
 		}else{
 			$price = wc_price($min_price) . $product->get_price_suffix();
 		}
+		$objRulesValidator = New XA_RulesValidator();
+		$valid_rules = $objRulesValidator->getValidRulesForProduct($product, $product->id, 1, $product->get_regular_price(), $product->get_weight());
+		if (!empty($valid_rules))
+		{
+			$price .= '<div class="sale-off-value-text">' . $valid_rules['product_rules:1']['value'] .  '% OFF</span>';
+		}
 		return apply_filters('eha_variable_sale_price_html', $price, $min_price, $max_price, $regular_price,0);
 	}
 

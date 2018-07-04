@@ -2742,3 +2742,4 @@ function isFreeGiftOrderProduct($order, $product)
 	}
 	return $is_free_gift;
 }
+
