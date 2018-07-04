@@ -414,7 +414,7 @@ class XA_NewCalculationHandler {
 		$valid_rules = $objRulesValidator->getValidRulesForProduct($product, $product->id, 1, $product->get_regular_price(), $product->get_weight());
 		if (!empty($valid_rules))
 		{
-			$price .= '<div class="sale-off-value-text">' . $valid_rules['product_rules:1']['value'] .  '% OFF</span>';
+			$price .= '<div class="sale-off-value-text"><span>'.$valid_rules['product_rules:1']['value'].'%OFF</span></div>';
 		}
 		return apply_filters('eha_variable_sale_price_html', $price, $min_price, $max_price, $regular_price,0);
 	}
