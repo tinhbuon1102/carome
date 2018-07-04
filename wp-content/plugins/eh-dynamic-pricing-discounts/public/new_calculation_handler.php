@@ -378,6 +378,13 @@ class XA_NewCalculationHandler {
 			$price = apply_filters('woocommerce_grouped_empty_price_html', '', $product);
 		}
 
+		$objRulesValidator = New XA_RulesValidator();
+		$valid_rules = $objRulesValidator->getValidRulesForProduct($product, $product->id, 1, $product->get_regular_price(), $product->get_weight());
+		if (!empty($valid_rules))
+		{
+			$rules = array_values($valid_rules);
+			$price .= '<div class="sale-off-value-text" ><span>'.$rules[0]['value'].'%OFF</span></div>';
+		}
 		return $price;
 	}
 
