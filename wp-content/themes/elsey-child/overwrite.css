@@ -72,6 +72,9 @@
 .form-row .withunit .unit {
 	padding-left: 10px;
 }
+li.cat-item.cat-item-157 {
+    display: none;
+}
 @media only screen and (min-width: 48em) {
 .sub_banner {
     padding: 20px;
