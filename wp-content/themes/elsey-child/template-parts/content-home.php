@@ -36,7 +36,7 @@
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,92,153,152,154',
+	     'exclude'    => '77,92,153,152,154,157',
          'hide_empty'   => $empty
 		);
 		$all_categories = get_categories( $args );

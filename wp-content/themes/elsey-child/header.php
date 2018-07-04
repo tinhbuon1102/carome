@@ -168,7 +168,7 @@ var gl_alertStateNotAllowed = '';
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,153,152,154',
+	     'exclude'    => '77,153,152,154,157',
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
@@ -191,7 +191,7 @@ var gl_alertStateNotAllowed = '';
                 'pad_counts'   => $pad_counts,
                 'hierarchical' => $hierarchical,
                 'title_li'     => $title,
-                'exclude'    => '157,161,162,163,159,160,145,146,147,148,151,150,149',//live from 145
+                'exclude'    => '157,161,162,163,159,160,145,146,147,148,151,150,149,157',//live from 145
                 'hide_empty'   => $empty
         );
         $sub_cats = get_categories( $args2 );
@@ -209,14 +209,25 @@ var gl_alertStateNotAllowed = '';
 ?>
 	</ol>
 	  </div>
-	  <?php if ( date_i18n('YmdHi') >= "201806141800" ) { ?>
-<!--<div class="sub_banner xs-hide">
-	<a href="<?php echo home_url('/spring-fair-2nd'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SpringFair_2ndTopBanner-Desktop.jpg" alt="springfair" /></a>
+	  <?php if(is_product_category('thespringsale18')){ ?> 
+	  <div class="sub_banner xs-hide">
+	<a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSaleTopBanner-Desktop.jpg" alt="springfair" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/spring-fair-2nd'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SpringFair_2ndTopBanner-Mobile.jpg" alt="springfair" /></a>
-	  </div>-->
+		  <a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSale_TopBanner-Mobile01.jpg" alt="springfair" /></a>
+	  </div>
+	  <?php } else { ?>
+	  
+	  <?php if ( date_i18n('YmdHi') >= "201807051200" ) { ?>
+<div class="sub_banner xs-hide">
+	<a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSaleTopBanner-Desktop.jpg" alt="springfair" /></a>
+</div>
+	  <div class="sub_banner xs-show">
+		  <a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSale_TopBanner-Mobile01.jpg" alt="springfair" /></a>
+	  </div>
 	  <?php } ?><!--time set end-->
+	  <?php }?>
+	  
 	  <?php }?>
     <!-- Elsey Wrapper Start -->
     <div class="els-wrapper">

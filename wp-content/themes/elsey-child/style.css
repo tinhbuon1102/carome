@@ -4473,6 +4473,19 @@ ul.product__slider {
     font-size: 12px;
     margin-top: 20px;
 }
+.sale-off-value-text > span {
+    display: inline-block;
+    font-size: 14px;
+    background: rgba(220,130,145,1);
+    color: #FFF;
+    padding: 3px 5px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.sale-off-value-text {
+    margin-top: 10px;
+}
 @media only screen and (min-width: 48em) {
 	.remtal_kimono_content .button--primary {
 		font-size: 14px;
