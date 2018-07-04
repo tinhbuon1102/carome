@@ -485,6 +485,7 @@ body #yith-wcwl-popup-message #yith-wcwl-message {
 }
 
 .woocommerce ul.products .price del {
+	/* display: none; */
 }
 
 .woocommerce ul.products .price ins {
@@ -504,7 +505,7 @@ body #yith-wcwl-popup-message #yith-wcwl-message {
 }
 
 .els-product-summary-col .els-pr-price del {
-	display: none;
+	/* display: none; */
 }
 
 .els-wc-tabs-details {
@@ -1176,7 +1177,7 @@ p.comment-form-notes {
 }
 
 .product-type-grouped .els-product-summary-col .els-pr-price del {
-	display: none;
+	/* display: none; */
 }
 
 .product-type-grouped .els-product-summary-col .label {
@@ -1926,7 +1927,7 @@ address {
 }
 
 .wishlist_table .product-price del {
-	display: none;
+	/* display: none; */
 }
 
 .wishlist_table .wishlist-in-stock {
