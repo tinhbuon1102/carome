@@ -413,7 +413,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 
 	// Single Product Page - Change order of RRP and sale price.
 	function elsey_rrp_price_html( $price, $product ) {
-	  return '<div class="els-pr-price">'.preg_replace('@(<del>.*?</del>).*?(<ins>.*?</ins>)@misx', '$2 $1', $price).'</div>';
+	  return '<div class="els-pr-price">'.preg_replace('@(<del>.*?</del>).*?(<ins>.*?</ins>)@misx', '$1 $2', $price).'</div>';
 	}
 	add_filter( 'woocommerce_get_price_html', 'elsey_rrp_price_html', 100, 2 );
 

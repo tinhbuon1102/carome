@@ -485,7 +485,6 @@ body #yith-wcwl-popup-message #yith-wcwl-message {
 }
 
 .woocommerce ul.products .price del {
-	display: none;
 }
 
 .woocommerce ul.products .price ins {
