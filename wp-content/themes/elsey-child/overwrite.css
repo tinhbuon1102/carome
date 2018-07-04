@@ -75,6 +75,9 @@
 li.cat-item.cat-item-157 {
     display: none;
 }
+.term-thespringsale18 .sub_banner.xs-show {
+    border-bottom: 1px solid #eee;
+}
 @media only screen and (min-width: 48em) {
 .sub_banner {
     padding: 20px;
