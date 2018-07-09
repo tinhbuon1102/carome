@@ -244,6 +244,7 @@ ul.product-categories span.count {
 	left: 0 !important;
 } 
 
+.woocommerce-order-received .woocommerce-message {display: none;}
 @media only screen and (min-width: 64.01em) {
 	.heading--xlarge {
 		font-size: 24px;
