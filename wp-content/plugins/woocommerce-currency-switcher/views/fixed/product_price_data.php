@@ -120,7 +120,7 @@ if (!function_exists('woocs_price_options_geo'))
                 {
                     if ($this->is_exists($post_id, $code, 'regular'))
                     {
-                        woocs_price_options($post_id, $code, $this->get_value($post_id, $code, 'regular'), $this->get_value($post_id, $code, 'sale'));
+                        woocs_price_options($post_id, $code, $this->prepare_float_to_show($this->get_value($post_id, $code, 'regular'),$curr['decimals']),  $this->prepare_float_to_show($this->get_value($post_id, $code, 'sale'),$curr['decimals']));
                     }
                 }
                 ?>
@@ -140,7 +140,8 @@ if (!function_exists('woocs_price_options_geo'))
             <a href="javascript: woocs_add_group_geo(<?php echo $post_id ?>);void(0);" class="button"><?php _e('Add group', 'woocommerce-currency-switcher') ?></a>
 
             <pre>
-                <?php //print_r($product_geo_data); ?>
+                <?php //print_r($product_geo_data); 
+                ?>
             </pre>
 
             <ul id="woocs_multiple_simple_list_geo_<?php echo $post_id ?>">
@@ -153,8 +154,8 @@ if (!function_exists('woocs_price_options_geo'))
                         {
                             continue;
                         }
-
-                        woocs_price_options_geo($post_id, $index, (array) $countries_selected, $product_geo_data['regular_price_geo'][$index], $product_geo_data['sale_price_geo'][$index]);
+                       
+                        woocs_price_options_geo($post_id, $index, (array) $countries_selected, $this->prepare_float_to_show($product_geo_data['regular_price_geo'][$index],$curr['decimals']),$this->prepare_float_to_show( $product_geo_data['sale_price_geo'][$index],$curr['decimals']));
                     }
                 }
                 ?>

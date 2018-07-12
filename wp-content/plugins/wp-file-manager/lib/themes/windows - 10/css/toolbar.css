@@ -49,7 +49,7 @@
 /* Searchbar */
 .elfinder-toolbar .elfinder-button-search {
   /* */
-  border: 1px solid #ccc;
+  /*border: 1px solid #ccc;*/
   margin-right: 5px;
   border-radius: 0;
 }
@@ -208,6 +208,9 @@
   }  
   .elfinder .elfinder-toolbar .elfinder-buttonset .elfinder-button-icon-empty {
     background-image: url('../images/16px/clear_folder.png');
+  }
+  .elfinder .elfinder-toolbar .elfinder-buttonset .elfinder-button-icon-fullscreen{
+    background-image: url('../images/16px/full-screen-icon.png');
   }
 
   /* Menus (e.g. for sorting) */

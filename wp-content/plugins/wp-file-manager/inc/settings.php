@@ -1,8 +1,8 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
 <div class="wrap">
+<h3><?php _e('Settings - General', 'wp-file-manager');?></h3>
 <p class="danger" style="color:#F00"><strong><?php  _e('Note: This is just a demo screenshot. To get settings please buy our pro version.', 'wp-file-manager'); ?></strong>
 <a href="http://filemanager.webdesi9.com/product/file-manager" class="button button-primary" target="_blank" title="Click to Buy PRO"><?php  _e('Buy PRO', 'wp-file-manager'); ?></a></p>
-<h3><?php _e('Settings - General', 'wp-file-manager');?></h3>
 <p><?php _e('Here admin can give access to user roles to use filemanager. Admin can set Default Access Folder and also control upload size of filemanager.', 'wp-file-manager');?></p>
 <img src="<?php echo plugins_url( 'images/screenshot-general.png', __FILE__ );?>" />
 <h3><?php _e('Settings - Code-editor', 'wp-file-manager');?></h3>

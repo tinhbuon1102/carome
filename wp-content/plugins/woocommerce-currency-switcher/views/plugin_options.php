@@ -96,19 +96,21 @@
         ),
         array(
             'name' => __('Currency aggregator', 'woocommerce-currency-switcher'),
-            'desc' => __('Currency aggregators', 'woocommerce-currency-switcher'),
+            'desc' => __('Currency aggregators. Note: XE Currency Converter doesnt work with crypto-currency such as BTC!', 'woocommerce-currency-switcher'),
             'id' => 'woocs_currencies_aggregator',
             'type' => 'select',
             'class' => 'chosen_select',
             'css' => 'min-width:300px;',
             'options' => array(
-                //'yahoo' => 'www.finance.yahoo.com',
-                'google' => 'www.google.com/finance',
+                //'yahoo' => 'www.finance.yahoo.com',//failed
+                //'google' => 'www.google.com/finance',//failed
                 'ecb' => 'www.ecb.europa.eu',
                 'rf' => 'www.cbr.ru - russian centrobank',
                 'privatbank' => 'api.privatbank.ua - ukrainian privatbank',
                 'bank_polski' => 'Narodowy Bank Polsky',
                 'free_converter' => 'The Free Currency Converter',
+                'cryptocompare' => 'CryptoCompare',
+                'xe' => 'XE Currency Converter'
             ),
             'desc_tip' => true
         ),
@@ -289,6 +291,15 @@
                             <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
                             <span><?php _e("Advanced", 'woocommerce-currency-switcher') ?></span>
                         </a></li>
+                    <?php if (version_compare($WOOCS->actualized_for, '3.3', '>=')): ?>
+                        <li>
+                            <a href="#tabs-6">
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
+                                <span><?php _e("Side switcher", 'woocommerce-currency-switcher') ?></span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                     <?php if ($this->is_use_geo_rules()): ?>
                         <li>
                             <a href="#tabs-4">
@@ -402,7 +413,7 @@
                                 <select name="woocs_use_geo_rules" id="woocs_use_geo_rules" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Use GeoLocation rules', 'woocommerce-currency-switcher') ?>">
 
                             <?php foreach ($opts as $val => $title): ?>
-                                                                                                                                                        <option value="<?php echo $val ?>" <?php echo selected($selected, $val) ?>><?php echo $title ?></option>
+                                                                                                                                                                                                            <option value="<?php echo $val ?>" <?php echo selected($selected, $val) ?>><?php echo $title ?></option>
                             <?php endforeach; ?>
 
                                 </select>
@@ -486,7 +497,7 @@
 
                                         </select>
                                     </td>
-                                </tr> 
+                                </tr>
 
                                 <tr valign="top" <?php if (!$woocs_is_multiple_allowed): ?>style="display: none;"<?php endif; ?>>
                                     <th scope="row" class="titledesc">
@@ -509,7 +520,7 @@
 
                                         </select>
                                     </td>
-                                </tr> 
+                                </tr>
                             <?php endif; //end woo33?>
                             <tr valign="top">
                                 <th scope="row" class="titledesc">
@@ -556,7 +567,203 @@
 
 
                 </section>
+                <?php if (version_compare($WOOCS->actualized_for, '3.3', '>='))://WOO 33 ?>
+                    <section id="tabs-6" style="position: relative;">
 
+                        <a href="https://currency-switcher.com/documentation/#section_1_3" class="button button-primary" style="position: absolute; right: 10px; top: 10px; z-index: 999;" target="_blank"><?php _e('Documentation', 'woocommerce-currency-switcher') ?></a>
+
+                        <table class="form-table">
+                            <tbody>
+                                <tr valign="top">
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_is_auto_switcher"><?php _e('Enable/Disable', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" data-tip="<?php _e('Enable/Disable the side currency switcher on your page', 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $opts = array(
+                                            0 => __('Disable', 'woocommerce-currency-switcher'),
+                                            1 => __('Enable', 'woocommerce-currency-switcher')
+                                        );
+                                        $woocs_is_auto_switcher = get_option('woocs_is_auto_switcher', 0);
+                                        ?>
+                                        <select name="woocs_is_auto_switcher" id="woocs_is_auto_switcher" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Show auto switcher', 'woocommerce-currency-switcher') ?>">
+
+                                            <?php foreach ($opts as $val => $title): ?>
+                                                <option value="<?php echo $val ?>" <?php echo selected($woocs_is_auto_switcher, $val) ?>><?php echo $title ?></option>
+                                            <?php endforeach; ?>
+
+                                        </select>
+                                    </td>
+                                </tr>
+
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_skin"><?php _e('Skin', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("Style of the switcher on the site front", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $opts = array(
+                                            'classic_blocks' => __('Classic blocks', 'woocommerce-currency-switcher'),
+                                            'roll_blocks' => __('Roll blocks', 'woocommerce-currency-switcher'),
+                                            // 'round_chain' => __('Round chain', 'woocommerce-currency-switcher'),
+                                            'round_select' => __('Round select', 'woocommerce-currency-switcher'),
+                                        );
+                                        $woocs_auto_switcher_skin = get_option('woocs_auto_switcher_skin', 'classic_blocks');
+                                        ?>
+                                        <select name="woocs_auto_switcher_skin" id="woocs_auto_switcher_skin" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Choise skin', 'woocommerce-currency-switcher') ?>">
+
+                                            <?php foreach ($opts as $val => $title): ?>
+                                                <option value="<?php echo $val ?>" <?php echo selected($woocs_auto_switcher_skin, $val) ?>><?php echo $title ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="woocs_roll_blocks_width" <?php if ($woocs_auto_switcher_skin != 'roll_blocks'): ?>style="display: none;"<?php endif; ?>>
+                                            <input type="text" name="woocs_auto_switcher_roll_px" id="woocs_auto_switcher_roll_px" placeholder="<?php _e('enter roll width', 'woocommerce-currency-switcher') ?>" style="min-width: 100px; margin-top: 3px;" value="<?php echo get_option('woocs_auto_switcher_roll_px', 90) ?>" />.px<br />
+                                        </div>                          
+                                    </td>
+
+                                </tr>
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_side"><?php _e('Side', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("The side where the switcher is be placed", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $opts = array(
+                                            'left' => __('Left', 'woocommerce-currency-switcher'),
+                                            'right' => __('Right', 'woocommerce-currency-switcher'),
+                                        );
+                                        $woocs_auto_switcher_side = get_option('woocs_auto_switcher_side', 'left');
+                                        ?>
+                                        <select name="woocs_auto_switcher_side" id="woocs_auto_switcher_side" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Choise side', 'woocommerce-currency-switcher') ?>">
+
+                                            <?php foreach ($opts as $val => $title): ?>
+                                                <option value="<?php echo $val ?>" <?php echo selected($woocs_auto_switcher_side, $val) ?>><?php echo $title ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_top_margin"><?php _e('Top margin', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("Distance from the top of the screen to the switcher html block. You can set in px or in %. Example 1: 100px. Example 2: 10%.", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $woocs_auto_switcher_top_margin = get_option('woocs_auto_switcher_top_margin', '100px');
+                                        ?>
+                                        <input type="text" name="woocs_auto_switcher_top_margin" id="woocs_auto_switcher_top_margin" style="min-width: 300px;" value="<?php echo $woocs_auto_switcher_top_margin ?>" >
+                                    </td>
+                                </tr>
+                                <?php
+                                $color = array(
+//                                array(
+//                                    'name' => '',
+//                                    'type' => 'title',
+//                                    'desc' => '',
+//                                    'id' => 'woocs_color'
+//                                ),
+                                    array(
+                                        'name' => __('Main color', 'woocommerce-currency-switcher'),
+                                        'desc' => __('Main color which coloring the switcher elements', 'woocommerce-currency-switcher'),
+                                        'id' => 'woocs_auto_switcher_color',
+                                        'type' => 'color',
+                                        'std' => '', // WooCommerce < 2.0
+                                        'default' => '#222222', // WooCommerce >= 2.0
+                                        'css' => 'min-width:500px;',
+                                        'desc_tip' => true
+                                    ),
+                                    array(
+                                        'name' => __('Hover color', 'woocommerce-currency-switcher'),
+                                        'desc' => __('The switcher color when mouse hovering', 'woocommerce-currency-switcher'),
+                                        'id' => 'woocs_auto_switcher_hover_color',
+                                        'type' => 'color',
+                                        'std' => '', // WooCommerce < 2.0
+                                        'default' => '#3b5998', // WooCommerce >= 2.0
+                                        'css' => 'min-width:500px;',
+                                        'desc_tip' => true
+                                    ),
+                                        // array('type' => 'sectionend', 'id' => 'woocs_color')
+                                );
+
+                                woocommerce_admin_fields($color);
+                                ?>
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_basic_field"><?php _e('Basic field(s)', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("What content to show in the switcher after the site page loading. Variants:  __CODE__ __FLAG___ __SIGN__ __DESCR__", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $woocs_auto_switcher_basic_field = get_option('woocs_auto_switcher_basic_field', '__CODE__ __SIGN__');
+                                        ?>
+                                        <input type="text" name="woocs_auto_switcher_basic_field" id="woocs_auto_switcher_basic_field" style="min-width: 300px;" value="<?php echo $woocs_auto_switcher_basic_field ?>" >
+                                    </td>
+                                </tr>
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_additional_field"><?php _e('Hover field(s)', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("What content to show in the switcher after mouse hover on any currency there. Variants:  __CODE__ __FLAG___ __SIGN__ __DESCR__", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $woocs_auto_switcher_additional_field = get_option('woocs_auto_switcher_additional_field', '__DESCR__');
+                                        ?>
+                                        <input type="text" name="woocs_auto_switcher_additional_field" id="woocs_auto_switcher_additional_field" style="min-width: 300px;" value="<?php echo $woocs_auto_switcher_additional_field ?>" >
+                                    </td>
+                                </tr>
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_show_page"><?php _e('Show on the pages', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("Where on the site the switcher should be visible. If any value is presented here switcher will be hidden on all another pages which not presented in this field. You can use pages IDs using comma, example: 28,34,232. Also you can use special words as: product, shop, checkout, front_page, woocommerce", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $woocs_auto_switcher_show_page = get_option('woocs_auto_switcher_show_page', '');
+                                        ?>
+                                        <input type="text" name="woocs_auto_switcher_show_page" id="woocs_auto_switcher_show_page" style="min-width: 300px;" value="<?php echo $woocs_auto_switcher_show_page ?>" >
+                                    </td>
+                                </tr>
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_hide_page"><?php _e('Hide on the pages', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("Where on the site the switcher should be hidden. If any value is presented here switcher will be hidden on that pages and visible on all another ones. You can use pages IDs using comma, example: 28,34,232. Also you can use special words as: product, shop, checkout, front_page, woocommerce", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $woocs_auto_switcher_hide_page = get_option('woocs_auto_switcher_hide_page', '');
+                                        ?>
+                                        <input type="text" name="woocs_auto_switcher_hide_page" id="woocs_auto_switcher_hide_page" style="min-width: 300px;" value="<?php echo $woocs_auto_switcher_hide_page ?>" >
+                                    </td>
+                                </tr>
+                                <tr valign="top" <?php if (!$woocs_is_auto_switcher): ?>style="display: none;"<?php endif; ?>>
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_auto_switcher_mobile_show"><?php _e('Behavior for devices', 'woocommerce-currency-switcher') ?></label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -4px;" data-tip="<?php _e("Show/Hide on mobile device (highest priority)", 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $mobile = array(
+                                            0 => __('Show on all devices', 'woocommerce-currency-switcher'),
+                                            '1' => __('Show on mobile devices only', 'woocommerce-currency-switcher'),
+                                            '2' => __('Hide on mobile devices', 'woocommerce-currency-switcher'),
+                                        );
+                                        $woocs_auto_switcher_mobile_show = get_option('woocs_auto_switcher_mobile_show', 'left');
+                                        ?>
+                                        <select name="woocs_auto_switcher_mobile_show" id="woocs_auto_switcher_mobile_show" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Choise behavior', 'woocommerce-currency-switcher') ?>">
+
+                                            <?php foreach ($mobile as $val => $title): ?>
+                                                <option value="<?php echo $val ?>" <?php echo selected($woocs_auto_switcher_mobile_show, $val) ?>><?php echo $title ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                <?php endif; //end woo33 ?>
                 <?php if ($this->is_use_geo_rules()): ?>
                     <section id="tabs-4">
 
@@ -633,7 +840,8 @@
 
 
                         <li>
-                            <a href="http://codecanyon.net/item/woof-woocommerce-products-filter/11498469?ref=realmag777" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woof_banner.png" /></a>
+                            <a href="http://codecanyon.net/item/woof-woocommerce-products-filter/11498469?ref=realmag777" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woof_banner.png" /></a>&nbsp;
+                            <a href="https://codecanyon.net/item/woobe-woocommerce-bulk-editor-professional/21779835?ref=realmag777" target="_blank"><img width="300" src="<?php echo WOOCS_LINK ?>img/woobe_banner.png" /></a>
                         </li>
 
                         <?php if (!$WOOCS->notes_for_free): ?>
@@ -679,18 +887,30 @@
     <?php if ($WOOCS->notes_for_free): ?>
         <hr />
 
-        <div style="font-style: italic;">In the free version of the plugin <b>you can operate with 2 ANY currencies only</b>. If you want more currencies and features you can make upgrade to the premium version of the plugin</div><br />
+        <div style="font-style: italic;">In the free version of the plugin <b style="color: red;">you can operate with 2 ANY currencies only</b>. If you want more currencies and features you can make upgrade to the premium version of the plugin</div><br />
 
         <table style="width: 100%;">
             <tr>
-                <td style="width: 50%;">
-                    <h3><?php _e("Get the full version of the plugin from Codecanyon", 'woocommerce-currency-switcher') ?>:</h3>
+                <td style="width: 33%;">
+                    <h3 style="color: tomato;"><?php _e("UPGRADE to Full version", 'woocommerce-currency-switcher') ?>:</h3>
                     <a href="http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woocs_banner.png" alt="<?php _e("full version of the plugin", 'woocommerce-currency-switcher'); ?>" /></a>
                 </td>
-                <td style="width: 50%;">
-                    <h3><?php _e("Get WooCommerce Products Filter", 'woocommerce-currency-switcher') ?>:</h3>
-                    <a href="http://codecanyon.net/item/woof-woocommerce-products-filter/11498469?ref=realmag777" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woof_banner.png" alt="<?php _e("WOOF", 'woocommerce-currency-switcher'); ?>" /></a>
+
+                <td style="width: 33%;">
+                    <h3><?php _e("WOOF - WooCommerce Products Filter", 'woocommerce-currency-switcher') ?>:</h3>
+                    <a href="http://codecanyon.net/item/woof-woocommerce-products-filter/11498469?ref=realmag777" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woof_banner.png" alt="<?php _e("WOOF - WooCommerce Products Filter", 'woocommerce-currency-switcher'); ?>" /></a>
                 </td>
+
+                <td style="width: 33%;">
+                    <h3><?php _e("WOOBE - WooCommerce Bulk Editor Professional", 'woocommerce-currency-switcher') ?>:</h3>
+                    <a href="https://bulk-editor.com/" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woobe_banner.png" width="300" alt="<?php _e("WOOBE - WooCommerce Bulk Editor Professional", 'woocommerce-currency-switcher'); ?>" /></a>
+                </td>
+
+                <!-- <td style="width: 33%;">
+                    <h3><?php _e("AliDropship is the best solution for drop shipping", 'woocommerce-currency-switcher') ?>:</h3>
+                    <a href="https://alidropship.com/plugin/?via=4352" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/drop-ship.jpg" alt="<?php _e("AliDropship is the best solution for drop shipping", 'woocommerce-currency-switcher'); ?>" /></a>
+                </td> -->
+
             </tr>
         </table>
     <?php endif; ?>
@@ -775,7 +995,7 @@
 
         jQuery("#woocs_list").sortable();
 
-
+       
         jQuery('.woocs_is_etalon').life('click', function () {
             jQuery('.woocs_is_etalon').next('input[type=hidden]').val(0);
             jQuery('.woocs_is_etalon').prop('checked', 0);
@@ -886,8 +1106,13 @@
             jQuery(".info_popup").fadeOut(400);
         }, 500);
     }
-
-
+    function woocs_auto_hide_color() {
+        if (jQuery('#woocs_is_auto_switcher').val() == 0) {
+            jQuery('#woocs_auto_switcher_color').parents('tr').hide();
+            jQuery('#woocs_auto_switcher_hover_color').parents('tr').hide();
+        }
+    }
+    woocs_auto_hide_color();
 
 </script>
 

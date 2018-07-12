@@ -19,7 +19,7 @@ final class WOOCS_FIXED_PRICE extends WOOCS_FIXED_AMOUNT {
 	global $post;
 	$_product = wc_get_product($post->ID);
 	add_action('admin_footer', array($this, 'admin_footer'));
-	if ($_product->is_type('simple') OR $_product->is_type('external')) {
+	if ($_product->is_type('simple') OR $_product->is_type('external') OR $_product->is_type('subscription')) {
 	    $data = array();
 	    $data['currencies'] = $WOOCS->get_currencies();
 	    $data['default_currency'] = $WOOCS->default_currency;
@@ -85,7 +85,8 @@ final class WOOCS_FIXED_PRICE extends WOOCS_FIXED_AMOUNT {
 	    //+++
 	    if (is_array($_POST['woocs_regular_price'][$post_id])) {
 		foreach ($_POST['woocs_regular_price'][$post_id] as $code => $price) {
-		    $price = floatval($price);
+		    //$price = floatval($price);
+                    $price= $this->prepare_float_val($price);
 		    if ($price > 0) {
 			update_post_meta($post_id, '_woocs_regular_price_' . $code, $price);
 		    } else {
@@ -96,7 +97,8 @@ final class WOOCS_FIXED_PRICE extends WOOCS_FIXED_AMOUNT {
 	    //+++
 	    if (is_array($_POST['woocs_sale_price'][$post_id])) {
 		foreach ($_POST['woocs_sale_price'][$post_id] as $code => $price) {
-		    $price = floatval($price);
+		    //$price = floatval($price);
+                    $price= $this->prepare_float_val($price);
 		    if ($price > 0) {
 			update_post_meta($post_id, '_woocs_sale_price_' . $code, $price);
 		    } else {
@@ -115,12 +117,18 @@ final class WOOCS_FIXED_PRICE extends WOOCS_FIXED_AMOUNT {
 		foreach ($_POST['woocs_price_geo_countries'] as $post_id => $rules) {
 		    update_post_meta($post_id, '_woocs_price_geo_countries', $rules);
 		}
-
+                
 		foreach ($_POST['woocs_regular_price_geo'] as $post_id => $rules) {
+                    foreach($rules as &$val){
+                       $val=$this->prepare_float_val($val);
+                    }
 		    update_post_meta($post_id, '_woocs_regular_price_geo', $rules);
 		}
 
 		foreach ($_POST['woocs_sale_price_geo'] as $post_id => $rules) {
+                    foreach($rules as &$val){
+                       $val=$this->prepare_float_val($val);
+                    }                    
 		    update_post_meta($post_id, '_woocs_sale_price_geo', $rules);
 		}
 	    }

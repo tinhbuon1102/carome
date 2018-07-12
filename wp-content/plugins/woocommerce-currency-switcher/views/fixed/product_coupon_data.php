@@ -63,7 +63,7 @@ if (!function_exists('woocs_coupon_options'))
                 {
                     if ($this->is_exists($post_id, $code, 'amount'))
                     {
-                        woocs_coupon_options($post_id, $code, $this->get_value($post_id, $code, 'amount'));
+                        woocs_coupon_options($post_id, $code,$this->prepare_float_to_show($this->get_value($post_id, $code, 'amount'),$curr['decimals']));
                     }
                 }
                 ?>

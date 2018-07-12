@@ -1,4 +1,12 @@
 jQuery(function ($) {
+    $('#woocs_auto_switcher_skin').change(function () {
+        var woocs_side_switcher_skin = $(this).val();
+        if (woocs_side_switcher_skin == 'roll_blocks') {
+            $('.woocs_roll_blocks_width').show(200);
+        } else {
+            $('.woocs_roll_blocks_width').hide(200);
+        }
+    });
     $('#woocs_is_multiple_allowed').change(function () {
         var woocs_is_multiple_allowed = parseInt($(this).val(), 10);
         var woocs_is_fixed_enabled = parseInt($('#woocs_is_fixed_enabled').val(), 10);
@@ -17,7 +25,34 @@ jQuery(function ($) {
             $('#woocs_force_pay_bygeoip_rules').parents('tr').hide(200);
         }
     });
+    $('#woocs_is_auto_switcher').change(function () {
+        var woocs_is_auto_switcher = parseInt($(this).val(), 10);
+        //***
+        if (woocs_is_auto_switcher) {
+            $('#woocs_auto_switcher_skin').parents('tr').show(200);
+            $('#woocs_auto_switcher_side').parents('tr').show(200);
+            $('#woocs_auto_switcher_top_margin').parents('tr').show(200);
+            $('#woocs_auto_switcher_color').parents('tr').show(200);
+            $('#woocs_auto_switcher_hover_color').parents('tr').show(200);
+            $('#woocs_auto_switcher_basic_field').parents('tr').show(200);
+            $('#woocs_auto_switcher_additional_field').parents('tr').show(200);
+            $('#woocs_auto_switcher_show_page').parents('tr').show(200);
+            $('#woocs_auto_switcher_hide_page').parents('tr').show(200);
+            $('#woocs_auto_switcher_mobile_show').parents('tr').show(200);
+        } else {
+            $('#woocs_auto_switcher_skin').parents('tr').hide(200);
+            $('#woocs_auto_switcher_side').parents('tr').hide(200);
+            $('#woocs_auto_switcher_top_margin').parents('tr').hide(200);
+            $('#woocs_auto_switcher_color').parents('tr').hide(200);
+            $('#woocs_auto_switcher_hover_color').parents('tr').hide(200);
+            $('#woocs_auto_switcher_basic_field').parents('tr').hide(200);
+            $('#woocs_auto_switcher_additional_field').parents('tr').hide(200);
+            $('#woocs_auto_switcher_show_page').parents('tr').hide(200);
+            $('#woocs_auto_switcher_hide_page').parents('tr').hide(200);
+            $('#woocs_auto_switcher_mobile_show').parents('tr').hide(200);
 
+        }
+    });
 
     $('#woocs_is_fixed_enabled').change(function () {
         var val = parseInt($(this).val(), 10);

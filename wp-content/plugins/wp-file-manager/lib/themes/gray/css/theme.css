@@ -1142,14 +1142,15 @@ div.elfinder-cwd-wrapper-list .ui-icon-grip-dotted-vertical {
   background: rgba(40, 42, 45, 0.79);
   -webkit-border-radius: 2px;
   border-radius: 2px;
-  -webkit-box-sizing: content-box;
+  /*-webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
-  box-sizing: content-box;
+  box-sizing: content-box;*/
   border: 0;
   margin: 0;
   padding: 0 23px;
   height: 24px;
   color: #fff;
+  font-weight: 100;
 }
 .elfinder .elfinder-button-search .elfinder-button-menu {
   margin-top: 4px;
@@ -1325,6 +1326,7 @@ a.ui-button:active .ui-icon,
   color: #fff;
 }
 .ui-button.ui-state-active:hover {
+
   background: #217dbb;
   color: #fff;
   border: none;

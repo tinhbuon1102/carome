@@ -24,7 +24,9 @@ div.info_popup {
     font-family: 'Oswald',sans-serif;
 }
 
-
+.woocs_roll_blocks_width{
+    margin-top: 15px;
+}
 
 .woocs-text{
     width: 150px;
@@ -686,3 +688,7 @@ select{
     height: 36px !important;
 }
 
+#woocs_auto_switcher_color,#woocs_auto_switcher_hover_color{
+    min-width: 300px !important;
+    width: 370px;
+}

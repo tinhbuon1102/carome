@@ -5,15 +5,15 @@
   Plugin URI: https://currency-switcher.com/
   Description: Currency Switcher for WooCommerce - the plugin that allows to the visitors and customers on your woocommerce store site switch currencies and even apply selected currency on checkout
   Author: realmag777
-  Version: 1.2.3
+  Version: 1.2.5.1
   Requires at least: WP 4.1.0
-  Tested up to: WP 4.9.2
+  Tested up to: WP 4.9.6
   Text Domain: woocommerce-currency-switcher
   Domain Path: /languages
   Forum URI: https://wordpress.org/support/plugin/woocommerce-currency-switcher/
   Author URI: https://www.pluginus.net/
   WC requires at least: 2.6.0
-  WC tested up to: 3.3.1
+  WC tested up to: 3.4.3
  */
 
 if (!defined('ABSPATH')) {
@@ -40,7 +40,7 @@ if (defined('DOING_AJAX')) {
   }
  */
 //***
-define('WOOCS_VERSION', '1.2.3');
+define('WOOCS_VERSION', '1.2.5');
 define('WOOCS_MIN_WOOCOMMERCE', '2.6');
 define('WOOCS_PATH', plugin_dir_path(__FILE__));
 define('WOOCS_LINK', plugin_dir_url(__FILE__));
@@ -49,10 +49,11 @@ define('WOOCS_PLUGIN_NAME', plugin_basename(__FILE__));
 //classes
 include_once WOOCS_PATH . 'classes/storage.php';
 include_once WOOCS_PATH . 'classes/cron.php';
+include_once WOOCS_PATH . 'classes/alert.php';
 include_once WOOCS_PATH . 'classes/fixed/fixed_amount.php';
 include_once WOOCS_PATH . 'classes/fixed/fixed_price.php';
 
-//06-02-2017
+//30-06-2018
 class WOOCS_STARTER {
 
     private $support_time = 1519919054; // Date of the old < 3.3 version support
@@ -63,7 +64,7 @@ class WOOCS_STARTER {
 
     public function __construct() {
         if (time() > $this->support_time) {
-            $this->default_woo_version = 3.3;
+            $this->default_woo_version = 3.4;
         }
         $this->actualized = floatval(get_option($this->version_key, $this->default_woo_version));
     }
@@ -80,19 +81,18 @@ class WOOCS_STARTER {
         }
         if (version_compare($this->actualized, '3.3', '<')) {
             include_once WOOCS_PATH . 'classes/woocs_before_33.php';
-           
         } else {
             include_once WOOCS_PATH . 'classes/woocs_after_33.php';
             include_once WOOCS_PATH . 'classes/fixed/fixed_coupon.php';
             include_once WOOCS_PATH . 'classes/fixed/fixed_shipping.php';
             include_once WOOCS_PATH . 'classes/fixed/fixed_shipping_free.php';
+            include_once WOOCS_PATH . 'classes/auto_switcher.php';
         }
         $this->_woocs = new WOOCS();
         return $this->_woocs;
     }
 
 }
-
 
 //+++
 if (isset($_GET['P3_NOCACHE'])) {

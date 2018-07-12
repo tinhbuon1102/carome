@@ -64,7 +64,7 @@ if (!function_exists('woocs_restriction_options')) {
                 <?php
                 foreach ($currencies as $code => $curr) {
                     if ($this->is_exists($post_id, $code, 'min_spend') OR $this->is_exists($post_id, $code, 'max_spend')) {
-                        woocs_restriction_options($post_id, $code, $type, $this->get_value($post_id, $code, 'min_spend'), $this->get_value($post_id, $code, 'max_spend'));
+                        woocs_restriction_options($post_id, $code, $type, $this->prepare_float_to_show($this->get_value($post_id, $code, 'min_spend'),$curr['decimals']),$this->prepare_float_to_show( $this->get_value($post_id, $code, 'max_spend'),$curr['decimals']));
                     }
                 }
                 ?>

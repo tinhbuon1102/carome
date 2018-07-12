@@ -62,7 +62,8 @@ final class WOOCS_FIXED_COUPON extends WOOCS_FIXED_AMOUNT {
 	    //+++
 	    if (is_array($_POST['woocs_fixed_coupon'][$post_id])) {
 		foreach ($_POST['woocs_fixed_coupon'][$post_id] as $code => $amount) {
-		    $amount = floatval($amount);
+		    //$amount = floatval($amount);
+                    $amount= $this->prepare_float_val($amount);
 		    if ($amount > 0) {
 			update_post_meta($post_id, '_woocs_amount_coupon_' . $code, $amount);
 		    } else {
@@ -87,7 +88,8 @@ final class WOOCS_FIXED_COUPON extends WOOCS_FIXED_AMOUNT {
 	    //+++
 	    if (is_array($_POST['woocs_restriction_min'][$post_id])) {
 		foreach ($_POST['woocs_restriction_min'][$post_id] as $code => $amount) {
-		    $amount = floatval($amount);
+		    //$amount = floatval($amount);
+                    $amount= $this->prepare_float_val($amount);                    
 		    if ($amount > 0) {
 			update_post_meta($post_id, '_woocs_min_spend_coupon_' . $code, $amount);
 		    } else {
@@ -97,7 +99,8 @@ final class WOOCS_FIXED_COUPON extends WOOCS_FIXED_AMOUNT {
 	    }
             if (is_array($_POST['woocs_restriction_max'][$post_id])) {
 		foreach ($_POST['woocs_restriction_max'][$post_id] as $code => $amount) {
-		    $amount = floatval($amount);
+		    //$amount = floatval($amount);
+                    $amount= $this->prepare_float_val($amount);                    
 		    if ($amount > 0) {
 			update_post_meta($post_id, '_woocs_max_spend_coupon_' . $code, $amount);
 		    } else {

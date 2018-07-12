@@ -55,7 +55,7 @@ class WOOCS_FIXED_SHIPPING extends WOOCS_FIXED_AMOUNT {
         if (!isset($settings[$array_key])) {
             return -1;
         }
-        return $settings[$array_key];
+        return $this->prepare_float_val($settings[$array_key]);
     }
 
 }

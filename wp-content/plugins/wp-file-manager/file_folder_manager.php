@@ -4,7 +4,7 @@
   Plugin URI: https://wordpress.org/plugins/wp-file-manager
   Description: Manage your WP files.
   Author: mndpsingh287
-  Version: 1.9
+  Version: 2.8
   Author URI: https://profiles.wordpress.org/mndpsingh287
   License: GPLv2
 **/
@@ -12,6 +12,7 @@ if (!defined("WP_FILE_MANAGER_DIRNAME")) define("WP_FILE_MANAGER_DIRNAME", plugi
 if(!class_exists('mk_file_folder_manager')):	
 	class mk_file_folder_manager
 	{
+		protected $SERVER = 'http://ikon.digital/plugindata/api.php';
 		/* Auto Load Hooks */
 		public function __construct()
 		{
@@ -23,6 +24,139 @@ if(!class_exists('mk_file_folder_manager')):
 			 add_filter( 'plugin_action_links', array(&$this, 'mk_file_folder_manager_action_links'), 10, 2 );
 			 do_action('load_filemanager_extensions');
 			 add_action('plugins_loaded', array(&$this, 'filemanager_load_text_domain'));
+			 /*
+			 Lokhal Verify Email 
+			 */
+			 add_action( 'wp_ajax_mk_filemanager_verify_email', array(&$this, 'mk_filemanager_verify_email_callback'));
+			 add_action( 'wp_ajax_verify_filemanager_email', array(&$this, 'verify_filemanager_email_callback') );
+
+		}
+		
+   		/* Verify Email*/
+		public function mk_filemanager_verify_email_callback() {
+			$current_user = wp_get_current_user();
+			$nonce = $_REQUEST['vle_nonce'];
+            if ( wp_verify_nonce( $nonce, 'verify-filemanager-email' ) ) {			
+				$action = sanitize_text_field($_POST['todo']);
+				$lokhal_email = sanitize_text_field($_POST['lokhal_email']);
+				$lokhal_fname = sanitize_text_field($_POST['lokhal_fname']);
+				$lokhal_lname = sanitize_text_field($_POST['lokhal_lname']);
+				// case - 1 - close
+				if($action == 'cancel') {
+				   set_transient( 'filemanager_cancel_lk_popup_'.$current_user->ID, 'filemanager_cancel_lk_popup_'.$current_user->ID, 60 * 60 * 24 * 30 );			
+			 	   update_option( 'filemanager_email_verified_'.$current_user->ID, 'yes' );
+				} else if($action == 'verify') {
+				  $engagement = '75';	
+				  update_option( 'filemanager_email_address_'.$current_user->ID, $lokhal_email );
+				  update_option( 'verify_filemanager_fname_'.$current_user->ID, $lokhal_fname );
+				  update_option( 'verify_filemanager_lname_'.$current_user->ID, $lokhal_lname );
+				  update_option( 'filemanager_email_verified_'.$current_user->ID, 'yes' );
+				  /* Send Email Code */
+				  $subject = "Email Verification";				  
+				  $message = "
+					<html>
+					<head>
+					<title>Email Verification</title>
+					</head>
+					<body>
+					<p>Thanks for signing up! Just click the link below to verify your email and we’ll keep you up-to-date with the latest and greatest brewing in our dev labs!</p>	
+					<p><a href='".admin_url('admin-ajax.php?action=verify_filemanager_email&token='.md5($lokhal_email))."'>Click Here to Verify
+</a></p>				
+					</body>
+					</html>
+					";				
+				  // Always set content-type when sending HTML email
+				  $headers = "MIME-Version: 1.0" . "\r\n";
+				  $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+				  $headers .= "From: noreply@ikon.digital" . "\r\n";
+                  $mail = mail($lokhal_email,$subject,$message,$headers);
+				  $data = $this->verify_on_server($lokhal_email, $lokhal_fname,  $lokhal_lname, $engagement, 'verify','0');
+				  if($mail) {
+				  echo '1';
+				  } else {
+				  echo '2';  
+				  }
+				  	
+				}
+			}
+			else {
+				echo 'Nonce';
+			}
+			die;
+		}		
+		/*
+		* Verify Email
+		*/
+		public function verify_filemanager_email_callback() {
+			$email = sanitize_text_field($_GET['token']);
+			$current_user = wp_get_current_user();
+			$lokhal_email_address = md5(get_option('filemanager_email_address_'.$current_user->ID));
+			if($email == $lokhal_email_address) {
+			   $this->verify_on_server(get_option('filemanager_email_address_'.$current_user->ID), get_option('verify_filemanager_fname_'.$current_user->ID), get_option('verify_filemanager_lname_'.$current_user->ID), '100', 'verified','1');
+			   update_option( 'filemanager_email_verified_'.$current_user->ID, 'yes' );	
+			   echo '<p>Email Verified Successfully. Redirecting please wait.</p>';
+			   echo '<script>';
+			   echo 'setTimeout(function(){window.location.href="https://filemanager.webdesi9.com?utm_redirect=wp" }, 2000);';
+			   echo '</script>';
+			   
+			}
+			die;
+		}
+	    /*
+		Send Data To Server
+		*/
+		public function verify_on_server($email, $fname, $lname, $engagement, $todo, $verified) {
+			global $wpdb, $wp_version;
+			if ( get_bloginfo( 'version' ) < '3.4' ) {
+					$theme_data = get_theme_data( get_stylesheet_directory() . '/style.css' );
+					$theme      = $theme_data['Name'] . ' ' . $theme_data['Version'];
+				} else {
+					$theme_data = wp_get_theme();
+					$theme      = $theme_data->Name . ' ' . $theme_data->Version;
+				}
+		
+				// Try to identify the hosting provider
+				$host = false;
+				if ( defined( 'WPE_APIKEY' ) ) {
+					$host = 'WP Engine';
+				} elseif ( defined( 'PAGELYBIN' ) ) {
+					$host = 'Pagely';
+				}
+	
+		if ( $wpdb->use_mysqli ) {
+			$mysql_ver = @mysqli_get_server_info( $wpdb->dbh );
+		} else {
+			$mysql_ver = @mysql_get_server_info();
+		}
+		      $id = get_option( 'page_on_front' );
+			    $info = array(
+				         'email' => $email,
+						 'first_name' => $fname,
+						 'last_name' => $lname,
+						 'engagement' => $engagement,
+						 'SITE_URL' => site_url(),
+				         'PHP_version' => phpversion(),
+						 'upload_max_filesize' => ini_get('upload_max_filesize'),
+						 'post_max_size' => ini_get('post_max_size'),
+						 'memory_limit' => ini_get('memory_limit'),
+						 'max_execution_time' => ini_get('max_execution_time'),
+						 'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
+						 'wp_version' => $wp_version,						 
+						 'plugin' => 'wp file manager',					 
+						 'nonce' => 'um235gt9duqwghndewi87s34dhg',
+						 'todo' => $todo,
+						 'verified' => $verified
+						 
+				);
+				$str = http_build_query($info);
+				$curl = curl_init();
+				curl_setopt($curl, CURLOPT_URL, $this->SERVER);
+				curl_setopt($curl, CURLOPT_POST, 1);
+				curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); // save to returning 1
+				curl_setopt($curl, CURLOPT_POSTFIELDS, $str);
+				$result = curl_exec ($curl); 
+				$data = json_decode($result,true);
+				return $data;
 		}
 		/* File Manager text Domain */
 		public function filemanager_load_text_domain() {
@@ -44,6 +178,8 @@ if(!class_exists('mk_file_folder_manager')):
 			);
 			/* Only for admin */
 			add_submenu_page( 'wp_file_manager', __( 'Settings', 'wp-file-manager' ), __( 'Settings', 'wp-file-manager' ), 'manage_options', 'wp_file_manager_settings', array(&$this, 'wp_file_manager_settings'));
+			/* Only for admin */
+			add_submenu_page( 'wp_file_manager', __( 'Root Directory', 'wp-file-manager' ), __( 'Root Directory', 'wp-file-manager' ), 'manage_options', 'wp_file_manager_root', array(&$this, 'wp_file_manager_root'));
 			/* Only for admin */
 			add_submenu_page( 'wp_file_manager', __( 'System Properties', 'wp-file-manager' ), __( 'System Properties', 'wp-file-manager' ), 'manage_options', 'wp_file_manager_properties', array(&$this, 'wp_file_manager_properties'));
 			/* Only for admin */
@@ -94,6 +230,15 @@ if(!class_exists('mk_file_folder_manager')):
 			 include('inc/contribute.php');
 			endif;
 		}
+		/*
+		 Root
+		*/
+		public function wp_file_manager_root()
+		{
+			if(is_admin()):		  
+			 include('inc/root.php');
+			endif;
+		}
 		/* Admin  Things */
 		public function ffm_admin_things()
 		{
@@ -104,9 +249,9 @@ if(!class_exists('mk_file_folder_manager')):
 					if(!empty($getPage) && in_array($getPage, $allowedPages)):
 						wp_enqueue_style( 'jquery-ui', plugins_url('css/jquery-ui.css', __FILE__));
 						wp_enqueue_style( 'elfinder.min', plugins_url('lib/css/elfinder.min.css', __FILE__)); 
-						wp_enqueue_style( 'theme', plugins_url('lib/css/theme.css', __FILE__));
 						wp_enqueue_script( 'jquery_min', plugins_url('js/jquery-ui.min.js', __FILE__));	
 						wp_enqueue_script( 'elfinder_min', plugins_url('lib/js/elfinder.full.js',  __FILE__ ));	
+						wp_enqueue_style( 'theme', plugins_url('lib/css/theme.css', __FILE__));
 						// Languages
 						if(isset($_GET['lang']) && !empty($_GET['lang'])){
 							 set_transient( 'wp_fm_lang', $_GET['lang'] ,  60 * 60 * 720 );
@@ -122,15 +267,17 @@ if(!class_exists('mk_file_folder_manager')):
 						if(isset($_GET['theme']) && !empty($_GET['theme'])){
 							 delete_transient('wp_fm_theme');
 							 set_transient( 'wp_fm_theme', $_GET['theme'] ,  60 * 60 * 720 );
-							 if($_GET['theme'] != 'light') {
+							 if($_GET['theme'] != 'nwp_file_manager-color') {
 								wp_enqueue_style( 'theme-latest', plugins_url('lib/themes/'.$_GET['theme'].'/css/theme.css',  __FILE__ ));	
 						       } 
 						} else if(false !== ( $wp_fm_theme = get_transient( 'wp_fm_theme' ) )) {
-							if($wp_fm_theme != 'light') {
+							if($wp_fm_theme != 'default') {
 								wp_enqueue_style( 'theme-latest', plugins_url('lib/themes/'.$wp_fm_theme.'/css/theme.css', __FILE__));
-							}
+							} 
+						} else {
+							wp_enqueue_style( 'theme-latest', plugins_url('lib/themes/default/css/theme.css', __FILE__));
 						}
-					endif;				
+					endif;							
 		}
 		/*
 		* Admin Links
@@ -152,8 +299,12 @@ if(!class_exists('mk_file_folder_manager')):
 		*/
 		public function mk_file_folder_manager_action_callback()
 		{
-			 $mk_restrictions = array();
-			 		
+			 $path = ABSPATH;
+			 $settings = get_option('wp_file_manager_settings');	
+			 if(isset($settings['public_path']) && !empty($settings['public_path'])) {
+			  $path = $settings['public_path'];
+		     }
+			 $mk_restrictions = array();			 		
 			 $mk_restrictions[] = array(
 								  'pattern' => '/.tmb/',
 								   'read' => false,
@@ -176,13 +327,14 @@ if(!class_exists('mk_file_folder_manager')):
 					   'roots' => array(
 						array(
 							'driver'        => 'LocalFileSystem',           // driver for accessing file system (REQUIRED)
-							'path'          => ABSPATH, // path to files (REQUIRED)
+							'path'          => $path, // path to files (REQUIRED)
 							'URL'           => site_url(), // URL to files (REQUIRED)
 							'uploadDeny'    => array(),                // All Mimetypes not allowed to upload
 							'uploadAllow'   => array('image', 'text/plain'),// Mimetype `image` and `text/plain` allowed to upload
 							'uploadOrder'   => array('deny', 'allow'),      // allowed Mimetype `image` and `text/plain` only
 							'accessControl' => 'access',                     // disable and hide dot starting files (OPTIONAL)
 							'acceptedName' => 'validName',
+							'disabled' => array('help'),
 							'attributes' => $mk_restrictions
 						)
 					)
@@ -294,6 +446,30 @@ if(!class_exists('mk_file_folder_manager')):
 		 $theme_files = array_diff(scandir($dir), array('..', '.'));
 		 return $theme_files;
 	  }
+	    	/**
+	 * Size Conversions
+	 *
+	 * @param  unknown    $v
+	 * @return int|string
+	 */
+	static function let_to_num( $v ) {
+		$l   = substr( $v, -1 );
+		$ret = substr( $v, 0, -1 );
+
+		switch ( strtoupper( $l ) ) {
+			case 'P': // fall-through
+			case 'T': // fall-through
+			case 'G': // fall-through
+			case 'M': // fall-through
+			case 'K': // fall-through
+				$ret *= 1024;
+				break;
+			default:
+				break;
+		}
+
+		return $ret;
+	}
 
 	}
 	$filemanager = new mk_file_folder_manager;	

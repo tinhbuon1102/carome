@@ -2,8 +2,7 @@
 
 final class WOOCS {
 
-    //http://docs.woothemes.com/wc-apidocs/class-WC_Order.html
-    public $notes_for_free = true; //dev, displays notes for free version only
+    //http://docs.woothemes.com/wc-apidocs/class-WC_Order.html    
     public $storage = null;
     public $cron = NULL;
     public $cron_hook = 'woocs_update_rates_wpcron';
@@ -30,6 +29,7 @@ final class WOOCS {
         'reset_in_multiple' => false, //normal is false
         'disable_currency_switching' => false//normal is false. To force the customer to pay in Welcome currency for example, do it by your own logic
     ); //just for some setting for current wp theme adapting - for support only - it is logic hack - be care!!
+    public $notes_for_free = true; //dev, displays notes for free version only
 
     public function __construct() {
 
@@ -1204,9 +1204,10 @@ final class WOOCS {
         if (count($currencies) < 2) {
             $currencies = $default;
         }
-
+        
+        
         if (count($currencies) > 2) {
-            $currencies = $default;
+            $currencies = array_slice($currencies, 0, 2);
         }
 
 
@@ -2425,6 +2426,9 @@ final class WOOCS {
 //********************************************************************************
 
     public function render_html($pagepath, $data = array()) {
+        if (isset($data['pagepath'])) {
+            unset($data['pagepath']);
+        }
         @extract($data);
         ob_start();
         include($pagepath);

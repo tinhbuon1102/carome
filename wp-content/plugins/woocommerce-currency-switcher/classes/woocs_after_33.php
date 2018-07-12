@@ -2,8 +2,7 @@
 
 final class WOOCS {
 
-    //http://docs.woothemes.com/wc-apidocs/class-WC_Order.html
-    public $notes_for_free = true; //dev, displays notes for free version only
+    //http://docs.woothemes.com/wc-apidocs/class-WC_Order.html    
     public $storage = null;
     public $cron = NULL;
     public $cron_hook = 'woocs_update_rates_wpcron';
@@ -36,6 +35,7 @@ final class WOOCS {
         'reset_in_multiple' => false, //normal is false
         'disable_currency_switching' => false//normal is false. To force the customer to pay in Welcome currency for example, do it by your own logic
     ); //just for some setting for current wp theme adapting - for support only - it is logic hack - be care!!
+    public $notes_for_free = true; //dev, displays notes for free version only
 
     public function __construct() {
         $this->storage = new WOOCS_STORAGE(get_option('woocs_storage', 'transient'));
@@ -93,7 +93,7 @@ final class WOOCS {
         if (!$is_first_activation) {
             update_option('woocs_first_activation', 1);
             update_option('woocs_drop_down_view', 'ddslick');
-            update_option('woocs_currencies_aggregator', 'google');
+            update_option('woocs_currencies_aggregator', 'free_converter');
             update_option('woocs_welcome_currency', $this->default_currency);
             update_option('woocs_is_multiple_allowed', 0);
             update_option('woocs_is_fixed_enabled', 0);
@@ -118,6 +118,21 @@ final class WOOCS {
             update_option('woocs_restrike_on_checkout_page', 0);
             update_option('woocs_shop_is_cached', 0);
             update_option('woocs_show_approximate_amount', 0);
+            //auto swither
+            update_option('woocs_is_auto_switcher', 0);
+            update_option('woocs_auto_switcher_skin','classic_blocks');
+            update_option('woocs_auto_switcher_side', 'left');
+            update_option('woocs_auto_switcher_top_margin', '100px');
+            update_option('woocs_auto_switcher_color', '#222222');
+            update_option('woocs_auto_switcher_hover_color', '#3b5998');
+            update_option('woocs_auto_switcher_basic_field', '__CODE__ __SIGN__');
+            update_option('woocs_auto_switcher_additional_field', '__DESCR__');
+            update_option('woocs_auto_switcher_show_page', '');
+            update_option('woocs_auto_switcher_hide_page', '');
+            update_option('woocs_auto_switcher_mobile_show', 0);
+            update_option('woocs_auto_switcher_roll_px', 90);
+            
+            //+++
             $this->reset_currency();
             //***
             update_option('image_default_link_type', 'file'); //http://wordpress.stackexchange.com/questions/9727/link-to-file-url-by-default
@@ -405,12 +420,19 @@ final class WOOCS {
             $this->fixed_shipping_free = new WOOCS_FIXED_SHIPPING_FREE();
         }
 
+        if(get_option('woocs_is_auto_switcher',0)){
+            $auto_switcher= new WOOCS_AUTO_SWITCHER();
+            $auto_switcher->init();
+        }
         //for  any notises
         add_action('init', array($this, 'init_style_notice')); //add notice to cleare cache
         //adapt_filter
         add_filter('woocs_convert_price', array($this, 'woocs_convert_price'), 10, 2);
         add_filter('woocs_back_convert_price', array($this, 'woocs_back_convert_price'), 10, 2);
         add_filter('woocs_convert_price_wcdp', array($this, 'woocs_convert_price_wcdp'), 10, 3);
+        
+        // marketing alert
+        add_action('init', array($this, 'init_marketig_woocs'));
     }
 
 //for normal shippng update if to change currency
@@ -727,7 +749,7 @@ final class WOOCS {
         //***
         if ($this->is_use_geo_rules()) {
             $rules = $this->get_geo_rules();
-            if (apply_filters("woocs_geobone_ip", false)) {
+            if (apply_filters("woocs_geobone_ip", true)) {
                 if (intval($this->storage->get_val('woocs_first_unique_geoip')) === 0) {
                     $this->is_first_unique_visit = true;
                     $this->storage->set_val('woocs_first_unique_geoip', 1);
@@ -940,7 +962,7 @@ final class WOOCS {
                 $sanitized_get_array[$this->escape($key)] = $this->escape($value);
             }
             ?>
-                woocs_array_of_get = '<?php echo str_replace("'", "", json_encode($sanitized_get_array)); ?>';
+                woocs_array_of_get = '<?php echo str_replace("\\", "\\\\",str_replace("'", "", json_encode($sanitized_get_array))); ?>';
         <?php endif; ?>
 
             woocs_array_no_cents = '<?php echo json_encode($this->no_cents); ?>';
@@ -1068,6 +1090,33 @@ final class WOOCS {
             update_option('woocs_show_money_signs', (int) $_POST['woocs_show_money_signs']);
             //update_option('woocs_use_curl', (int) $_POST['woocs_use_curl']);
             update_option('woocs_storage', $this->escape($_POST['woocs_storage']));
+            //auto swither
+            if(isset($_POST['woocs_is_auto_switcher'])){
+                update_option('woocs_is_auto_switcher', (int) $_POST['woocs_is_auto_switcher']);
+                if((int) $_POST['woocs_is_auto_switcher']){
+                    update_option('woocs_auto_switcher_skin', $this->escape($_POST['woocs_auto_switcher_skin']));
+                    update_option('woocs_auto_switcher_side', $this->escape($_POST['woocs_auto_switcher_side']));
+                    update_option('woocs_auto_switcher_top_margin', $this->escape($_POST['woocs_auto_switcher_top_margin']));
+                    update_option('woocs_auto_switcher_color', $this->escape($_POST['woocs_auto_switcher_color']));
+                    update_option('woocs_auto_switcher_hover_color', $this->escape($_POST['woocs_auto_switcher_hover_color']));
+                    update_option('woocs_auto_switcher_basic_field', $this->escape($_POST['woocs_auto_switcher_basic_field']));
+                    update_option('woocs_auto_switcher_additional_field', $this->escape($_POST['woocs_auto_switcher_additional_field']));
+                    update_option('woocs_auto_switcher_show_page', $this->escape($_POST['woocs_auto_switcher_show_page']));
+                    update_option('woocs_auto_switcher_hide_page', $this->escape($_POST['woocs_auto_switcher_hide_page']));
+                    update_option('woocs_auto_switcher_mobile_show', $this->escape($_POST['woocs_auto_switcher_mobile_show']));
+                    update_option('woocs_auto_switcher_roll_px', $this->escape($_POST['woocs_auto_switcher_roll_px']));
+                }else{
+                    //update_option('woocs_auto_switcher_skin','classic_blocks');
+                    //update_option('woocs_auto_switcher_side', 'left');
+                    //update_option('woocs_auto_switcher_top_margin', '100px');
+                    //update_option('woocs_auto_switcher_color', '#222222');
+                    //update_option('woocs_auto_switcher_hover_color', '#3b5998');
+                    //update_option('woocs_auto_switcher_basic_field', '__CODE__ __SIGN__');
+                    //update_option('woocs_auto_switcher_additional_field', '__DESCR__');
+                }
+                
+            }
+            //+++
             if (isset($_POST['woocs_geo_rules'])) {
                 $woocs_geo_rules = array();
                 if (!empty($_POST['woocs_geo_rules'])) {
@@ -1172,8 +1221,12 @@ final class WOOCS {
 
         $currencies = get_option('woocs', array());
 
-        if (empty($currencies) OR ! is_array($currencies) OR count($currencies) < 2 OR count($currencies) > 2) {
+        if (empty($currencies) OR ! is_array($currencies) OR count($currencies) < 2) {
             $currencies = $this->prepare_default_currencies();
+        }
+        
+        if (count($currencies) > 2) {
+            $currencies = array_slice($currencies, 0, 2);
         }
 
         $currencies = apply_filters('woocs_currency_data_manipulation', $currencies);
@@ -1707,7 +1760,7 @@ final class WOOCS {
                         if (!empty($product_geo_data['price_geo_countries'])) {
                             $price_key = '';
                             foreach ($product_geo_data['price_geo_countries'] as $block_key => $countries_codes) {
-                                if (!empty($countries_codes)) {
+                                if (!empty($countries_codes) AND is_array($countries_codes)) {
                                     foreach ($countries_codes as $country_code) {
                                         if ($country_code === $user_country) {
                                             $price_key = $block_key;
@@ -1893,7 +1946,7 @@ final class WOOCS {
 
 //***
 //http://en.wikipedia.org/wiki/ISO_4217
-        $mode = get_option('woocs_currencies_aggregator', 'google');
+        $mode = get_option('woocs_currencies_aggregator', 'free_converter');
         $request = "";
         //$woocs_use_curl = (int) get_option('woocs_use_curl', 0);
         $woocs_use_curl = 1;
@@ -2199,7 +2252,48 @@ final class WOOCS {
                     $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
                 }
                 break;
+            case"cryptocompare":
+                $from_Currency = urlencode($this->default_currency);
+                $to_Currency = urlencode($this->escape($_REQUEST['currency_name']));
+                //https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=BTC
+                $query_str = sprintf("?fsym=%s&tsyms=%s", $from_Currency, $to_Currency);
+                $url="https://min-api.cryptocompare.com/data/price".$query_str;
+                if (function_exists('curl_init') AND $woocs_use_curl) {
+                    $res = $this->file_get_contents_curl($url);
+                } else {
+                    $res = file_get_contents($url);
+                }
+                $currency_data = json_decode($res, true);
+                if (!empty($currency_data[$to_Currency])) {
+                    $request = $currency_data[$to_Currency];
+                } else {
+                    $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
+                }
+                //***
+                if (!$request) {
+                    $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
+                }                
+                break;
+                case 'xe':
+                    $amount = urlencode(1);
+                    $from_Currency = urlencode($this->default_currency);
+                    $to_Currency = urlencode($this->escape($_REQUEST['currency_name']));
+                    //http://www.xe.com/currencyconverter/convert/?Amount=1&From=ZWD&To=CUP
+                    $url = "http://www.xe.com/currencyconverter/convert/?Amount=1&From=" . $from_Currency ."&To=". $to_Currency;
+                    if (function_exists('curl_init') AND $woocs_use_curl) {
+                        $html = $this->file_get_contents_curl($url);
+                    } else {
+                        $html = file_get_contents($url);
+                    }
+                    //test
+                    preg_match_all('/<span class=\'uccResultAmount\'>(.*?)<\/span>/s', $html, $matches);
+                    if (isset($matches[1][0])) {
+                        $request = floatval(str_replace(",", "", $matches[1][0]));
+                    } else {
+                        $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
+                    }
 
+                break;                
             default:
                 break;
         }
@@ -3070,8 +3164,7 @@ final class WOOCS {
 //wp-content\plugins\woocommerce\includes\shipping\free-shipping\class-wc-shipping-free-shipping.php #192
     public function woocommerce_shipping_free_shipping_is_available($is_available, $package, $this_shipping = null) {
         global $woocommerce;
-        $currencies = $this->get_currencies();
-        {
+        $currencies = $this->get_currencies(); {
             $has_coupon = false;
             $has_met_min_amount = false;
 
@@ -3872,7 +3965,6 @@ final class WOOCS {
                     If your shop need WooCommerce Products Filter - you can find it <a href="https://www.woocommerce-filter.com/" target="_blank">here</a>
                 </p>
             </div>
-
             <script>
                 jQuery(function ($) {
                     var alert_w = $('#woocs_alert_notice');
@@ -4269,6 +4361,10 @@ final class WOOCS {
         }
 
         return $items;
+    }
+    public function init_marketig_woocs() {
+        $alert = new WOOCS_ADV();
+        $alert->init();
     }
 
 }
