@@ -17,6 +17,11 @@ include( MBWPE_TPL_PATH.'/settings.php' );
                         </table>
                     </td>
                 </tr>
+<tr style="font-family: 'Arial', Arial, Sans-Serif; box-sizing: border-box; font-size: 12px; margin: 0; padding: 0;">
+	<td class="content-wrap" style="font-family: 'Arial', Arial, Sans-Serif; box-sizing: border-box; font-size: 12px; vertical-align: middle; margin: 0; padding: 20px;">
+		<?php echo apply_filters( 'woocommerce_email_mbc_email_footer_text', wpautop( wp_kses_post( wptexturize( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) ) ) ) ); ?>
+	</td>
+</tr>
             </table>
 
             
@@ -43,7 +48,7 @@ include( MBWPE_TPL_PATH.'/settings.php' );
                     
                     <td class="aligncenter half" style="font-family: <?php echo $bodyFont;?>; box-sizing: border-box; font-size: 11px; color: <?php echo $text;?>; vertical-align: middle; text-align: center; width: 50%; margin: 0; padding: 10px 0; line-height: 1.2;" align="center" valign="middle" width="50%">
                     
-                        <?php echo apply_filters( 'woocommerce_email_mbc_email_footer_text', wpautop( wp_kses_post( wptexturize( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) ) ) ) ); ?>
+                        <?php //echo apply_filters( 'woocommerce_email_mbc_email_footer_text', wpautop( wp_kses_post( wptexturize( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) ) ) ) ); ?>
               
                     </td>
                     
