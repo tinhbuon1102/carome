@@ -2743,3 +2743,10 @@ function isFreeGiftOrderProduct($order, $product)
 	return $is_free_gift;
 }
 
+add_filter( "option_woocommerce_email_footer_text", 'elsey_option_woocommerce_email_footer_text', 10000, 2);
+function elsey_option_woocommerce_email_footer_text ($value, $option )
+{
+	global $wpdb;
+	$row = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $option ) );
+	return $row->option_value;
+}
