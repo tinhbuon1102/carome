@@ -832,7 +832,8 @@ function hide_plugin_order_by_product ()
 		'remove-admin-menus-by-role/remove-admin-menus-by-role.php',
 		'productsize-chart-for-woocommerce/productsize-chart-for-woocommerce.php',
 		'woocommerce-free-gift/woocommerce-free-gift.php',
-		'woocommerce-pretty-emails/emailplus.php'
+		'woocommerce-pretty-emails/emailplus.php',
+		'woocommerce-shipping-tracking/shipping-tracking.php'
 	);
 	$active_plugins = get_option('active_plugins');
 
