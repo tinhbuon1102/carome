@@ -215,7 +215,7 @@ class XA_NewCalculationHandler {
 						}
 					}
 				}
-				if (is_shop() || is_product_category() || is_product()) {
+				if (is_shop() || is_product_category() || is_product() || is_front_page()) {
 					$current_quantity++;
 				}
 				$objRulesValidator = New XA_RulesValidator();
