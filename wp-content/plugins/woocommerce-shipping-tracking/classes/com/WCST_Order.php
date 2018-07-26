@@ -205,7 +205,21 @@ class WCST_Order
 							{
 								foreach($order_statuses as $code => $status_name)
 									if($order['order_status'] == $code)
-										$order_object->update_status($order['order_status']);
+									{
+										
+										if ($is_notification_email_status_valid && $order['force_email_notification'] != "")
+										{
+											$order_data = array();
+											$order_data['ID'] = $order['order_id'];
+											$order_data['post_status'] = $order['order_status'];
+											
+											// Update the post into the database
+											wp_update_post( $order_data );
+										}
+										else {
+											$order_object->update_status($order['order_status']);
+										}
+									}
 							}
 							if($is_notification_email_status_valid && $order['force_email_notification'] != "")
 							{
