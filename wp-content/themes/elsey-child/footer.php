@@ -86,12 +86,10 @@ wp_footer(); ?>
 <div class="remodal" data-remodal-id="modal" role="dialog" aria-labelledby="modal1Title" aria-describedby="modal1Desc">
   <button data-remodal-action="close" class="remodal-close" aria-label="Close"></button>
   <div>
-    <h2 id="modal1Title" class="modal_smallhead">ご予約注文商品の発送に関しまして</h2>
+    <h2 id="modal1Title" class="modal_smallhead">夏季休暇に伴う商品発送に関しまして</h2>
     <p id="modal1Desc">
-      大変長らくお待たせをいたしております。<br/>
-5月2日よりご予約注文をいただきました、ナチュラルストーンチェーンピアスとカラードロップストーンピアスの発送にかんしまして、梱包作業等発送準備をさせていただきまして、
-6月21日（木）より順に発送させていただきます。<br/>
-商品到着まで、今しばらくお待ちください。
+      いつもCAROME.をご利用いただきまして、誠にありがとうございます。<br/>誠に勝手ながら弊社では、8月11日〜8月15日までを夏季休暇期間とさせていただきます。<br/>
+ご注文いただきました商品の発送に関しましては、8月16日から順に発送させていただきます。<br/>ご迷惑をお掛け致しますが、何卒ご了承の程宜しくお願いいたします。
     </p>
   </div>
   <br>
