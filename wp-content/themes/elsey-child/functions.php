@@ -2751,3 +2751,19 @@ function elsey_option_woocommerce_email_footer_text ($value, $option )
 	$row = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $option ) );
 	return $row->option_value;
 }
+
+
+add_filter( 'posts_request', 'else_add_schedule_for_admin' );
+function else_add_schedule_for_admin( $input ) {
+
+	$user = wp_get_current_user();
+	$allowed_roles = array('administrator', 'shop_manager');
+	// Check if on frontend and main query is modified
+	if( array_intersect($allowed_roles, $user->roles ) ) {
+		if (strpos($input, "post_type = 'product'") !== false)
+		{
+			$input = str_replace("wp_posts.post_status = 'publish'", "wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future'", $input);
+		}
+	}
+	return $input;
+}
