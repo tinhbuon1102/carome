@@ -341,6 +341,7 @@ If you select "Fixed Price", the original price of the product is replaced by th
                                                     jQuery.unblockUI();
                                                 });
                                 });
+                                jQuery(".attribute_ajax").trigger("change");
                             });
                             </script>
                             <div style="clear:both;width: 63%;">

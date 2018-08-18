@@ -157,7 +157,7 @@ class SEED_CSPV5_ADMIN
         // debug remove
         if(isset($_GET['page']) && $_GET['page'] == 'seed_cspv5_customizer'){
             if(isset($_GET['seed_cspv5_debug'])){
-            // only ones we need are: common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js
+            // only ones we need are: common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js|jquery
 
             $d = explode("|",urldecode($_GET['seed_cspv5_debug'])); 
         
@@ -1803,7 +1803,9 @@ class SEED_CSPV5_ADMIN
         } else {
             $settings = unserialize($page->settings);
         }
-     
+
+        var_dump($settings['theme']);
+        
         $white_list = array(
             "background_color",
             "background_repeat",

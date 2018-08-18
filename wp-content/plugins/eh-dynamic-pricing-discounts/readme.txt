@@ -1,6 +1,6 @@
 === Dynamic Pricing and Discounts for WooCommerce ===
 Contributors: XAdapter
-Version: 3.4.14
+Version: 3.5.3
 
 Tags: Dynamic Pricing,Dynamic Discount,Price Rule,Buy and Get Free Offers,Bulk Discount, WooCommerce, Wordpress
 Requires at least: 3.0.1

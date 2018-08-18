@@ -9,6 +9,7 @@ if (!defined('WPINC')) {
 if (isset($_REQUEST['submit'])) {
     $enabled_modes=!empty($_REQUEST['enabled_modes']) ? $_REQUEST['enabled_modes'] : array();
     $prev_data = array(
+        'rules_per_page' => !empty($_REQUEST['xa_rules_per_page'])?$_REQUEST['xa_rules_per_page']: 20,
         'product_rules_on_off' => in_array('product_rules',$enabled_modes) ? 'enable':'disable',
         'combinational_rules_on_off' => in_array('combinational_rules',$enabled_modes) ? 'enable':'disable',
         'category_rules_on_off' => in_array('category_rules',$enabled_modes) ? 'enable':'disable',

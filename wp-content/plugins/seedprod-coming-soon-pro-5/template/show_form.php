@@ -278,16 +278,21 @@ jQuery( "#cspio-subscribe-btn" ).click(function( event ) {
 <?php } ?>
 
 // Read ref param if present
-var ref = jQuery.url().param('ref');
-jQuery("#cspio-ref").val(ref);
-jQuery("#cspio-href").val(location.href);
+var ref = '';
+jQuery( document ).ready(function() {
+	var ref = jQuery.url().param('ref');
+	jQuery("#cspio-ref").val(ref);
+	jQuery("#cspio-href").val(location.href);
+});
 
 
+jQuery( document ).ready(function() {
 if(return_user){
 	jQuery('#cspio-email').val(email_cookie);
 	jQuery('#cspio-comment').val('1');
 	send_request();
 }
+});
 
 
 

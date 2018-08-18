@@ -128,6 +128,11 @@ class SEED_CSPV5{
             return false;
         }
 
+        // Disable if page line editor open
+        if(isset($_GET['pl_edit'])){
+            return false;
+        }
+
         $msg = '';
         if($status == '1'){
         	$msg = __('Coming Soon Mode Active','seedprod-coming-soon-pro');

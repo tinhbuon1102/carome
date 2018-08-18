@@ -3,8 +3,8 @@ Contributors: yikesinc, eherman24, liljimmi, JPry, yikesitskevin
 Donate link: https://yikesplugins.com/?utm_source=wp_plugin_repo&utm_medium=donate_link&utm_campaign=easy_forms_for_mailchimp
 Tags: MailChimp, MailChimp forms, MailChimp lists, opt-in forms, sign up form, MailChimp, email, forms, mailing lists, marketing, newsletter, sign up
 Requires at least: 4.0
-Tested up to: 4.9.6
-Stable tag: 6.4.3
+Tested up to: 4.9.7
+Stable tag: 6.4.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -171,10 +171,5 @@ For information and code examples on how to implement the hooks and filters prov
 
 == Changelog ==
 
-= 6.4.3 - May 21st, 2018 =
-* Fixed some issues with the readme
-* Fixed an issue with required radio button fields that had no default value; they will now be required.
-* Fixed a PHP warning related to interest groups in the form builder.
-* Fixed a PHP warning related to error messages.
-* Fixed a PHP notice on the integration checkbox page.
-* Added a new action when a form is duplicated: `'yikes-mailchimp-after-duplicating-form'`
+= 6.4.5 - July 25th, 2018 =
+* Fixed an issue where subscriptions would not be processed if only an email field was sent. Shoutout to Kamil (@paszczak000) for reporting this issue and working with us to resolve it, thank you!

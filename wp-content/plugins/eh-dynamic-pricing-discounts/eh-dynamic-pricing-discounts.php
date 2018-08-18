@@ -3,7 +3,7 @@
  	Plugin Name: Dynamic&nbsp;Pricing and Discounts for WooCommerce
 	Plugin URI: https://www.xadapter.com/product/dynamic-pricing-discounts-woocommerce/
 	Description: This plugin helps you to set discounts and pricing dynamically based on minimum quantity,weight,price and allow you to set maximum allowed discounts on every rule.
-	Version: 3.4.14
+	Version: 3.5.3
 	Author: xadapter
     WC requires at least: 2.6.0
     WC tested up to: 3.3

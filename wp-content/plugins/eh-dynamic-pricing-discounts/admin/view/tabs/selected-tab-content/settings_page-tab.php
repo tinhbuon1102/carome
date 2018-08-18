@@ -3,6 +3,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+$dummy_settings['rules_per_page'] = 20;
 $dummy_settings['product_rules_on_off'] = 'enable';
 $dummy_settings['combinational_rules_on_off'] = 'enable';
 $dummy_settings['cat_comb_rules_on_off'] = 'enable';
@@ -32,6 +33,9 @@ $dummy_settings['execution_order'] = array('product_rules',
 
 $settings = get_option('xa_dynamic_pricing_setting', $dummy_settings);
 extract($settings);
+if(!isset($rules_per_page)) {
+    $rules_per_page = 20;
+}
 if (!isset($disable_shop_page_calculation)) {
     $disable_shop_page_calculation = "no";
 }
@@ -258,6 +262,11 @@ $rules_modes = array('product_rules' => 'Product Rules',
                                             <option value='first_match'  <?php echo(($mode == 'first_match') ? 'selected' : ''); ?>>First Match Rule</option>
                                             <option value='all_match'  <?php echo(($mode == 'all_match') ? 'selected' : ''); ?>>All Matched Rules</option>
                                         </select>
+                                    </p>
+                                    <p class="form-field  " >
+                                    <label for="xa_rules_per_page">Rules per page</label> 
+                                    <span class="woocommerce-help-tip" data-tip="Pagination: Enter the number of rules you want to display per page."></span>
+                                        <input type="number" min="1" id="xa_rules_per_page" name="xa_rules_per_page" class="short" style="" value="<?php echo $rules_per_page;?>">
                                     </p>
                                     <?php
                                     if ( is_plugin_active('woocommerce-product-addons/woocommerce-product-addons.php'))
