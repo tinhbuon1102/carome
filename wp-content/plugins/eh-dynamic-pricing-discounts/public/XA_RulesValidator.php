@@ -55,21 +55,16 @@ class XA_RulesValidator {
     }
 
     Function getFirstMatchedRule($product, $pid, $current_quantity = 1, $price = 0, $weight = 0) {
-        global $xa_dp_rules, $xa_first_match_rule_executed;
-        //if(!$xa_first_match_rule_executed)
-        {
-            foreach ($this->execution_order as $rule_type) {
-                $rules = !empty($xa_dp_rules[$rule_type])?$xa_dp_rules[$rule_type]:array();
-                foreach ($rules as $rule_no => $rule) {
-                    //print_r($rule_type.'->'.$rule_no." pid=".$pid);
-                    $rule['rule_no'] = $rule_no;
-                    $rule['rule_type'] = $rule_type;
-                    if ($this->checkRuleApplicableForProduct($rule, $rule_type, $product, $pid, $current_quantity, $price, $weight) === true) {
-                        if($rule_type=='product_rules')
-                            $xa_first_match_rule_executed = true;
-                        //error_log('type='.$rule_type.' ruleno='.$rule_no.' pid='.$pid);
-                        return array($rule_type . ":" . $rule_no => $rule);
-                    }
+        global $xa_dp_rules;
+        foreach ($this->execution_order as $rule_type) {
+            $rules = !empty($xa_dp_rules[$rule_type])?$xa_dp_rules[$rule_type]:array();
+            foreach ($rules as $rule_no => $rule) {
+                //error_log($rule_type.'->'.$rule_no." pid=".$pid);
+                $rule['rule_no'] = $rule_no;
+                $rule['rule_type'] = $rule_type;
+                if ($this->checkRuleApplicableForProduct($rule, $rule_type, $product, $pid, $current_quantity, $price, $weight) === true) {
+                    //error_log('type='.$rule_type.' ruleno='.$rule_no.' pid='.$pid);
+                    return array($rule_type . ":" . $rule_no => $rule);
                 }
             }
         }
@@ -199,24 +194,20 @@ class XA_RulesValidator {
         if ($this->for_offers_table == true) {
             return $this->check_date_range_and_roles($rule, 'buy_get_free_rules');
         } // to show in offers table
-        $cart_itmes = array_keys($xa_cart_quantities);
-        foreach ($rule['purchased_product_id'] as $_pid => $_qnty) {
-            $each_item_q = 0;
+        foreach ($rule['purchased_product_id'] as $_pid => $_qnty) {  
             if (!isset($xa_cart_quantities[$_pid]) || $xa_cart_quantities[$_pid] < $_qnty) {
                 $_product=wc_get_product($_pid);
                 if ($_product->is_type('variable')) {
                     foreach($_product->get_children() as $cid)
                     {   
-                        if (in_array($cid, $cart_itmes)) {
-                            $each_item_q+=$xa_cart_quantities[$cid];
+                        if (isset($xa_cart_quantities[$cid]) && $xa_cart_quantities[$cid] >= $_qnty) {
+                            continue(2);
                         }
                     }
-                    if($each_item_q>=$_qnty)
-                        continue;
                 }                         
                 return false;
             }
-        }
+        } 
         ////////if free product is already in cart with exact quanitty this code will set its price as zero
         if ((in_array($pid, array_keys($rule['purchased_product_id'])) || in_array($parent_id, array_keys($rule['purchased_product_id']))) && !in_array($pid, array_keys($rule['free_product_id']))) {
             $dprice=0;
@@ -362,7 +353,7 @@ class XA_RulesValidator {
         $total_all_units_of_this_category_in_cart = 0;
         $total_weight_of_this_category = 0;
         $total_price_of_this_category = 0;
-        if (is_shop() || is_product_category() || is_product() || is_product_tag()) {
+        if (is_shop() || is_product_category() || is_product() || is_front_page() || is_home()) {
             $current_quantity++;
             if (empty($xa_cart_quantities[$pid])) {
                 $total_items_of_this_category_in_cart++;
@@ -499,7 +490,7 @@ class XA_RulesValidator {
         $total_all_units_in_cart = 0;
         $total_weight_in_cart = 0;
         $total_price_in_cart = 0;
-        if (is_shop() || is_product_category() || is_product() || is_product_tag()) {
+        if (is_shop() || is_product_category() || is_product() || is_front_page() || is_home()) {
             $current_quantity++;
             if (empty($xa_cart_quantities[$pid])) {
                 $total_items_in_cart++;
@@ -544,15 +535,8 @@ class XA_RulesValidator {
         global $xa_cart_quantities;
         $total_units=0;
         $rule['product_id']= XA_WPML_Compatible_ids($rule['product_id'],'product',true);
-        $check_for_pid = 0;
-        if (!empty($product) && $product->is_type('variation')) {
-            
-            $check_for_pid = is_wc_version_gt_eql('2.7') ? $product->get_parent_id() : $product->parent->id;
-        }
         if (empty($rule['product_id']) || count($rule['product_id']) == 0 || !in_array($pid, array_keys($rule['product_id']))) {
-            if (empty($product) || !$product->is_type('variation') ||  !in_array($check_for_pid, array_keys($rule['product_id'])) ) {
-                return false;
-            }
+            return false;
         }
 
         if ($this->for_offers_table == true) {
@@ -561,10 +545,7 @@ class XA_RulesValidator {
         //if pid is selected in this rule
         foreach ($rule['product_id'] as $_pid => $_qnty) {
             if (empty($xa_cart_quantities[$_pid]) || $xa_cart_quantities[$_pid] < $_qnty) {
-                if($_pid != $check_for_pid || empty($xa_cart_quantities[$pid]) || $xa_cart_quantities[$pid] < $_qnty) //code to consider parent id of variable products    
-                    return false;
-                else
-                    $total_units += $xa_cart_quantities[$pid];    
+                return false;
             } else {
                 $total_units += !empty($xa_cart_quantities[$_pid])?$xa_cart_quantities[$_pid]:1;
             }
@@ -583,8 +564,6 @@ class XA_RulesValidator {
 
     Function checkProductRuleApplicableForProduct(&$rule = null, $product = null, $pid = null, $current_quantity = 1, $price = 0, $weight = 0) {
         global $xa_cart_categories;
-        global $xa_cart_quantities;
-        global $xa_variation_parentid;
 
         if (empty($pid)) {
             $pid = xa_get_pid($product);
@@ -603,34 +582,6 @@ class XA_RulesValidator {
         //if pid is selected in this rule
         if (!empty($product) && $product->is_type('variation')) {
             $check_for_pid = is_wc_version_gt_eql('2.7') ? $product->get_parent_id() : $product->parent->id;
-            if ($rule['rule_on'] == 'products') {
-                $parent_product = wc_get_product($check_for_pid);
-                $child_products = $parent_product->get_children();
-                if(in_array($check_for_pid, $rule['product_id']))
-                {
-                    if(!isset($xa_variation_parentid[$rule['rule_no'].'_'.$rule['rule_type']]))
-                    {
-                        $xa_variation_parentid[$rule['rule_no'].'_'.$rule['rule_type']] = array();
-                    }
-                    else if($rule['discount_type'] == "Flat Discount")
-                    {
-                        return false;
-                    }
-                    if($rule['discount_type'] != "Flat Discount" || !in_array($check_for_pid, $xa_variation_parentid[$rule['rule_no'].'_'.$rule['rule_type']]))
-                    {
-                        foreach ($xa_cart_quantities as $key => $value) { //to allow variations of a parent product be counted while calculating quantity
-                            if($key!=$pid)
-                            {
-                                if(in_array($key, $parent_product->get_children()))
-                                {
-                                    $current_quantity = $current_quantity + $value;
-                                }
-                            }
-                        }
-                        array_push($xa_variation_parentid[$rule['rule_no'].'_'.$rule['rule_type']], $check_for_pid);
-                    }
-                }
-            }   
         } else {
             $check_for_pid = $pid;
         }
@@ -696,7 +647,7 @@ class XA_RulesValidator {
             return false;
         }        
         
-        $now = date('d-m-Y');
+        $now = current_time('d-m-Y H:i');
         if ((empty($fromdate) && empty($todate)) || (empty($fromdate) && empty($todate) == false && (strtotime($now) <= strtotime($todate))) || (empty($fromdate) == false && (strtotime($now) >= strtotime($fromdate)) && empty($todate)) || ((strtotime($now) >= strtotime($fromdate)) && (strtotime($now) <= strtotime($todate)))) {
             
         } else {
@@ -713,10 +664,20 @@ class XA_RulesValidator {
         $data = explode(':', $rule_type_colon_rule_no);
         $rule_type = $data[0];
         $rule_no = $data[1];
+        $product= wc_get_product($pid);
+        
         if (isset($executed_rule_pid_price[$rule_type_colon_rule_no])  && !empty($object_hash)) {  // this code is using cache if already executed
             if (isset($executed_rule_pid_price[$rule_type_colon_rule_no][$object_hash])) {  
-                    return $executed_rule_pid_price[$rule_type_colon_rule_no][$object_hash];
+            		if ((is_front_page() || is_shop() || is_product()) && !(defined('DOING_AJAX') && DOING_AJAX) && !$product->is_type( 'simple' ))
+            		{
+            			
+            		}
+            		else
+            		{
+	            		return $executed_rule_pid_price[$rule_type_colon_rule_no][$object_hash];
+            		}
             }
+//             pr($executed_rule_pid_price[$rule_type_colon_rule_no][$object_hash]);
         } else {
             $executed_rule_pid_price[$rule_type_colon_rule_no] = array();
         }
@@ -755,6 +716,7 @@ class XA_RulesValidator {
         $type_code = $rule['rule_type'] == 'product_rules'  ?  ($rule['rule_type'].$pid)   :  $rule['rule_type'];
         $cart_quantity = 0;
         $prev_total_discount=0;
+        
         if($rule['rule_type'] == 'product_rules'){
             if(isset($rule['repeat_rule']) && $rule['repeat_rule'] == 'yes' && !empty($rule['max']) && !empty($rule['min'])){
                 $cart_quantity=$current_quantity;
@@ -806,7 +768,7 @@ class XA_RulesValidator {
             $cart_quantity = isset($xa_cart_quantities[$pid]) ?  $xa_cart_quantities[$pid] : 0;
         }
         
-        if (is_product() || is_shop() || is_product_category() || is_product_tag() || empty($cart_quantity)) {
+        if (is_product() || is_front_page() || is_home() || is_shop() || is_product_category() || empty($cart_quantity)) {
             $cart_quantity++;
         }
         extract($rule);
@@ -850,12 +812,16 @@ class XA_RulesValidator {
             $new_price=  (($new_price * $rule['product_id'][$pid])+ ($old_price * $remaining_qnty ))/$xa_cart_quantities[$pid];
         }
         ///// adding to cache
-        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
-        }
-        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
-        {            
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+        $product= wc_get_product($pid);
+        if ($product->is_type( 'simple' )  || true)
+        {
+	        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
+	        }
+	        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
+	        {            
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+	        }
         }
         return $new_price;
     }
@@ -875,7 +841,7 @@ class XA_RulesValidator {
                 $prev_total_discount += ($rprice - $sprice ) * $qnty;
             }
         }
-        if (is_product() || is_shop() || is_product_category() || is_product_tag() || empty($cart_quantity)) {
+        if (is_product() || is_front_page() || is_home() || is_shop() || is_product_category() || empty($cart_quantity)) {
             $cart_quantity++;
         }
         extract($rule);
@@ -919,12 +885,16 @@ class XA_RulesValidator {
             $new_price=  (($new_price * $rule['product_id'][$pid])+ ($old_price * $remaining_qnty ))/$xa_cart_quantities[$pid];
         }
         ///// adding to cache
-        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
-        }
-        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
-        {            
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+        $product= wc_get_product($pid);
+        if ($product->is_type( 'simple' )  || true)
+        {
+	        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
+	        }
+	        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
+	        {            
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+	        }
         }
         return $new_price;
     }
@@ -943,7 +913,7 @@ class XA_RulesValidator {
                 $prev_total_discount += ($rprice - $sprice ) * $qnty;
             }
         }
-        if (is_product() || is_shop() || is_product_category() || is_product_tag() || empty($cart_quantity)) {
+        if (is_product() || is_front_page() || is_home() || is_shop() || is_product_category() || empty($cart_quantity)) {
             $cart_quantity++;
         }
         extract($rule);
@@ -954,8 +924,8 @@ class XA_RulesValidator {
             if ($do_not_execute === true) {
                 $discount_amt = floatval($value);
             } else {
-                $prev=!empty($xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no])?$xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no]:0;
-                $xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no] =  floatval($prev) + floatval($value);
+                $prev=!empty($xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no.":".$pid])?$xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no.":".$pid]:0;
+                $xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no.":".$pid] =  floatval($prev) + floatval($value);
             }
         } elseif ($discount_type == 'Fixed Price') {
             $discount_amt = floatval($old_price) - floatval($value);
@@ -987,12 +957,16 @@ class XA_RulesValidator {
             $new_price=  (($new_price * $rule['product_id'][$pid])+ ($old_price * $remaining_qnty ))/$xa_cart_quantities[$pid];
         }
         ///// adding to cache
-        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
-        }
-        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
-        {            
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+        $product= wc_get_product($pid);
+        if ($product->is_type( 'simple' )  || true)
+        {
+	        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
+	        }
+	        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
+	        {            
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+	        }
         }
         return $new_price;
     }
@@ -1014,7 +988,7 @@ class XA_RulesValidator {
             }
         }
         
-        if (is_product() || is_shop() || is_product_category() || is_product_tag() || empty($cart_quantity)) {
+        if (is_product() || is_front_page() || is_home() || is_shop() || is_product_category() || empty($cart_quantity)) {
             $cart_quantity++;
         }
         extract($rule);
@@ -1025,8 +999,8 @@ class XA_RulesValidator {
             if ($do_not_execute === true) {
                 $discount_amt = floatval($value);
             } else {
-                $prev=!empty($xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no])?$xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no]:0;
-                $xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no] =  floatval($prev) + floatval($value);
+                $prev=!empty($xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no.":".$pid])?$xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no.":".$pid]:0;
+                $xa_common_flat_discount[$rule['rule_type'] . ":" . $rule_no.":".$pid] =  floatval($prev) + floatval($value);
             }
         } elseif ($discount_type == 'Fixed Price') {
             $discount_amt = floatval($old_price) - floatval($value);
@@ -1057,12 +1031,16 @@ class XA_RulesValidator {
             $new_price=  (($new_price * $rule['product_id'][$pid])+ ($old_price * $remaining_qnty ))/$xa_cart_quantities[$pid];
         }
         ///// adding to cache
-        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
-        }
-        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
-        {            
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+        $product= wc_get_product($pid);
+        if ($product->is_type( 'simple' )  || true)
+        {
+	        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
+	        }
+	        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
+	        {            
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+	        }
         }
         return $new_price;
     }
@@ -1091,7 +1069,7 @@ class XA_RulesValidator {
             }            
         }
 
-        if (is_product() || is_shop() || is_product_category() || is_product_tag() || empty($cart_quantity)) {
+        if (is_product() || is_front_page() || is_home() || is_shop() || is_product_category() || empty($cart_quantity)) {
             $cart_quantity++;
             $total_units++;
         }
@@ -1132,12 +1110,16 @@ class XA_RulesValidator {
             $new_price=  (($new_price * $rule['product_id'][$pid])+ ($old_price * $remaining_qnty ))/$xa_cart_quantities[$pid];
         }
         ///// adding to cache
-        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
-        }
-        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
-        {            
-            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+        $product= wc_get_product($pid);
+        if ($product->is_type( 'simple' )  || true)
+        {
+	        if (!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash]) ) {
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$object_hash] = $new_price;
+	        }
+	        if(!isset($executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] ))
+	        {            
+	            $executed_rule_pid_price[$rule['rule_type'] . ":" . $rule_no][$pid] = $new_price;
+	        }
         }
         return $new_price;
     }
@@ -1184,30 +1166,12 @@ class XA_RulesValidator {
             }
             $unit= isset($xa_cart_quantities[$pid]) ? $xa_cart_quantities[$pid] : 1 ;
             $free_unit=isset($rule['free_product_id'][$pid]) ? $rule['free_product_id'][$pid] : 0;
-            if ($all_free_product_present == true && (is_cart() || is_ajax() || is_checkout())) {  
+            if ($all_free_product_present == true && is_cart()) {  
                 $total_adjustment_price=0;
                 if (isset($adjustment) && is_numeric($adjustment)) {
-                    if($multiple>=$unit) //to make repeat rule work with auto add disabled
-                    {
-                        $total_adjustment_price= $adjustment * $free_unit * $unit;
-                    }
-                    else
-                    {
-                        $total_adjustment_price= $adjustment * $free_unit * $multiple;
-                    }
+                    $total_adjustment_price= $adjustment * $free_unit;
                 }
-                else
-                {
-                    $total_adjustment_price= 0;
-                }
-                if(($unit - (float) $free_unit * $multiple) < 0) //to make repeat rule work with auto add disabled
-                {
-                    $total_old_price=0;
-                }
-                else
-                {
-                    $total_old_price=$old_price * ($unit - (float) $free_unit * $multiple);
-                }
+                $total_old_price=$old_price * ($unit - (float) $free_unit );
                 if($xa_dp_setting['auto_add_free_product_on_off'] == 'enable')
                 {
                     return  $old_price;
@@ -1219,13 +1183,6 @@ class XA_RulesValidator {
         }
         /////////////////////////////////////////////////////////        
         $cart = $woocommerce->cart;
-
-        $line_subtotal_total = 0; //added to fix adjustments not working issue
-        foreach ($cart->cart_contents as $value) {
-            if(isset($value['line_subtotal']))
-                $line_subtotal_total += $value['line_subtotal'];
-        }
-
         if ($xa_dp_setting['auto_add_free_product_on_off'] == 'enable') {         // only works for different products
             foreach ($free_product_id as $pid2 => $qnty2) {
                 $product_data = wc_get_product($pid2);
@@ -1234,9 +1191,6 @@ class XA_RulesValidator {
                 }
                 if (isset($adjustment) && is_numeric($adjustment)) {
                     $product_data->set_price($adjustment);
-                    $product_data->set_price($adjustment);                    
-                    $cart->set_subtotal($line_subtotal_total+$adjustment); //added to fix adjustments not working issue
-                    $cart->set_total($line_subtotal_total+$adjustment);//added to fix adjustments not working issue
                 } else {
                     $product_data->set_price(0.0);
                 }

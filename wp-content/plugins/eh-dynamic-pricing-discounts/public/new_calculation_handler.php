@@ -51,8 +51,6 @@ class XA_NewCalculationHandler {
         global $xa_cart_categories_units;
         global $current_user;
         global $customer;
-        global $xa_variation_parentid;
-        global $xa_first_match_rule_executed;
         
         
         if(WC()->customer){
@@ -60,8 +58,6 @@ class XA_NewCalculationHandler {
             $customer = new WC_Customer($current_user->ID);
         }
 
-        $xa_first_match_rule_executed = false;
-        $xa_variation_parentid = array();
         $xa_cart_quantities = array();
         $xa_cart_weight = array();
         $xa_cart_price = array();
@@ -157,14 +153,14 @@ class XA_NewCalculationHandler {
                 $xa_add_on_false = true;
             } 
         }
-        if(apply_filters('xa_give_discount_on_addon_prices',true)==$xa_add_on_false && did_action('woocommerce_before_calculate_totals') || doing_action('woocommerce_before_calculate_totals'))   // added this code for compatiblity with woocommerce product addons
-        {
-            return $old_price;
-        }
-        if(!is_shop() && !is_product() && !is_product_tag() &&  !is_product_category() && !did_action('woocommerce_before_calculate_totals') && apply_filters('xa_give_discount_on_addon_prices',true)==$xa_add_on_true)   // added this code for compatiblity with woocommerce product addons
-        {
-            return $old_price;
-        }
+//         if(apply_filters('xa_give_discount_on_addon_prices',true)==$xa_add_on_false && did_action('woocommerce_before_calculate_totals') || doing_action('woocommerce_before_calculate_totals'))   // added this code for compatiblity with woocommerce product addons
+//         {
+//             return $old_price;
+//         }
+//         if(!is_shop() && !is_product() &&  !is_product_category() && !did_action('woocommerce_before_calculate_totals') && apply_filters('xa_give_discount_on_addon_prices',true)==$xa_add_on_true)   // added this code for compatiblity with woocommerce product addons
+//         {
+//             return $old_price;
+//         }
         global $xa_hooks, $xa_common_flat_discount,$xa_cart_price,$executed_pids;
         remove_filter($xa_hooks['woocommerce_get_price_hook_name'], array($this, 'getDiscountedPriceForProduct'), 22);
         remove_filter($xa_hooks['woocommerce_get_sale_price_hook_name'], array($this, 'getDiscountedPriceForProduct'), 22);    // update sale price on product page
@@ -219,13 +215,12 @@ class XA_NewCalculationHandler {
                     }
                 }       
             }           
-            if (is_shop() || is_product_category() || is_product() || is_product_tag()) {
+            if (is_shop() || is_product_category() || is_product() || is_front_page() || is_home()) {
                 $current_quantity++;
             }
             $objRulesValidator = New XA_RulesValidator();
 
             $valid_rules = $objRulesValidator->getValidRulesForProduct($product, $pid, $current_quantity, $discounted_price, $weight);
-
             if ($this->debug_mode) {
                 error_log(str_repeat("-", 380));
                 error_log('Valid Rules for Pid=' . $pid . ' and qnty=' . $current_quantity . ' Valid Rules= ' . print_r($valid_rules, true));
@@ -244,32 +239,6 @@ class XA_NewCalculationHandler {
                 foreach ($valid_rules as $rule_type_colon_rule_no => $rule) {
                     //this section supports repeat execution for product rules
                     if (isset($rule['repeat_rule']) && $rule['repeat_rule'] == 'yes' && !empty($rule['max']) && !empty($rule['min'])) {
-                        if($rule['rule_type'] == 'product_rules')
-                        {
-                            if($product->get_type()=='variation'){
-                                $pparent_id=is_wc_version_gt_eql('2.7') ? $product->get_parent_id() : $product->parent->id;                
-                            
-                                if(in_array($pparent_id, $rule['product_id']))
-                                {
-                                    $pparent_product = new WC_Product_Variable($pparent_id);
-                                    $variations = $pparent_product->get_children();
-                                    $current_quantity = 0;
-                                    foreach ($variations as $value) {
-                                        if(isset($xa_cart_quantities[$value]))
-                                        {
-                                            $current_quantity += $xa_cart_quantities[$value];
-                                        }
-                                    }
-                                    if(isset($xa_cart_quantities[$pparent_id]))
-                                    {
-                                        $current_quantity += $xa_cart_quantities[$value];
-                                    }
-                                    if (is_shop() || is_product_category() || is_product() || is_product_tag()) {
-                                        $current_quantity++;
-                                    }
-                                }
-                            }
-                        }
                         $times = intval($current_quantity / $rule['max']);
                         $total_price = 0;
                         $repeat_qnty = (float) $rule['max'];
@@ -303,8 +272,7 @@ class XA_NewCalculationHandler {
                             error_log('Executing Rule:' . $rule_type_colon_rule_no);
                         }
                         //fix for best discount mode flat discount is not getting calculated]
-                        //if (!empty($rule['discount_type']) && $rule['discount_type'] == 'Flat Discount' && !$product->is_type('variation')) {
-                        if (!empty($rule['discount_type']) && $rule['discount_type'] == 'Flat Discount') { // removed variation condition because variations were getting executed like non flat discounts
+                        if (!empty($rule['discount_type']) && $rule['discount_type'] == 'Flat Discount' && !$product->is_type('variation')) {
                             if($rule['rule_type']=='product_rules')
                             {   
                                 $xa_common_flat_discount[$rule['rule_type'] . ":" . $rule['rule_no'].":".$pid] = floatval($rule['value']);
@@ -338,7 +306,6 @@ class XA_NewCalculationHandler {
         {
             return '';
         }
-        
         
         return $discounted_price;
     }
@@ -419,13 +386,18 @@ class XA_NewCalculationHandler {
                     {$prices['sale_price'][$_pid]=$prices['price'][$_pid];}
             }   
         }        
-//        $prices = $product->get_variation_prices(true);
+        
+        
+        $objRulesValidator = New XA_RulesValidator();
+       	$prices = $product->get_variation_prices(true);
+        
         if (empty($prices['price'])) {
             return '';
         }
-//        foreach ($prices['price'] as $pid => $old_price) {
-//            $prices['price'][$pid] = $this->getDiscountedPriceForProduct($old_price, wc_get_product($pid), $pid);
-//        }
+       foreach ($prices['price'] as $pid => $old_price) {
+           $prices['price'][$pid] = $this->getDiscountedPriceForProduct($old_price, wc_get_product($pid), $pid);
+       }
+       
         asort($prices['price']);
         $min_price = current($prices['price']);
         $max_price = end($prices['price']);
@@ -437,6 +409,7 @@ class XA_NewCalculationHandler {
         }else{
             $price = wc_price($min_price) . $product->get_price_suffix();
         }
+        
         return apply_filters('eha_variable_sale_price_html', $price, $min_price, $max_price, $regular_price,0);
     }
 

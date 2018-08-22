@@ -41,14 +41,6 @@ function regularPriceHTML_for_simple_and_variation_product($price, $product){
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
-//snippet to round of totals in the cart
-add_action('woocommerce_cart_total', 'cart_totals', 99, 1);
-function cart_totals($wc_price)
-{
-	global $woocommerce;  
-	$new_price = round($woocommerce->cart->total);
-	
-	return wc_price($new_price);
-}
+
 
 */
