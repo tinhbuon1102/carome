@@ -36,7 +36,7 @@
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,92,153,152,154,157',
+	     'exclude'    => '77,92,153,152,154,157,169',
          'hide_empty'   => $empty
 		);
 		$all_categories = get_categories( $args );
@@ -122,7 +122,7 @@
 				$prod_categories = get_terms( 'product_cat', array(
 					'orderby'    => 'name',
 					'order'      => 'ASC',
-					'exclude'    => '69, 77,157,161,158,159,163,162,145,146,147,148,151,150,149,153,152,154',
+					'exclude'    => '69, 77,157,161,158,159,163,162,145,146,147,148,151,150,149,153,152,154,169',
 					'number'     => 8,
 					'hide_empty' => 1
 				));

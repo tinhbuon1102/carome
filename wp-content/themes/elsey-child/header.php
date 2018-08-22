@@ -168,7 +168,7 @@ var gl_alertStateNotAllowed = '';
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,153,152,154,157',
+	     'exclude'    => '77,153,152,154,157,169',
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
