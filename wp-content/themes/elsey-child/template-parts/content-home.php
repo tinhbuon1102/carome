@@ -5,14 +5,21 @@
 	endwhile;
 	?>
 </div>
-<?php if ( date_i18n('YmdHi') >= "201807051200" ) { ?>
+<?php if ( date_i18n('YmdHi') >= "201808231200" ) { ?>
+<div class="sub_banner xs-hide">
+<a href="<?php echo home_url('/product-category/finalsummersale'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SummerFinalSaleTopBanner-Desktop.jpg" alt="FINAL SUMMER SALE" /></a>
+</div>
+	  <div class="sub_banner xs-show">
+		  <a href="<?php echo home_url('/product-category/finalsummersale'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SummerFinalSale_TopBanner-Mobile.jpg" alt="FINAL SUMMER SALE" /></a>
+	  </div>
+	  <?php } else { ?><!--time set end-->
 <div class="sub_banner xs-hide">
 	<a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSaleTopBanner-Desktop.jpg" alt="springfair" /></a>
 </div>
 	  <div class="sub_banner xs-show">
 		  <a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSale_TopBanner-Mobile01.jpg" alt="springfair" /></a>
 	  </div>
-	  <?php } ?><!--time set end-->
+<?php } ?>
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">
 		<h3 class="heading heading--main upper">Just Arrived</h3>
