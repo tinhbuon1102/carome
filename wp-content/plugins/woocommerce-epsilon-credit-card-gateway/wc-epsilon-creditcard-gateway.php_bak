@@ -211,10 +211,6 @@ function woocommerce_gmo_epsilon_creditcard_init() {
                     			<div class="form-row form-row-first">
 									<label class="form-row__label light-copy" for="ccnum"><?php echo __( 'Credit Card number', 'wc-epsilon' ) ?> <span class="required">*</span></label>
 									<input type="text" class="input-text" id="card_number" name="card_number" maxlength="16" />
-									<input type="hidden" class="input-text" id="token_cc" name="token"/>
-									<input type="hidden" class="input-text" id="maskedCardNo" name="maskedCardNo"/>
-									<input type="hidden" class="input-text" id="holdername" name="holdername" value="EPSILON TAROU"/>
-									<input type="hidden" class="input-text" id="contract_code" name="contract_code" value="<?php echo $this->contract_code?>"/>
 									<ul class="credit-card-icons">
 										<li class="payment-icon payment-icon--visa"></li>
 										<li class="payment-icon payment-icon--master"></li>
@@ -413,12 +409,11 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 		} else {
 
 		//Credit Card Infomation
-//         $base_request['card_number'] 	= $this->get_post( 'card_number' );
-//         $base_request['expire_m'] 	= $this->get_post( 'expire_m' );
-//         $base_request['expire_y'] 	= $this->get_post( 'expire_y' );
+        $base_request['card_number'] 	= $this->get_post( 'card_number' );
+        $base_request['expire_m'] 	= $this->get_post( 'expire_m' );
+        $base_request['expire_y'] 	= $this->get_post( 'expire_y' );
 
 		$base_request['process_code'] 	= 1;//First time payment
-		$base_request['token'] 	= $this->get_post( 'token' );
 		$base_request['card_st_code'] 	= 10;
 
         // Using Security Check
@@ -769,7 +764,7 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 				break;
 			}
 		}
-
+pr($array);die;
       // Return response array
       return $result;
     }
@@ -784,14 +779,6 @@ function woocommerce_gmo_epsilon_creditcard_init() {
      */
     function add_epsilon_scripts() {
 
-    	if( $this->testmode == 'no' ){
-    		wp_enqueue_script( 'token', PLUGIN_DIR . 'js/token_live.js', array( 'jquery' ), 1.0 );
-    	}
-    	else{
-    		wp_enqueue_script( 'token', PLUGIN_DIR . 'js/token_test.js', array( 'jquery' ), 1.0 );
-    	}
-    	wp_enqueue_script( 'get_token', PLUGIN_DIR . 'js/get_token.js', array( 'jquery' ), 1.0 );
-    	
       if ( ! $this->user_has_stored_data( wp_get_current_user()->ID ) ) return;
 
       wp_enqueue_script( 'jquery' );

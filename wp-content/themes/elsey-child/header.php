@@ -168,7 +168,7 @@ var gl_alertStateNotAllowed = '';
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,153,152,154,157,169',
+	     'exclude'    => '77,153,152,154,157,169,175',//175 is 3set 10% OFF
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
@@ -210,19 +210,19 @@ var gl_alertStateNotAllowed = '';
 	</ol>
 	  </div>
 	  <?php if(is_product_category()||is_shop()){ ?> 
-	  <?php if ( date_i18n('YmdHi') >= "201808231200" ) { ?>
+	  <?php if ( date_i18n('YmdHi') >= "201809221200" ) { ?>
 <div class="sub_banner xs-hide">
-	<a href="<?php echo home_url('/product-category/finalsummersale'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SummerFinalSaleTopBanner-Desktop.jpg" alt="FINAL SUMMER SALE" /></a>
+<a href="<?php echo home_url('/buy-2-jewelry-5000yen'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180922-Desktop.jpg" alt="Set Discount" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/product-category/finalsummersale'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SummerFinalSale_TopBanner-Mobile.jpg" alt="FINAL SUMMER SALE" /></a>
+		  <a href="<?php echo home_url('/buy-2-jewelry-5000yen'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180922-Mobile.jpg" alt="Set Discount" /></a>
 	  </div>
 	  <?php } else { ?><!--time set else-->
 	  <div class="sub_banner xs-hide">
-	<a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSaleTopBanner-Desktop.jpg" alt="springfair" /></a>
+<a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Desktop.jpg" alt="Set Discount" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSale_TopBanner-Mobile01.jpg" alt="springfair" /></a>
+		  <a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Mobile.jpg" alt="Set Discount" /></a>
 	  </div>
 	  <?php } ?><!--time set end-->
 	  <?php } else { ?>

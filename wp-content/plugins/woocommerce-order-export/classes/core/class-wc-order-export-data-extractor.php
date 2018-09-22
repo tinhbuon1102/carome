@@ -652,7 +652,6 @@ class WC_Order_Export_Data_Extractor {
 		$sql = "SELECT " . apply_filters( "woe_sql_get_order_ids_fields", "ID AS order_id" ) . " FROM {$wpdb->posts} AS orders
 			{$left_join_order_meta}
 			WHERE orders.post_type in ( $order_types) AND $order_sql $order_meta_where $order_items_where";
-		//die($sql);
 		return $sql;
 	}
 
@@ -698,6 +697,28 @@ class WC_Order_Export_Data_Extractor {
 			$values = self::sql_subset( $settings['statuses'] );
 			if ( $values ) {
 				$where[] = "orders.post_status in ($values)";
+			}
+		}
+		
+		if ( $settings['order_ids'] ) {
+			$s_order_ids = str_replace(',', ';', $settings['order_ids'] );
+			$s_order_ids = preg_replace( "/\r|\n/", ";", $s_order_ids );
+			$order_ids = explode(';', $s_order_ids);
+			$orderids = array();
+			if (!empty($order_ids))
+			{
+				foreach ($order_ids as $order_id)
+				{
+					if (trim($order_id))
+					{
+						$orderids[trim($order_id)] = trim($order_id);
+					}
+				}
+				if (!empty($orderids))
+				{
+					$orderids = self::sql_subset( $orderids );
+					$where[] = "orders.ID in ($orderids)";
+				}
 			}
 		}
 

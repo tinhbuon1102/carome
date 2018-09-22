@@ -775,6 +775,11 @@ $readonly_php = WC_Order_Export_Admin::user_can_add_custom_php() ? '' : 'readonl
 					<?php } ?>
 				</select>
 
+				<br><br>
+				<span class="wc-oe-header"><?php _e( 'Order Ids', 'woocommerce-order-export' ) ?></span>
+				<br>
+				<div><textarea name="settings[order_ids]" placeholder="<?php _e( 'Separate by semi conlon ";"', 'woocommerce-order-export' ) ?>"><?php echo !empty($settings['order_ids']) ? $settings['order_ids'] : ''?></textarea></div>
+				
 				<span class="wc-oe-header"><?php _e( 'Custom fields', 'woocommerce-order-export' ) ?></span>
 				<br>
 				<select id="custom_fields" style="width: auto;">

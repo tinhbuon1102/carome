@@ -643,9 +643,28 @@ function add_jancode_variations( $loop, $variation_data, $variation ){
 add_action( 'woocommerce_save_product_variation','save_jancode_variations', 10 ,2 );
 function save_jancode_variations( $variation_id, $loop ){
 
-	$jancode = $_POST["_jancode_$loop"];
-	if(!empty($jancode))
+	global $wpdb;
+	$jancode = trim($_POST["_jancode_$loop"]);
+	$products = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM ".$wpdb->postmeta." WHERE meta_key=%s AND meta_value=%s", '_jancode', $jancode ) );
+	$newProducts = array();
+	foreach ($products as $product)
+	{
+		if ($product->post_id != $variation_id)
+		{
+			$newProducts[] = $product;
+		}
+	}
+	if (!empty($newProducts))
+	{
+		$errors = new WP_Error();
+		$errors->add( 'DUPLICATE_JANCODE', __( 'Invalid or duplicated Jancode.', 'elsey' ) );
+		WC_Admin_Meta_Boxes::add_error( $errors->get_error_message() );
+	}
+	elseif(!empty($jancode))
+	{
+		$jancode = (string) $jancode;
 		update_post_meta( $variation_id, '_jancode', sanitize_text_field($jancode) );
+	}
 }
 
 /*edit minicart buttons*/

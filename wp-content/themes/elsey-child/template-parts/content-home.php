@@ -5,20 +5,22 @@
 	endwhile;
 	?>
 </div>
-<?php if ( date_i18n('YmdHi') >= "201808231200" ) { ?>
+<?php if ( date_i18n('YmdHi') >= "201809221200" ) { ?>
 <div class="sub_banner xs-hide">
-<a href="<?php echo home_url('/product-category/finalsummersale'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SummerFinalSaleTopBanner-Desktop.jpg" alt="FINAL SUMMER SALE" /></a>
+<a href="<?php echo home_url('/buy-2-jewelry-5000yen'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180922-Desktop.jpg" alt="Set Discount" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/product-category/finalsummersale'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/SummerFinalSale_TopBanner-Mobile.jpg" alt="FINAL SUMMER SALE" /></a>
+		  <a href="<?php echo home_url('/buy-2-jewelry-5000yen'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180922-Mobile.jpg" alt="Set Discount" /></a>
 	  </div>
+
 	  <?php } else { ?><!--time set end-->
 <div class="sub_banner xs-hide">
-	<a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSaleTopBanner-Desktop.jpg" alt="springfair" /></a>
+<a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Desktop.jpg" alt="Set Discount" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/product-category/thespringsale18'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/theSpringSale_TopBanner-Mobile01.jpg" alt="springfair" /></a>
+		  <a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Mobile.jpg" alt="Set Discount" /></a>
 	  </div>
+
 <?php } ?>
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">
@@ -43,7 +45,7 @@
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,92,153,152,154,157,169',
+	     'exclude'    => '77,92,153,152,154,157,169,176,175',//175 is 3set 10% OFF
          'hide_empty'   => $empty
 		);
 		$all_categories = get_categories( $args );
@@ -91,13 +93,12 @@
 <div class="headline_inner">
 <div class="headline_inner_abs">
 <p>it's time to</p>
-<h3>CAROME. <br class="sp-none">SPRING</h3>
+<h3>CAROME. <br class="sp-none">Autumn</h3>
 <div class="mag-text">
 <ul class="mag-tags">
 <li>#CAROME</li>
 <li>#MUSTBUY</li>
-<li>#SPRING</li>
-<li>#FLOWERS</li>
+<li>#AUTUMN</li>
 </ul>
 </div>
 </div>
@@ -105,7 +106,7 @@
 </div>
 <div class="col-lg-8 mag-media">
 <div class="magazine-article__media creditable-content">
-<img src="<?php echo get_stylesheet_directory_uri(); ?>/images/mag/mag18ss.jpg" />
+<img src="<?php echo get_stylesheet_directory_uri(); ?>/images/mag/mag18aw.jpg" />
 </div>
 </div>
 </div>
@@ -115,7 +116,7 @@
 				<div class="magazine-article__col-content vertical--align-center mag_items wpb_column vc_column_container vc_col-sm-4">
 					<div class="vc_column-inner">
 						<div class="wpb_wrapper">
-							<?php echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="8166,8152,8946,8953," visibility="visible"]'); ?>
+							<?php echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="17031,17023,17038,17002," visibility="visible"]'); ?>
 						</div>
 					</div>
 				</div>
@@ -129,7 +130,7 @@
 				$prod_categories = get_terms( 'product_cat', array(
 					'orderby'    => 'name',
 					'order'      => 'ASC',
-					'exclude'    => '69, 77,157,161,158,159,163,162,145,146,147,148,151,150,149,153,152,154,169',
+					'exclude'    => '69, 77,157,161,158,159,163,162,145,146,147,148,151,150,149,153,152,154,169,175,176',
 					'number'     => 8,
 					'hide_empty' => 1
 				));
