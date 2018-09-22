@@ -22,6 +22,14 @@
     color: #000;
     border-left: 10px solid rgba(241,221,222,1);
 }
+.woocommerce-info {
+    background: rgba(248,238,239,1);
+    padding: 10px 15px;
+    color: #000;
+    border-left: 10px solid rgba(241,221,222,1);
+    font-size: 1em;
+    margin-bottom: 26px;
+}
 .mini-product--group .mini-product__info {
 	padding-left: 12px;
 }

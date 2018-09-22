@@ -37,6 +37,36 @@ function update_nag_admin_only() {
 }
 add_action( 'admin_init', 'update_nag_admin_only' );
 
+add_action('woocommerce_before_cart', 'show_check_category_in_cart');
+ 
+function show_check_category_in_cart() {
+ 
+// Set $cat_in_cart to false
+$cat_in_cart = false;
+ 
+// Loop through all products in the Cart        
+foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+ 
+    // If Cart has category "download", set $cat_in_cart to true
+    if ( has_term( 'twoset_price_jwl', 'product_cat', $cart_item['product_id'] ) ) {
+        $cat_in_cart = true;
+        break;
+    }
+}
+   
+// Do something if category "download" is in the Cart      
+if ( $cat_in_cart ) {
+ 
+// For example, print a notice
+wc_print_notice( '対象アクセサリー2個同時注文特別価格は3個、5個などでは適用されませんのでご注意ください。2個、または4個のみで適用されます。', 'notice' );
+ 
+// Or maybe run your own function...
+// ..........
+ 
+}
+ 
+}
+
 /*hide menu for other roles*/
 add_action('admin_menu', 'remove_menus', 99999);
 function remove_menus () {
