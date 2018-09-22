@@ -168,7 +168,7 @@ var gl_alertStateNotAllowed = '';
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,153,152,154,157,169,175',//175 is 3set 10% OFF
+	     'exclude'    => '77,153,152,154,157,169,175,176',//175 is 3set 10% OFF
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
