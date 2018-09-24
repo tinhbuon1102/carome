@@ -58,7 +58,7 @@ foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 if ( $cat_in_cart ) {
  
 // For example, print a notice
-wc_print_notice( '対象アクセサリー2個同時注文特別価格は3個、5個などでは適用されませんのでご注意ください。2個、または4個のみで適用されます。', 'notice' );
+//wc_print_notice( '対象アクセサリー2個同時注文特別価格は3個、5個などでは適用されませんのでご注意ください。2個、または4個のみで適用されます。', 'notice' );
  
 // Or maybe run your own function...
 // ..........
