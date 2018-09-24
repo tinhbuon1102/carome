@@ -181,7 +181,7 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 							<div class="field-wrapper" style="display: none;">
 								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-yes" value="yes"  class="paymethod" onclick="entryChange1();" /><label for="epsilon-use-stored-payment-info-yes" class="form-row__inline-label control-label"><?php _e( '保存済みのクレジットカード情報を使う', 'wc-epsilon' ) ?></label>
 				</div>
-								<div id="epsilon-stored-info">
+								<div id="epsilon-stored-info" style="display: none;">
 				                    <p><?php if($customer_check['result']==1):?>
 											<?php _e( 'カード下四桁 ', 'wc-epsilon' ) ?><?php echo $customer_check['card_number_mask']; ?> (<?php echo $customer_check['card_bland']; ?>)
 											<br /><?php elseif($method['result']==9):?>
