@@ -7,10 +7,10 @@
 </div>
 <?php if ( date_i18n('YmdHi') >= "201809221200" ) { ?>
 <div class="sub_banner xs-hide">
-<a href="<?php echo home_url('/buy-2-jewelry-5000yen'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180922-Desktop.jpg" alt="Set Discount" /></a>
+<a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Desktop.jpg" alt="Set Discount" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/buy-2-jewelry-5000yen'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180922-Mobile.jpg" alt="Set Discount" /></a>
+		  <a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Mobile.jpg" alt="Set Discount" /></a>
 	  </div>
 
 	  <?php } else { ?><!--time set end-->
