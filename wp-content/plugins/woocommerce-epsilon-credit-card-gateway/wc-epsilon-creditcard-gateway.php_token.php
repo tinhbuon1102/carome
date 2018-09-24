@@ -22,140 +22,140 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action( 'plugins_loaded', 'woocommerce_gmo_epsilon_creditcard_init', 0 );
 
 function woocommerce_gmo_epsilon_creditcard_init() {
-	
+
 	if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
-		return;
-	};
-	
-	DEFINE ('PLUGIN_DIR', plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) . '/' );
-	
+    return;
+  };
+
+  DEFINE ('PLUGIN_DIR', plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) . '/' );
+
 	/**
 	 * GMO Epsilon Gateway Class
 	 */
-	class WC_Epsilon extends WC_Payment_Gateway {
-		
-		function __construct() {
-			
-			// Register plugin information
-			$this->id			    = 'epsilon';
-			$this->has_fields = true;
-			$this->supports   = array(
-				'products',
-				'subscriptions',
-				'subscription_cancellation',
-				'subscription_suspension',
-				'subscription_reactivation',
-				'subscription_date_changes',
+		class WC_Epsilon extends WC_Payment_Gateway {
+
+			function __construct() {
+
+        // Register plugin information
+	      $this->id			    = 'epsilon';
+	      $this->has_fields = true;
+	      $this->supports   = array(
+               'products',
+               'subscriptions',
+               'subscription_cancellation',
+               'subscription_suspension',
+               'subscription_reactivation',
+               'subscription_date_changes',
+               );
+
+        // Create plugin fields and settings
+				$this->init_form_fields();
+				$this->init_settings();
+				$this->init();
+		$this->method_title       = __( 'Epsilon Credit Card Payment Gateway', 'wc-epsilon' );
+		$this->method_description = __( 'Allows payments by Epsilon Credit Card in Japan.', 'wc-epsilon' );
+
+				// Get setting values
+				foreach ( $this->settings as $key => $val ) $this->$key = $val;
+
+        // Load plugin checkout icon
+	      //$this->icon = PLUGIN_DIR . 'images/cards.png';
+
+        // Add hooks
+				add_action( 'admin_notices',                                            array( $this, 'epsilon_commerce_ssl_check' ) );
+				add_action( 'woocommerce_receipt_epsilon',                              array( $this, 'receipt_page' ) );
+				add_action( 'woocommerce_update_options_payment_gateways',              array( $this, 'process_admin_options' ) );
+				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+				add_action( 'wp_enqueue_scripts',                                       array( $this, 'add_epsilon_scripts' ) );
+//				add_action( 'scheduled_subscription_payment_epsilon',                   array( $this, 'process_scheduled_subscription_payment'), 0, 3 );
+		  }
+
+	/**
+	 * Init WooCommerce Payment Gateway Credit Card- GMO Epsilon when WordPress Initialises.
+	 */
+	public function init() {
+		// Set up localisation
+		$this->load_plugin_textdomain();
+	}
+
+	/*
+	 * Load Localisation files.
+	 *
+	 * Note: the first-loaded translation file overrides any following ones if the same translation is present
+	 */
+	public function load_plugin_textdomain() {
+		$locale = apply_filters( 'plugin_locale', get_locale(), 'wc-epsilon' );
+		// Global + Frontend Locale
+		load_plugin_textdomain( 'wc-epsilon', false, plugin_basename( dirname( __FILE__ ) ) . "/i18n" );
+	}
+
+      /**
+       * Check if SSL is enabled and notify the user.
+       */
+      function epsilon_commerce_ssl_check() {
+        if ( get_option( 'woocommerce_force_ssl_checkout' ) == 'no' && $this->enabled == 'yes' ) {
+            echo '<div class="error"><p>' . sprintf( __('Epsilon Commerce is enabled and the <a href="%s">force SSL option</a> is disabled; your checkout is not secure! Please enable SSL and ensure your server has a valid SSL certificate.', 'wc-epsilon' ), admin_url( 'admin.php?page=wc-settings&tab=checkout' ) ) . '</p></div>';
+            }
+      }
+
+      /**
+       * Initialize Gateway Settings Form Fields.
+       */
+	    function init_form_fields() {
+
+	      $this->form_fields = array(
+	      'enabled'     => array(
+	        'title'       => __( 'Enable/Disable', 'wc-epsilon' ),
+	        'label'       => __( 'Enable Epsilon Payment', 'wc-epsilon' ),
+	        'type'        => 'checkbox',
+	        'description' => '',
+	        'default'     => 'no'
+	        ),
+	      'title'       => array(
+	        'title'       => __( 'Title', 'wc-epsilon' ),
+	        'type'        => 'text',
+	        'description' => __( 'This controls the title which the user sees during checkout.', 'wc-epsilon' ),
+	        'default'     => __( 'Credit Card (Epsilon)', 'wc-epsilon' )
+	        ),
+	      'description' => array(
+	        'title'       => __( 'Description', 'wc-epsilon' ),
+	        'type'        => 'textarea',
+	        'description' => __( 'This controls the description which the user sees during checkout.', 'wc-epsilon' ),
+	        'default'     => __( 'Pay with your credit card via Epsilon.', 'wc-epsilon' )
+	        ),
+	      'contract_code'    => array(
+	        'title'       => __( 'Contract Code', 'wc-epsilon' ),
+	        'type'        => 'text',
+	        'description' => __( 'This is the API Contract Code generated within the epsilon payment gateway.', 'wc-epsilon' ),
+	        'default'     => ''
+	        ),
+			'security_check' => array(
+				'title'       => __( 'Security Check Code', 'wc-epsilon' ),
+				'type'        => 'checkbox',
+				'label'       => __( 'Enable Security Check Code', 'wc-epsilon' ),
+				'default'     => 'no',
+				'description' => sprintf( __( 'Require customer to enter credit card CVV code (Security Check Code).', 'wc-epsilon' )),
+			),
+			'testing' => array(
+				'title'       => __( 'Gateway Testing', 'wc-epsilon' ),
+				'type'        => 'title',
+				'description' => '',
+			),
+			'testmode' => array(
+				'title'       => __( 'Epsilon Test mode', 'wc-epsilon' ),
+				'type'        => 'checkbox',
+				'label'       => __( 'Enable Epsilon Test mode', 'wc-epsilon' ),
+				'default'     => 'no',
+				'description' => sprintf( __( 'Please check you want to use Epsilon Test mode.', 'wc-epsilon' )),
+			)
 			);
-			
-			// Create plugin fields and settings
-			$this->init_form_fields();
-			$this->init_settings();
-			$this->init();
-			$this->method_title       = __( 'Epsilon Credit Card Payment Gateway', 'wc-epsilon' );
-			$this->method_description = __( 'Allows payments by Epsilon Credit Card in Japan.', 'wc-epsilon' );
-			
-			// Get setting values
-			foreach ( $this->settings as $key => $val ) $this->$key = $val;
-			
-			// Load plugin checkout icon
-			//$this->icon = PLUGIN_DIR . 'images/cards.png';
-			
-			// Add hooks
-			add_action( 'admin_notices',                                            array( $this, 'epsilon_commerce_ssl_check' ) );
-			add_action( 'woocommerce_receipt_epsilon',                              array( $this, 'receipt_page' ) );
-			add_action( 'woocommerce_update_options_payment_gateways',              array( $this, 'process_admin_options' ) );
-			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-			add_action( 'wp_enqueue_scripts',                                       array( $this, 'add_epsilon_scripts' ) );
-			//				add_action( 'scheduled_subscription_payment_epsilon',                   array( $this, 'process_scheduled_subscription_payment'), 0, 3 );
-		}
-		
-		/**
-		 * Init WooCommerce Payment Gateway Credit Card- GMO Epsilon when WordPress Initialises.
-		 */
-		public function init() {
-			// Set up localisation
-			$this->load_plugin_textdomain();
-		}
-		
-		/*
-		 * Load Localisation files.
-		 *
-		 * Note: the first-loaded translation file overrides any following ones if the same translation is present
-		 */
-		public function load_plugin_textdomain() {
-			$locale = apply_filters( 'plugin_locale', get_locale(), 'wc-epsilon' );
-			// Global + Frontend Locale
-			load_plugin_textdomain( 'wc-epsilon', false, plugin_basename( dirname( __FILE__ ) ) . "/i18n" );
-		}
-		
-		/**
-		 * Check if SSL is enabled and notify the user.
-		 */
-		function epsilon_commerce_ssl_check() {
-			if ( get_option( 'woocommerce_force_ssl_checkout' ) == 'no' && $this->enabled == 'yes' ) {
-				echo '<div class="error"><p>' . sprintf( __('Epsilon Commerce is enabled and the <a href="%s">force SSL option</a> is disabled; your checkout is not secure! Please enable SSL and ensure your server has a valid SSL certificate.', 'wc-epsilon' ), admin_url( 'admin.php?page=wc-settings&tab=checkout' ) ) . '</p></div>';
-			}
-		}
-		
-		/**
-		 * Initialize Gateway Settings Form Fields.
-		 */
-		function init_form_fields() {
-			
-			$this->form_fields = array(
-				'enabled'     => array(
-					'title'       => __( 'Enable/Disable', 'wc-epsilon' ),
-					'label'       => __( 'Enable Epsilon Payment', 'wc-epsilon' ),
-					'type'        => 'checkbox',
-					'description' => '',
-					'default'     => 'no'
-				),
-				'title'       => array(
-					'title'       => __( 'Title', 'wc-epsilon' ),
-					'type'        => 'text',
-					'description' => __( 'This controls the title which the user sees during checkout.', 'wc-epsilon' ),
-					'default'     => __( 'Credit Card (Epsilon)', 'wc-epsilon' )
-				),
-				'description' => array(
-					'title'       => __( 'Description', 'wc-epsilon' ),
-					'type'        => 'textarea',
-					'description' => __( 'This controls the description which the user sees during checkout.', 'wc-epsilon' ),
-					'default'     => __( 'Pay with your credit card via Epsilon.', 'wc-epsilon' )
-				),
-				'contract_code'    => array(
-					'title'       => __( 'Contract Code', 'wc-epsilon' ),
-					'type'        => 'text',
-					'description' => __( 'This is the API Contract Code generated within the epsilon payment gateway.', 'wc-epsilon' ),
-					'default'     => ''
-				),
-				'security_check' => array(
-					'title'       => __( 'Security Check Code', 'wc-epsilon' ),
-					'type'        => 'checkbox',
-					'label'       => __( 'Enable Security Check Code', 'wc-epsilon' ),
-					'default'     => 'no',
-					'description' => sprintf( __( 'Require customer to enter credit card CVV code (Security Check Code).', 'wc-epsilon' )),
-				),
-				'testing' => array(
-					'title'       => __( 'Gateway Testing', 'wc-epsilon' ),
-					'type'        => 'title',
-					'description' => '',
-				),
-				'testmode' => array(
-					'title'       => __( 'Epsilon Test mode', 'wc-epsilon' ),
-					'type'        => 'checkbox',
-					'label'       => __( 'Enable Epsilon Test mode', 'wc-epsilon' ),
-					'default'     => 'no',
-					'description' => sprintf( __( 'Please check you want to use Epsilon Test mode.', 'wc-epsilon' )),
-				)
-			);
-		}
-		
-		
-		/**
-		 * UI - Admin Panel Options
-		 */
-		function admin_options() { ?>
+		  }
+
+
+      /**
+       * UI - Admin Panel Options
+       */
+			function admin_options() { ?>
 				<h3><?php _e( 'Epsilon Credit Card Payment','wc-epsilon' ); ?></h3>
 			  
 			    <table class="form-table">
@@ -178,10 +178,10 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 				  $customer_check = $this->user_has_stored_data( $user->ID );
 		          if ( $customer_check['err_code']!=801) { ?>
 						
-							<div class="field-wrapper">
-								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-yes" value="yes" checked="checked" class="paymethod" onclick="entryChange1();" /><label for="epsilon-use-stored-payment-info-yes" class="form-row__inline-label control-label"><?php _e( '保存済みのクレジットカード情報を使う', 'wc-epsilon' ) ?></label>
+							<div class="field-wrapper" style="display: none;">
+								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-yes" value="yes"  class="paymethod" onclick="entryChange1();" /><label for="epsilon-use-stored-payment-info-yes" class="form-row__inline-label control-label"><?php _e( '保存済みのクレジットカード情報を使う', 'wc-epsilon' ) ?></label>
 				</div>
-								<div id="epsilon-stored-info">
+								<div id="epsilon-stored-info" style="display: none;">
 				                    <p><?php if($customer_check['result']==1):?>
 											<?php _e( 'カード下四桁 ', 'wc-epsilon' ) ?><?php echo $customer_check['card_number_mask']; ?> (<?php echo $customer_check['card_bland']; ?>)
 											<br /><?php elseif($method['result']==9):?>
@@ -194,7 +194,7 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 						
 						
 							<div class="field-wrapper">
-								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-no" value="no" class="paymethod" onclick="entryChange1();"/>
+								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-no" value="no" checked="checked" class="paymethod" onclick="entryChange1();"/>
 		                  		<label for="epsilon-use-stored-payment-info-no" class="form-row__inline-label control-label"><?php _e( 'Use a new payment method', 'wc-epsilon' ) ?></label>
 		                	</div>
 		                	
@@ -203,7 +203,7 @@ function woocommerce_gmo_epsilon_creditcard_init() {
               			
 							
               				<!-- Show input boxes for new data -->
-              				<div id="epsilon-new-info" <?php if ( $customer_check['err_code']!=801) { ?>style="display:none;"<?php } ?>>
+              				<div id="epsilon-new-info" <?php if ( $customer_check['err_code']!=801) { ?>style=""<?php } ?>>
 								<div class="order--checkout--limit">
               					
 								
@@ -211,6 +211,10 @@ function woocommerce_gmo_epsilon_creditcard_init() {
                     			<div class="form-row form-row-first">
 									<label class="form-row__label light-copy" for="ccnum"><?php echo __( 'Credit Card number', 'wc-epsilon' ) ?> <span class="required">*</span></label>
 									<input type="text" class="input-text" id="card_number" name="card_number" maxlength="16" />
+									<input type="hidden" class="input-text" id="token_cc" name="token"/>
+									<input type="hidden" class="input-text" id="maskedCardNo" name="maskedCardNo"/>
+									<input type="hidden" class="input-text" id="holdername" name="holdername" value="EPSILON TAROU"/>
+									<input type="hidden" class="input-text" id="contract_code" name="contract_code" value="<?php echo $this->contract_code?>"/>
 									<ul class="credit-card-icons">
 										<li class="payment-icon payment-icon--visa"></li>
 										<li class="payment-icon payment-icon--master"></li>
@@ -409,11 +413,12 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 		} else {
 
 		//Credit Card Infomation
-        $base_request['card_number'] 	= $this->get_post( 'card_number' );
-        $base_request['expire_m'] 	= $this->get_post( 'expire_m' );
-        $base_request['expire_y'] 	= $this->get_post( 'expire_y' );
+//         $base_request['card_number'] 	= $this->get_post( 'card_number' );
+//         $base_request['expire_m'] 	= $this->get_post( 'expire_m' );
+//         $base_request['expire_y'] 	= $this->get_post( 'expire_y' );
 
 		$base_request['process_code'] 	= 1;//First time payment
+		$base_request['token'] 	= $this->get_post( 'token' );
 		$base_request['card_st_code'] 	= 10;
 
         // Using Security Check
@@ -435,7 +440,6 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 
 		// Send request and get response from server
 		$response = $this->post_and_get_response( array_merge( $transaction_details,$base_request ) );
-		
 		$respsnse['err_detail'] = $respsnse['err_detail'];
 
       // Check response
@@ -765,6 +769,7 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 				break;
 			}
 		}
+
       // Return response array
       return $result;
     }
@@ -779,6 +784,14 @@ function woocommerce_gmo_epsilon_creditcard_init() {
      */
     function add_epsilon_scripts() {
 
+    	if( $this->testmode == 'no' ){
+    		wp_enqueue_script( 'token', PLUGIN_DIR . 'js/token_live.js', array( 'jquery' ), 1.0 );
+    	}
+    	else{
+    		wp_enqueue_script( 'token', PLUGIN_DIR . 'js/token_test.js', array( 'jquery' ), 1.0 );
+    	}
+    	wp_enqueue_script( 'get_token', PLUGIN_DIR . 'js/get_token.js', array( 'jquery' ), 1.0 );
+    	
       if ( ! $this->user_has_stored_data( wp_get_current_user()->ID ) ) return;
 
       wp_enqueue_script( 'jquery' );
