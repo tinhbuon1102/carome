@@ -178,8 +178,8 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 				  $customer_check = $this->user_has_stored_data( $user->ID );
 		          if ( $customer_check['err_code']!=801) { ?>
 						
-							<div class="field-wrapper">
-								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-yes" value="yes" checked="checked" class="paymethod" onclick="entryChange1();" /><label for="epsilon-use-stored-payment-info-yes" class="form-row__inline-label control-label"><?php _e( '保存済みのクレジットカード情報を使う', 'wc-epsilon' ) ?></label>
+							<div class="field-wrapper" style="display: none;">
+								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-yes" value="yes"  class="paymethod" onclick="entryChange1();" /><label for="epsilon-use-stored-payment-info-yes" class="form-row__inline-label control-label"><?php _e( '保存済みのクレジットカード情報を使う', 'wc-epsilon' ) ?></label>
 				</div>
 								<div id="epsilon-stored-info">
 				                    <p><?php if($customer_check['result']==1):?>
@@ -194,7 +194,7 @@ function woocommerce_gmo_epsilon_creditcard_init() {
 						
 						
 							<div class="field-wrapper">
-								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-no" value="no" class="paymethod" onclick="entryChange1();"/>
+								<input type="radio" name="epsilon-use-stored-payment-info" id="epsilon-use-stored-payment-info-no" value="no" checked="checked" class="paymethod" onclick="entryChange1();"/>
 		                  		<label for="epsilon-use-stored-payment-info-no" class="form-row__inline-label control-label"><?php _e( 'Use a new payment method', 'wc-epsilon' ) ?></label>
 		                	</div>
 		                	
@@ -203,7 +203,7 @@ function woocommerce_gmo_epsilon_creditcard_init() {
               			
 							
               				<!-- Show input boxes for new data -->
-              				<div id="epsilon-new-info" <?php if ( $customer_check['err_code']!=801) { ?>style="display:none;"<?php } ?>>
+              				<div id="epsilon-new-info" <?php if ( $customer_check['err_code']!=801) { ?>style=""<?php } ?>>
 								<div class="order--checkout--limit">
               					
 								
