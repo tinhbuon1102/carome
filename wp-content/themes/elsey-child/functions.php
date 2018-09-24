@@ -2184,6 +2184,15 @@ function elsey_process_stock_schedule() {
 	die('done');
 }
 
+add_action( 'wp_loaded', 'elsey_schedule_cancelled_not_paid' );
+function elsey_schedule_cancelled_not_paid() {
+	if ($_GET['cancelled_not_paid'])
+	{
+		do_action( 'woocommerce_cancel_unpaid_orders');
+		die('done');
+	}
+}
+
 add_action( 'wp_loaded', 'elsey_restock_cancelled' );
 function elsey_restock_cancelled ()
 {
