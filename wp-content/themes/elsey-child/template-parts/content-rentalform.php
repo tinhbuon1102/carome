@@ -164,7 +164,7 @@ if ( $current_user && $current_user->ID )
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[year2]" class="validate[required] date-field select-year">
+								<select name="contact[year2]" class="validate[required] date-field select-year datetwoyear">
 								<?php foreach ($aTimes['years'] as $year_index => $year) {?>
 								<option value="<?php echo $year_index?>"><?php echo $year?></option>
 								<?php }?>
@@ -173,7 +173,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[month2]" class="validate[required] date-field select-month">
+								<select name="contact[month2]" class="validate[required] date-field select-month datetwomonth">
 								<?php foreach ($aTimes['months'] as $month_index => $month) {?>
 								<option value="<?php echo $month_index?>"><?php echo $month?></option>
 								<?php }?>
@@ -182,7 +182,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[date2]" class="validate[required] date-field select-day">
+								<select name="contact[date2]" class="validate[required] date-field select-day datetwoday">
 								<?php foreach ($aTimes['days'] as $day_index => $day) {?>
 								<option value="<?php echo $day_index?>"><?php echo $day?></option>
 								<?php }?>
@@ -199,7 +199,7 @@ if ( $current_user && $current_user->ID )
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[year3]" class="validate[required] date-field select-year">
+								<select name="contact[year3]" class="validate[required] date-field select-year datethreeyear">
 								<?php foreach ($aTimes['years'] as $year_index => $year) {?>
 								<option value="<?php echo $year_index?>"><?php echo $year?></option>
 								<?php }?>
@@ -208,7 +208,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[month3]" class="validate[required] date-field select-month">
+								<select name="contact[month3]" class="validate[required] date-field select-month datethreemonth">
 								<?php foreach ($aTimes['months'] as $month_index => $month) {?>
 								<option value="<?php echo $month_index?>"><?php echo $month?></option>
 								<?php }?>
@@ -217,7 +217,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[date3]" class="validate[required] date-field select-day">
+								<select name="contact[date3]" class="validate[required] date-field select-day datethreeday">
 								<?php foreach ($aTimes['days'] as $day_index => $day) {?>
 								<option value="<?php echo $day_index?>"><?php echo $day?></option>
 								<?php }?>
@@ -340,15 +340,90 @@ if ( $current_user && $current_user->ID )
 </style>
 <script>
 var months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
-var days = new Array('01','02','03','04','05','06','07','08','09','10','11','12', '13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31');
+var days = ['01','02','03','04','05','06','07','08','09','10','11','12', '13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'];
 var dt = new Date();
-var current_year = dt.getYear();
+var current_year = dt.getFullYear();
 var current_month = dt.getMonth();
 var current_day = new Date().getDate();
 
 jQuery(function($) {
 	$(".dateoneyear").on('change', function() {
-		alert(current_day);
+		var selected_year = $(this).val();
+		/** months */
+		$(".dateonemonth").find('option').remove();
+		if(selected_year == current_year) {
+			for(var m = current_month; m < 12; m++){
+				$(".dateonemonth").append( new Option(months[m],months[m]) );
+			}
+		} else {
+			for(var m = 0; m < 12; m++){
+				$(".dateonemonth").append( new Option(months[m],months[m]) );
+			}
+		}
+		
+		/** days */
+		$(".dateoneday").find('option').remove();
+		if(selected_year == current_year) {
+			for(var m = current_day + 3; m < 31; m++){
+				$(".dateoneday").append( new Option(days[m],days[m]) );
+			}
+		} else {
+			for(var m = 0; m < 31; m++){
+				$(".dateoneday").append( new Option(days[m],days[m]) );
+			}
+		}
+	});
+	$(".datetwoyear").on('change', function() {
+		var selected_year = $(this).val();
+		/** months */
+		$(".datetwomonth").find('option').remove();
+		if(selected_year == current_year) {
+			for(var m = current_month; m < 12; m++){
+				$(".datetwomonth").append( new Option(months[m],months[m]) );
+			}
+		} else {
+			for(var m = 0; m < 12; m++){
+				$(".datetwomonth").append( new Option(months[m],months[m]) );
+			}
+		}
+		
+		/** days */
+		$(".datetwoday").find('option').remove();
+		if(selected_year == current_year) {
+			for(var m = current_day + 3; m < 31; m++){
+				$(".datetwoday").append( new Option(days[m],days[m]) );
+			}
+		} else {
+			for(var m = 0; m < 31; m++){
+				$(".datetwoday").append( new Option(days[m],days[m]) );
+			}
+		}
+	});
+	$(".datethreeyear").on('change', function() {
+		var selected_year = $(this).val();
+		/** months */
+		$(".datethreemonth").find('option').remove();
+		if(selected_year == current_year) {
+			for(var m = current_month; m < 12; m++){
+				$(".datethreemonth").append( new Option(months[m],months[m]) );
+			}
+		} else {
+			for(var m = 0; m < 12; m++){
+				$(".datethreemonth").append( new Option(months[m],months[m]) );
+			}
+		}
+		
+		/** days */
+		$(".datethreeday").find('option').remove();
+		if(selected_year == current_year) {
+			for(var m = current_day + 3; m < 31; m++){
+				$(".datetwoday").append( new Option(days[m],days[m]) );
+			}
+		} else {
+			for(var m = 0; m < 31; m++){
+				$(".datethreeday").append( new Option(days[m],days[m]) );
+			}
+		}
 	});
 });
 </script>
