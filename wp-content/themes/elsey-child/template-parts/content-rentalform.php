@@ -129,7 +129,7 @@ if ( $current_user && $current_user->ID )
 					<div class="row">
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[year1]" class="validate[required] date-field select-year">
+								<select name="contact[year1]" class="validate[required] date-field select-year dateoneyear">
 								<?php foreach ($aTimes['years'] as $year_index => $year) {?>
 								<option value="<?php echo $year_index?>"><?php echo $year?></option>
 								<?php }?>
@@ -138,7 +138,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[month1]" class="validate[required] date-field select-month">
+								<select name="contact[month1]" class="validate[required] date-field select-month dateonemonth">
 								<?php foreach ($aTimes['months'] as $month_index => $month) {?>
 								<option value="<?php echo $month_index?>"><?php echo $month?></option>
 								<?php }?>
@@ -147,7 +147,7 @@ if ( $current_user && $current_user->ID )
 						</div>
 						<div class="col-sm-4">
 							<span class="dropdown">
-								<select name="contact[date1]" class="validate[required] date-field select-day">
+								<select name="contact[date1]" class="validate[required] date-field select-day dateoneday">
 								<?php foreach ($aTimes['days'] as $day_index => $day) {?>
 								<option value="<?php echo $day_index?>"><?php echo $day?></option>
 								<?php }?>
@@ -338,3 +338,17 @@ if ( $current_user && $current_user->ID )
 <style>
 .loadingoverlay {z-index: 9999999999;}
 </style>
+<script>
+var months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+var days = new Array('01','02','03','04','05','06','07','08','09','10','11','12', '13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31');
+var dt = new Date();
+var current_year = dt.getYear();
+var current_month = dt.getMonth();
+var current_day = new Date().getDate();
+
+jQuery(function($) {
+	$(".dateoneyear").on('change', function() {
+		alert(current_day);
+	});
+});
+</script>

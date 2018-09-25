@@ -257,11 +257,12 @@ function getRetailYearMonthDay()
 	$aTimes['days'][''] = __('日を選択', 'elsey');
 	
 	$max_year = date("Y", strtotime("+6 months"));
-	$max_month = date("m", strtotime("+6 months"));
+	$max_month = 12; //date("m", strtotime("+10 months"));
 	
 	$min_year = date('Y', strtotime("+7 days"));
 	$min_month = date('m', strtotime("+7 days"));
-	$min_day = date('d', strtotime("+7 days"));
+	$min_month = date('m');
+	$min_day = date('d', strtotime("+4 days"));
 	
 	$current_month = date('m');
 	$current_day = date('d');
@@ -281,7 +282,7 @@ function getRetailYearMonthDay()
 		$aTimes['months'][$i] = $i;
 	}
 
-	for($i = 1; $i <= 31; $i++)
+	for($i = $min_day; $i <= 31; $i++)
 	{
 		$i = strlen($i) == 1 ? '0' . $i : $i;
 		$aTimes['days'][$i] = $i;
@@ -289,6 +290,9 @@ function getRetailYearMonthDay()
 	$aTimes['min_year'] = $min_year;
 	$aTimes['min_month'] = $min_month;
 	$aTimes['min_day'] = $min_day;
+	/*echo '<pre>';
+	print_r($aTimes);
+	exit;*/
 	return $aTimes;
 }
 /*remove country field from checkout*/
