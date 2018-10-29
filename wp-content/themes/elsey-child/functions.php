@@ -2594,7 +2594,7 @@ function elsey_woocommerce_after_shipping_price_custom()
 	}
 }
 
-add_action( 'woocommerce_email_before_order_table', 'elsey_woocommerce_email_before_order_table_show_both_order_total', 1, 3 );
+add_action( 'woocommerce_email_before_order_table', 'elsey_woocommerce_email_before_order_table_show_both_order_total', 1, 4 );
 function elsey_woocommerce_email_before_order_table_show_both_order_total ($order, $sent_to_admin, $plain_text = '', $email = '')
 {
 	$second_order_id = get_post_meta($order->get_id(), '_wc_pre_orders_with_normal', true);
