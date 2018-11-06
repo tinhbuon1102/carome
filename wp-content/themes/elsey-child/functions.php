@@ -1,5 +1,16 @@
 <?php
 define('CONTACT_EMAIL_ADMIN_WITH_FILE', 'return@carome.net');
+define('BOOKING_FORM_ID', 13623);
+
+//@TODO, uncomment below
+// define('DISTANCE_ALLOW_COUPON', 200);
+// define('DATE_EXPIRE_COUPON', '2018-11-11 20:00:00');
+// define('DATE_START_COUPON', '2018-11-10 12:00:00'); 
+
+define('DISTANCE_ALLOW_COUPON', 11111200);
+define('DATE_START_COUPON', '2018-10-10 12:00:00');
+define('DATE_EXPIRE_COUPON', '2018-12-11 20:00:00');
+
 /**
  * Enqueues child theme stylesheet, loading first the parent theme stylesheet.
  */
@@ -951,13 +962,31 @@ remove_all_filters('woocommerce_cart_totals_order_total_html');
 add_filter( 'woocommerce_cart_totals_order_total_html', 'wc_cart_totals_order_total_html1' );
 
 
+function get_coupons_fields()
+{
+	$field_group_fields = acf_get_fields(BOOKING_FORM_ID);
+	return $field_group_fields;
+}
+
+function get_current_event_coupon()
+{
+	$coupons_fields = get_coupons_fields();
+	foreach ($coupons_fields as $coupon_field)
+	{
+		if ($coupon_field['name'] == 'current_event_coupon')
+		{
+			return $coupon_field['default_value'];
+			break;
+		}
+	}
+}
+
 add_action('init', 'elsey_init', 1);
 function elsey_init() {
 	if (!session_id())
 	{
-			session_start();
+		session_start();
 	}
-	$_SESSION['allow_private_coupon'] = 1;
 	
 	remove_shortcode('elsey_product');
 	require_once get_stylesheet_directory() . '/override/plugins/elsey-core/visual-composer/shortcodes/product/product.php';
@@ -1505,6 +1534,28 @@ function elsey_restrict_manage_posts(){
 		    </select>
 		</span>
 		
+	    <span id="event_coupon_wraper">
+		    <select name="event_coupon" id="event_coupon">
+		    	<option value=""><?php _e('Filter Event Coupon', 'elsey'); ?></option>
+		    	<?php 
+		    	$coupons_fields = get_coupons_fields();
+		    	foreach ($coupons_fields as $coupon_field)
+		    	{
+		    		if ($coupon_field['name'] == 'coupons_code')
+		    		{
+		    			foreach ($coupon_field['sub_fields'] as $coupon)
+		    			{
+		    			?>
+		    				<option value="<?php echo $coupon['name']?>" <?php echo (isset($_REQUEST['event_coupon']) && $_REQUEST['event_coupon'] == $coupon['name']) ? 'selected' : '';?>><?php echo $coupon['label']; ?></option>
+		    			<?php	
+		    			}
+		    			break;
+		    		}
+		    	}
+		    	?>
+		    </select>
+		</span>
+		
 		<?php if (false) { ?> 
 		<span id="epsilon_type_wrap">
 		    <select name="epsilon_type" id="epsilon_type">
@@ -1532,6 +1583,16 @@ function else_parse_query ( $query )
 			'key' => 'woe_order_exported',
 			'value' => 1,
 			'compare' => $_GET['woe_order_exported'] ? '=' : 'NOT EXISTS'
+		);
+	}
+	
+	if ( 'shop_order' == $_GET['post_type'] && is_admin() && $pagenow == 'edit.php' && isset($_GET['event_coupon']) && $_GET['event_coupon'] !== '' )
+	{
+		$query->query_vars['meta_query'] = isset($query->query_vars['meta_query']) ? $query->query_vars['meta_query'] : array();
+		$query->query_vars['meta_query'][] = array(
+			'key' => 'use_event_store_coupon',
+			'value' => 1,
+			'compare' => $_GET['event_coupon'] ? '=' : 'NOT EXISTS'
 		);
 	}
 	
@@ -2842,4 +2903,213 @@ function else_add_schedule_for_admin( $input ) {
 		}
 	}
 	return $input;
+}
+
+add_filter('woocommerce_package_rates', 'elsey_shipping_class_null_shipping_costs', 10, 2);
+function elsey_shipping_class_null_shipping_costs( $rates, $package ){
+	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
+		return $rates;
+	
+		$free_shipping = false;
+		if (!empty($package['applied_coupons']))
+		{
+			foreach ($package['applied_coupons'] as $applied_coupon)
+			{
+				if ($applied_coupon == get_current_event_coupon())
+				{
+					$free_shipping = true;
+				}
+			}
+		}
+		
+		// Set shipping costs to zero if use coupon freeshipping
+		if( $free_shipping ){
+			foreach ( $rates as $rate_key => $rate ){
+				$has_taxes = false;
+				$taxes = array();
+				// Targetting "flat rate" and local pickup
+// 				if( 'flat_rate' === $rate->method_id || 'local_pickup' === $rate->method_id  ){
+					// Set the cost to zero
+					$rates[$rate_key]->cost = 0;
+					
+					// Taxes rate cost (if enabled)
+					foreach ($rates[$rate_key]->taxes as $key => $tax){
+						if( $rates[$rate_key]->taxes[$key] > 0 ){
+							$has_taxes = true;
+							// Set taxes cost to zero
+							$taxes[$key] = 0;
+						}
+					}
+					if( $has_taxes )
+						$rates[$rate_key]->taxes = $taxes;
+// 				}
+			}
+		}
+		return $rates;
+}
+
+add_action( 'woocommerce_add_to_cart', 'elsey_woocommerce_add_to_cart', 1000, 6 );
+function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $variation_id = 0, $variation = array(), $cart_item_data = array())
+{
+	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
+	{
+		return '';
+	}
+	
+	if (!isset($_SESSION['allow_private_coupon']) || !$_SESSION['allow_private_coupon'])
+	{
+		return '';
+	}
+
+	//geolocation is valid
+	$coupon = new WC_Coupon(get_current_event_coupon());
+	if ($coupon->get_date_created())
+	{
+		$packages = WC()->cart->get_shipping_packages();
+		// CHeck coupon is added or not
+		$isAddedCoupon = false;
+		foreach ($packages as $package)
+		{
+			foreach ($package['applied_coupons'] as $applied_coupon)
+			{
+				if ($applied_coupon == get_current_event_coupon())
+				{
+					$isAddedCoupon = true;
+				}
+			}
+		}
+		
+		$todayTimeStamp = current_time('timestamp');
+		$coupon_expire = $coupon->get_date_expires();
+		if ($coupon_expire->getTimestamp() >= $todayTimeStamp && !$isAddedCoupon)
+		{
+			WC()->cart->add_discount( get_current_event_coupon() );
+		}
+	}
+}
+
+function checkGeoLocationNearStore()
+{
+	$today = current_time('mysql');
+	if ($today <= DATE_START_COUPON || $today >= DATE_EXPIRE_COUPON)
+	{
+		unset($_SESSION['allow_private_coupon']);
+		return '';
+	}
+	$shopLocation = array('lat' => '35.6606194', 'long' => '139.7119138,17');
+	?>
+	<script src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry&key=AIzaSyC0zkZJ3sHFHJgzUsAteOnObvf3ouAbc68" type="text/javascript"></script>
+	<script type="text/javascript">
+	jQuery(function($){
+		function getMyPlace()
+		{
+			var id, options;
+			if (!navigator.geolocation){//Geolocation apiがサポートされていない場合
+			    //alert('<?php __('Your browser not support Geolocation, Please use Google Chrome or Safari.', 'elsey')?>');
+			    return;
+			  }
+			
+		
+			function calcDistance (fromLat, fromLng, toLat, toLng) {
+			      return google.maps.geometry.spherical.computeDistanceBetween(
+			        new google.maps.LatLng(fromLat, fromLng), new google.maps.LatLng(toLat, toLng));
+			}
+			
+			function success(position) {
+				  var crd = position.coords;
+				  var distance = calcDistance (crd.latitude, crd.longitude, <?php echo $shopLocation['lat']?>, <?php echo $shopLocation['long']?>);
+				  $.ajax({
+				        type: "post",
+				        url: woocommerce_params.ajax_url,
+				        crossDomain: false,
+				        dataType : "html",
+				        scriptCharset: 'utf-8',
+				        data: {action: 'allow_use_free_shipping_coupon', distance: distance}
+				    }).done(function(data){
+				    	//alert ('<?php echo __('You have free shipping coupon, shopping to use now !', 'elsey')?>');
+				    });
+				    
+				    navigator.geolocation.clearWatch(id);
+				}
+		
+			function error(err) {
+			  alert('ERROR(' + err.code + '): ' + err.message + ', Please allow us to retrieve your location');
+			}
+		
+			options = {
+			  enableHighAccuracy: true,
+			  timeout: 5000,
+			  maximumAge: 0
+			};
+		
+			id = navigator.geolocation.watchPosition(success, error, options);
+		}
+		
+		getMyPlace();
+	});
+	</script>
+<?php
+}
+add_action( 'init', 'elsey_check_private_coupon' );
+function elsey_check_private_coupon()
+{
+	$today = current_time('mysql');
+	if ($today <= DATE_START_COUPON || $today >= DATE_EXPIRE_COUPON)
+	{
+		zoa_remove_private_coupon ();
+	}
+}
+
+function zoa_remove_private_coupon ()
+{
+	// Remove cart coupon
+	$packages = WC()->cart->get_shipping_packages();
+	foreach ($packages as $package)
+	{
+		foreach ($package['applied_coupons'] as $applied_coupon)
+		{
+			if ($applied_coupon == get_current_event_coupon())
+			{
+				WC()->cart->remove_coupon( get_current_event_coupon() );
+			}
+		}
+	}
+	
+	$_SESSION['allow_private_coupon'] = null;
+	unset($_SESSION['allow_private_coupon']);
+}
+
+add_action( 'wp_ajax_nopriv_allow_use_free_shipping_coupon', 'elsey_allow_use_free_shipping_coupon' );
+add_action( 'wp_ajax_allow_use_free_shipping_coupon', 'elsey_allow_use_free_shipping_coupon' );
+function elsey_allow_use_free_shipping_coupon()
+{
+	if(defined( 'DOING_AJAX' ))
+	{
+		$today = current_time('mysql');
+		if ($_POST['distance'] <= DISTANCE_ALLOW_COUPON && $today >= DATE_START_COUPON || $today <= DATE_EXPIRE_COUPON)
+		{
+			$_SESSION['allow_private_coupon'] = 1;
+		}else {
+			zoa_remove_private_coupon();
+		}
+	}
+	exit();
+}
+
+add_action( 'woocommerce_checkout_update_order_meta', 'elsey_woocommerce_checkout_update_order_meta' );
+function elsey_woocommerce_checkout_update_order_meta( $order_id )
+{
+	$order = new WC_Order($order_id);
+	$coupons = $order->get_used_coupons();
+	if (!empty($coupons))
+	{
+		foreach ($coupons as $coupon)
+		{
+			if ($coupon == get_current_event_coupon())
+			{
+				update_post_meta($order_id, 'use_event_store_coupon', $coupon);
+				break;
+			}
+		}
+	}
 }
