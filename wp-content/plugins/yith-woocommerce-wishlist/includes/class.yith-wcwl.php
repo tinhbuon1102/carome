@@ -59,6 +59,14 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
         public $messages;
 
         /**
+         * Query string parameter used to generate Wishlist urls
+         *
+         * @var string
+         * @since 2.1.2
+         */
+        public $wishlist_param = 'wishlist-action';
+
+        /**
          * Returns single instance of the class
          *
          * @return \YITH_WCWL
@@ -454,7 +462,7 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
 			    'product_id' => false,
 			    'wishlist_id' => false, //wishlist_id for a specific wishlist, false for default, or all for any wishlist
 			    'wishlist_token' => false,
-			    'wishlist_visibility' => 'all', // all, visible, public, shared, private
+                'wishlist_visibility' => apply_filters( 'yith_wcwl_wishlist_visibility_string_value', 'all'), // all, visible, public, shared, private
 			    'is_default' => false,
 			    'id' => false, // only for table select
 			    'limit' => false,
@@ -860,7 +868,7 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
                 'wishlist_slug' => false,
                 'wishlist_name' => false,
                 'wishlist_token' => false,
-                'wishlist_visibility' => 'all', // all, visible, public, shared, private
+                'wishlist_visibility' => apply_filters( 'yith_wcwl_wishlist_visibility_string_value', 'all'), // all, visible, public, shared, private
                 'user_search' => false,
                 'is_default' => false,
                 'orderby' => 'ID',
@@ -1160,6 +1168,10 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
          */
         public function add_rewrite_rules() {
             global $wp_query;
+
+            // filter wishlist param
+	        $this->wishlist_param = apply_filters( 'yith_wcwl_wishlist_param', $this->wishlist_param );
+
             $wishlist_page_id = isset( $_POST['yith_wcwl_wishlist_page_id'] ) ? $_POST['yith_wcwl_wishlist_page_id'] : get_option( 'yith_wcwl_wishlist_page_id' );
 	        $wishlist_page_id = yith_wcwl_object_id( $wishlist_page_id );
 
@@ -1181,8 +1193,8 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
             $regex_paged = '(([^/]+/)*' . $wishlist_page_slug . ')(/(.*))?/page/([0-9]{1,})/?$';
             $regex_simple = '(([^/]+/)*' . $wishlist_page_slug . ')(/(.*))?/?$';
 
-            add_rewrite_rule( $regex_paged, 'index.php?pagename=$matches[1]&wishlist-action=$matches[4]&paged=$matches[5]', 'top' );
-            add_rewrite_rule( $regex_simple, 'index.php?pagename=$matches[1]&wishlist-action=$matches[4]', 'top' );
+            add_rewrite_rule( $regex_paged, 'index.php?pagename=$matches[1]&' . $this->wishlist_param . '=$matches[4]&paged=$matches[5]', 'top' );
+            add_rewrite_rule( $regex_simple, 'index.php?pagename=$matches[1]&' . $this->wishlist_param . '=$matches[4]', 'top' );
 
             $rewrite_rules = get_option( 'rewrite_rules' );
 
@@ -1199,7 +1211,7 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
          * @since 2.0.0
          */
         public function add_public_query_var( $public_var ) {
-            $public_var[] = 'wishlist-action';
+            $public_var[] = $this->wishlist_param;
             $public_var[] = 'wishlist_id';
 
             return $public_var;
@@ -1246,7 +1258,7 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
                 $params = array();
 
                 if( ! empty( $data ) ){
-                    $params['wishlist-action'] = $view;
+                    $params[ $this->wishlist_param ] = $view;
 
                     if( $view == 'view' ){
                         $params['wishlist_id'] = $data;
@@ -1256,7 +1268,7 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
                     }
                 }
                 else{
-                    $params['wishlist-action'] = $view;
+                    $params[ $this->wishlist_param ] = $view;
                 }
 
                 $base_url = add_query_arg( $params, $base_url );

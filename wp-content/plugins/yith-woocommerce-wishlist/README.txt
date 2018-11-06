@@ -3,13 +3,13 @@
 Contributors: yithemes
 Tags: wishlist, woocommerce, products, yit, e-commerce, shop, ecommerce wishlist, yith, woocommerce wishlist, shop wishlist
 Requires at least: 4.0
-Tested up to: 4.9.6
-Stable tag: 2.2.3
+Tested up to: 4.9.8
+Stable tag: 2.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 YITH WooCommerce Wishlist add all Wishlist features to your website. Needs WooCommerce to work.
-WooCommerce 3.4.x compatible.
+WooCommerce 3.5.x compatible.
 
 
 == Description ==
@@ -108,6 +108,25 @@ you should ask theme developers to update custom templates and replace the old t
 4. The Wishlist settings page
 
 == Changelog ==
+
+= 2.2.5 - Released: Oct, 24 - 2018 =
+
+* New: updated plugin framework
+
+= 2.2.4 - Released: Oct, 04 - 2018 =
+
+* New: added support to WooCoommerce 3.5
+* New: added support to WordPress 4.9.8
+* New: updated plugin framework
+* New: added method that returns localization variables
+* Tweak: type attribute from <script> tag
+* Update: Spanish language
+* Update: Italian language
+* Dev: added new filter yith_wcwl_localize_script to let third party dev filter localization variables
+* Dev: added new filter yith_wcwl_share_conditions to display the share buttons for no logged users
+* Dev: added new filter yith_wcwl_set_cookie to let third party code skip cookie saving
+* Dev: added new filter yith_wcwl_wishlist_param to change query-string param
+* Dev: added new filter yith_wcwl_remove_product_wishlist_message_title
 
 = 2.2.3 - Released: Jul, 26 - 2018 =
 
@@ -469,14 +488,17 @@ Full documentation is available [here](http://yithemes.com/docs-plugins/yith-woo
 
 == Upgrade notice ==
 
-= 2.2.2 - Released: May, 28 - 2018 =
+= 2.2.4 - Released: Oct, 04 - 2018 =
 
-* New: WooCommerce 3.4 compatibility
-* New: WordPress 4.9.6 compatibility
+* New: added support to WooCoommerce 3.5
+* New: added support to WordPress 4.9.8
 * New: updated plugin framework
-* New: GDPR compliance
-* Tweak: replaced create_function with a proper class method, to improve compatibility with PHP 7.2 and avoid warnings
-* Fix: js error when switching from Premium version to Free
-* Fix: preventing add_rewrite_rule when WPML is active, to avoid possible Internal Server Error (thanks to Adri & Bruno)
-* Fix: icon replacement not working on variable Add to Cart
-* Fix: preventing warning "Illegal string offset" when get_availability() returns empty string instead of array
+* New: added method that returns localization variables
+* Tweak: type attribute from <script> tag
+* Update: Spanish language
+* Update: Italian language
+* Dev: added new filter yith_wcwl_localize_script to let third party dev filter localization variables
+* Dev: added new filter yith_wcwl_share_conditions to display the share buttons for no logged users
+* Dev: added new filter yith_wcwl_set_cookie to let third party code skip cookie saving
+* Dev: added new filter yith_wcwl_wishlist_param to change query-string param
+* Dev: added new filter yith_wcwl_remove_product_wishlist_message_title

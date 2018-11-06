@@ -878,6 +878,14 @@ function file_remove_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
 
+function custom_styles() {
+	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css', array('elsey-child-style') );
+	if (is_product_category('accessories')) {
+		wp_enqueue_style('new-style');
+	}
+}
+add_action('wp_enqueue_scripts', 'custom_styles');
+
 function hide_plugin_order_by_product ()
 {
 	global $wp_list_table;
@@ -945,6 +953,12 @@ add_filter( 'woocommerce_cart_totals_order_total_html', 'wc_cart_totals_order_to
 
 add_action('init', 'elsey_init', 1);
 function elsey_init() {
+	if (!session_id())
+	{
+			session_start();
+	}
+	$_SESSION['allow_private_coupon'] = 1;
+	
 	remove_shortcode('elsey_product');
 	require_once get_stylesheet_directory() . '/override/plugins/elsey-core/visual-composer/shortcodes/product/product.php';
 }

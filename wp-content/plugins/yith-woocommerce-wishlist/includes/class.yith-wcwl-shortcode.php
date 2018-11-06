@@ -28,7 +28,7 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 				'per_page' => 5,
 				'pagination' => 'no',
 				'wishlist_id' => false,
-				'action_params' => get_query_var( 'wishlist-action', false )
+				'action_params' => get_query_var( YITH_WCWL()->wishlist_param, false )
 			), $atts );
 
 			$available_views = apply_filters( 'yith_wcwl_available_wishlist_views', array( 'view', 'user' ) );

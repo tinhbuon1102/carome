@@ -130,7 +130,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 	    ob_start(); ?>
 
       <div class="woocommerce els-prsc-products <?php echo esc_attr($pr_styled_class.' '.$class); ?>">
-        <div class="els-shop-wrapper <?php echo esc_attr($pr_col_class.' '.$pr_pagtn_class); ?>">
+        <div class="els-shop-wrapper test <?php echo esc_attr($pr_col_class.' '.$pr_pagtn_class); ?>">
           
           <?php if ($pr_result || $pr_sort_by) { ?>
             <div class="els-shop-filter els-prsc-shop-filter row">

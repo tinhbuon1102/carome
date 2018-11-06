@@ -291,9 +291,12 @@ function seed_cspv5_emaillist_convertkit_add_subscriber($args){
                 }
 
                 if(!empty($formId)){
-                    $api = new seed_cspv5_ConvertKitAPI($apikey);
-                    $options = array('email'=>$email,'fname'=>$fname);
-                    $response = $api->form_subscribe($formId, $options);
+
+                    $url = "https://api.convertkit.com/v3/forms/$formId/subscribe";
+                    $headers = array("Content-Type" => "application/json; charset=utf-8");
+                    $body =  json_encode(array('api_key'=>$apikey,'email'=>$email,'first_name'=>$fname ));
+                    $args = array('body' => $body, 'headers' => $headers);
+                    $response = wp_remote_post( $url, $args );
                 }
 
                 if(isset($_REQUEST['debug']) && $_REQUEST['debug'] == 'true'){

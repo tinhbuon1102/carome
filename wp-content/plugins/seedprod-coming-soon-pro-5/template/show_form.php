@@ -235,8 +235,8 @@ function send_request(){
 		        	jQuery( "#cspio-form" ).replaceWith( response.html ).hide().fadeIn();
 		        });
 
-		        // Set cookie if new user and user comes back
-		        jQuery.cookie('email', jQuery("#cspio-email").val(), { expires: 365 } );
+				// Set cookie if new user and user comes back
+				csp_cookies.set('email', jQuery("#cspio-email").val(), { expires: 365 });
 	    	}
 
 	    	// Validation Error

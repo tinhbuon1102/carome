@@ -31,7 +31,7 @@ if( ! class_exists( 'YITH_WCWL_UI' ) ) {
             _deprecated_function( 'popup_message', '2.0.0', 'add-to-wishlist-button.php template' );
             ob_start() ?>
 
-            <script type="text/javascript">
+            <script>
                 if( !jQuery( '#yith-wcwl-popup-message' ).length ) {
                     jQuery( 'body' ).prepend(
                         '<div id="yith-wcwl-popup-message" style="display:none;">' +

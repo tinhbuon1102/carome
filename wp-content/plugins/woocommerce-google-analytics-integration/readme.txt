@@ -1,9 +1,9 @@
 === WooCommerce Google Analytics Integration ===
-Contributors: woocommerce, claudiosanches, bor0, royho, laurendavissmith001
+Contributors: woocommerce, claudiosanches, bor0, royho, laurendavissmith001, c-shultz
 Tags: woocommerce, google analytics
 Requires at least: 3.8
 Tested up to: 4.9
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -58,7 +58,7 @@ Do you have SUHOSIN installed/active on your server? If so, the default index le
 
 Include the following html code snippet within the page where you want to have the opt-out, e.g. the your Imprint our Data Privacy page:
 
-https://gist.github.com/claudiosmweb/b12d15b245be21c92ebc
+https://gist.github.com/claudiosanches/b12d15b245be21c92ebc
 
 Exact wording depends on the national data privacy laws and should be adjusted.
 
@@ -67,6 +67,10 @@ Exact wording depends on the national data privacy laws and should be adjusted.
 1. Google Analytics Integration Settings.
 
 == Changelog ==
+
+= 1.4.5 - 16/10/2018 =
+* Tweak - Mention Google Analytics Pro in certain cases.
+* Tweak - WC 3.5 compatibility.
 
 = 1.4.4 - 20/03/2018 =
 * Fix   - WC30 compatibility error when using deprecated get_product_from_item method.

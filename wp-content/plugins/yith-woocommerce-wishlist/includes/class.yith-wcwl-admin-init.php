@@ -50,9 +50,9 @@ if ( ! class_exists( 'YITH_WCWL_Admin_Init' ) ) {
 		 * @access public
 		 * @since 1.0.0
 		 */
-		public $doc_url = 'http://yithemes.com/docs-plugins/yith-woocommerce-wishlist/';
-		public $premium_landing_url = 'http://yithemes.com/themes/plugins/yith-woocommerce-wishlist/';
-		public $live_demo_url = 'http://plugins.yithemes.com/yith-woocommerce-wishlist/';
+		public $doc_url = 'https://yithemes.com/docs-plugins/yith-woocommerce-wishlist/';
+		public $premium_landing_url = 'https://yithemes.com/themes/plugins/yith-woocommerce-wishlist/';
+		public $live_demo_url = 'https://plugins.yithemes.com/yith-woocommerce-wishlist/';
 
 		/**
 		 * Plugin options
@@ -119,7 +119,7 @@ if ( ! class_exists( 'YITH_WCWL_Admin_Init' ) ) {
 
 			// add plugin links
 			add_filter( 'plugin_action_links_' . plugin_basename( YITH_WCWL_DIR . 'init.php' ), array( $this, 'action_links' ) );
-			add_filter( 'plugin_row_meta', array( $this, 'add_plugin_meta' ), 10, 2 );
+			add_filter( 'yith_show_plugin_row_meta', array( $this, 'add_plugin_meta' ), 10, 5 );
 
 			// saves panel options
             add_filter( 'woocommerce_admin_settings_sanitize_option_yith_wcwl_color_panel', array( $this, 'update_color_options' ) );
@@ -254,16 +254,8 @@ if ( ! class_exists( 'YITH_WCWL_Admin_Init' ) ) {
 		 * @return array
 		 */
 		public function action_links( $links ) {
-			$plugin_links = array(
-				'<a href="' . admin_url( 'admin.php?page=yith_wcwl_panel&tab=settings' ) . '">' . __( 'Settings', 'yith-woocommerce-wishlist' ) . '</a>'
-			);
-
-			if( ! function_exists( 'YITH_WCWL_Premium' ) ){
-				$plugin_links[] = '<a target="_blank" href="' . $this->get_premium_landing_uri() . '">' . __( 'Premium Version', 'yith-woocommerce-wishlist' ) . '</a>';
-				$plugin_links[] = '<a target="_blank" href="' . $this->live_demo_url . '">' . __( 'Live Demo', 'yith-woocommerce-wishlist' ) . '</a>';
-			}
-
-			return array_merge( $links, $plugin_links );
+			$links = yith_add_action_links( $links, 'yith_wcwl_panel', defined( 'YITH_WCWL_PREMIUM' ) );
+			return $links;
 		}
 
 		/**
@@ -274,28 +266,24 @@ if ( ! class_exists( 'YITH_WCWL_Admin_Init' ) ) {
 		 * @return array
 		 * @since 2.0.0
 		 */
-		public function add_plugin_meta( $plugin_meta, $plugin_file ){
-			global $woocommerce;
+		public function add_plugin_meta( $new_row_meta_args, $plugin_meta, $plugin_file, $plugin_data, $status, $init_file = 'YITH_WCWL_INIT' ) {
+			if ( defined( $init_file ) && constant( $init_file ) == $plugin_file ) {
+				$new_row_meta_args['slug']      = 'yith-woocommerce-wishlist';
 
-			if ( $plugin_file == plugin_basename( YITH_WCWL_DIR . 'init.php' ) ) {
-
-				// outdated wc alert
-
-				if( version_compare( preg_replace( '/-beta-([0-9]+)/', '', $woocommerce->version ), '2.5', '<' ) ){
-					$woocommerce_file = $woocommerce->plugin_path;
-					if ( ! is_multisite() && current_user_can( 'delete_plugins' ) ) {
-						$plugin_meta['outdated_wc_alert'] = '<a class="outdated-wc-alert" style="color: red" href="' . wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' ) . $woocommerce_file, 'upgrade-plugin_' . $woocommerce_file ) . '">' . __( 'WARNING: This plugin requires at least WooCommerce 2.2! Please, use this link to update it.', 'yith-woocommerce-wishlist' ) . '</a>';
-					}
-					else{
-						$plugin_meta['outdated_wc_alert'] = '<span class="outdated-wc-alert" style="color: red">' . __( 'WARNING: This plugin requires at least WooCommerce 2.2!', 'yith-woocommerce-wishlist' ) . '</span>';
-					}
-				}
-
-				// documentation link
-				$plugin_meta['documentation'] = '<a target="_blank" href="' . $this->doc_url . '">' . __( 'Plugin Documentation', 'yith-woocommerce-wishlist' ) . '</a>';
 			}
 
-			return $plugin_meta;
+			if ( defined( 'YITH_WCAF_INIT' ) && YITH_WCAF_INIT == $plugin_file ) {
+				$new_row_meta_args['support'] = array(
+					'url' => $this->doc_url
+				);
+			}
+
+			if ( defined( 'YITH_WCWL_PREMIUM' ) ) {
+				$new_row_meta_args['is_premium'] = true;
+
+			}
+
+			return $new_row_meta_args;
 		}
 
 		/**
@@ -1030,7 +1018,7 @@ if ( ! class_exists( 'YITH_WCWL_Admin_Init' ) ) {
 					'name'    => __( 'Upgrade to the PREMIUM VERSION', 'yith-woocommerce-wishlist' ),
 					'type'    => 'videobox',
 					'default' => array(
-						'plugin_name'               => __( 'YITH WooCommerce Wishlist', 'yith-woocommerce-wishlist' ),
+						'plugin_name'               => 'YITH WooCommerce Wishlist',
 						'title_first_column'        => __( 'Discover the Advanced Features', 'yith-woocommerce-wishlist' ),
 						'description_first_column'  => __( 'Upgrade to the PREMIUM VERSION of YITH WOOCOMMERCE WISHLIST to benefit from all features!', 'yith-woocommerce-wishlist' ),
 						'video'                     => array(
@@ -1491,7 +1479,7 @@ if ( ! class_exists( 'YITH_WCWL_Admin_Init' ) ) {
 				'menu_title'    => __( 'Wishlist', 'yith-woocommerce-wishlist' ),
 				'capability'    => apply_filters( 'yith_wcwl_settings_panel_capability', 'manage_options' ),
 				'parent'        => '',
-				'parent_page'   => 'yit_plugin_panel',
+				'parent_page'   => 'yith_plugin_panel',
 				'page'          => 'yith_wcwl_panel',
 				'admin-tabs'    => $this->available_tabs,
 				'options-path'  => YITH_WCWL_DIR . 'plugin-options'

@@ -247,6 +247,18 @@ class WCML_Compatibility {
 			$this->relevanssi->add_hooks();
 		}
 
+		// Woo Variations Table
+		if ( defined( 'WOO_VARIATIONS_TABLE_VERSION') ) {
+			$this->wpb_woo_var_table = new WCML_Woo_Var_Table( $this->sitepress->get_current_language() );
+			$this->wpb_woo_var_table->add_hooks();
+		}
+
+		// LiteSpeed Cache
+		if ( class_exists( 'LiteSpeed_Cache' ) ) {
+			$this->litespeed_cache = new WCML_LiteSpeed_Cache();
+			$this->litespeed_cache->add_hooks();
+		}
+
 	}
 
 }

@@ -149,7 +149,7 @@ if ( ! defined( 'YITH_WCWL' ) ) {
                         <?php if( $is_user_owner ): ?>
                         <td class="product-remove">
                             <div>
-                                <a href="<?php echo esc_url( add_query_arg( 'remove_from_wishlist', $item['prod_id'] ) ) ?>" class="remove remove_from_wishlist" title="<?php _e( 'Remove this product', 'yith-woocommerce-wishlist' ) ?>">&times;</a>
+                                <a href="<?php echo esc_url( add_query_arg( 'remove_from_wishlist', $item['prod_id'] ) ) ?>" class="remove remove_from_wishlist" title="<?php echo apply_filters( 'yith_wcwl_remove_product_wishlist_message_title',__( 'Remove this product', 'yith-woocommerce-wishlist' )); ?>">&times;</a>
                             </div>
                         </td>
                         <?php endif; ?>
@@ -229,7 +229,7 @@ if ( ! defined( 'YITH_WCWL' ) ) {
 
 	                        <!-- Remove from wishlist -->
 	                        <?php if( $is_user_owner && $repeat_remove_button ): ?>
-                                <a href="<?php echo esc_url( add_query_arg( 'remove_from_wishlist', $item['prod_id'] ) ) ?>" class="remove_from_wishlist button" title="<?php _e( 'Remove this product', 'yith-woocommerce-wishlist' ) ?>"><?php _e( 'Remove', 'yith-woocommerce-wishlist' ) ?></a>
+                                <a href="<?php echo esc_url( add_query_arg( 'remove_from_wishlist', $item['prod_id'] ) ) ?>" class="remove_from_wishlist button" title="<?php echo apply_filters( 'yith_wcwl_remove_product_wishlist_message_title',__( 'Remove this product', 'yith-woocommerce-wishlist' )); ?>"><?php _e( 'Remove', 'yith-woocommerce-wishlist' ) ?></a>
                             <?php endif; ?>
                         </td>
 	                <?php endif; ?>
@@ -272,7 +272,7 @@ if ( ! defined( 'YITH_WCWL' ) ) {
 		        <?php
 		        do_action( 'yith_wcwl_before_wishlist_share', $wishlist_meta );
 
-		        if ( is_user_logged_in() && $is_user_owner && ! $is_private && $share_enabled ){
+		        if ( apply_filters( 'yith_wcwl_share_conditions', is_user_logged_in() && $is_user_owner && ! $is_private && $share_enabled, $share_enabled, $is_private ) ){
 			        yith_wcwl_get_template( 'share.php', $share_atts );
 		        }
 

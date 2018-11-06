@@ -79,13 +79,14 @@ if ( is_product() ) {
 	$maincontent_class = 'max-width--site';
 }else if ( is_page('kimono-rental') ) {
 	$maincontent_class = 'max-width--large main-con';
+} elseif (is_product_category('accessories')) {
+	$maincontent_class = 'max-width--site carome-event--site';
 } else {
 	$maincontent_class = 'max-width--site';
 }
 if($elsey_titlebar_layout === 'vertical') { 
 
 	if ($elsey_titlebar_title_text || $elsey_titlebar_breadcrumb) { 
-		if ( !is_page('kimono-rental') ) {
 
 		if ($elsey_titlebar_parallax) {
 			echo '<div data-stellar-background-ratio="0.5" data-stellar-vertical-offset="" class="els-titlebar-bg" style="background-attachment: fixed;">';
@@ -115,7 +116,6 @@ if($elsey_titlebar_layout === 'vertical') {
 				echo '</div></div>';
 			echo '</div>';
 		echo '</div>';
-	}
   }
 
 } else {

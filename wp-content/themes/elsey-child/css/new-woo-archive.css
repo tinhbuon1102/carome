@@ -1,0 +1,16 @@
+/* CSS Document */
+.carome-event--site.gutter-padding--full {
+    padding: 0;
+}
+.els-container-wrap.carome-event-shop .els-shop-content.row {
+	
+}
+.woocommerce .els-shop-wrapper.woo-col-list ul.products li {
+	padding: 0 1px;
+    margin-right: 0 !important;
+}
+@media only screen and (min-width: 48em) {
+	.woocommerce .els-shop-wrapper.woo-col-list ul.products li {
+    width: 33.333%;
+	}
+}

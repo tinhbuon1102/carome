@@ -5,7 +5,7 @@ Tags: mail, email, log, logging, debug, list, store, collect, view
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 3.0
-Tested up to: 4.9.6
+Tested up to: 4.9.8
 Stable tag: 1.8.4
 
 Logs each email sent by WordPress.
@@ -41,7 +41,7 @@ I recommend the following plugins if you want to send mails via SMTP because the
 == Frequently Asked Questions ==
 = How do I know the mail was sent? =
 If there is no error logged chances are high the mail was sent. There are plugins that overwrite (do not customize) the default mailing mechanism of WordPress - they maybe do not inform about failure so it can't be logged by WP Mail Logging.
-= How do I know the wail was delivered? =
+= How do I know the mail was delivered? =
 The logged email has been sent by WordPress but please note this does NOT mean it has been delivered. With the given functionality of WordPress you can't determine if a mail was delivered successfully.
 
 == Screenshots ==
@@ -50,11 +50,19 @@ The logged email has been sent by WordPress but please note this does NOT mean i
 3. The Settings
 
 == Upgrade Notice ==
-= 1.8.4 =
-- Fix: transient bug
-- Fix: notice when attachments not set
+= 1.8.5 =
+- New: added privacy integration (erasure, export, policy content suggestion)
+- Fix: typo in readme
+- Fix: output of html comments in emails
+- Tweak: performance (duplicate queries of installation state)
 
 == Changelog ==
+
+= 1.8.5, September 13, 2018 =
+- New: added privacy integration (erasure, export, policy content suggestion)
+- Fix: typo in readme
+- Fix: output of html comments in emails
+- Tweak: performance (duplicate queries of installation state)
 
 = 1.8.4, June 22, 2018 =
 - Fix: transient bug

@@ -49,7 +49,7 @@ if ( ! class_exists( 'YITH_WCWL_Init' ) ) {
 		 * @var string
 		 * @since 1.0.0
 		 */
-		public $version = '2.2.3';
+		public $version = '2.2.5';
 
 		/**
 		 * Plugin database version
@@ -372,25 +372,7 @@ if ( ! class_exists( 'YITH_WCWL_Init' ) ) {
 			wp_register_script( 'jquery-yith-wcwl', YITH_WCWL_URL . 'assets/js/jquery.yith-wcwl.js', array( 'jquery', 'jquery-selectBox' ), $this->version, true );
 			wp_register_script( 'jquery-yith-wcwl-user', str_replace( get_stylesheet_directory(), get_stylesheet_directory_uri(), $located ), array( 'jquery', 'jquery-selectBox' ), $this->version, true );
 
-			$yith_wcwl_l10n = array(
-				'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),
-				'redirect_to_cart' => get_option( 'yith_wcwl_redirect_cart' ),
-				'multi_wishlist' => defined( 'YITH_WCWL_PREMIUM' ) && get_option( 'yith_wcwl_multi_wishlist_enable' ) == 'yes' ? true : false,
-				'hide_add_button' => apply_filters( 'yith_wcwl_hide_add_button', true ),
-				'is_user_logged_in' => is_user_logged_in(),
-				'ajax_loader_url' => YITH_WCWL_URL . 'assets/images/ajax-loader.gif',
-				'remove_from_wishlist_after_add_to_cart' => get_option( 'yith_wcwl_remove_after_add_to_cart' ),
-				'labels' => array(
-					'cookie_disabled' => __( 'We are sorry, but this feature is available only if cookies are enabled on your browser.', 'yith-woocommerce-wishlist' ),
-					'added_to_cart_message' => sprintf( '<div class="woocommerce-message">%s</div>', apply_filters( 'yith_wcwl_added_to_cart_message', __( 'Product correctly added to cart', 'yith-woocommerce-wishlist' ) ) )
-				),
-				'actions' => array(
-					'add_to_wishlist_action' => 'add_to_wishlist',
-					'remove_from_wishlist_action' => 'remove_from_wishlist',
-					'move_to_another_wishlist_action' => 'move_to_another_wishlsit',
-					'reload_wishlist_and_adding_elem_action'  => 'reload_wishlist_and_adding_elem'
-				)
-			);
+			$yith_wcwl_l10n = $this->get_localize();
 
 			if ( ! $located ) {
 				wp_enqueue_script( 'jquery-yith-wcwl' );
@@ -400,6 +382,34 @@ if ( ! class_exists( 'YITH_WCWL_Init' ) ) {
 				wp_enqueue_script( 'jquery-yith-wcwl-user' );
 				wp_localize_script( 'jquery-yith-wcwl-user', 'yith_wcwl_l10n', $yith_wcwl_l10n );
 			}
+		}
+
+		/**
+         * Return localize array
+         *
+         * @return array Array with variables to be localized inside js
+         * @since 2.2.3
+		 */
+		public function get_localize() {
+            return apply_filters( 'yith_wcwl_localize_script', array(
+	            'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),
+	            'redirect_to_cart' => get_option( 'yith_wcwl_redirect_cart' ),
+	            'multi_wishlist' => defined( 'YITH_WCWL_PREMIUM' ) && get_option( 'yith_wcwl_multi_wishlist_enable' ) == 'yes' ? true : false,
+	            'hide_add_button' => apply_filters( 'yith_wcwl_hide_add_button', true ),
+	            'is_user_logged_in' => is_user_logged_in(),
+	            'ajax_loader_url' => YITH_WCWL_URL . 'assets/images/ajax-loader.gif',
+	            'remove_from_wishlist_after_add_to_cart' => get_option( 'yith_wcwl_remove_after_add_to_cart' ),
+	            'labels' => array(
+		            'cookie_disabled' => __( 'We are sorry, but this feature is available only if cookies are enabled on your browser.', 'yith-woocommerce-wishlist' ),
+		            'added_to_cart_message' => sprintf( '<div class="woocommerce-message">%s</div>', apply_filters( 'yith_wcwl_added_to_cart_message', __( 'Product correctly added to cart', 'yith-woocommerce-wishlist' ) ) )
+	            ),
+	            'actions' => array(
+		            'add_to_wishlist_action' => 'add_to_wishlist',
+		            'remove_from_wishlist_action' => 'remove_from_wishlist',
+		            'move_to_another_wishlist_action' => 'move_to_another_wishlsit',
+		            'reload_wishlist_and_adding_elem_action'  => 'reload_wishlist_and_adding_elem'
+	            )
+            ) );
 		}
 
 		/**
@@ -413,7 +423,7 @@ if ( ! class_exists( 'YITH_WCWL_Init' ) ) {
 		public function detect_javascript() {
 			if( ! defined( 'YIT' ) ):
 				?>
-				<script type="text/javascript">document.documentElement.className = document.documentElement.className + ' yes-js js_active js'</script>
+				<script>document.documentElement.className = document.documentElement.className + ' yes-js js_active js'</script>
 			<?php
 			endif;
 		}

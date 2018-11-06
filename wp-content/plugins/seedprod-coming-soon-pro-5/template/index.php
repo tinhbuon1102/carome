@@ -1000,12 +1000,15 @@ if(!empty($settings->enable_wp_head_footer)){
 ?>
 
 	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/purl.min.js"></script>
-	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/jquery.cookie.min.js"></script>
+	<script src="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/js/js.cookie.js"></script>
 	<script>
+	var csp_cookies = '';
 	var email_cookie = '';
 	var return_user = false;
 	jQuery( document ).ready(function() {
-	email_cookie = jQuery.cookie('email');
+		csp_cookies = Cookies.noConflict();
+		email_cookie = csp_cookies.get('email');
+	
 	
 	<?php if(empty($_GET['seed_cspv5_preview']) && (((!empty($settings->enable_reflink) && $settings->enable_reflink == '1') && (!empty($settings->rp_return_user) && $settings->rp_return_user == '1')) || ((!empty($settings->enable_prize_levels) && $settings->enable_prize_levels == '1') && (!empty($settings->rp_return_user) && $settings->rp_return_user == '1')))){ ?>
 	if(typeof email_cookie !== "undefined"){

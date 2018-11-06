@@ -90,6 +90,25 @@ tr.strikeout1 td:before {
 	opacity: 1;
 }
 
+table.thpladmin_fields_table td.sort{
+    cursor: move;
+    font-size: 15px;
+    text-align: center;
+}
+
+table.thpladmin_fields_table td.sort::before{
+    content: '\f333';
+    font-family: Dashicons;
+    text-align: center;
+    line-height: 1;
+    color: #999;
+    display: block;
+    width: 17px;
+    float: left;
+    height: 100%;
+    line-height: 24px;
+}
+
 .err_msgs{
 	color: #FF0000;
 }
@@ -143,6 +162,10 @@ h1.nav-tab-wrapper, h2.nav-tab-wrapper, h3.nav-tab-wrapper {
     border-bottom: 1px solid #CCC;
     padding-bottom: 0px;
     padding-left: 10px;
+}
+
+.woocommerce_page_checkout_form_designer .ui-dialog .ui-dialog-title {
+  	line-height: 20px;
 }
 
 /*.select2-drop {

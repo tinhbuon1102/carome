@@ -209,7 +209,8 @@ var gl_alertStateNotAllowed = '';
 ?>
 	</ol>
 	  </div>
-	  <?php if(is_product_category()||is_shop()){ ?> 
+	  <?php if(is_product_category('accessories')){ ?> 
+	  <?php } elseif(is_product_category()||is_shop()){ ?> 
 	  <?php if ( date_i18n('YmdHi') >= "201809221200" ) { ?>
 	  <div class="sub_banner xs-hide">
 <a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Desktop.jpg" alt="Set Discount" /></a>
@@ -236,7 +237,7 @@ var gl_alertStateNotAllowed = '';
 		<?php /*Title Bar*/ get_template_part( 'layouts/header/title', 'bar' ); ?>
 		<?php } elseif (is_front_page()) {
 	
-	} else { ?>
+        } else { ?>
 		<div class="max-width--site gutter-padding--full">
 		<?php } ?>
 		

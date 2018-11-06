@@ -157,9 +157,9 @@ class SEED_CSPV5_ADMIN
         // debug remove
         if(isset($_GET['page']) && $_GET['page'] == 'seed_cspv5_customizer'){
             if(isset($_GET['seed_cspv5_debug'])){
-            // only ones we need are: common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js|jquery
-
-            $d = explode("|",urldecode($_GET['seed_cspv5_debug'])); 
+            // only ones we need are: common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js|jquery|jquery-ui|media-editor
+            $s = 'common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js|jquery|jquery-ui|media-editor';
+            $d = explode("|",urldecode($s)); 
         
             global $wp_scripts;
              foreach( $wp_scripts->queue as $handle ) :

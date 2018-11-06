@@ -180,6 +180,10 @@ if( !function_exists( 'yith_setcookie' ) ) {
      * @since 1.0.0
      */
     function yith_setcookie( $name, $value = array(), $time = null ) {
+    	if( ! apply_filters( 'yith_wcwl_set_cookie', true ) ){
+    		return false;
+	    }
+
         $time = $time != null ? $time : time() + apply_filters( 'yith_wcwl_cookie_expiration', 60 * 60 * 24 * 30 );
 
         $value = json_encode( stripslashes_deep( $value ) );
@@ -187,6 +191,8 @@ if( !function_exists( 'yith_setcookie' ) ) {
 
         $_COOKIE[ $name ] = $value;
 	    wc_setcookie( $name, $value, $expiration, false );
+
+	    return true;
     }
 }
 

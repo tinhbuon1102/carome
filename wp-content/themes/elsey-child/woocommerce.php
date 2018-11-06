@@ -39,18 +39,29 @@ $elsey_woo_product_columns  = cs_get_option('woo_product_columns');
 $elsey_woo_product_columns  = $elsey_woo_product_columns ? $elsey_woo_product_columns : '4';
 
 if (is_shop() || is_product_category() || is_product_tag()) {
-
-  if ($elsey_woo_page_layout === 'full-width') {
+  if (is_product_category('accessories')) {
+	  $elsey_parent_class = 'els-less-width carome-event-shop';
+	  $elsey_layout_class = 'container els-reduced';
+  } else {
+	  if ($elsey_woo_page_layout === 'full-width') {
     $elsey_parent_class = 'els-full-width';
     $elsey_layout_class = 'container';
   } else {
     $elsey_parent_class = 'els-less-width';
     $elsey_layout_class = 'container els-reduced';
   }
-
-  $elsey_shop_col_class = 'els-shop-wrapper woo-col-'.esc_attr($elsey_woo_product_columns);
-
-  if ($elsey_woo_sidebar_position === 'sidebar-hide') {
+  }
+  
+	if (is_product_category('accessories')) { //for event archive
+		$elsey_shop_col_class = 'els-shop-wrapper shop-archive-event woo-col-list';
+	} else {
+		$elsey_shop_col_class = 'els-shop-wrapper woo-col-'.esc_attr($elsey_woo_product_columns);
+	}
+  
+	if (is_product_category('accessories')) {
+		$elsey_column_class = 'col-lg-12 col-md-12 col-sm-12 col-xs-12 els-no-sidebar col-event-shop';
+	} else {
+		if ($elsey_woo_sidebar_position === 'sidebar-hide') {
     $elsey_column_class = 'col-lg-12 col-md-12 col-sm-12 col-xs-12 els-no-sidebar';
   } else {
     if ($elsey_woo_sidebar_position === 'sidebar-left') {
@@ -59,6 +70,9 @@ if (is_shop() || is_product_category() || is_product_tag()) {
       $elsey_column_class = 'col-lg-9 col-md-9 col-sm-12 col-xs-12 els-has-sidebar els-shop-has-sidebar els-has-right-col';
     }
   }
+		
+	}
+  
 
 } else {
   $elsey_parent_class   = 'els-less-width';
@@ -90,7 +104,9 @@ get_header(); ?>
     <div class="els-shop-content row">
 
       <?php
-      if (is_shop() || is_product_category() || is_product_tag()) {
+	  if (is_product_category('accessories')) {
+		  
+	  } else if (is_shop() || is_product_category() || is_product_tag()) {
         if ($elsey_woo_sidebar_position === 'sidebar-left') {
           get_sidebar('shop');
         }

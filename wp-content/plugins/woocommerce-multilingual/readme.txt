@@ -5,7 +5,7 @@ Tags: CMS, woocommerce, commerce, ecommerce, e-commerce, products, WPML, multili
 License: GPLv2
 Requires at least: 3.9
 Tested up to: 4.9.8
-Stable tag: 4.3.4
+Stable tag: 4.3.7
 
 Allows running fully multilingual e-commerce sites using WooCommerce and WPML.
 
@@ -140,10 +140,44 @@ WooCommerce Multilingual is compatible with all major WooCommerce extensions. We
 
 == Changelog ==
 
+= 4.3.7 =
+* Fix broken logic with Table Rate Shipping when product uses class with "break and abort" rule
+* Custom attributes terms not copied to diplicated translation after update values in original
+* Fixed issue which was changing the current language of the site when saving an order
+* Better compatibility class for LiteSpeed Cache that doesn't require changing the URL
+* Fixed issue with serialized data in term meta table
+* Fix price with schedule sale dates in multicurrency
+* Add compatibility class for LiteSpeed Cache plugin
+* Fixed issue with problem in downloadable products in secondary language with different domain per language is enabled
+
+= 4.3.6 =
+* Removed wpml_referer_url as it is no longer used
+* Fixed Fatal error on updating original, after setting attachments to "do not translate"
+* Changed currency services rate rounding precision limit to 6 digits
+* Fixed 404 error for translated attribute archive page
+* Fixed prepending shop page before home page in breadcrumbs
+
+= 4.3.5 =
+* Fix rest translation in products creation
+* Fixed incorrect translation matched for Table Rate Shipping title
+* Price is not saved correctly via "Quick Edit" if secondary currency is selected on front
+* Fixed a performance issue when a product has a lot of variations.
+* Fixed variation image synchronization
+* Lower priority of 'woocommerce_cart_item_name' hook for "WooCommerce Product Subtitle" and others to work
+* Fixed performance issues on product listing page with big amount of attributes
+* Fixed fatal error with WPML older than 3.9
+* Fix redirection to wcml dashboard in a specific case if you skip wizard
+* Fixed stock status when purchasing the last product in the second language which does not update status for original
+* WooCommerce Product Bundle synchronizations problems when re-creating bundle product translation
+* Fixed Woo Variations Table Compatibility issue with overwritten product title in specific scenario
+* Fix cosmetic issue with mutli-currency message in product post screen
+* Fixed infinite loop with large product numbers and languages
+
 = 4.3.4 =
 * Fixed error: Cannot redeclare woocommerce_wp_text_input
 * Fixed error when creating booking from admin without creating order
 * Fixed Woocommerce Dynamic Price issue with Advanced category price in second language
+* Fixed attachments duplication when synchronizing gallery
 * Fix situation with filtering WC attributes calling by sku
 * Fix a problem that you cannot delete booking from trash
 * Fix prevent letters in multicurrency popup for number of decimals
@@ -312,12 +346,11 @@ WooCommerce Multilingual is compatible with all major WooCommerce extensions. We
 * Fatal error while custom call not active currency switcher template
 * Duplicating from WooCommerce resulted in losing language data for the original product
 * PHP errors were shown on the admin dashboard when no orders existed and displaying errors was on
-* Fixed issue with problem in downloadable products in secondary language with different domain per language is enabled
 * A fatal error (undefiend get_current_screen) was occurring in some conditions on the WP admin side
 * Cart widget shows wrong product names
 * Fixed a small but that defualt currency template didn't load correctly in new installation
 * Added compatibility for grouped products
-* Fixed an issue in lost password endpoint when edit it
+* Fixed an issue in lost password endpoint when editing it
 * The cart total in a secondary currencies could have been added a previously removed shipping tax
 * Post translation won't save when Product Bundles plugin is active
 * Fixed comp issue with dynamic price with translated variations don't work in secondary language

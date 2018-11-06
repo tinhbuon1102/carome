@@ -1511,6 +1511,18 @@ var export_page_ajax_url = "<?php echo $export_page_ajax_url; ?>";
 <?php $import_page_ajax_url = html_entity_decode(wp_nonce_url('admin-ajax.php?action=seed_cspv5_import_page_settings','seed_cspv5_import_page_settings')); ?>
 var import_page_ajax_url = "<?php echo $import_page_ajax_url; ?>";
 
+jQuery.fn.datetimepicker.defaults.icons = {
+    time: 'fa fa-clock-o',
+    date: 'fa fa-calendar',
+    up: 'fa fa-chevron-up',
+    down: 'fa fa-chevron-down',
+    previous: 'fa fa-chevron-left',
+    next: 'fa fa-chevron-right',
+    today: 'fa fa-dot-circle-o',
+    clear: 'fa fa-trash',
+    close: 'fa fa-times'
+};
+
 </script>
 
 <script type="text/template" id="social_profiles_template">

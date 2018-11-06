@@ -3,8 +3,9 @@ Contributors: yikesinc, eherman24, liljimmi, JPry, yikesitskevin
 Donate link: https://yikesplugins.com/?utm_source=wp_plugin_repo&utm_medium=donate_link&utm_campaign=easy_forms_for_mailchimp
 Tags: MailChimp, MailChimp forms, MailChimp lists, opt-in forms, sign up form, MailChimp, email, forms, mailing lists, marketing, newsletter, sign up
 Requires at least: 4.0
-Tested up to: 4.9.7
-Stable tag: 6.4.5
+Tested up to: 4.9.8
+Requires PHP: 5.2.13
+Stable tag: 6.4.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -171,5 +172,7 @@ For information and code examples on how to implement the hooks and filters prov
 
 == Changelog ==
 
-= 6.4.5 - July 25th, 2018 =
-* Fixed an issue where subscriptions would not be processed if only an email field was sent. Shoutout to Kamil (@paszczak000) for reporting this issue and working with us to resolve it, thank you!
+= 6.4.9 - October 30th, 2018 =
+* Fixed PHP version compatibility issues.
+* Added a new filter to customize the placement of the WooCommerce checkbox integrations.
+* PHP Version >= 5.2.13 is now explicitly required and supported for this plugin. Note: The Gutenberg features in this plugin require PHP >=5.6.

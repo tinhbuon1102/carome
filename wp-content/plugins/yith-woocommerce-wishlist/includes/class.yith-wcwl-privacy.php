@@ -27,7 +27,7 @@ if( ! class_exists( 'YITH_WCWL_Privacy' ) ) {
 		 */
 		public function __construct() {
 
-			parent::__construct( _x( 'YITH WooCommerce Wishlist', 'Privacy Policy Content', 'yith-woocommerce-wishlist' ) );
+			parent::__construct( 'YITH WooCommerce Wishlist' );
 
 			// set up wishlist data exporter
 			add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporter' ) );
