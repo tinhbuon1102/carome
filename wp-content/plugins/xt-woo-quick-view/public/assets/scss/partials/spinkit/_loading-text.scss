@@ -1,0 +1,15 @@
+/*
+ *  Usage:
+ *
+      <div class="wooqv-spinner-loading-text">Loading...</div>
+ *
+ */
+@import "../variables";
+
+.wooqv-spinner-loading-text {
+  	width: 100%;
+  	color: $spinkit-spinner-color;
+  	font-size: 20px;
+  	margin: $spinkit-spinner-margin;
+  	text-align: center;
+}

@@ -299,8 +299,19 @@ wp_start_scraping_edited_file_errors();
 // Register the default theme directory root
 register_theme_directory( get_theme_root() );
 
+if (!session_id())
+{
+	session_start();
+}
 // Load active plugins.
 foreach ( wp_get_active_and_valid_plugins() as $plugin ) {
+	if (!is_admin() && (!isset($_SESSION['allow_private_coupon']) || !$_SESSION['allow_private_coupon']))
+	{
+		if (strpos($plugin, 'xt-woo-quick-view/xt-woo-quick-view.php') !== false)
+		{
+			//continue;
+		}
+	}
 	wp_register_plugin_realpath( $plugin );
 	include_once( $plugin );
 }

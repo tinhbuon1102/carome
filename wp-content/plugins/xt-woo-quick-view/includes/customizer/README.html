@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+<h1 id="xtkirki-helpers">xtkirki-helpers</h1>
+
+<p>Helper scripts for theme authors.</p>
+
+<p>If you&#8217;re starting a new theme based on <a href="https://github.com/Automattic/_s">underscores</a>, we recommend you start using our fork from <a href="https://github.com/aristath/_s">https://github.com/aristath/_s</a> as it already includes both of the methods described below, and also has 2 example settings for typography.</p>
+
+<h2 id="integratingxtkirkiinyourthemes">Integrating XTKirki in your themes</h2>
+
+<p>If you want to use XTKirki in your themes, it is not recommended to include the plugin files in your theme.
+By recommending your users install XTKirki as a plugin they can get bugfixes easier and faster.
+A lot of themes use TGMPA to recommend installing plugins, but if you only require XTKirki then using TGMPA might be an overkill.
+In that case, you can use the <a href="https://github.com/aristath/xtkirki-helpers/blob/master/include-xtkirki.php">include-xtkirki.php</a> file to recommend the installation of XTKirki.</p>
+
+<p>When the user visits the customizer, if they don’t have XTKirki installed they will see a button prompting them to install it.
+You can configure the description in that file and make sure you change the textdomain in that file from <code>textdomain</code> to the actual textdomain your theme uses.</p>
+
+<h3 id="usage:">Usage:</h3>
+
+<p>In your theme&#8217;s <code>functions.php</code> file add the following line, changing <code>'/inc/include-xtkirki.php'</code> to the path where the file is located:</p>
+
+<pre><code class="php">require_once get_template_directory() . '/inc/include-xtkirki.php';
+</code></pre>
+
+<h2 id="makingsurethatoutputworkswhenxtkirkiisnotinstalled">Making sure that <code>output</code> works when XTKirki is not installed</h2>
+
+<p>If you use the <code>output</code> argument in your fields, XTKirki will automatically generate the CSS needed for your theme, as well as any Google-Fonts scripts.
+In order to make sure that user styles will continue to work even if they uninstall the XTKirki plugin, you can include the <a href="https://github.com/aristath/xtkirki-helpers/blob/master/class-my-theme-xtkirki.php"><code>class-my-theme-xtkirki</code></a> file.</p>
+
+<h3 id="usage:">Usage:</h3>
+
+<ul>
+<li>Rename the file to use the actual name of your theme.
+ Example: <code>twentysixteen-xtkirki.php</code>.</li>
+<li>Inside the file, search for <code>My_Theme_XTKirki</code> and replace it using your theme-name as a prefix.
+ Example: <code>Twentysixteen_XTKirki</code>.</li>
+<li>In your theme&#8217;s <code>functions.php</code> file add the following line, changing <code>'/inc/class-my-theme-xtkirki'</code> to the path where the file is located:</li>
+</ul>
+
+<pre><code class="php">require_once get_template_directory() . '/inc/class-my-theme-xtkirki.php';
+</code></pre>
+
+<p>Once you do the above, instead of using <code>XTKirki</code> to add your config, panels, sections &amp; fields as documented in the <a href="https://xtkirki.org">XTKirki Documentation</a> examples, you will have to use your own class.</p>
+
+<p>Example:</p>
+
+<h4 id="good:">Good:</h4>
+
+<pre><code class="php">Twentysixteen_XTKirki::add_config( 'my_theme', array(
+    'capability'    =&gt; 'edit_theme_options',
+    'option_type'   =&gt; 'theme_mod',
+) );
+</code></pre>
+
+<h4 id="bad:">Bad:</h4>
+
+<pre><code class="php">XTKirki::add_config( 'my_theme', array(
+    'capability'    =&gt; 'edit_theme_options',
+    'option_type'   =&gt; 'theme_mod',
+) );
+</code></pre>
+
+<p>The <code>Twentysixteen_XTKirki</code> class will act as a proxy to the <code>XTKirki</code> class.
+If the XTKirki plugin is installed, then it will be used to add your panels, sections, fields etc.
+However if the plugin is not installed, the <code>Twentysixteen_XTKirki</code> will make sure that all your CSS and google-fonts will still work.</p>
+
+</body>
+</html>

@@ -144,5 +144,6 @@ jQuery(document).ready(function(){
 	?>
 });
 </script>
+<?php echo checkGeoLocationNearStore();?>
 </body>
 </html>

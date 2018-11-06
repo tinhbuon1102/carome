@@ -127,7 +127,14 @@ var gl_alertStateNotAllowed = '';
 </script>
 
 <?php
-  wp_head(); ?>
+  wp_head(); 
+  $current_event_coupon = get_current_event_coupon();
+  ?>
+  <?php if ($current_event_coupon) {?>
+<style>
+	.cart-discount.coupon-<?php echo $current_event_coupon?> .woocommerce-remove-coupon{display: none;}
+</style>
+<?php }?>
 
 </head>
 <body <?php body_class(); ?>>
@@ -209,7 +216,7 @@ var gl_alertStateNotAllowed = '';
 ?>
 	</ol>
 	  </div>
-	  <?php if(is_product_category('accessories')){ ?> 
+	  <?php if ($_SESSION['allow_private_coupon'] == 1) { ?> 
 	  <?php } elseif(is_product_category()||is_shop()){ ?> 
 	  <?php if ( date_i18n('YmdHi') >= "201809221200" ) { ?>
 	  <div class="sub_banner xs-hide">

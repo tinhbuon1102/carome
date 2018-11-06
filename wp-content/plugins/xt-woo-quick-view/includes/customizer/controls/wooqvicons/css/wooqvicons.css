@@ -1,0 +1,39 @@
+.customize-control-wooqvicons label {
+  position: relative;
+  display: inline-block;
+  font-size: 30px;
+  width: 23%;
+  min-height: 30px;
+  padding: 8px 0;
+  margin: 5px 0;
+  text-align: center;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  display: inline-block;
+  border: 2px solid transparent; }
+  .customize-control-wooqvicons label:hover {
+    border: 2px solid #ddd; }
+
+.customize-control-wooqvicons .icons-wrapper {
+  max-height: 300px;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch; }
+  .customize-control-wooqvicons .icons-wrapper h4 {
+    font-weight: 300;
+    margin: 0.7em 0; }
+  .customize-control-wooqvicons .icons-wrapper .wooqvicons {
+    padding: 3px;
+    font-size: 25px;
+    width: 25px;
+    height: 25px;
+    border: 1px solid transparent; }
+  .customize-control-wooqvicons .icons-wrapper input {
+    display: none; }
+    .customize-control-wooqvicons .icons-wrapper input:checked + label .wooqvicons {
+      border: 1px solid #3498DB;
+      color: #000; }
+
+.customize-control-wooqvicons .wooqvicons-select {
+  display: none !important; }
+  .customize-control-wooqvicons .wooqvicons-select:checked + label {
+    border: 2px solid #ddd; }

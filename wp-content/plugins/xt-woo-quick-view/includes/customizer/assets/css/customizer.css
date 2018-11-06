@@ -1,0 +1,62 @@
+#accordion-panel-wooqv .customize-info .panel-title,
+#sub-accordion-panel-wooqv .customize-info .panel-title {
+  font-size: 16px;
+  color: #bd043d; }
+
+#accordion-panel-wooqv .panel-title.dashicons-before:before,
+#accordion-panel-wooqv .customize-section-description-container h3.dashicons-before:before,
+#sub-accordion-panel-wooqv .panel-title.dashicons-before:before,
+#sub-accordion-panel-wooqv .customize-section-description-container h3.dashicons-before:before {
+  display: none; }
+
+#accordion-panel-wooqv > .accordion-section-title,
+#sub-accordion-panel-wooqv > .accordion-section-title {
+  color: #bd043d !important; }
+
+#accordion-panel-wooqv .accordion-section-title,
+#sub-accordion-panel-wooqv .accordion-section-title {
+  color: #181818; }
+  #accordion-panel-wooqv .accordion-section-title > .dashicons, #accordion-panel-wooqv .accordion-section-title:before,
+  #sub-accordion-panel-wooqv .accordion-section-title > .dashicons,
+  #sub-accordion-panel-wooqv .accordion-section-title:before {
+    margin-right: 10px;
+    color: #bd043d; }
+
+.customize-control-kirki-color .wp-picker-container span.color,
+.customize-control-kirki-color .wp-picker-container span.color-alpha {
+  height: 100% !important; }
+
+.control-section-kirki-default .customize-section-title .dashicons {
+  display: none; }
+
+[class*=customize-control-kirki-] {
+  border-bottom: 1px solid #ddd !important;
+  border-top: 0 !important;
+  padding-bottom: 15px; }
+  [class*=customize-control-kirki-]:last-child {
+    border-bottom: 0 !important; }
+
+/* CUSTOM VISIBILITY */
+.preview-desktop #customize-control-wooqv-modal_slider_width_mobile,
+.preview-desktop #customize-control-wooqv-modal_slider_height_mobile {
+  display: none !important; }
+
+.preview-desktop #customize-control-wooqv-modal_slider_width_desktop,
+.preview-desktop #customize-control-wooqv-modal_slider_height_desktop {
+  display: list-item; }
+
+.preview-tablet #customize-control-wooqv-modal_slider_width_desktop,
+.preview-tablet #customize-control-wooqv-modal_slider_height_desktop {
+  display: none !important; }
+
+.preview-tablet #customize-control-wooqv-modal_slider_width_mobile,
+.preview-tablet #customize-control-wooqv-modal_slider_height_mobile {
+  display: list-item; }
+
+.preview-mobile #customize-control-wooqv-modal_slider_width_desktop,
+.preview-mobile #customize-control-wooqv-modal_slider_height_desktop {
+  display: none !important; }
+
+.preview-mobile #customize-control-wooqv-modal_slider_width_mobile,
+.preview-mobile #customize-control-wooqv-modal_slider_height_mobile {
+  display: list-item; }

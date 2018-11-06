@@ -1,0 +1,55 @@
+/*
+ *  Usage:
+ *
+      <div class="wooqv-spinner-cube-grid">
+        <div class="wooqv-spinner-cube wooqv-spinner-cube1"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube2"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube3"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube4"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube5"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube6"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube7"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube8"></div>
+        <div class="wooqv-spinner-cube wooqv-spinner-cube9"></div>
+      </div>
+ *
+ */
+@import "../variables";
+
+.wooqv-spinner-cube-grid {
+  $delayRange: 0.4s;
+
+  width: $spinkit-spinner-size;
+  height: $spinkit-spinner-size;
+  margin: $spinkit-spinner-margin;
+
+  .wooqv-spinner-cube {
+    width: 33.33%;
+    height: 33.33%;
+    background-color: $spinkit-spinner-color;
+    float: left;
+    animation: wooqv-spinner-cubeGridScaleDelay 1.3s infinite ease-in-out;
+  }
+
+  /*
+   * Spinner positions
+   * 1 2 3
+   * 4 5 6
+   * 7 8 9
+   */
+
+  .wooqv-spinner-cube1 { animation-delay: $delayRange * 0.50 }
+  .wooqv-spinner-cube2 { animation-delay: $delayRange * 0.75 }
+  .wooqv-spinner-cube3 { animation-delay: $delayRange }
+  .wooqv-spinner-cube4 { animation-delay: $delayRange * 0.25 }
+  .wooqv-spinner-cube5 { animation-delay: $delayRange * 0.50 }
+  .wooqv-spinner-cube6 { animation-delay: $delayRange * 0.75 }
+  .wooqv-spinner-cube7 { animation-delay: 0.0s }
+  .wooqv-spinner-cube8 { animation-delay: $delayRange * 0.25 }
+  .wooqv-spinner-cube9 { animation-delay: $delayRange * 0.50 }
+}
+
+@keyframes wooqv-spinner-cubeGridScaleDelay {
+  0%, 70%, 100% { transform:scale3D(1.0, 1.0, 1.0) }
+  35%           { transform:scale3D(0.0, 0.0, 1.0) }
+}

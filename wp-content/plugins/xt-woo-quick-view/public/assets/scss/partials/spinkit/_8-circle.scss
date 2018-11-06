@@ -1,0 +1,62 @@
+/*
+ *  Usage:
+ *
+      <div class="wooqv-spinner-circle">
+        <div class="wooqv-spinner-circle1 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle2 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle3 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle4 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle5 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle6 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle7 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle8 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle9 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle10 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle11 wooqv-spinner-child"></div>
+        <div class="wooqv-spinner-circle12 wooqv-spinner-child"></div>
+      </div>
+ *
+ */
+@import "../variables";
+
+.wooqv-spinner-circle {
+  $circleCount: 12;
+  $animationDuration: 1.2s;
+
+  margin: $spinkit-spinner-margin;
+  width: $spinkit-spinner-size;
+  height: $spinkit-spinner-size;
+  position: relative;
+
+  .wooqv-spinner-child {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .wooqv-spinner-child:before {
+    content: '';
+    display: block;
+    margin: 0 auto;
+    width: 15%;
+    height: 15%;
+    background-color: $spinkit-spinner-color;
+    border-radius: 100%;
+    animation: wooqv-spinner-circleBounceDelay $animationDuration infinite ease-in-out both;
+  }
+
+  @for $i from 2 through $circleCount {
+    .wooqv-spinner-circle#{$i} { transform: rotate(360deg / $circleCount * ($i - 1)); }
+  }
+
+  @for $i from 2 through $circleCount {
+    .wooqv-spinner-circle#{$i}:before { animation-delay: $animationDuration + $animationDuration / $circleCount * ($i - 1); }
+  }
+}
+
+@keyframes wooqv-spinner-circleBounceDelay {
+  0%, 80%, 100% { transform: scale(0) }
+  40% { transform: scale(1.0) }
+}

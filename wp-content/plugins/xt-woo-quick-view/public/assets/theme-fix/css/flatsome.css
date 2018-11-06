@@ -1,0 +1,10 @@
+.box-image {
+  display: none; }
+
+.wooqv-image-wrapper {
+  margin-bottom: 15px; }
+
+.wooqv-trigger {
+  -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+  border: none !important; }
