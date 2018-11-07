@@ -889,8 +889,8 @@ add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
 
 function custom_styles() {
 	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css', array('elsey-child-style') );
-	wp_register_style( 'quick-style', get_stylesheet_directory_uri() . '/css/quick-view.css', array('new-style') );
-	if ($_SESSION['allow_private_coupon'] == 1) {
+	wp_register_style( 'quick-style', get_stylesheet_directory_uri() . '/css/quick-view.css', array('elsey-child-style') );
+	if (isCustomerInPrivateEvent()) {
 		wp_enqueue_style('new-style');
 	}
 	wp_enqueue_style('quick-style');
@@ -2990,6 +2990,11 @@ function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 		return $rates;
 }
 
+function isCustomerInPrivateEvent()
+{
+	return isset($_SESSION['allow_private_coupon']) && $_SESSION['allow_private_coupon'] == 1;
+}
+
 add_action( 'woocommerce_add_to_cart', 'elsey_woocommerce_add_to_cart', 1000, 6 );
 function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $variation_id = 0, $variation = array(), $cart_item_data = array())
 {
@@ -2998,7 +3003,7 @@ function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $
 		return '';
 	}
 	
-	if (!isset($_SESSION['allow_private_coupon']) || !$_SESSION['allow_private_coupon'])
+	if (!isCustomerInPrivateEvent())
 	{
 		return '';
 	}
@@ -3026,6 +3031,7 @@ function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $
 		if ($coupon_expire->getTimestamp() >= $todayTimeStamp && !$isAddedCoupon)
 		{
 			WC()->cart->add_discount( get_current_event_coupon() );
+			wc_clear_notices();
 		}
 	}
 }
@@ -3049,7 +3055,6 @@ function checkGeoLocationNearStore()
 		{
 			var id, options;
 			if (!navigator.geolocation){//Geolocation apiがサポートされていない場合
-			    //alert('<?php __('Your browser not support Geolocation, Please use Google Chrome or Safari.', 'elsey')?>');
 			    return;
 			  }
 			
@@ -3067,17 +3072,21 @@ function checkGeoLocationNearStore()
 				        type: "post",
 				        url: woocommerce_params.ajax_url,
 				        crossDomain: false,
-				        dataType : "html",
+				        dataType : "json",
 				        scriptCharset: 'utf-8',
 				        data: {action: 'allow_use_free_shipping_coupon', distance: distance}
 				    }).done(function(data){
-					    <?php if (!isset($_SESSION['allow_private_coupon']) || !$_SESSION['allow_private_coupon']) {?>
-				    	//alert ('<?php echo __('You have free shipping coupon, shopping to use now !', 'elsey')?>');
-				    	if (data == 1)
-				    	{
-				    		location.reload();
-					    }
-				    	<?php }?>
+					    <?php if (!isCustomerInPrivateEvent()) {?>
+						    	if (data.in_store)
+						    	{
+						    		location.reload();
+							    }
+						<?php }?>
+						if (data.message && data.redirect)
+						{
+							alert(data.message);
+							location.href = data.redirect;
+						}
 				    });
 				    
 				    navigator.geolocation.clearWatch(id);
@@ -3143,6 +3152,7 @@ function elsey_allow_use_free_shipping_coupon()
 {
 	if(defined( 'DOING_AJAX' ))
 	{
+		$is_remove = false;
 		$today = current_time('mysql');
 		$event_start_end = get_event_time_start_end();
 		$_SESSION['user_store_distance'] = $_POST['distance'];
@@ -3150,11 +3160,23 @@ function elsey_allow_use_free_shipping_coupon()
 		if ($_POST['distance'] <= get_distance_event_coupon() && ($today >= $event_start_end['start'] || $today <= $event_start_end['end']))
 		{
 			$_SESSION['allow_private_coupon'] = 1;
+			$_SESSION['user_at_store'] = 1;
 		}else {
+			if ($_SESSION['user_at_store'] == 1)
+			{
+				$is_remove = true;
+				unset($_SESSION['user_at_store']);
+			}
 			zoa_remove_private_coupon();
 		}
 	}
-	print_r($_SESSION['allow_private_coupon']);die;
+	if ($is_remove)
+	{
+		print_r(json_encode(array('in_store' => (int)$_SESSION['allow_private_coupon'], 'message' => __('イベント会場からでたので通常ページへ戻ります', 'elsey'), 'redirect' => site_url())));die;
+	}
+	else {
+		print_r(json_encode(array('in_store' => (int)$_SESSION['allow_private_coupon'], 'message' => '')));die;
+	}
 }
 
 add_action( 'woocommerce_checkout_update_order_meta', 'elsey_woocommerce_checkout_update_order_meta' );

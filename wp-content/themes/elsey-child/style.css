@@ -2590,8 +2590,28 @@ ul.mag-tags li {
 }
 @media only screen and (max-width: 47.99em) {
 	.post-type-archive-product .els-titlebar {
-    border-bottom: none;
-		padding-bottom: 0;
+        border-bottom: 1px solid #e5e5e5;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 0;
+	}
+	.post-type-archive-product .els-titlebar-plain .page-title {
+    font-size: 16px;
+	}
+	.els-shop-wrapper .els-shop-filter {
+    padding: 10px 12px;
+    margin: 0;
+	}
+	.els-shop-filter > .els-order-filter > form.woocommerce-ordering > select.orderby {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom-color: #555;
+    width: 100%;
+    padding-left: 10px;
+	}
+	.post-type-archive-product .els-shop-filter .els-result-count {
+    margin-bottom: 0px;
 	}
 	.magazine-article__section .row .headline {
 		-webkit-box-ordinal-group:1;
@@ -4108,6 +4128,7 @@ ul.spcat_links {
     padding: 0 24px;
 	}
 	.child-categories {
+		padding-top: 20px;
 		margin-bottom: 20px;
 	}
 }

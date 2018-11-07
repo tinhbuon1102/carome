@@ -44,7 +44,7 @@ function eha_dynamic_pricing_offers_list_short_code($atts, $content = null) {
                 return false;
             } 
 
-            $now = current_time('d-m-Y H:i');
+            $now = date('d-m-Y');
             $return = false;
             if (empty($fromdate) && empty($todate)) {
                 

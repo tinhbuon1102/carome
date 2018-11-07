@@ -9,15 +9,21 @@ jQuery(document).ready(function($){
 			$('.header__secondary.toggle--active').css('height', 'auto');
 		}
 	});
-	/*Tabs Jquery*/
-	$('[data-add-class]').each(function(){
-    var class_to_add = $(this).attr('data-add-class');
-    // Then take the value from this attribute and add it into the class list.
-    $(this).addClass(class_to_add);
-  });
+	
+	function initProductPage()
+	{
+		/*Tabs Jquery*/
+		$('[data-add-class]').each(function(){
+			var class_to_add = $(this).attr('data-add-class');
+			// Then take the value from this attribute and add it into the class list.
+			$(this).addClass(class_to_add);
+		});
+	}
+	initProductPage();
+	
   $.simpleTicker($("#ticker"),{'effectType':'fade'});
   // Scour the elements in the DOM for the existence of a 'data-toggle' attribute.
-  $('[data-toggle]').on('click', function(e){
+  $('body').on('click', '[data-toggle]', function(e){
     // The target is the attribute value, a CSS selector
     var target = $(this).attr('data-toggle');
     // ...and toggle its collapsed class.
@@ -26,6 +32,17 @@ jQuery(document).ready(function($){
 		e.preventDefault();
 	});
 	
+  $('body').on('click', '.wooqv-trigger', function(){
+	  var modal_quickview = setInterval(function(){
+		  if ($('.woo-quick-view').hasClass('wooqv-is-visible'))
+		  {
+			  initProductPage();
+			  clearInterval(modal_quickview);
+			  modal_quickview = null;
+		  }
+	  }, 100);
+  });
+  
   	$('#customer_login form input[type="submit"]').click(function(e) {
   	  e.preventDefault();
   	  var form = $(this).closest('form');

@@ -280,6 +280,9 @@ If you select "Fixed Price", the original price of the product is replaced by th
                                 'description' => 'The date from which the rule would be applied. This can be left blank if do not wish to set up any date range.',
                                 'desc_tip' => true,
                                 'class' => 'date-picker',
+                                'custom_attributes' => array(
+                                    'pattern' => apply_filters('woocommerce_date_input_html_pattern', '(0[1-9]|1[0-9]|2[0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4}'),
+                                ),
                             ));
                             woocommerce_wp_text_input(array(
                                 'id' => 'to_date',
@@ -289,6 +292,9 @@ If you select "Fixed Price", the original price of the product is replaced by th
                                 'description' => ' The date till which the rule would be valid. You can leave it blank if you wish the rule to be applied forever or would like to end it manually.',
                                 'desc_tip' => true,
                                 'class' => 'date-picker',
+                                'custom_attributes' => array(
+                                    'pattern' => apply_filters('woocommerce_date_input_html_pattern', '(0[1-9]|1[0-9]|2[0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4}'),
+                                ),
                             ));
                             ?>
                         </div>

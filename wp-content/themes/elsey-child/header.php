@@ -147,7 +147,9 @@ var gl_alertStateNotAllowed = '';
   } ?>
   <!-- Elsey Wrap Start -->
   <div id="els-wrap" class="<?php echo esc_attr($elsey_sticky_header_cls.' '.$elsey_transparent_class); ?><?php if (is_product_category()) {?> post-type-archive-product<?php } ?>">
-
+	  <?php if (isCustomerInPrivateEvent()) { ?>
+	  <div class="event-message"><?php esc_html_e( 'イベントクーポン適用中', 'elsey' ); ?></div>
+	  <?php } ?>
     <?php if (!$elsey_hide_header) { ?>
     <header class="els-header" style="<?php echo esc_attr($elsey_bottom_border); ?>">
       <?php if ($elsey_topbar_show) { /*Top Bar*/ get_template_part( 'layouts/header/top', 'bar' ); }
@@ -167,6 +169,20 @@ var gl_alertStateNotAllowed = '';
   $hierarchical = 1;      // 1 for yes, 0 for no  
   $title        = '';  
   $empty        = 1;
+	
+$ids_to_exclude = array();
+$get_terms_to_exclude =  get_terms(
+    array(
+        'fields'  => 'ids',
+        'slug'    => array( 
+            'twoset_price_jwl', 
+            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens' ),
+        'taxonomy' => $taxonomy,
+    )
+);
+	if( !is_wp_error( $get_terms_to_exclude ) && count($get_terms_to_exclude) > 0){
+    $ids_to_exclude = $get_terms_to_exclude; 
+	}
 
   $args = array(
          'taxonomy'     => $taxonomy,
@@ -175,7 +191,8 @@ var gl_alertStateNotAllowed = '';
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,153,152,154,157,169,175,176',//175 is 3set 10% OFF
+	     'exclude'    => $ids_to_exclude,
+	     //'exclude'    => '77,153,152,154,157,169,175,176',//175 is 3set 10% OFF
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
@@ -188,7 +205,19 @@ var gl_alertStateNotAllowed = '';
 			 $classactive = "active";
 		}
         echo '<li class="swiper-slide"><a href="'. get_term_link($cat->slug, 'product_cat') .'" class="'.$classactive.'">'. $cat->name .'</a></li>';
-
+		$ids_to_exclude2 = array();
+		$get_terms_to_exclude2 =  get_terms(
+			array(
+				'fields'  => 'ids',
+				'slug'    => array(
+					'pumps', 
+					'sandals', 'ipcase', 'glasses', 'hairacc', 'jewelry', 'bag' ),
+				'taxonomy' => $taxonomy,
+			)
+		);
+	if( !is_wp_error( $get_terms_to_exclude2 ) && count($get_terms_to_exclude2) > 0){
+    $ids_to_exclude2 = $get_terms_to_exclude2; 
+	}
         $args2 = array(
                 'taxonomy'     => $taxonomy,
                 'child_of'     => 0,
@@ -198,7 +227,8 @@ var gl_alertStateNotAllowed = '';
                 'pad_counts'   => $pad_counts,
                 'hierarchical' => $hierarchical,
                 'title_li'     => $title,
-                'exclude'    => '157,161,162,163,159,160,145,146,147,148,151,150,149,157',//live from 145
+			    'exclude'    => $ids_to_exclude2,
+                //'exclude'    => '157,161,162,163,159,160,145,146,147,148,151,150,149,157',//live from 145
                 'hide_empty'   => $empty
         );
         $sub_cats = get_categories( $args2 );
@@ -216,7 +246,7 @@ var gl_alertStateNotAllowed = '';
 ?>
 	</ol>
 	  </div>
-	  <?php if ($_SESSION['allow_private_coupon'] == 1) { ?> 
+	  <?php if (isCustomerInPrivateEvent()) { ?> 
 	  <?php } elseif(is_product_category()||is_shop()){ ?> 
 	  <?php if ( date_i18n('YmdHi') >= "201809221200" ) { ?>
 	  <div class="sub_banner xs-hide">

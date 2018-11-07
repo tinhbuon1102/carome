@@ -64,6 +64,15 @@
             div.style.display = "none";
         }
     }
+    function new_page(page_no,rule)
+    {
+        window.location = "<?php echo get_site_url();?>/wp-admin/admin.php?page=dynamic-pricing-main-page&tab="+rule+"&page_no="+page_no;
+    }
+    function page_dropdown_func(rule)
+    {
+        var page_no = document.getElementById('page_dropdown').value;
+        new_page(page_no,rule);
+    }
 </script>
 <style>
     .xa_link{
@@ -95,6 +104,42 @@
         background-position: top left;
         border: none;
         margin-left:10px;
+        cursor:pointer;
+    }
+    .nextbtn{
+        background: url(<?php echo plugins_url('/eh-dynamic-pricing-discounts/img/next.png'); ?>) 10px 10px no-repeat;
+        width: 20px;
+        height: 18px;
+        background-size: 100%;
+        background-position: top left;
+        border: none;
+        cursor:pointer;
+    }
+     .nextbtndisable{
+        background: url(<?php echo plugins_url('/eh-dynamic-pricing-discounts/img/nextdisable.png'); ?>) 10px 10px no-repeat;
+        width: 20px;
+        height: 18px;
+        background-size: 100%;
+        background-position: top left;
+        border: none;
+        cursor:pointer;
+    }
+    .prevbtn{
+        background: url(<?php echo plugins_url('/eh-dynamic-pricing-discounts/img/previous.png'); ?>) 10px 10px no-repeat;
+        width: 20px;
+        height: 18px;
+        background-size: 100%;
+        background-position: top left;
+        border: none;
+        cursor:pointer;
+    }
+    .prevbtndisable{
+        background: url(<?php echo plugins_url('/eh-dynamic-pricing-discounts/img/previousdisable.png'); ?>) 10px 10px no-repeat;
+        width: 20px;
+        height: 18px;
+        background-size: 100%;
+        background-position: top left;
+        border: none;
         cursor:pointer;
     }
     .add_new{
@@ -201,7 +246,7 @@
     <div id="col-container2">
         <div class="col-wrap">
             <div class="inside">
-                <div style="">
+                <div style>
                     <h2>
 <?php
                     if ($active_tab == 'product_rules') {    // product rule tab                        
@@ -210,7 +255,8 @@
 
 ?>
                     </h2>
-                    <button style="margin: 10px 0px;<?php if (!empty($_REQUEST['edit']) || in_array($active_tab,array('settings_page','import_export','licence','No Rules Selected'))) echo "display:none;" ?> <?php echo $active_tab; ?>" class="add_new add_new_rule_btn button button-primary" onclick="xa_show_form()" >Add New Rule</button> </div>
+                    <button style="margin: 10px 0px;<?php if (!empty($_REQUEST['edit']) || in_array($active_tab,array('settings_page','import_export','licence','No Rules Selected'))) echo "display:none;" ?> <?php echo $active_tab; ?>" class="add_new add_new_rule_btn button button-primary" onclick="xa_show_form()" >Add New Rule</button>
+                </div>
                 <form method="get" action="" id="eh_rule_form" style=<?php
                 if (!empty($_REQUEST['edit']) || isset($_REQUEST['update']) || $active_tab == 'settings_page' || $active_tab == 'import_export' || !$rule_tab || $active_tab == 'licence') {
                     
@@ -352,10 +398,8 @@
     }
     jQuery(document).ready(function ()
     {
-        jQuery(".date-picker").datetimepicker({
-        	   dateFormat: "dd-mm-yy",
-        	    minDate: 0
-
+        jQuery(".date-picker").datepicker({
+            dateFormat: "dd-mm-yy",minDate: 0
         });
         jQuery('#more_options').on('click', function () {
             jQuery('.more_options').toggle();

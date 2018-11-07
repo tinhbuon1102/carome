@@ -37,7 +37,19 @@
 		$hierarchical = 1;      // 1 for yes, 0 for no
 		$title        = '';
 		$empty        = 1;
-		
+		$ids_to_exclude = array();
+		$get_terms_to_exclude =  get_terms(
+			array(
+        'fields'  => 'ids',
+        'slug'    => array( 
+            'twoset_price_jwl', 
+            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle' ),
+        'taxonomy' => $taxonomy,
+    )
+);
+	if( !is_wp_error( $get_terms_to_exclude ) && count($get_terms_to_exclude) > 0){
+    $ids_to_exclude = $get_terms_to_exclude; 
+	}
 		$args = array(
          'taxonomy'     => $taxonomy,
          'orderby'      => $orderby,
@@ -45,7 +57,8 @@
          'pad_counts'   => $pad_counts,
          'hierarchical' => $hierarchical,
          'title_li'     => $title,
-	     'exclude'    => '77,92,153,152,154,157,169,176,175',//175 is 3set 10% OFF
+		 'exclude'    => $ids_to_exclude,
+	     //'exclude'    => '77,92,153,152,154,157,169,176,175',//175 is 3set 10% OFF
          'hide_empty'   => $empty
 		);
 		$all_categories = get_categories( $args );
@@ -56,7 +69,19 @@
     if($cat->category_parent == 0) {
         $category_id = $cat->term_id;       
         echo '<li><a href="'. get_term_link($cat->slug, 'product_cat') .'">'. $cat->name .'</a></li>';
-
+		$ids_to_exclude2 = array();
+		$get_terms_to_exclude2 =  get_terms(
+			array(
+				'fields'  => 'ids',
+				'slug'    => array(
+					'pumps', 
+					'sandals', 'ipcase', 'glasses', 'hairacc', 'jewelry', 'bag' ),
+				'taxonomy' => $taxonomy,
+			)
+		);
+	if( !is_wp_error( $get_terms_to_exclude2 ) && count($get_terms_to_exclude2) > 0){
+    $ids_to_exclude2 = $get_terms_to_exclude2; 
+	}
         $args2 = array(
                 'taxonomy'     => $taxonomy,
                 'child_of'     => 0,
@@ -66,7 +91,8 @@
                 'pad_counts'   => $pad_counts,
                 'hierarchical' => $hierarchical,
                 'title_li'     => $title,
-			    'exclude'    => '157,161,158,159,163,145,146,147,148,151,150,149',//live from 145
+			    'exclude'    => $ids_to_exclude2,
+			    //'exclude'    => '157,161,158,159,163,145,146,147,148,151,150,149',//live from 145
                 'hide_empty'   => $empty
         );
         $sub_cats = get_categories( $args2 );
@@ -116,7 +142,24 @@
 				<div class="magazine-article__col-content vertical--align-center mag_items wpb_column vc_column_container vc_col-sm-4">
 					<div class="vc_column-inner">
 						<div class="wpb_wrapper">
-							<?php echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="17031,17023,17038,17002," visibility="visible"]'); ?>
+							<?php
+							/*$prod_ids_to_include = array();
+							$get_$prod_ids_to_include = get_terms(
+								array(
+									'fields'  => 'ids',
+									'post_type' => 'product', 
+									'title' => array(
+										'リボン付きセンタープレスフレアーパンツ','ベルト付きチェックノースリワンピース','タッキングテーラーワンピース','ウールハット'),
+									'taxonomy' => $taxonomy
+								)
+							);
+							if( !is_wp_error( $get_$prod_ids_to_include ) && count($get_$prod_ids_to_include) > 0){
+							$prod_ids_to_include = $get_$prod_ids_to_include;
+							}
+							echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="'.$prod_ids_to_include.'" visibility="visible"]');
+							*/
+							?>
+							<?php echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="17031,17023,17038,17002" visibility="visible"]'); ?>
 						</div>
 					</div>
 				</div>
@@ -127,10 +170,23 @@
 		<div class="els-cat-default els-cat-wrap">
 			<div class="row">
 				<?php
+				$ids_to_include = array();
+		$get_terms_to_include =  get_terms(
+			array(
+        'fields'  => 'ids',
+        'slug'    => array( 
+            'tops', 'bottoms', 'outer', 'onepiece', 'mens', 'accessories', 'shoes', 'lifestyle' ),
+        'taxonomy' => $taxonomy,
+    )
+);
+	if( !is_wp_error( $get_terms_to_include ) && count($get_terms_to_include) > 0){
+    $ids_to_include = $get_terms_to_include; 
+	}
 				$prod_categories = get_terms( 'product_cat', array(
 					'orderby'    => 'name',
 					'order'      => 'ASC',
-					'exclude'    => '69, 77,157,161,158,159,163,162,145,146,147,148,151,150,149,153,152,154,169,175,176',
+					'include'    => $ids_to_include,
+					//'exclude'    => '69, 77,157,161,158,159,163,162,145,146,147,148,151,150,149,153,152,154,169,175,176',
 					'number'     => 8,
 					'hide_empty' => 1
 				));

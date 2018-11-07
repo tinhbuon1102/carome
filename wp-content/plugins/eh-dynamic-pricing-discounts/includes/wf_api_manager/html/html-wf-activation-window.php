@@ -121,7 +121,7 @@ $show_deactivation = ( empty($status) || $status == 'inactive' ) ? 'hidden' : ''
                 <input type="button" id="btn_licence_activate" class="aw-button aw-main-button" value="Activate">
             </div>
             <div class="content-row" style="float: left;">
-                <p class="aw-note-cell">Check <a href="http://www.xadapter.com/my-account" target="_blank">My Account</a> for API Keys and API Downloads.</p>
+                <p class="aw-note-cell">Check <a href="https://elextensions.com/my-account" target="_blank">My Account</a> for API Keys and API Downloads.</p>
             </div>
         </div>
         <div id="aw-deactivation" class="content-row <?php echo $show_deactivation ?>">

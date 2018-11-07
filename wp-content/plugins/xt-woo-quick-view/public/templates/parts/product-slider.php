@@ -58,7 +58,10 @@ if(!empty($variation_id)) {
 
 $attachment_ids = array_filter($attachment_ids);
 ?>
-
+<div class="product-hero__info-wrap">
+	<div class="left-title"><?php do_action('wooqv_product_title'); ?></div>
+	<div class="right-title"><?php do_action('wooqv_product_price'); ?></div>
+</div>
 <div class="wooqv-slider-wrapper" data-attachments="<?php echo count($attachment_ids);?>">
 
 	<ul class="wooqv-slider">

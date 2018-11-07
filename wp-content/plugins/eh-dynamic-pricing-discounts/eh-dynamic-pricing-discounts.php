@@ -1,14 +1,14 @@
 <?php
 /**
- 	Plugin Name: Dynamic&nbsp;Pricing and Discounts for WooCommerce
-	Plugin URI: https://www.xadapter.com/product/dynamic-pricing-discounts-woocommerce/
+ 	Plugin Name: ELEX Dynamic&nbsp;Pricing and Discounts for WooCommerce
+	Plugin URI: https://elextensions.com/plugin/dynamic-pricing-and-discounts-plugin-for-woocommerce/
 	Description: This plugin helps you to set discounts and pricing dynamically based on minimum quantity,weight,price and allow you to set maximum allowed discounts on every rule.
-	Version: 3.4.14
-	Author: xadapter
+	Version: 3.5.4
+	Author: ELEX
     WC requires at least: 2.6.0
     WC tested up to: 3.3
-	Author URI: https://www.xadapter.com
-	Copyright: 2016-2017 XAdapter.
+	Author URI: https://elextensions.com
+	Copyright: 2018 ELEX.
 */
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -124,8 +124,8 @@ if (!function_exists('eh_dp_plugin_settings_link')) {
 
     function eh_dp_plugin_settings_link($links) {
         $settings_link = '<a href="admin.php?page=dynamic-pricing-main-page&tab=product_rules">Settings</a>';
-        $doc_link = '<a href="https://www.xadapter.com/category/documentation/dynamic-pricing-and-discounts-for-woocommerce/" target="_blank">' . __('Documentation', 'eha_multi_carrier_shipping') . '</a>';
-        $support_link = '<a href="https://www.xadapter.com/support/forum/dynamic-pricing-discounts-woocommerce/" target="_blank">' . __('Support', 'eha_multi_carrier_shipping') . '</a>';
+        $doc_link = '<a href="https://elextensions.com/set-up-elex-dynamic-pricing-and-discounts-plugin-for-woocommerce/" target="_blank">' . __('Documentation', 'eha_multi_carrier_shipping') . '</a>';
+        $support_link = '<a href="https://elextensions.com/support/" target="_blank">' . __('Support', 'eha_multi_carrier_shipping') . '</a>';
 
         array_unshift($links, $support_link);
         array_unshift($links, $doc_link);

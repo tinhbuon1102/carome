@@ -23,11 +23,6 @@ if (!class_exists('xa_dy_admin_actions_function')) {
             wp_enqueue_script('jquery-ui-datepicker');
             //jQuery UI theme css file
             wp_enqueue_style('e2b-admin-ui-css', plugins_url('css/jquery-ui.css', __FILE__));
-            
-            
-            wp_enqueue_script('datetimepicker', plugin_dir_url(__FILE__) . 'js/jquery-ui-timepicker-addon.js', array('jquery'), $this->version, true);
-            wp_enqueue_script('datetimepickerlang', plugin_dir_url(__FILE__) . 'js/jquery-ui-timepicker-ja.js', array('jquery'), $this->version, true);
-            wp_enqueue_style('datetimepicker', plugin_dir_url(__FILE__) . 'css/jquery-ui-timepicker-addon.css', array(), $this->version, 'all');
         }
 
         function register_sub_menu() {    /// Creates New Sub Menu under main Woocommerce menu

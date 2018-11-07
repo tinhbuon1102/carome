@@ -395,7 +395,7 @@ class Woo_Quick_View_Public {
 		return $button;
 		
 	}
-			
+	//remove		
 	public function add_more_info_button() {
 
 		$classes = array(
@@ -408,7 +408,7 @@ class Woo_Quick_View_Public {
 		$classes = implode(' ', $classes);
 				
 		?>
-		<button type="button" class="<?php echo esc_attr($classes); ?>" onclick="location.href='<?php the_permalink(); ?>'"><?php esc_html_e('More info', 'woo-quick-view');?></button>
+		<!--<button type="button" class="<?php echo esc_attr($classes); ?>" onclick="location.href='<?php the_permalink(); ?>'"><?php esc_html_e('More info', 'woo-quick-view');?></button>-->
 		<?php
 	}
 
@@ -420,13 +420,19 @@ class Woo_Quick_View_Public {
 		if($table_variations_installed && $wooqv_action) {
 			add_action( 'woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 1 );
 		}
-
+		
+		//add new action
+		add_action( 'wooqv_product_title', 'woocommerce_template_single_title', 5 );
+		add_action( 'wooqv_product_price', 'woocommerce_template_single_price', 15 );
+		
+//change order
 		add_action( 'wooqv_product_summary', 'woocommerce_template_single_title', 5 );
 		add_action( 'wooqv_product_summary', 'woocommerce_template_single_rating', 10 );
 		add_action( 'wooqv_product_summary', 'woocommerce_template_single_price', 15 );
-		add_action( 'wooqv_product_summary', 'woocommerce_template_single_excerpt', 20 );
-		add_action( 'wooqv_product_summary', 'woocommerce_template_single_meta', 25 );
-		add_action( 'wooqv_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+		//add_action( 'wooqv_product_summary', 'woocommerce_template_single_excerpt', 20 ); removed
+		add_action( 'wooqv_product_summary', 'woocommerce_template_single_add_to_cart', 20 ); //changed order
+		add_action( 'wooqv_product_summary', 'woocommerce_template_single_meta', 25 ); //changed order
+		
 			
 	}
 	

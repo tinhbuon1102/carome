@@ -71,6 +71,23 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 	<!--ACF size tab-->
 	<?php
 	$table = get_field( 'product_size' );
+	#data = get_post_meta(get_the_ID(), 'product_size', true);
+	if (! is_array($table)) {
+		$table = json_decode($table, true);
+		if (! isset($table['header']) && isset($table['h'])){
+			$table['header'] = $table['h'];
+			unset($table['h']);
+		}
+		if (! isset($table['body']) && isset($table['b'])){
+			$table['body'] = $table['b'];
+			unset($table['b']);
+		}
+	}
+	#cho '<pre>';
+	#rint_r($table);
+	#cho '</pre>';
+	#ie();
+	#print_r(json_decode($table));
 	if ( $table ) {
 	?>
 	<div id="product_size__panel" class="o-accordion__tabset" data-add-class="js_collapsible js_collapsed">

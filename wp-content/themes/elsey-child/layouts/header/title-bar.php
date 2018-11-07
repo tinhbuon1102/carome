@@ -79,7 +79,7 @@ if ( is_product() ) {
 	$maincontent_class = 'max-width--site';
 }else if ( is_page('kimono-rental') ) {
 	$maincontent_class = 'max-width--large main-con';
-} elseif ($_SESSION['allow_private_coupon'] == 1) {
+} elseif (isCustomerInPrivateEvent()) {
 	$maincontent_class = 'max-width--site carome-event--site';
 } else {
 	$maincontent_class = 'max-width--site';

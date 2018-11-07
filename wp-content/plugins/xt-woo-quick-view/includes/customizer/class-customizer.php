@@ -168,7 +168,7 @@ class Woo_Quick_View_Customizer {
 		require_once self::$path . '/fields/modal-overlay.php';
 		require_once self::$path . '/fields/modal-box.php';
 		require_once self::$path . '/fields/modal-product-slider.php';
-		require_once self::$path . '/fields/modal-product-info.php';
+		//require_once self::$path . '/fields/modal-product-info.php';
 		require_once self::$path . '/fields/modal-close-button.php';
 		require_once self::$path . '/fields/modal-navigation.php';
 	}

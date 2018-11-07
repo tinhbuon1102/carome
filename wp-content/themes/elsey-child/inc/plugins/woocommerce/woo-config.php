@@ -260,7 +260,13 @@ if ( class_exists( 'WooCommerce' ) ) {
 			  $html .= do_shortcode('[yith_wcwl_add_to_wishlist icon="fa-heart-o"]');
 			  $html .= '</div>';
 		  }
-			$html.= '<a href="'.esc_url(get_permalink(get_the_ID())).'" class="woocommerce-LoopProduct-link"></a>';
+		  if (!isCustomerInPrivateEvent())
+		  {
+		  	$html.= '<a href="'.esc_url(get_permalink(get_the_ID())).'" class="woocommerce-LoopProduct-link"></a>';
+		  }
+		  else {
+			  $html.= '<a href="'.esc_url(get_permalink(get_the_ID())).'" class="wooqv-trigger woocommerce-LoopProduct-link" data-id="'. get_the_ID() .'"></a>';
+		  }
 			echo $html;
 		}
 	}
@@ -278,7 +284,15 @@ if ( class_exists( 'WooCommerce' ) ) {
   if (!function_exists('elsey_product_title')) {
 		function elsey_product_title() {
 			global $product;
-			$html = '<div class="els-product-title"><h3><a href="'.get_the_permalink($product->get_id()).'">'. get_post_meta(get_the_ID(), '_custom_product_text_field', true) .'</a></h3>';
+			$html = '<div class="els-product-title"><h3>';
+			if (!isCustomerInPrivateEvent())
+			{
+				$html .= '<a href="'.get_the_permalink($product->get_id()).'">'. get_post_meta(get_the_ID(), '_custom_product_text_field', true) .'</a>';
+			}
+			else {
+				$html .= '<a class="wooqv-trigger title-link" data-id="'. $product->get_id() .'" href="'.get_the_permalink($product->get_id()).'">'. get_post_meta(get_the_ID(), '_custom_product_text_field', true) .'</a>';
+			}
+			$html .= '</h3>';
 			
 		  $html .= '</div>';
 		  echo $html;

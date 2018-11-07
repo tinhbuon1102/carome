@@ -102,7 +102,7 @@ function wf_licence_expired_notice() {
         <?php 
         $desc=!empty($this->product_desc)?$this->product_desc:$this->plugin_name;
         ?>
-        <p><?php _e( 'Your licence for the plugin "'.$desc.'" has expired. </br><a target="_blank" href="https://www.xadapter.com/my-account/">Renew the plugin to get continued updates and support.</a> ', 'woocommerce' ); ?></p>
+        <p><?php _e( 'Your licence for the plugin "'.$desc.'" has expired. </br><a target="_blank" href="https://eletxensions.com/my-account/">Renew the plugin to get continued updates and support.</a> ', 'woocommerce' ); ?></p>
     </div>
     <?php
 }

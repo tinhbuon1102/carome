@@ -1,9 +1,9 @@
 <?php
 
 $product_name = 'dynamicdiscountpricing'; // name should match with 'Software Title' configured in server, and it should not contains white space
-$product_version = '3.4.14';
+$product_version = '3.5.4';
 $product_slug = 'eh-dynamic-pricing-discounts/eh-dynamic-pricing-discounts.php'; //product base_path/file_name
-$serve_url = 'https://www.xadapter.com/';
+$serve_url = 'https://elextensions.com/';
 $plugin_settings_url = admin_url('admin.php?page=dynamic-pricing-main-page'); //Contains the Plugin settings link.
 $product_desc="Dynamic Pricing and Discounts for WooCommerce";  // this can be changed only for notice display purpose
 

@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 } 
 ?>
 
-<div class="wooqv-item-info">
+<div class="wooqv-item-info els-content-col">
 	<div class="summary entry-summary">
 		<?php do_action('wooqv_product_summary'); ?>	
 	</div>

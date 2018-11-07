@@ -3,7 +3,55 @@ $allrules = array();
 $allrules = get_option("xa_dp_rules", array());
 if (isset($allrules['category_rules'])) {
     $allrules = $allrules['category_rules'];
+    $settings = get_option('xa_dynamic_pricing_setting',array());
+    $rules_per_page = isset($settings['rules_per_page'])?$settings['rules_per_page']:20;
+    if(isset($_REQUEST['page_no']))
+    {
+        $current_page_no = $_REQUEST['page_no'];
+    }
+    else
+    {
+        $current_page_no = 1;
+    }
     ?>
+    <div style="float: right;padding: 10px;">
+        <?php
+        $pages = floor(count($allrules)/$rules_per_page);
+        $pages = count($allrules)%$rules_per_page !=0? $pages+1: $pages;
+        if($current_page_no>$pages)
+            $current_page_no = 1;
+        ?>
+        Page: 
+        <select style="display: inline-block;" onchange="page_dropdown_func('category_rules');" id="page_dropdown">
+            <?php
+            for($i=1;$i<=$pages;$i++)
+            {
+                $selected= '';
+                if($current_page_no==$i)
+                {
+                    $selected = 'selected';
+                }
+                echo "<option $selected value='$i'>$i</option>";
+            }
+            $nextdisable = '';
+            $classnext = 'nextbtn';
+            if($current_page_no >= $pages)
+            {
+                $nextdisable = 'disabled';
+                $classnext = 'nextbtndisable';
+            }
+            $prevdisable = '';
+            $classprev = 'prevbtn';
+            if($current_page_no <= 1)
+            {    
+                $prevdisable = 'disabled';
+                $classprev = 'prevbtndisable';
+            }
+            ?>
+        </select>
+        <button type="button" <?php echo $prevdisable;?> class='<?php echo $classprev;?>' onclick="new_page(<?php echo $current_page_no-1;?>,'category_rules');"></button>
+        <button type="button" <?php echo $nextdisable;?> class='<?php echo $classnext;?>' onclick="new_page(<?php echo $current_page_no+1;?>,'category_rules');"></button>
+    </div>
     <table class="display_all_rules table widefat" style=" border-collapse: collapse;width:100%;">
         <thead style="font-size: smaller;background-color: lightgrey;">
             <tr style=" border-bottom-style: solid; border-bottom-width: thin;">
@@ -36,6 +84,16 @@ if (isset($allrules['category_rules'])) {
                 echo '<tr class="' . $customclass . ' " style="border-bottom:lightgrey; border-bottom-style: solid; border-bottom-width: thin;">';
                 echo '<td colspan=20> '.__('There are no rules created to create a rule click the "Add New Rule" button on top left-hand side.','eh-dynamic-pricing-discounts').'</td>';             
             }
+            $begin = ($current_page_no-1) * $rules_per_page;
+            $begin++;
+            $end = $current_page_no * $rules_per_page;
+            $newrules=array();
+            for($i=$begin; $i<=$end; $i++)
+            {   
+                if(isset($allrules[$i]))
+                    $newrules[$i] = $allrules[$i];
+            }
+            $allrules = $newrules;
             foreach ($allrules as $key => $value) {
                 echo '<tr class="saved_row"  style="border-bottom: lightgrey; border-bottom-style: solid; border-bottom-width: thin;"><td class="icon-move " style="width:10px;cursor: move"></td>';
                 echo '<td style="margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px;">';
