@@ -3353,6 +3353,7 @@ function showOrderEventLabel($order){
     background: #800080;
     color: #FFF;
     display: inline-block;
+	margin-left: 10px;
     padding: 3px 6px;
     margin-left: 5px;
     font-size: 12px;
