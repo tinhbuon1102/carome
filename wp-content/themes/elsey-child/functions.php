@@ -3373,6 +3373,42 @@ function elsey_event_nav_menu_args( $args ) {
 	return $args;
 }
 
+
+add_action( 'user_register', 'elsey_registration_save', 10, 1 );
+function elsey_registration_save( $user_id ) {
+	$user = wp_get_current_user();
+	$allowed_roles = array('administrator', 'shop_manager');
+	if( !empty($user->roles) && array_intersect($allowed_roles, $user->roles ) ) {
+		update_user_meta($user_id, 'created_by_admin', 1);
+	}
+}
+
+function elsey_show_specific_payment_gateway( $load_gateways ){
+	$user = wp_get_current_user();
+	$is_created_by_admin = get_user_meta($user->ID, 'created_by_admin', true);
+	
+	// Get event time
+	$today = current_time('mysql');
+	$event_start_end = get_event_time_start_end();
+	
+	$is_event_time = !empty($event_start_end) && $today >= $event_start_end['start'] && $today <= $event_start_end['end'];
+	// Remove Offline payment gateway if user note created by admin 
+	if (!$is_created_by_admin || !$is_event_time)
+	{
+		foreach ($load_gateways as $key => $load_gateway)
+		{
+			if ($load_gateway == 'WC_Gateway_Offline')
+			{
+				unset($load_gateways[$key]);
+				break;
+			}
+		}
+	}
+	return $load_gateways;
+}
+
+add_filter( 'woocommerce_payment_gateways', 'elsey_show_specific_payment_gateway', 10, 1 );
+
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
