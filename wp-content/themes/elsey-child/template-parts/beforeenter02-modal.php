@@ -17,8 +17,6 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 				  <p>ブラウザの位置情報を許可していただく必要がございます。</p>
 				  <?php
 				  $browser = strtolower($_SERVER['HTTP_USER_AGENT']);
-				  var_dump(strstr($browser , 'chrome'));
-				  pr($browser);die;
 				  // ユーザーエージェントの情報を基に判定
 				  if(strstr($browser , 'chrome')) {
 					  //Chromeからのアクセス
