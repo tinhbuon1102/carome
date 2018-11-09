@@ -1381,7 +1381,7 @@ function elsey_custom_checkout_field_update_order_meta( $order_id )
 	
 	// Remove user group Offline payment
 	global $wpdb;
-	$wpdb->delete( 'groups_user_group', array( 'user_id' => $userID, 'group_id' => 3 ) );
+	$wpdb->delete( $wpdb->prefix . 'groups_user_group', array( 'user_id' => $userID, 'group_id' => 3 ) );
 	
 }
 
