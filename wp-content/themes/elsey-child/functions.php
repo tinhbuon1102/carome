@@ -3344,6 +3344,13 @@ function isOrderEvent($order)
 	return $event_coupon ? true : false;
 }
 
+function showOrderEventLabel($order){
+	if (isOrderEvent($order))
+	{
+		echo '<span class="event-order-label">'. __('Event', 'elsey') .'</span>';
+	}
+}
+
 add_filter( 'wp_nav_menu_args', 'elsey_event_nav_menu_args', 9999 );
 function elsey_event_nav_menu_args( $args ) {
 	if (isCustomerInPrivateEvent())

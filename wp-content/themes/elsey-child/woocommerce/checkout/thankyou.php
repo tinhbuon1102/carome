@@ -82,6 +82,7 @@ foreach ($orders as $order_index => $order) {
 			<div class="mini-product__attribute woocommerce-order-overview__order order">
 				<span class="label"><?php _e( 'Order number:', 'woocommerce' ); ?></span>
 				<span class="value"><?php echo $order->get_order_number(); ?></strong>
+				<?php echo showOrderEventLabel($order)?>
 			</div>
 
 			<div class="mini-product__attribute woocommerce-order-overview__date date">
