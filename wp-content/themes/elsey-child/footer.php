@@ -149,6 +149,8 @@ jQuery(document).ready(function(){
 	?>
 });
 </script>
-<?php echo checkGeoLocationNearStore();?>
+<div class="woofc">
+	<?php echo checkGeoLocationNearStore();?>
+</div>
 </body>
 </html>
