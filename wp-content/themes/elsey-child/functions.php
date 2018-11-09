@@ -3347,7 +3347,16 @@ function isOrderEvent($order)
 function showOrderEventLabel($order){
 	if (isOrderEvent($order))
 	{
-		echo '<span class="event-order-label">'. __('Event', 'elsey') .'</span>';
+		echo '<span class="event-order-label" style="font-family: "brandon-grotesque",sans-serif;
+    font-weight: 600;
+    letter-spacing: 2px;
+    background: #800080;
+    color: #FFF;
+    display: inline-block;
+    padding: 3px 6px;
+    margin-left: 5px;
+    font-size: 12px;
+    border-radius: 5px;line-height: 20px;font-size: 14px;">'. __('Event', 'elsey') .'</span>';
 	}
 }
 
