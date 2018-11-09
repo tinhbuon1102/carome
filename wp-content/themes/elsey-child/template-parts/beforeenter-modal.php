@@ -28,8 +28,8 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 					  $tabAndroidClass = 'active';
 				  } else {
 					  //その他からのアクセス
-					  $tabIphoneClass = '';
-					  $tabAndroidClass = 'active';
+					  $tabIphoneClass = 'active';
+					  $tabAndroidClass = '';
 				  }
 				  echo('<div class="browser-inst">');
 				  echo ('<ul class="tabs">');

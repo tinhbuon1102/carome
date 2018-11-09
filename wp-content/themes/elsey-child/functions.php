@@ -1983,6 +1983,11 @@ function elsey_pre_order_report_dashboard_widget_function()
 add_filter( 'woocommerce_payment_gateways', 'elsey_woocommerce_payment_gateways', 1000, 1 );
 function elsey_woocommerce_payment_gateways($load_gateways) 
 {
+	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
+	{
+		return $load_gateways;
+	}
+	
 	global $wpdb;
 	$current_user = wp_get_current_user();
 	
