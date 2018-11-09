@@ -43,7 +43,7 @@
         'fields'  => 'ids',
         'slug'    => array( 
             'twoset_price_jwl', 
-            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle' ),
+            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle', '2days-limited-acc-ev1811' ),
         'taxonomy' => $taxonomy,
     )
 );

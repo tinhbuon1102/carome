@@ -177,7 +177,7 @@ $get_terms_to_exclude =  get_terms(
         'fields'  => 'ids',
         'slug'    => array( 
             'twoset_price_jwl', 
-            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens' ),
+            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', '2days-limited-acc-ev1811' ),
         'taxonomy' => $taxonomy,
     )
 );
