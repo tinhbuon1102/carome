@@ -18,18 +18,17 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 				  <p>端末の位置情報をオンしていただく必要がございます。</p>
 				  <?php
 				  $browser = strtolower($_SERVER['HTTP_USER_AGENT']);
-				  if(stripos($user_agent,'iPhone') !== false) {
+				  $tabIphoneClass = '';
+				  $tabAndroidClass = '';
+				  if(stripos($browser,'iPhone') !== false) {
 					  //iPhoneからのアクセス
 					  $tabIphoneClass = 'active';
-					  $tabAndroidClass = '';
 				  } elseif (stripos($browser,'Android') !== false) {
 					  //Androidからのアクセス
-					  $tabIphoneClass = '';
 					  $tabAndroidClass = 'active';
 				  } else {
 					  //その他からのアクセス
 					  $tabIphoneClass = 'active';
-					  $tabAndroidClass = '';
 				  }
 				  echo('<div class="browser-inst">');
 				  echo ('<ul class="tabs">');

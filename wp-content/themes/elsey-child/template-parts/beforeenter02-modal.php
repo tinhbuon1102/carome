@@ -18,29 +18,26 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 				  <?php
 				  $browser = strtolower($_SERVER['HTTP_USER_AGENT']);
 				  // ユーザーエージェントの情報を基に判定
-				  if(strstr($browser , 'chrome')) {
+				  $tabSafariClass = '';
+				  $tabChromeClass = '';
+				  $tabFirefoxClass = '';
+				  $tabOtherClass = '';
+				  
+				  if(strpos($browser , 'chrome') !== false) {
 					  //Chromeからのアクセス
-					  $tabSafariClass = '';
 					  $tabChromeClass = 'active';
 					  echo('<p><i class="evg-icon evg-icon-browser-chrome"></i> Chromeです</p>');
-				  } elseif (strstr($browser , 'firefox')) {
+				  } elseif (strpos($browser , 'firefox') !== false) {
 					  //Firefoxからのアクセス
-					  $tabSafariClass = '';
-					  $tabChromeClass = '';
 					  $tabFirefoxClass = 'active';
-					  $tabOtherClass = '';
 					  echo('<p>Firefoxです</p>');
 					  
-				  } elseif (strstr($browser , 'safari')) {
+				  } elseif (strpos($browser , 'safari') !== false) {
 					  //Safariからのアクセス
 					  $tabSafariClass = 'active';
-					  $tabChromeClass = '';
 					  echo('<p><i class="evg-icon evg-icon-browser-safari"></i> Safariです</p>');
 				  } else {
 					  //その他からのアクセス
-					  $tabSafariClass = '';
-					  $tabChromeClass = '';
-					  $tabFirefoxClass = '';
 					  $tabOtherClass = 'active';
 					  echo('<p>その他ブラウザです</p>');
 					  
@@ -49,7 +46,7 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 				  echo ('<ul class="tabs">');
 	 echo ('<li class="'.$tabSafariClass.'"><a href="#safariUser"><i class="evg-icon evg-icon-browser-safari"></i> Safariの方</a></li>');
 	 echo ('<li class="'.$tabChromeClass.'"><a href="#chromeUser"><i class="evg-icon evg-icon-browser-chrome"></i> Chromeの方</a></li>');
-	 if(!strstr($browser , 'safari') || !strstr($browser , 'chrome')) {
+	 if(!strpos($browser , 'safari') !== false || !strpos($browser , 'chrome') !== false) {
 		 echo ('<li class="'.$tabFirefoxClass.'"><a href="#firefoxUser">Firefoxの方</a></li>');
 		 echo ('<li class="'.$tabOtherClass.'"><a href="#otherUser">その他の方</a></li>');
 	 }
