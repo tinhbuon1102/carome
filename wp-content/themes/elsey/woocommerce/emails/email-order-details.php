@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $text_align = is_rtl() ? 'right' : 'left';
 
 do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email ); ?>
-
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 <?php if ( ! $sent_to_admin ) : ?>
 	<h2><?php printf( __( 'Order #%s', 'woocommerce' ), $order->get_order_number() ); ?> (<?php printf( '<time datetime="%s">%s</time>', $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ); ?>)<?php echo showOrderEventLabel($order)?></h2>
 <?php else : ?>
