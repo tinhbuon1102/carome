@@ -1378,6 +1378,11 @@ function elsey_custom_checkout_field_update_order_meta( $order_id )
 		update_user_meta($userID, 'birth_day', $_POST['billing_birth_day']);
 		update_user_meta($userID, 'billing_birth_day', $_POST['billing_birth_day']);
 	}
+	
+	// Remove user group Offline payment
+	global $wpdb;
+	$wpdb->delete( $wpdb->prefix . 'groups_user_group', array( 'user_id' => $userID, 'group_id' => 3 ) );
+	
 }
 
 add_filter('woocommerce_countries_base_state', 'elsey_woocommerce_countries_base_state');
@@ -1980,6 +1985,8 @@ function elsey_woocommerce_payment_gateways($load_gateways)
 {
 	global $wpdb;
 	$current_user = wp_get_current_user();
+	
+	//show WC_Gateway_BACS or not
 	$sql = "SELECT g.group_id, g.name
 	FROM {$wpdb->prefix}groups_user_group ug 
 	INNER JOIN {$wpdb->prefix}groups_group g ON ug.group_id = g.group_id
@@ -1993,6 +2000,27 @@ function elsey_woocommerce_payment_gateways($load_gateways)
 			unset($load_gateways[$bacs_index]);
 		}
 	}
+	
+	//show WC_Gateway_Offline or not
+	$sql = "SELECT g.group_id, g.name
+	FROM {$wpdb->prefix}groups_user_group ug
+	INNER JOIN {$wpdb->prefix}groups_group g ON ug.group_id = g.group_id
+	WHERE ug.user_id=" . (int)$current_user->ID . ' AND g.group_id = 3';
+	
+	$group = $wpdb->get_row($sql);
+	// Get event time
+	$today = current_time('mysql');
+	$event_start_end = get_event_time_start_end();
+	$is_event_time = !empty($event_start_end) && $today >= $event_start_end['start'] && $today <= $event_start_end['end'];
+	
+	if (!$group || !$is_event_time)
+	{
+		if (($bacs_index = array_search('WC_Gateway_Offline', $load_gateways)) !== false)
+		{
+			unset($load_gateways[$bacs_index]);
+		}
+	}
+	
 	$load_gateways = array_values($load_gateways);
 	return $load_gateways;
 }
@@ -3382,32 +3410,6 @@ function elsey_registration_save( $user_id ) {
 		update_user_meta($user_id, 'created_by_admin', 1);
 	}
 }
-
-function elsey_show_specific_payment_gateway( $load_gateways ){
-	$user = wp_get_current_user();
-	$is_created_by_admin = get_user_meta($user->ID, 'created_by_admin', true);
-	
-	// Get event time
-	$today = current_time('mysql');
-	$event_start_end = get_event_time_start_end();
-	
-	$is_event_time = !empty($event_start_end) && $today >= $event_start_end['start'] && $today <= $event_start_end['end'];
-	// Remove Offline payment gateway if user note created by admin 
-	if (!$is_created_by_admin || !$is_event_time)
-	{
-		foreach ($load_gateways as $key => $load_gateway)
-		{
-			if ($load_gateway == 'WC_Gateway_Offline')
-			{
-				unset($load_gateways[$key]);
-				break;
-			}
-		}
-	}
-	return $load_gateways;
-}
-
-add_filter( 'woocommerce_payment_gateways', 'elsey_show_specific_payment_gateway', 10, 1 );
 
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
