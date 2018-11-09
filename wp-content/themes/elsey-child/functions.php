@@ -3419,7 +3419,7 @@ function elsey_registration_save( $user_id ) {
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
-		$src = add_query_arg( array('ver' => '1.6'), $src );
+		$src = add_query_arg( array('ver' => '1.7'), $src );
 		return $src;
 }
 add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
