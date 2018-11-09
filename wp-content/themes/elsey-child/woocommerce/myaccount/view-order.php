@@ -36,7 +36,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'<span class="value">#' . $order->get_order_number() . '</span>'
 		);
 		?>
-		aaaaaaaaaaaa <?php echo $order->get_id()?>
 		<?php if (isOrderEvent($order)) {?>
 		<span class="event-order-label">Event</span>
 		<?php }?>

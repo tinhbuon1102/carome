@@ -44,9 +44,17 @@ ul.tabs > li {
     -ms-flex: 1;
     flex: 1;
     padding: 12px 20px;
-    border-bottom: 1px solid;
+    border-bottom: 1px solid #CCC;
 }
-
+.browser-inst > ul.tabs > li {
+	padding: 12px 5px;
+}
+ul.tabs > li.active {
+    border-bottom-color: #000;
+}
+ul.tabs > li.active > a {
+    font-weight: 600;
+}
 .tab_content {
     padding-top: 24px;
 }
@@ -58,6 +66,39 @@ ul.tabs > li {
 }
 .instruction-browser {
     margin-bottom: 24px;
+}
+.instruction-browser h2.set-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    line-height: 1;
+    font-weight: bold;
+}
+.instruction-browser.device-inst h2.set-title:before {
+    content: "\ea1a";
+    display: inline-block;
+    margin-right: 5px;
+    font-family: 'caroevg' !important;
+    speak: none;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.modal_smallhead > i {
+    margin-right: 8px;
+}
+.button.button-goshop > i {
+    margin-right: 8px;
+}
+.login-registe__row .tabs li a i {
+    vertical-align: middle;
+}
+
+.login-registe__row .tabs li {
+    text-align: center;
+}
+#error_message_access > p {
+	margin-bottom: 15px;
+	color: red;
 }
 @media only screen and (max-width: 47.99em) {
 	.check-location-button {
@@ -76,5 +117,6 @@ ul.tabs > li {
 	}
 	.remodal.event-enter-modal {
 		height: 100%;
+		padding: 35px 24px;
 	}
 }

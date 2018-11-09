@@ -35,7 +35,14 @@ add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
 /*hide adminbar*/
 add_filter('show_admin_bar', '__return_false');
 
-
+/*meta tag force to clear cache?*/
+function add_meta_tags() {
+	echo '<meta http-equiv="cache-control" content="no-cache" />';
+	echo '<meta http-equiv="expires" content="0" />';
+	echo '<meta http-equiv="expires" content="Fri, 09 Nov 2018 19:00:00 GMT" />';
+	echo '<meta http-equiv="pragma" content="no-cache" />';
+}
+add_action('wp_head', 'add_meta_tags');
 /**
  * バージョンアップ通知を管理者のみ表示させるようにします。
  */
@@ -824,8 +831,8 @@ add_filter( 'woocommerce_stock_html', 'my_wc_hide_in_stock_message', 10, 3 );
 //webfonts icons
 function webfonts_scripts ()
 {
-	wp_enqueue_style('font_css', get_stylesheet_directory_uri() . '/fonts/fonts.css');
-	wp_enqueue_style('icong_css', get_stylesheet_directory_uri() . '/icons/css/event-gicons.css');
+	wp_enqueue_style('font_css', get_stylesheet_directory_uri() . '/fonts/fonts.css?v=' . time());
+	wp_enqueue_style('icong_css', get_stylesheet_directory_uri() . '/icons/css/event-gicons.css?v=' . time());
 }
 add_action('wp_enqueue_scripts', 'webfonts_scripts');
 
@@ -995,7 +1002,7 @@ function get_event_coupon_by($field_name)
 	{
 		if ($coupon_field['name'] == $field_name)
 		{
-			return $coupon_field['default_value'];
+			return $coupon_field['default_value'] ? $coupon_field['default_value'] : $coupon_field['instructions'];
 			break;
 		}
 	}
@@ -1056,9 +1063,13 @@ function elsey_init() {
 add_action('wp', 'elsey_wp_loaded');
 function elsey_wp_loaded()
 {
-	if (isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' ))
+	if (!is_user_logged_in() && isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' ))
 	{
 		wp_redirect(site_url('/enter/'));
+	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' )) {
+		wp_redirect(site_url('/shop/'));
+	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_page('enter') && !defined( 'DOING_AJAX' )) {
+		wp_redirect(site_url('/shop/'));
 	}
 }
 
@@ -1465,8 +1476,10 @@ function pr ($data)
 }
 
 function elsey_title_area_custom(){
-	if (is_shop())
+	if (is_shop() && isCustomerInPrivateEvent())
 	{
+		echo __( 'CAROME EVENT SHOP', 'elsey' );
+	} elseif(is_shop()) {
 		echo __( 'CAROME SHOP', 'elsey' );
 	}
 	else {
@@ -3021,7 +3034,30 @@ function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 
 function isCustomerInPrivateEvent()
 {
-	return isset($_SESSION['allow_private_coupon']) && $_SESSION['allow_private_coupon'] == 1;
+	$user = wp_get_current_user();
+	$private_emails = get_event_coupon_by('email_of_users_for_event_coupon');
+	$private_emails = str_replace(PHP_EOL, ';', $private_emails);
+	$private_emails = str_replace(',', ';', $private_emails);
+	$private_emails = str_replace(' ', ';', $private_emails);
+	$private_emails = explode(';', $private_emails);
+	$private_emails = array_map('trim', $private_emails);
+	
+	$user_email = $user->get('user_email');
+	if ($user_email && in_array(trim($user->get('user_email')), $private_emails))
+	{
+		$_SESSION['user_store_distance'] = 1;
+		$_SESSION['user_at_store'] = 1;
+		return 1;
+	}
+	elseif(isset($_SESSION['allow_private_coupon'])) {
+		return $_SESSION['allow_private_coupon'] == 1;
+	}
+	else {
+		$_SESSION['user_store_distance'] = null;
+		$_SESSION['allow_private_coupon'] = null;
+		$_SESSION['user_at_store'] = null;
+		return false;
+	}
 }
 
 // add_action( 'woocommerce_add_to_cart', 'elsey_woocommerce_add_to_cart', 1000, 6 );
@@ -3032,13 +3068,15 @@ function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $
 		return '';
 	}
 	
+	$current_active_coupon = get_current_event_coupon();
+	
 	if (!isCustomerInPrivateEvent())
 	{
 		return '';
 	}
 
 	//geolocation is valid
-	$coupon = new WC_Coupon(get_current_event_coupon());
+	$coupon = new WC_Coupon($current_active_coupon);
 	if ($coupon->get_date_created())
 	{
 		$packages = WC()->cart->get_shipping_packages();
@@ -3048,7 +3086,7 @@ function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $
 		{
 			foreach ($package['applied_coupons'] as $applied_coupon)
 			{
-				if ($applied_coupon == get_current_event_coupon())
+				if ($applied_coupon == $current_active_coupon)
 				{
 					$isAddedCoupon = true;
 				}
@@ -3059,7 +3097,7 @@ function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $
 		$coupon_expire = $coupon->get_date_expires();
 		if ($coupon_expire->getTimestamp() >= $todayTimeStamp && !$isAddedCoupon)
 		{
-			WC()->cart->add_discount( get_current_event_coupon() );
+			WC()->cart->add_discount( $current_active_coupon );
 			wc_clear_notices();
 		}
 	}
@@ -3094,7 +3132,14 @@ function checkGeoLocationNearStore()
 			        new google.maps.LatLng(fromLat, fromLng), new google.maps.LatLng(toLat, toLng));
 			}
 
-			function checking_allow_free_shipping_coupon(distance, is_blocked)
+			function showPopUpPermissionLocationDevice()
+			{
+				$('#error_message_access').html('<?php echo _e('<p><i class="evg-icon evg-icon-alert-circle-exc"></i> 位置情報が取得できませんでした。再度以下の手順にて設定ができているかご確認ください。</p>', 'elsey')?>');
+				var inst = $.remodal.lookup[$('[data-remodal-id=beforeenter]').data('remodal')];
+				inst.open();
+			}
+			
+			function checking_allow_free_shipping_coupon(distance, is_blocked, err)
 			{
 				  $.ajax({
 				        type: "post",
@@ -3112,8 +3157,16 @@ function checkGeoLocationNearStore()
 					    	}
 					    }
 				    	else if (is_button_click){
-				    		alert('<?php echo __('アクセスポイントがマッチしませんでした。イベント会場にいるのにマッチしない場合はスタッフまでお声がけください。', 'elsey')?>');
-				    		alert('Distance setting is : <?php echo get_distance_event_coupon()?> meters. Distance between you vs Store is : ' + distance.toFixed(0) + ' meters');//remove this for event day
+					    	if (err && err.code)
+					    	{
+					    		alert('エラーコード(' + err.code + '): ' + err.message + '. お使いの端末にて位置情報が許可されていないか、ブラウザのアプリ設定にて位置情報許可がされていません。');
+					    		// Add failed text in popup and show it again
+								showPopUpPermissionLocationDevice();
+					    	}
+					    	else {
+				    			alert('<?php echo __('アクセスポイントがマッチしませんでした。イベント会場にいるのにマッチしない場合はスタッフまでお声がけください。', 'elsey')?>');
+					    	}
+				    		//alert('Distance setting is : <?php echo get_distance_event_coupon()?> meters. Distance between you vs Store is : ' + distance.toFixed(0) + ' meters');//remove this for event day
 					    }
 					    
 					    <?php if (!isCustomerInPrivateEvent() && $_SERVER['REQUEST_METHOD'] !== 'POST') {?>
@@ -3134,7 +3187,7 @@ function checkGeoLocationNearStore()
 						}
 				    });
 				    
-				    navigator.geolocation.clearWatch(id);
+				    //navigator.geolocation.clearWatch(id);
 			}
 			function success(position) {
 				var crd = position.coords;
@@ -3145,9 +3198,7 @@ function checkGeoLocationNearStore()
 			function error(err) {
 				//make very large distance if location is blocked
 				distance = 500000000000000000000000000000000000;
-				alert('エラーコード(' + err.code + '): ' + err.message + '. お使いの端末にて位置情報が許可されていないか、ブラウザのアプリ設定にて位置情報許可がされていません。');
-				//alert('ERROR(' + err.code + '): ' + err.message + '. Your location not turn on in your device, or location permission is turn off for this browser ');
-				checking_allow_free_shipping_coupon(distance, true);
+				checking_allow_free_shipping_coupon(distance, true, err);
 			}
 		
 			options = {
@@ -3159,8 +3210,16 @@ function checkGeoLocationNearStore()
 			if (is_button_click)
 			{
 				$('body').LoadingOverlay('show');
+				setTimeout(function(){
+					if ($('.loadingoverlay').length)
+					{
+						$('body').LoadingOverlay('hide');
+						// Add failed text in popup and show it again
+						showPopUpPermissionLocationDevice();
+					}
+				}, 21000);
 			}
-			id = navigator.geolocation.watchPosition(success, error, options);
+			id = navigator.geolocation.getCurrentPosition(success, error, options);
 		}
 	jQuery(function($){
 		<?php if (isset($_SESSION['user_agree_to_check_location']) && $_SESSION['user_agree_to_check_location'] == 1) {?>
@@ -3176,7 +3235,7 @@ function elsey_check_private_coupon()
 	$today = current_time('mysql');
 	$event_start_end = get_event_time_start_end();
 	
-	if (WC()->cart && !is_admin() && ($today <= $event_start_end['start'] || $today >= $event_start_end['end']) || isset($_SESSION['user_store_distance']) && $_SESSION['user_store_distance'] > get_distance_event_coupon())
+	if (WC()->cart && !is_admin() && ($today <= $event_start_end['start'] || $today >= $event_start_end['end']) || (isset($_SESSION['user_store_distance']) && $_SESSION['user_store_distance'] > get_distance_event_coupon()))
 	{
 		zoa_remove_private_coupon ();
 	}
@@ -3191,13 +3250,14 @@ function zoa_remove_private_coupon ()
 	
 	// Remove cart coupon
 	$packages = WC()->cart->get_shipping_packages();
+	$current_active_coupon = get_current_event_coupon();
 	foreach ($packages as $package)
 	{
 		foreach ($package['applied_coupons'] as $applied_coupon)
 		{
-			if ($applied_coupon == get_current_event_coupon())
+			if ($applied_coupon == $current_active_coupon)
 			{
-				WC()->cart->remove_coupon( get_current_event_coupon() );
+				WC()->cart->remove_coupon( $current_active_coupon );
 			}
 		}
 	}
@@ -3298,7 +3358,7 @@ function elsey_event_nav_menu_args( $args ) {
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
-		$src = add_query_arg( array('ver' => '1.1'), $src );
+		$src = add_query_arg( array('ver' => '1.3'), $src );
 		return $src;
 }
 add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );

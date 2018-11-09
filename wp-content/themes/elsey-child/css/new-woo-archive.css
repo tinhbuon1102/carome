@@ -28,6 +28,9 @@
     margin-right: 8px;
     border-radius: 50%;
 }
+.woocommerce ul.products .els-product-atc a.add_to_cart_button.ajax_add_to_cart {
+    display: none !important;
+}
 @media only screen and (min-width: 48em) {
 	.woocommerce .els-shop-wrapper.woo-col-list ul.products li {
     width: 33.333%;

@@ -6,8 +6,8 @@ Generated using nucleoapp.com
 -------------------------------- */
 @font-face {
   font-family: 'caroevg';
-  src: url('../fonts/caroevg.eot');
-  src: url('../fonts/caroevg.eot') format('embedded-opentype'), url('../fonts/caroevg.woff2') format('woff2'), url('../fonts/caroevg.woff') format('woff'), url('../fonts/caroevg.ttf') format('truetype'), url('../fonts/caroevg.svg') format('svg');
+  src: url('../fonts/caroevg.eot?version=201811091917');
+  src: url('../fonts/caroevg.eot?version=201811091917') format('embedded-opentype'), url('../fonts/caroevg.woff2?version=201811091917') format('woff2'), url('../fonts/caroevg.woff?version=201811091917') format('woff'), url('../fonts/caroevg.ttf?version=201811091917') format('truetype'), url('../fonts/caroevg.svg?version=201811091917') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -208,5 +208,41 @@ Generated using nucleoapp.com
 
 .evg-icon-pin-3::before {
   content: "\ea13";
+}
+
+.evg-icon-browser-chrome::before {
+  content: "\ea14";
+}
+
+.evg-icon-browser-firefox::before {
+  content: "\ea15";
+}
+
+.evg-icon-globe::before {
+  content: "\ea16";
+}
+
+.evg-icon-browser-safari::before {
+  content: "\ea17";
+}
+
+.evg-icon-bag-20::before {
+  content: "\ea18";
+}
+
+.evg-icon-shop::before {
+  content: "\ea19";
+}
+
+.evg-icon-p-settings::before {
+  content: "\ea1a";
+}
+
+.evg-icon-p-location::before {
+  content: "\ea1b";
+}
+
+.evg-icon-p-check::before {
+  content: "\ea1c";
 }
 

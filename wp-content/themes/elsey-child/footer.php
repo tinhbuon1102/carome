@@ -96,6 +96,8 @@ wp_footer(); ?>
   <button data-remodal-action="cancel" class="remodal-cancel close_jabtn">閉じる</button>
 </div>
 <?php if ( is_page('enter') ) {
+	get_template_part( 'template-parts/beforeenter', 'modal' );
+	get_template_part( 'template-parts/beforeenter02', 'modal' );
 	get_template_part( 'template-parts/enter', 'modal' );
 } ?>
 <script>

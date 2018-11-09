@@ -13,8 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="auth__container set-division max-width--med-tab">
 <div class="login-registe__row" id="customer_login"> <!-- custom - row class added -->
 	<ul class="tabs">
-	 <li><a href="#login-tab"><?php esc_html_e( 'Login', 'elsey' ); ?></a></li>
-	 <li><a href="#reg-tab"><?php esc_html_e( 'New Registration', 'elsey' ); ?></a></li>
+		<li class="active"><a href="#login-tab"><i class="cmn-icon cmn-icon-input-12"></i> <?php esc_html_e( 'Login', 'elsey' ); ?></a></li>
+	 <li><a href="#reg-tab"><i class="cmn-icon cmn-icon-a-edit"></i> <?php esc_html_e( 'New Registration', 'elsey' ); ?></a></li>
 	</ul>
 	<div class="tab_container custom_tab_container">
 		<div id="login-tab" class="tab_content">
@@ -112,7 +112,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div><!--/tab_content-->
 	</div><!--/custom_tab_container--->
 	<div class="col-xs-12 enter-guest">
-		<a href="<?php echo get_permalink( woocommerce_get_page_id( 'shop' ) ); ?>" class="button button-primary button-goshop"><?php esc_html_e( 'ショッピングページへ移動', 'elsey' ); ?></a>
+		<a href="<?php echo get_permalink( woocommerce_get_page_id( 'shop' ) ); ?>" class="button button-primary button-goshop"><i class="evg-icon evg-icon-shop"></i><?php esc_html_e( 'ショッピングページへ移動', 'elsey' ); ?></a>
 	</div>
 </div><!--/login-registe__row-->
 </div><!--/auth__container-->

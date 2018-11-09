@@ -12,48 +12,9 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 		  <div class="custom-modal-body-inner">
 		  <h2 id="modal1Title" class="modal_smallhead">イベント購入ページへの<br class="xs-show">アクセス方法</h2>
 		  <div class="modal-content">
-			  <div class="instruction-browser">
-				  <?php
-				  echo('<p>');
-				  // 判定するのに小文字にする
-$browser = strtolower($_SERVER['HTTP_USER_AGENT']);
-if(stripos($browser,'Android') !== false){
-        //Androidからのアクセス
-	echo('Androidです。');
-    } elseif (stripos($user_agent,'iPhone') !== false) {
-	//iPhoneからのアクセス
-	echo('iPhoneです。');
-}else{
-        echo "スマートフォンからのアクセスではありません。";
-    }
-				  echo('</p>');
-// ユーザーエージェントの情報を基に判定
-				  echo('<p>');
-if (strstr($browser , 'edge')) {
-    echo('ご使用のブラウザはEdgeです。');
-} elseif (strstr($browser , 'trident') || strstr($browser , 'msie')) {
-    echo('ご使用のブラウザはInternet Explorerです。');
-} elseif (strstr($browser , 'chrome')) {
-    echo('ご使用のブラウザはGoogle Chromeです。');
-} elseif (strstr($browser , 'firefox')) {
-    echo('ご使用のブラウザはFirefoxです。');
-} elseif (strstr($browser , 'safari')) {
-    echo('ご使用のブラウザはSafariです。');
-} elseif (strstr($browser , 'opera')) {
-    echo('ご使用のブラウザはOperaです。');
-} else {
-    echo('unknown browser');
-}
-				  echo('</p>');
-				  ?>
-				  <?php 
-			  if (($_SESSION['allow_private_coupon'] = 1 && !$_SESSION['user_at_store'] )) {
-				  echo ('<p>Please check your device or browser setting and try again.</p>');
-			  } ?>
-			  </div>
 			  
 			  <div class="instruction-event">
-				<p>イベント購入ページへアクセスするには、以下の手順に従い、現在地情報を許可してください。<?php //esc_html_e( 'イベント購入ページへアクセスするには、以下の手順に従い、現在地情報を許可してください。', 'elsey' ); ?></p>
+				<p>イベント購入ページへアクセスするには、以下の手順に従い、現在地情報を取得してください。<?php //esc_html_e( 'イベント購入ページへアクセスするには、以下の手順に従い、現在地情報を許可してください。', 'elsey' ); ?></p>
 				  <ol class="instruction-enter count-num">
 					  <li><div class="inst-txt">一番下に表示されている<strong>「現在地情報を確認」ボタンをクリック</strong>してください。</div></li>
 					  <li>
