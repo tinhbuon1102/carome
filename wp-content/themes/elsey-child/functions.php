@@ -1056,7 +1056,7 @@ function elsey_init() {
 add_action('wp', 'elsey_wp_loaded');
 function elsey_wp_loaded()
 {
-	if (isCustomerInPrivateEvent() && is_front_page())
+	if (isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' ))
 	{
 		wp_redirect(site_url('/enter/'));
 	}
@@ -3084,7 +3084,7 @@ function checkGeoLocationNearStore()
 			$ = jQuery;
 			var id, options;
 			if (!navigator.geolocation){//Geolocation apiがサポートされていない場合
-				alert ('Your browser not support geo location, please use Chrome or Safari!');
+				alert ('ご使用のブラウザはgeolocationがサポートされていません。ChromeかSafariのブラウザをご利用ください。');
 			    return;
 			  }
 			
@@ -3152,7 +3152,7 @@ function checkGeoLocationNearStore()
 		
 			options = {
 			  enableHighAccuracy: false,
-			  timeout: 5000000000,
+			  timeout: 20000,
 			  maximumAge: 0
 			};
 
@@ -3277,6 +3277,12 @@ function register_user_in_event_menu() {
 	);
 }
 add_action( 'init', 'register_user_in_event_menu' );
+
+function isOrderEvent($order)
+{
+	$event_coupon = get_post_meta($order->get_id(), 'use_event_store_coupon', true);
+	return $event_coupon ? true : false;
+}
 
 add_filter( 'wp_nav_menu_args', 'elsey_event_nav_menu_args', 9999 );
 function elsey_event_nav_menu_args( $args ) {

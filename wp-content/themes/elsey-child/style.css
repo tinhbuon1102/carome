@@ -4406,9 +4406,6 @@ body.single-product   div.single_variation_wrap div.woocommerce-variation.single
     padding-top: 24px;
 	float: none;
 }
-fieldset.order--checkout__form__section .form-row.form-row-wide.create-account {
-    display: none;
-}
 span.red {
 	color: red !important;
 }

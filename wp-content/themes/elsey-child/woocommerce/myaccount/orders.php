@@ -34,7 +34,13 @@ do_action( 'woocommerce_before_account_orders', $has_orders ); ?>
 					<div class="order__main">
 						<div class="order__main__details">
 						
-							<h3 class="order__number heading heading--xsmall"><span class="label"><?php esc_html_e( '注文番号', 'elsey' ); ?>: </span><span class="value"><?php echo _x( '#', 'hash before order number', 'woocommerce' ) . $order->get_order_number(); ?></span><span class="event-order-label">Event</span></h3>
+							<h3 class="order__number heading heading--xsmall">
+								<span class="label"><?php esc_html_e( '注文番号', 'elsey' ); ?>: </span>
+								<span class="value"><?php echo _x( '#', 'hash before order number', 'woocommerce' ) . $order->get_order_number(); ?></span>
+								<?php if (isOrderEvent($order)) {?>
+									<span class="event-order-label">Event</span>
+								<?php }?>
+							</h3>
 						
 							<p class="order__date serif">
 									<span class="label"><?php esc_html_e( 'Order date', 'elsey' ); ?></span>

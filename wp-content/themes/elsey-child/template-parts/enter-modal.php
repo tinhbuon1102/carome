@@ -42,11 +42,16 @@ if (strstr($browser , 'edge')) {
 } elseif (strstr($browser , 'opera')) {
     echo('ご使用のブラウザはOperaです。');
 } else {
-    echo('知らん。');
+    echo('unknown browser');
 }
 				  echo('</p>');
 				  ?>
+				  <?php 
+			  if (($_SESSION['allow_private_coupon'] = 1 && !$_SESSION['user_at_store'] )) {
+				  echo ('<p>Please check your device or browser setting and try again.</p>');
+			  } ?>
 			  </div>
+			  
 			  <div class="instruction-event">
 				<p>イベント購入ページへアクセスするには、以下の手順に従い、現在地情報を許可してください。<?php //esc_html_e( 'イベント購入ページへアクセスするには、以下の手順に従い、現在地情報を許可してください。', 'elsey' ); ?></p>
 				  <ol class="instruction-enter count-num">
