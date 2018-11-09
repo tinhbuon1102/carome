@@ -261,6 +261,7 @@ div.pp_woocommerce div.ppt {
 	}
 	.wooqv-slider li img {
     width: auto;
+	max-width: 682px;
     height: 100%;
     margin: 0 auto;
 	}
@@ -273,6 +274,12 @@ div.pp_woocommerce div.ppt {
 	.wooqv-no-touchevents .woo-quick-view .wooqv-slider-wrapper .lSAction .lSNext:hover, .wooqv-no-touchevents .woo-quick-view .wooqv-slider-wrapper .lSAction .lSPrev:hover {
     color: #183051;
     opacity: .3;
+	}
+	.wooqv-item-info form.cart .pdp__attribute.inventory {
+    margin-top: 0;
+	}
+	.wooqv-item-info form.cart {
+    margin-top: 0 !important;
 	}
 }
 .woo-quick-view .dropdown:after {

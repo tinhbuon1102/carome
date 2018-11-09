@@ -821,10 +821,11 @@ add_filter( 'woocommerce_stock_html', 'my_wc_hide_in_stock_message', 10, 3 );
  }
  }*/
 
-//webfonts
+//webfonts icons
 function webfonts_scripts ()
 {
-	wp_enqueue_style('smoke_css', get_stylesheet_directory_uri() . '/fonts/fonts.css');
+	wp_enqueue_style('font_css', get_stylesheet_directory_uri() . '/fonts/fonts.css');
+	wp_enqueue_style('icong_css', get_stylesheet_directory_uri() . '/icons/css/event-gicons.css');
 }
 add_action('wp_enqueue_scripts', 'webfonts_scripts');
 
@@ -870,6 +871,11 @@ function custom_scripts ()
 
 	wp_dequeue_script( 'sticky-header', ELSEY_SCRIPTS . '/sticky.min.js', array( 'jquery' ), '1.0.4', true );
 	wp_enqueue_script('sticky-header', get_stylesheet_directory_uri() . '/js/sticky.min.js', array( 'jquery' ),'', true);
+	
+	wp_register_script('event_js', get_stylesheet_directory_uri() . '/js/event.js?v=' . time(), array( 'custom_js' ),'', true);
+	if ( is_page('enter') ) {
+		wp_enqueue_script('event_js');
+	}
 }
 add_action('wp_enqueue_scripts', 'custom_scripts');
 
@@ -890,12 +896,26 @@ add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
 function custom_styles() {
 	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css', array('elsey-child-style') );
 	wp_register_style( 'quick-style', get_stylesheet_directory_uri() . '/css/quick-view.css', array('elsey-child-style') );
+	wp_register_style( 'event-style', get_stylesheet_directory_uri() . '/css/event-page.css', array('quick-style') );
 	if (isCustomerInPrivateEvent()) {
 		wp_enqueue_style('new-style');
 	}
 	wp_enqueue_style('quick-style');
+	wp_enqueue_style('event-style');
 }
 add_action('wp_enqueue_scripts', 'custom_styles');
+
+//call remodal for enter page
+/*function call_enter_remodal() {
+
+if ( is_page('enter') ) {
+ob_start();
+get_template_part( 'template-parts/enter', 'modal' );
+$content = ob_get_clean();
+}
+return $content;
+}
+add_action('wp_footer', 'call_enter_remodal');*/
 
 function hide_plugin_order_by_product ()
 {
@@ -1031,6 +1051,15 @@ function elsey_init() {
 	
 	remove_shortcode('elsey_product');
 	require_once get_stylesheet_directory() . '/override/plugins/elsey-core/visual-composer/shortcodes/product/product.php';
+}
+
+add_action('wp', 'elsey_wp_loaded');
+function elsey_wp_loaded()
+{
+	if (isCustomerInPrivateEvent() && is_front_page())
+	{
+		wp_redirect(site_url('/enter/'));
+	}
 }
 
 add_filter( 'woocommerce_email_order_meta_fields', 'elsey_woocommerce_email_order_meta_fields', 1000, 3 );
@@ -2995,7 +3024,7 @@ function isCustomerInPrivateEvent()
 	return isset($_SESSION['allow_private_coupon']) && $_SESSION['allow_private_coupon'] == 1;
 }
 
-add_action( 'woocommerce_add_to_cart', 'elsey_woocommerce_add_to_cart', 1000, 6 );
+// add_action( 'woocommerce_add_to_cart', 'elsey_woocommerce_add_to_cart', 1000, 6 );
 function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $variation_id = 0, $variation = array(), $cart_item_data = array())
 {
 	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
@@ -3048,13 +3077,14 @@ function checkGeoLocationNearStore()
 	}
 	$shopLocation = array('lat' => get_event_coupon_by('store_latitude'), 'long' => get_event_coupon_by('store_longtitude'));
 	?>
-	<script src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry&key=AIzaSyC0zkZJ3sHFHJgzUsAteOnObvf3ouAbc68" type="text/javascript"></script>
+	<script src="https://maps.google.com/maps/api/js?libraries=geometry&key=AIzaSyC0zkZJ3sHFHJgzUsAteOnObvf3ouAbc68" type="text/javascript"></script>
 	<script type="text/javascript">
-	jQuery(function($){
-		function getMyPlace()
+		function getMyPlace(is_button_click)
 		{
+			$ = jQuery;
 			var id, options;
 			if (!navigator.geolocation){//Geolocation apiがサポートされていない場合
+				alert ('Your browser not support geo location, please use Chrome or Safari!');
 			    return;
 			  }
 			
@@ -3063,20 +3093,30 @@ function checkGeoLocationNearStore()
 			      return google.maps.geometry.spherical.computeDistanceBetween(
 			        new google.maps.LatLng(fromLat, fromLng), new google.maps.LatLng(toLat, toLng));
 			}
-			
-			function success(position) {
-				  var crd = position.coords;
-				  var distance = calcDistance (crd.latitude, crd.longitude, <?php echo $shopLocation['lat']?>, <?php echo $shopLocation['long']?>);
-// 				  alert('Your location is : Lat: ' + crd.latitude + ', Long : ' + crd.longitude + '. Distance between you vs Store is : ' + distance + ' meters');
+
+			function checking_allow_free_shipping_coupon(distance, is_blocked)
+			{
 				  $.ajax({
 				        type: "post",
 				        url: woocommerce_params.ajax_url,
 				        crossDomain: false,
 				        dataType : "json",
 				        scriptCharset: 'utf-8',
-				        data: {action: 'allow_use_free_shipping_coupon', distance: distance}
+				        data: {action: 'allow_use_free_shipping_coupon', distance: distance, verify: is_button_click, is_blocked: is_blocked}
 				    }).done(function(data){
-					    <?php if (!isCustomerInPrivateEvent()) {?>
+				    	if (data.in_store)
+				    	{
+					    	if (is_button_click)
+					    	{
+						    	alert('<?php echo __('アクセスポイントのマッチに成功しました！イベントオンラインショッピングをお楽しみください。', 'elsey')?>');
+					    	}
+					    }
+				    	else if (is_button_click){
+				    		alert('<?php echo __('アクセスポイントがマッチしませんでした。イベント会場にいるのにマッチしない場合はスタッフまでお声がけください。', 'elsey')?>');
+				    		alert('Distance setting is : <?php echo get_distance_event_coupon()?> meters. Distance between you vs Store is : ' + distance.toFixed(0) + ' meters');//remove this for event day
+					    }
+					    
+					    <?php if (!isCustomerInPrivateEvent() && $_SERVER['REQUEST_METHOD'] !== 'POST') {?>
 						    	if (data.in_store)
 						    	{
 						    		location.reload();
@@ -3087,25 +3127,45 @@ function checkGeoLocationNearStore()
 							alert(data.message);
 							location.href = data.redirect;
 						}
+
+						if (is_button_click)
+						{
+							$('body').LoadingOverlay('hide');
+						}
 				    });
 				    
 				    navigator.geolocation.clearWatch(id);
-				}
+			}
+			function success(position) {
+				var crd = position.coords;
+				var distance = calcDistance (crd.latitude, crd.longitude, <?php echo $shopLocation['lat']?>, <?php echo $shopLocation['long']?>);
+				checking_allow_free_shipping_coupon(distance);
+			}
 		
 			function error(err) {
-			  //alert('ERROR(' + err.code + '): ' + err.message + ', Please allow us to retrieve your location');
+				//make very large distance if location is blocked
+				distance = 500000000000000000000000000000000000;
+				alert('エラーコード(' + err.code + '): ' + err.message + '. お使いの端末にて位置情報が許可されていないか、ブラウザのアプリ設定にて位置情報許可がされていません。');
+				//alert('ERROR(' + err.code + '): ' + err.message + '. Your location not turn on in your device, or location permission is turn off for this browser ');
+				checking_allow_free_shipping_coupon(distance, true);
 			}
 		
 			options = {
-			  enableHighAccuracy: true,
-			  timeout: 5000,
+			  enableHighAccuracy: false,
+			  timeout: 5000000000,
 			  maximumAge: 0
 			};
-		
+
+			if (is_button_click)
+			{
+				$('body').LoadingOverlay('show');
+			}
 			id = navigator.geolocation.watchPosition(success, error, options);
 		}
-		
+	jQuery(function($){
+		<?php if (isset($_SESSION['user_agree_to_check_location']) && $_SESSION['user_agree_to_check_location'] == 1) {?>
 		getMyPlace();
+		<?php }?>
 	});
 	</script>
 <?php
@@ -3157,8 +3217,19 @@ function elsey_allow_use_free_shipping_coupon()
 		$event_start_end = get_event_time_start_end();
 		$_SESSION['user_store_distance'] = $_POST['distance'];
 		
+		if (isset($_REQUEST['is_blocked']) && $_REQUEST['is_blocked'])
+		{
+			$_SESSION['user_agree_to_check_location'] = null;
+			unset($_SESSION['user_agree_to_check_location']);
+		}
+		
 		if ($_POST['distance'] <= get_distance_event_coupon() && ($today >= $event_start_end['start'] || $today <= $event_start_end['end']))
 		{
+			if (isset($_REQUEST['verify']) && $_REQUEST['verify'])
+			{
+				$_SESSION['user_agree_to_check_location'] = 1;
+			}
+			
 			$_SESSION['allow_private_coupon'] = 1;
 			$_SESSION['user_at_store'] = 1;
 		}else {
@@ -3196,3 +3267,33 @@ function elsey_woocommerce_checkout_update_order_meta( $order_id )
 		}
 	}
 }
+
+
+function register_user_in_event_menu() {
+	register_nav_menus(
+		array(
+			'event_menu' => __( 'Event Menu' )
+		)
+	);
+}
+add_action( 'init', 'register_user_in_event_menu' );
+
+add_filter( 'wp_nav_menu_args', 'elsey_event_nav_menu_args', 9999 );
+function elsey_event_nav_menu_args( $args ) {
+	if (isCustomerInPrivateEvent())
+	{
+		$args['menu_class'] .= ' event-navigation';
+		$args['theme_location'] = 'event_menu';
+	}
+	
+	return $args;
+}
+
+function elsey_change_cssjs_ver( $src ) {
+	if( strpos( $src, '?ver=' ) )
+		$src = remove_query_arg( 'ver', $src );
+		$src = add_query_arg( array('ver' => '1.1'), $src );
+		return $src;
+}
+add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
+add_filter( 'script_loader_src', 'elsey_change_cssjs_ver', 1000 );

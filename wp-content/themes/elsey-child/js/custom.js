@@ -39,6 +39,7 @@ jQuery(document).ready(function($){
 			  initProductPage();
 			  clearInterval(modal_quickview);
 			  modal_quickview = null;
+			  $(document).off('click', '.woo-quick-view form .single_add_to_cart_button');
 		  }
 	  }, 100);
   });
@@ -635,4 +636,5 @@ jQuery(document).ready(function($){
   $(document).on('closed', '.remodal', function (e) {
     console.log('closed' + (e.reason ? ', reason: ' + e.reason : ''));
   });
+  
 });

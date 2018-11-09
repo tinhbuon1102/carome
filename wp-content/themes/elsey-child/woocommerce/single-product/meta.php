@@ -37,6 +37,11 @@ global $post;
 	return;
 }*/
 
+#$swatch_data = get_post_meta(get_the_ID(), 'zoo_cw_product_swatch_data', true);
+#echo '<pre>';
+#print_r($swatch_data);
+#echo '</pre>';
+
 $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 
 //if ( ! empty( $tabs ) ) : 
@@ -71,7 +76,6 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 	<!--ACF size tab-->
 	<?php
 	$table = get_field( 'product_size' );
-	#data = get_post_meta(get_the_ID(), 'product_size', true);
 	if (! is_array($table)) {
 		$table = json_decode($table, true);
 		if (! isset($table['header']) && isset($table['h'])){
@@ -86,7 +90,6 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 	#cho '<pre>';
 	#rint_r($table);
 	#cho '</pre>';
-	#ie();
 	#print_r(json_decode($table));
 	if ( $table ) {
 	?>

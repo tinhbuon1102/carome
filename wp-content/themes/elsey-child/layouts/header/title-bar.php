@@ -79,7 +79,9 @@ if ( is_product() ) {
 	$maincontent_class = 'max-width--site';
 }else if ( is_page('kimono-rental') ) {
 	$maincontent_class = 'max-width--large main-con';
-} elseif (isCustomerInPrivateEvent()) {
+} elseif (isCustomerInPrivateEvent() && is_shop()) {
+	$maincontent_class = 'max-width--site carome-event--site';
+} elseif (isCustomerInPrivateEvent() && is_product_category()) {
 	$maincontent_class = 'max-width--site carome-event--site';
 } else {
 	$maincontent_class = 'max-width--site';

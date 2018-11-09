@@ -99,6 +99,8 @@ get_header(); ?>
 	        //else if(is_page('kimono-rental')):
 			}elseif( is_front_page() ){
 				get_template_part( 'template-parts/content', 'home' );
+			}elseif( is_page('enter') ){
+				get_template_part( 'template-parts/content', 'event' );
 			}else{
             while ( have_posts() ) : the_post();
               the_content();

@@ -143,23 +143,33 @@
 					<div class="vc_column-inner">
 						<div class="wpb_wrapper">
 							<?php
-							/*$prod_ids_to_include = array();
-							$get_$prod_ids_to_include = get_terms(
-								array(
-									'fields'  => 'ids',
-									'post_type' => 'product', 
-									'title' => array(
-										'リボン付きセンタープレスフレアーパンツ','ベルト付きチェックノースリワンピース','タッキングテーラーワンピース','ウールハット'),
-									'taxonomy' => $taxonomy
-								)
+							global $wpdb;
+							$filter_titles = array(
+								'リボン付きセンタープレスフレアーパンツ',
+								'ベルト付きチェックノースリワンピース',
+								'タッキングテーラーワンピース',
+								'ウールハット'
 							);
-							if( !is_wp_error( $get_$prod_ids_to_include ) && count($get_$prod_ids_to_include) > 0){
-							$prod_ids_to_include = $get_$prod_ids_to_include;
+							$sql = $wpdb->prepare("
+								SELECT ID
+								FROM $wpdb->posts
+								WHERE post_title IN (". implode(',', array_fill(0, count($filter_titles), '%s')) .")
+								AND post_type = 'product'
+								AND post_status = 'publish'
+								", $filter_titles);
+												
+							$get_prod_ids_to_include = $wpdb->get_results($sql);
+							
+							$prod_ids_to_include = array();
+							if( !is_wp_error( $get_prod_ids_to_include ) && count($get_prod_ids_to_include) > 0){
+								foreach ($get_prod_ids_to_include as $get_prod_id_to_include)
+								{
+									$prod_ids_to_include[] = $get_prod_id_to_include->ID;
+								}
 							}
-							echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="'.$prod_ids_to_include.'" visibility="visible"]');
-							*/
+							echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="'.implode(',', $prod_ids_to_include).'" visibility="visible"] ]');
 							?>
-							<?php echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="17031,17023,17038,17002" visibility="visible"]'); ?>
+							<?php //echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="17031,17023,17038,17002" visibility="visible"]'); ?>
 						</div>
 					</div>
 				</div>

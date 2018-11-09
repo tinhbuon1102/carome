@@ -124,6 +124,7 @@ if ( ! function_exists( 'has_site_icon' ) || ! has_site_icon() ) {
 var gl_siteUrl = '<?= site_url(); ?>';
 var gl_stateAllowed = [];
 var gl_alertStateNotAllowed = '';
+var user_agree_to_check_location = '<?php echo (int)isset($_SESSION['user_agree_to_check_location']) && $_SESSION['user_agree_to_check_location'] == 1?>';
 </script>
 
 <?php
