@@ -3346,7 +3346,7 @@ function elsey_allow_use_free_shipping_coupon()
 		//Test with developer distance = 1
 		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
 		{
-			$_SESSION['user_store_distance'] = 1;
+			$_SESSION['user_store_distance'] = $_POST['distance'] = 1;
 		}
 		
 		if (isset($_REQUEST['is_blocked']) && $_REQUEST['is_blocked'])
