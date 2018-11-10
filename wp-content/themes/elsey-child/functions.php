@@ -1094,6 +1094,48 @@ function get_event_time_start_end()
 	return $coupon_start_end;
 }
 
+function zoa_remove_email_event()
+{
+	$user = wp_get_current_user();
+	$private_emails = get_emails_event_coupon();
+	
+	$user_email = $user->get('user_email');
+	if (!empty($private_emails) && $user_email)
+	{
+		foreach ($private_emails as $key_email => $private_email)
+		{
+			if (trim($private_email) == trim($user_email))
+			{
+				// Load post and resave with email list
+				$posts = get_posts(array(
+					'posts_per_page'			=> -1,
+					'post_type'					=> 'acf-field',
+					'orderby'					=> 'menu_order',
+					'order'						=> 'ASC',
+					'suppress_filters'			=> true, // DO NOT allow WPML to modify the query
+					'post_parent'				=> BOOKING_FORM_ID,
+					'post_status'				=> 'publish, trash', // 'any' won't get trashed fields
+					'update_post_meta_cache'	=> false
+				));
+				foreach ($posts as $post)
+				{
+					if ($post->post_excerpt == 'email_of_users_for_event_coupon')
+					{
+						$email_field = maybe_unserialize($post->post_content);
+						unset($private_emails[$key_email]);
+						$email_field['instructions'] = implode(PHP_EOL, $private_emails);
+						$post->post_content = serialize($email_field);
+						wp_update_post( $post );
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+}
+
+
 add_action('init', 'elsey_init', 1);
 function elsey_init() {
 	if (!session_id())
@@ -1428,6 +1470,8 @@ function elsey_custom_checkout_field_update_order_meta( $order_id )
 	global $wpdb;
 	$wpdb->delete( $wpdb->prefix . 'groups_user_group', array( 'user_id' => $userID, 'group_id' => 3 ) );
 	
+	// Remove email added by admin for event
+	zoa_remove_email_event();
 }
 
 add_filter('woocommerce_countries_base_state', 'elsey_woocommerce_countries_base_state');
