@@ -133,6 +133,13 @@ jQuery(document).ready(function($){
 		$(this).toggleClass('toggle--active');
 		$('.header__primary').toggleClass('toggle--active');
 		$('.header__secondary').toggleClass('toggle--active');
+		if ($('.header__primary').hasClass('toggle--active'))
+		{
+			$('html').addClass('mobile-menu-opened');
+		}
+		else {
+			$('html').removeClass('mobile-menu-opened');
+		}
 	});
 	$('footer > .footer__container > .container > .row > .footer_menu_links > .row > div').on("click", function(e) {
 			$(this).toggleClass('toggle--active');
