@@ -3496,6 +3496,18 @@ function elsey_event_nav_menu_args( $args ) {
 }
 
 
+add_filter( 'woocommerce_ajax_get_customer_details', 'zoa_woocommerce_ajax_get_customer_details', 1000, 3 );
+function zoa_woocommerce_ajax_get_customer_details($data, $customer, $user_id)
+{
+	$data['billing']['first_name_kana'] = get_user_meta($user_id, 'billing_first_name_kana', true);
+	$data['billing']['last_name_kana'] = get_user_meta($user_id, 'billing_last_name_kana', true);
+	
+	$data['shipping']['first_name_kana'] = get_user_meta($user_id, 'shipping_first_name_kana', true);
+	$data['shipping']['last_name_kana'] = get_user_meta($user_id, 'shipping_last_name_kana', true);
+	
+	return $data;
+}
+
 add_action( 'user_register', 'elsey_registration_save', 10, 1 );
 function elsey_registration_save( $user_id ) {
 	$user = wp_get_current_user();
