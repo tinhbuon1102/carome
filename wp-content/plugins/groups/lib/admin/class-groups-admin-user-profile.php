@@ -81,7 +81,7 @@ class Groups_Admin_User_Profile {
 						esc_attr( __( 'Choose groups &hellip;', 'groups' ) )
 					);
 					foreach( $groups as $group ) {
-						$output .= sprintf( '<option value="%d">%s</option>', Groups_Utility::id( $group->group_id ), wp_filter_nohtml_kses( $group->name ) );
+						$output .= sprintf( '<option value="%d">%s</option>', Groups_Utility::id( $group->group_id ), wp_filter_nohtml_kses( __($group->name, 'groups') ) );
 					}
 					$output .= '</select>';
 					$output .= Groups_UIE::render_select( '#user-groups' );
@@ -171,7 +171,7 @@ class Groups_Admin_User_Profile {
 				);
 				foreach( $groups as $group ) {
 					$is_member = Groups_User_Group::read( $user->ID, $group->group_id ) ? true : false;
-					$output .= sprintf( '<option value="%d" %s>%s</option>', Groups_Utility::id( $group->group_id ), $is_member ? ' selected="selected" ' : '', wp_filter_nohtml_kses( $group->name ) );
+					$output .= sprintf( '<option value="%d" %s>%s</option>', Groups_Utility::id( $group->group_id ), $is_member ? ' selected="selected" ' : '', wp_filter_nohtml_kses( __($group->name, 'groups') ) );
 				}
 				$output .= '</select>';
 				$output .= Groups_UIE::render_select( '#user-groups' );

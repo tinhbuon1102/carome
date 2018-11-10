@@ -1052,6 +1052,17 @@ function get_distance_event_coupon()
 	return get_event_coupon_by('distance_get_coupon');
 }
 
+function get_emails_event_coupon()
+{
+	$private_emails = get_event_coupon_by('email_of_users_for_event_coupon');
+	$private_emails = str_replace(PHP_EOL, ';', $private_emails);
+	$private_emails = str_replace(',', ';', $private_emails);
+	$private_emails = str_replace(' ', ';', $private_emails);
+	$private_emails = explode(';', $private_emails);
+	$private_emails = array_map('trim', $private_emails);
+	return $private_emails;
+}
+
 function get_event_time_start_end()
 {
 	$coupons_fields = get_coupons_fields();
@@ -3102,12 +3113,7 @@ function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 function isCustomerInPrivateEvent()
 {
 	$user = wp_get_current_user();
-	$private_emails = get_event_coupon_by('email_of_users_for_event_coupon');
-	$private_emails = str_replace(PHP_EOL, ';', $private_emails);
-	$private_emails = str_replace(',', ';', $private_emails);
-	$private_emails = str_replace(' ', ';', $private_emails);
-	$private_emails = explode(';', $private_emails);
-	$private_emails = array_map('trim', $private_emails);
+	$private_emails = get_emails_event_coupon();
 	
 	$user_email = $user->get('user_email');
 	if ($user_email && in_array(trim($user->get('user_email')), $private_emails))
