@@ -3407,7 +3407,6 @@ function elsey_allow_use_free_shipping_coupon()
 		{
 			$_SESSION['user_agree_to_check_location'] = null;
 			$_SESSION['allow_private_coupon'] = null;
-			$_SESSION['user_at_store'] = null;
 		}
 		
 		if ($_POST['distance'] <= get_distance_event_coupon() && ($today >= $event_start_end['start'] || $today <= $event_start_end['end']))
