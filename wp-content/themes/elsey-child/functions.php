@@ -3318,7 +3318,7 @@ function checkGeoLocationNearStore()
 		
 			function error(err) {
 				//make very large distance if location is blocked
-				distance = 500000000000000000000000000000000000;
+				distance = 9999999999;
 				checking_allow_free_shipping_coupon(distance, true, err);
 			}
 		
@@ -3407,8 +3407,7 @@ function elsey_allow_use_free_shipping_coupon()
 		{
 			$_SESSION['user_agree_to_check_location'] = null;
 			$_SESSION['allow_private_coupon'] = null;
-			unset($_SESSION['user_agree_to_check_location']);
-			unset($_SESSION['allow_private_coupon']);
+			$_SESSION['user_at_store'] = null;
 		}
 		
 		if ($_POST['distance'] <= get_distance_event_coupon() && ($today >= $event_start_end['start'] || $today <= $event_start_end['end']))
