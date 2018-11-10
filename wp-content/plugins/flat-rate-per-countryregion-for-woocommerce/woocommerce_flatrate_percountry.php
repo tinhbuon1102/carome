@@ -1342,12 +1342,19 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 							WC()->cart->rate_normal = $rate_normal = $this->calculate_shipping($aOrderBothType['aNormalProducts'], true);
 							WC()->cart->rate_preorder = $rate_preorder = $this->calculate_shipping($aOrderBothType['aPreOrderProducts'], true);
 							$rate['cost'] = $rate_normal + $rate_preorder;
+							$rate['rate_normal'] = $rate_normal;
+							$rate['rate_preorder'] = $rate_preorder;
 						}
 					}
 				}
 				
 				// Register the rate
 				$this->add_rate($rate);
+				if (isset($rate_normal) && isset($rate_preorder))
+				{
+					$this->rates['woocommerce_flatrate_percountry']->rate_normal = $rate_normal;
+					$this->rates['woocommerce_flatrate_percountry']->rate_preorder = $rate_preorder;
+				}
 			}
 
 		}

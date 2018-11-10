@@ -2691,6 +2691,8 @@ function elsey_woocommerce_order_status_changed ($order_id, $order)
 	
 	// Check order items
 	$order = new WC_Order($order_id);
+	$shipping_total = $order->get_shipping_total();
+	
 	$items = $order->get_items();
 	$aNormalProducts = $aPreOrderProducts = array();
 	foreach ($items as $item_key => $order_item)
@@ -2707,7 +2709,7 @@ function elsey_woocommerce_order_status_changed ($order_id, $order)
 	// If order contain both normal + preorder, so separate the order to 2 orders
 	if (!empty($aPreOrderProducts) && !empty($aNormalProducts))
 	{
-		global $elsey_order_type;
+		global $elsey_order_type, $global_shipping_preorder_total;
 		
 		// Store total price to use for showing message
 		update_post_meta($order_id, '_both_order_total_price', $order->get_total());
@@ -2766,6 +2768,7 @@ function elsey_woocommerce_order_status_changed ($order_id, $order)
 			
 			// Calculate price for pre order
 			$elsey_order_type = 'preorder';
+			$global_shipping_preorder_total = $shipping_total;
 			elsey_calculate_shipping($clone_order_id);
 			$elsey_order_type = '';
 			WC()->cart->calculate_shipping();
@@ -2778,6 +2781,7 @@ function elsey_woocommerce_order_status_changed ($order_id, $order)
 			$preOrderCheckout = new WC_Pre_Orders_Checkout();
 			$preOrderCheckout->add_order_meta( $clone_order_id );
 			update_post_meta( $clone_order_id, '_wc_pre_orders_with_normal', $order_id);
+			$global_shipping_preorder_total = '';
 			
 			// Send email notification
 			$updated = $wpdb->update( $wpdb->postmeta, array('post_status' => 'wc-pending'), array('ID' => $clone_order_id) );
@@ -3115,7 +3119,7 @@ add_filter('woocommerce_package_rates', 'elsey_shipping_class_null_shipping_cost
 function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
 		return $rates;
-	
+		
 		$free_shipping = false;
 		if (!empty($package['applied_coupons']))
 		{
@@ -3130,25 +3134,42 @@ function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 		
 		// Set shipping costs to zero if use coupon freeshipping
 		if( $free_shipping ){
+			global $global_shipping_preorder_total;
 			foreach ( $rates as $rate_key => $rate ){
 				$has_taxes = false;
 				$taxes = array();
 				// Targetting "flat rate" and local pickup
-// 				if( 'flat_rate' === $rate->method_id || 'local_pickup' === $rate->method_id  ){
-					// Set the cost to zero
-					$rates[$rate_key]->cost = 0;
-					
-					// Taxes rate cost (if enabled)
-					foreach ($rates[$rate_key]->taxes as $key => $tax){
-						if( $rates[$rate_key]->taxes[$key] > 0 ){
-							$has_taxes = true;
-							// Set taxes cost to zero
-							$taxes[$key] = 0;
-						}
+				if (isset($rates[$rate_key]->rate_normal) && isset($rates[$rate_key]->rate_preorder))
+				{
+					if ($rates[$rate_key]->rate_normal == $rates[$rate_key]->rate_preorder && $rates[$rate_key]->rate_normal > 0)
+					{
+						$rates[$rate_key]->cost = $rates[$rate_key]->rate_preorder;
 					}
-					if( $has_taxes )
-						$rates[$rate_key]->taxes = $taxes;
-// 				}
+					else{
+						$rates[$rate_key]->cost = 0;
+					}
+				}
+				else {
+					if ($global_shipping_preorder_total)
+					{
+						$rates[$rate_key]->cost = $global_shipping_preorder_total;
+					}
+					else 
+					{
+						$rates[$rate_key]->cost = 0;
+					}
+				}
+				
+				// Taxes rate cost (if enabled)
+				foreach ($rates[$rate_key]->taxes as $key => $tax){
+					if( $rates[$rate_key]->taxes[$key] > 0 ){
+						$has_taxes = true;
+						// Set taxes cost to zero
+						$taxes[$key] = 0;
+					}
+				}
+				if( $has_taxes )
+					$rates[$rate_key]->taxes = $taxes;
 			}
 		}
 		return $rates;
