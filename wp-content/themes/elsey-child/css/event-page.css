@@ -2,6 +2,29 @@
 .event-info {
 	margin-bottom: 24px;
 }
+.event-info p:not(:last-child) {
+    margin-bottom: 14px;
+}
+.for-op-user.red.must-read > strong {
+    border-bottom: 1px dashed;
+}
+.red {
+    color: #CC0000;
+}
+.offlinepay-way {
+    padding-top: 15px;
+}
+.offlinepay-way span.red {
+	color: #CC0000 !important;
+}
+.stnt {
+    font-weight: bold;
+    border-bottom: 1px double;
+}
+.offlinepay-way ol.count-num > li:before {
+	border-color: #CC0000;
+	color: #CC0000;
+}
 .inst-txt img {
     vertical-align: middle;
 }

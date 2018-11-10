@@ -12,7 +12,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 <?php if (isCustomerInPrivateEvent()) { ?>
 <div class="auth__container set-division max-width--med-tab">
 <div class="login-registe__row" id="customer_login"> <!-- custom - row class added -->
-<div class="event-info"><p>会員登録をしなくてもお買い物はできます！ゲスト購入をご希望の方は下へスクロールし、「ショッピングページへ移動」ボタンをクリックしてください。</p></div>
+<div class="event-info"><p>会員登録をしなくてもお買い物はできます！ゲスト購入をご希望の方は下へスクロールし、「ショッピングページへ移動」ボタンをクリックしてください。</p>
+<p class="red"><i class="evg-icon evg-icon-alert-circle-exc"></i><strong>【現金払い】</strong>をご希望のお客様は<span class="stnt">事前に会員登録をお願いいたします</span>。</p>
+<p class="openNext for-op-user red must-read"><strong>【必読】現金支払いをご希望のお客様へ</strong></p>
+<div id="instOp" class="offlinepay-way" style="display: none;">
+	<ol class="instruction-op count-num">
+	<li>会員でない方は、<span class="stnt red">お買い物の前に</span><br/>新規会員登録をしてください。</li>
+	<li>ご登録後、<span class="stnt red">商品をお決めになる前に</span>現金払い希望の旨を<strong>スタッフにお申し付けください</strong>。</li>
+	<li>お客様の会員アカウントでのみ、<br/><strong>【現金払い】</strong>という支払い項目が<br/><span class="stnt red">チェックアウトページにて選択可能</span>になります。</li>
+	<li><strong>【現金払い】</strong>にチェックをし、<br/><span class="stnt red">注文を完了させてください</span>。</li>
+	<li><span class="stnt red">注文が完了した後</span>、完了画面をスタッフにご提示ください。その際に現金のお支払いをしていただきます。</li>
+	</ol>
+</div>
+</div>
 	<ul class="tabs">
 		<li class="active"><a href="#login-tab"><i class="cmn-icon cmn-icon-input-12"></i> <?php esc_html_e( 'Login', 'elsey' ); ?></a></li>
 	 <li><a href="#reg-tab"><i class="cmn-icon cmn-icon-a-edit"></i> <?php esc_html_e( 'New Registration', 'elsey' ); ?></a></li>

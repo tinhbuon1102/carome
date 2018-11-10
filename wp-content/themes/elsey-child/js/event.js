@@ -11,6 +11,9 @@ function($) {
 		$(this).addClass('clicked');
 		getMyPlace(true);
 	});
+	$('.openNext').click(function() {
+    $('#instOp').toggle('slow');
+	});
 	// tab
 	$('ul.tabs').parent().addClass('tab-box');
 

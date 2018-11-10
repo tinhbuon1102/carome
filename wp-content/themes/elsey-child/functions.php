@@ -904,7 +904,7 @@ add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
 function custom_styles() {
 	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css?v=' . time(), array('elsey-child-style') );
 	wp_register_style( 'quick-style', get_stylesheet_directory_uri() . '/css/quick-view.css', array('elsey-child-style') );
-	wp_register_style( 'event-style', get_stylesheet_directory_uri() . '/css/event-page.css', array('quick-style') );
+	wp_register_style( 'event-style', get_stylesheet_directory_uri() . '/css/event-page.css?v='. time(), array('quick-style') );
 	if (isCustomerInPrivateEvent()) {
 		wp_enqueue_style('new-style');
 	}
