@@ -260,7 +260,7 @@ class Groups_Admin_Users {
 					'<option value="%d" %s>%s</option>',
 					Groups_Utility::id( $group->group_id ),
 					$selected ? ' selected="selected" ' : '',
-					sprintf( '%s <span class="count">(%s)</span>', wp_filter_nohtml_kses( $group->name ), esc_html( $user_count ) )
+						sprintf( '%s <span class="count">(%s)</span>', wp_filter_nohtml_kses( __($group->name, 'groups') ), esc_html( $user_count ) )
 				);
 			}
 			$output .= '</select>';
@@ -360,7 +360,7 @@ class Groups_Admin_Users {
 					$output = '<ul>';
 					foreach( $groups as $group ) {
 						$output .= '<li>';
-						$output .= wp_filter_nohtml_kses( $group->name );
+						$output .= wp_filter_nohtml_kses( __($group->name, 'groups') );
 						$output .= '</li>';
 					}
 					$output .= '</ul>';
