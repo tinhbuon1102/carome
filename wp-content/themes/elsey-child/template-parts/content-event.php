@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <?php if (isCustomerInPrivateEvent()) { ?>
 <div class="auth__container set-division max-width--med-tab">
 <div class="login-registe__row" id="customer_login"> <!-- custom - row class added -->
+<div class="event-info"><p>会員登録をしなくてもお買い物はできます！ゲスト購入をご希望の方は下へスクロールし、「ショッピングページへ移動」ボタンをクリックしてください。</p></div>
 	<ul class="tabs">
 		<li class="active"><a href="#login-tab"><i class="cmn-icon cmn-icon-input-12"></i> <?php esc_html_e( 'Login', 'elsey' ); ?></a></li>
 	 <li><a href="#reg-tab"><i class="cmn-icon cmn-icon-a-edit"></i> <?php esc_html_e( 'New Registration', 'elsey' ); ?></a></li>
