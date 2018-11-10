@@ -2250,7 +2250,7 @@ function elsey_order_by_stock_status($posts_clauses)
 		global $wpdb;
 		$posts_clauses['fields'] = $posts_clauses['fields'] . ", IF(st.meta_value > 0, 1, 0) as stock ";
 		$posts_clauses['join'] .= " INNER JOIN $wpdb->postmeta st ON ($wpdb->posts.ID = st.post_id) ";
-		$posts_clauses['orderby'] = "stock DESC, st.meta_value ASC, " . $posts_clauses['orderby'];
+		$posts_clauses['orderby'] = "stock DESC, st.meta_value ASC, menu_order, post_title ASC, " . $posts_clauses['orderby'];
 		$posts_clauses['where'] = " AND st.meta_key = '_stock_status' AND st.meta_value <> '' " . $posts_clauses['where'];
 	}
 	return $posts_clauses;
