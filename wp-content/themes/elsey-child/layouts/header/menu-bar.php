@@ -195,6 +195,11 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
       <div class="els-main-menu header__secondary" style="<?php echo esc_attr($elsey_menubar_position_css); ?>">
 	<div class="header__secondary__content">
         <?php
+		if ( is_user_logged_in() ) {
+			$account_link_class = 'loggedin-user';
+		} else {
+			$account_link_class = 'guest-user';
+		}
         wp_nav_menu(
           array(
             'menu'           => 'primary',
@@ -206,7 +211,7 @@ $elsey_logo_style .= !empty($elsey_brand_logo_width) ? 'max-width:'.elsey_check_
           )
         ); ?>
 		  <div class="header__user display--small-only">
-			  <a href="<?php echo esc_url($elsey_myaccount_url); ?>" class="header__user__item header__user__link"><?php if ( is_user_logged_in() ) { ?><?php _e( 'My Page', 'elsey' ); ?><?php } else { ?><?php _e( 'Sign in / Register', 'elsey' ); ?><?php } ?></a>
+			  <a href="<?php echo esc_url($elsey_myaccount_url); ?>" class="header__user__item header__user__link <?php echo $account_link_class; ?>"><?php if ( is_user_logged_in() ) { ?><?php _e( 'My Page', 'elsey' ); ?><?php } else { ?><?php _e( 'Sign in / Register', 'elsey' ); ?><?php } ?></a>
 			  <?php if ( $elsey_menubar_wishlist && class_exists('WooCommerce') ) {
 	if ( defined( 'YITH_WCWL' ) ) {
 		$els_wishlist_count = YITH_WCWL()->count_products();

@@ -40,4 +40,10 @@
 	.woocommerce ul.products li.product, .woocommerce-page ul.products li.product {
 		width: 50%;
 	}
+	.woocommerce .woocommerce-message {
+    padding: 10px 15px;
+	}
+	.header__secondary__content > .main-navigation > li:first-child {
+    display: none;
+	}
 }

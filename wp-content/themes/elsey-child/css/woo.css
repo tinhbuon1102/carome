@@ -1,0 +1,27 @@
+.header__main .els-icon li .widget_shopping_cart_content .minicart__link--close-cart {
+    font-size: 12px;
+    position: absolute;
+    left: 24px;
+    text-transform: uppercase;
+    font-family: 'Poppins', sans-serif;
+}
+@media only screen and (min-width: 48em) {
+	.els-sidebar .els-widget li ul.children > li.cat-parent > ul.children > li {
+    padding-left: 15px;
+    position: relative;
+	}
+	.els-sidebar .els-widget li ul.children > li.cat-parent > ul.children > li:before {
+    content: "-";
+    display: inline-block;
+    margin-right: 5px;
+	}
+	.header__main .els-icon li .widget_shopping_cart_content .minicart__link--close-cart {
+		top: 14px;
+	}
+	
+}/* end  min-width: 47.99em */
+@media only screen and (max-width: 47.99em) {
+	.header__main .els-icon li .widget_shopping_cart_content .minicart__link--close-cart {
+		top: 24px;
+	}
+}

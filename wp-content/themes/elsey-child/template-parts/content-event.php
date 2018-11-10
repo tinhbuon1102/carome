@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <?php do_action( 'woocommerce_before_customer_login_form' ); ?>
 
-
+<?php if (isCustomerInPrivateEvent()) { ?>
 <div class="auth__container set-division max-width--med-tab">
 <div class="login-registe__row" id="customer_login"> <!-- custom - row class added -->
 	<ul class="tabs">
@@ -116,6 +116,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 </div><!--/login-registe__row-->
 </div><!--/auth__container-->
+<?php } else { ?>
+<div class="auth__container set-division max-width--med-tab">
+	<div class="row flex-justify-center">
+		<div class="col-xs-12 not-get-geo">
+			<h2 class="ja title"><i class="evg-icon evg-icon-alert-circle-exc"></i>　位置情報が取得できていません</h2>
+			<p>現在位置情報を取得できなかったためイベント購入サイトへアクセスできません。</p>
+			<p>再度、端末とブラウザの設定をご確認の上、アクセスしてください。</p>
+			<a href="#beforeenter" class="button">再度設定を確認</a>
+		</div>
+	</div>
+</div>
+<?php } ?>
+
 
 
 <?php do_action( 'woocommerce_after_customer_login_form' ); ?>
