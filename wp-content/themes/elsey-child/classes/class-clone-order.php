@@ -129,6 +129,7 @@ class CloneOrder {
 		update_post_meta( $order_id, '_payment_method', get_post_meta($this->original_order_id, '_payment_method', true) );
 		update_post_meta( $order_id, '_payment_method_title', get_post_meta($this->original_order_id, '_payment_method_title', true) );
 		update_post_meta( $order_id, '_custom_payment_status', get_post_meta($this->original_order_id, '_custom_payment_status', true) );
+		update_post_meta( $order_id, 'use_event_store_coupon', get_post_meta($this->original_order_id, 'use_event_store_coupon', true) );
 		
 		// Clone Custom Fields
 		
