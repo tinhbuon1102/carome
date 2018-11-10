@@ -5,12 +5,12 @@
 #
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2018-02-27 18:24+0700\n"
+"PO-Revision-Date: 2018-11-10 08:34+0700\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 2.1.1\n"
 "Language: ja_JP\n"
 "X-Generator: Poedit 1.5.7\n"
 "Project-Id-Version: \n"
@@ -43,7 +43,6 @@ msgstr ""
 msgid "1 item"
 msgid_plural "%s items"
 msgstr[0] ""
-msgstr[1] ""
 
 #: legacy/admin/class-groups-admin-post-columns-legacy.php:76
 #, php-format
@@ -109,8 +108,7 @@ msgstr ""
 #: lib/admin/groups-admin-groups-remove.php:181
 #: lib/admin/groups-admin-groups.php:49 lib/admin/groups-admin-groups.php:148
 #: lib/admin/groups-admin-groups.php:179 lib/admin/groups-admin-groups.php:185
-#: lib/admin/groups-admin-options.php:39
-#: lib/admin/groups-admin-options.php:328
+#: lib/admin/groups-admin-options.php:39 lib/admin/groups-admin-options.php:328
 #: lib/admin/groups-admin-tree-view.php:37 lib/test/groups-tests.php:385
 #: lib/test/groups-tests.php:391
 msgid "Access denied."
@@ -159,7 +157,7 @@ msgstr ""
 
 #: lib/admin/class-groups-admin-users.php:212
 msgid "Add to group"
-msgstr ""
+msgstr "グループに追加"
 
 #: lib/admin/class-groups-admin-welcome.php:234
 #: lib/admin/class-groups-admin.php:222 lib/admin/groups-admin-add-ons.php:32
@@ -220,7 +218,7 @@ msgstr ""
 #: lib/admin/groups-admin-groups.php:323 lib/admin/groups-admin-groups.php:349
 #: lib/admin/groups-admin-groups.php:385
 msgid "Apply"
-msgstr ""
+msgstr "適用"
 
 #: legacy/access/class-groups-access-meta-boxes-legacy.php:160
 msgid ""
@@ -673,7 +671,6 @@ msgid "Members of the %1$s group can access this %2$s through this capability."
 msgid_plural ""
 "Members of the %1$s groups can access this %2$s through this capability."
 msgstr[0] ""
-msgstr[1] ""
 
 #: lib/admin/groups-admin-groups-add.php:69
 #: lib/admin/groups-admin-groups-edit.php:79
@@ -759,7 +756,6 @@ msgstr ""
 msgid "One capability has been added."
 msgid_plural "%d capabilities have been added."
 msgstr[0] ""
-msgstr[1] ""
 
 #: legacy/admin/class-groups-admin-post-columns-legacy.php:77
 msgid "One or more capabilities required to read the entry."
@@ -915,7 +911,7 @@ msgstr ""
 
 #: lib/admin/class-groups-admin-users.php:213
 msgid "Remove from group"
-msgstr ""
+msgstr "グループから削除"
 
 #: lib/admin/groups-admin-groups.php:381
 msgid "Remove group"
@@ -1351,3 +1347,6 @@ msgid ""
 "You should use Groups_Post_Access_Legacy::create() to pass a capability "
 "restriction instead."
 msgstr ""
+
+msgid "Offline Payment"
+msgstr "現金払い"

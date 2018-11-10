@@ -186,7 +186,7 @@ class Groups_Admin_Users {
 						'<option value="%d" %s>%s</option>',
 						Groups_Utility::id( $group->group_id ),
 						$is_member ? ' selected="selected" ' : '',
-						wp_filter_nohtml_kses( $group->name )
+							wp_filter_nohtml_kses( __($group->name, 'groups') )
 					);
 				}
 				$groups_select .= '</select>';
