@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2018-11-10 08:34+0700\n"
+"PO-Revision-Date: 2018-11-10 08:45+0700\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -471,11 +471,11 @@ msgstr ""
 
 #: lib/admin/groups-admin-groups.php:304
 msgid "Group"
-msgstr ""
+msgstr "グループを選択"
 
 #: lib/admin/class-groups-admin-users.php:211
 msgid "Group Actions"
-msgstr ""
+msgstr "グループ操作"
 
 #: lib/admin/groups-admin-groups.php:316
 msgid "Group ID"
