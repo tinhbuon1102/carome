@@ -32,7 +32,7 @@ do_action( 'woocommerce_before_account_navigation' );
 <h2 class="account__nav__heading heading heading--xlarge serif flex-justify-between flex-align-center icon--plus">My Page</h2>
 <?php } else { ?>
 <h2 class="heading heading--xsmall"><?php if (!$current_user->user_lastname) { ?><?php echo $current_user->user_login ; ?><?php } else { ?><?php echo $current_user->user_lastname . "\n" . $current_user->user_firstname ; ?><?php } ?>様、こんにちは。</h2>
-<p class="user_id"><?php _e('User ID: ')?><?php echo $current_user->ID?></p>
+<p class="user_id"><?php printf(__('Your User ID is %s'), $current_user->ID)?></p>
 <p class="p4">マイページでは、個人情報や支払方法の変更、注文履歴の閲覧が可能です。</p>
 <?php } ?>
 <nav class="account__nav serif <?php if( ( end($request) == 'my-account' && is_account_page() ) ){ ?>account__nav--landing<?php } ?>">
