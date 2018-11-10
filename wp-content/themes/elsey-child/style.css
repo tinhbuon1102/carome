@@ -715,7 +715,12 @@ fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
 	.is-sticky .header__primary {
     display: none;
 	}
-	.is-sticky .els-main-menu {
+	.is-sticky .els-main-menu .menu-item > a {
+    font-size: 1.25rem;
+    padding: 0 20px;
+    line-height: 1.2;
+	}
+	.is-sticky .els-main-menu, .is-sticky .els-main-menu .header__secondary__content {
 		max-width: 100%;
 		padding: 0;
 	}
