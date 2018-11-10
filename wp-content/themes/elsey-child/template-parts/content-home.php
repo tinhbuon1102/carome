@@ -75,7 +75,7 @@
 				'fields'  => 'ids',
 				'slug'    => array(
 					'pumps', 
-					'sandals', 'ipcase', 'glasses', 'hairacc', 'jewelry', 'bag' ),
+					'sandals', 'ipcase', 'glasses', 'hairacc', 'jewelry', 'bag', 'skirts', 'pants', 'shortpants' ),
 				'taxonomy' => $taxonomy,
 			)
 		);
