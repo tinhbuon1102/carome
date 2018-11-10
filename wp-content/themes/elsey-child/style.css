@@ -277,7 +277,7 @@ ul.product-categories span.count {
 		line-height: 34px;
 	}
 	.xs-hide {
-		display: none;
+		display: none !important;
 	}
 }
 .header__promo-banner ul {
@@ -292,7 +292,7 @@ ul.product-categories span.count {
 	}
 @media only screen and (min-width: 48em) {
 	.xs-show {
-		display: none;
+		display: none !important;
 	}
 	.header__promo-banner {
 	min-height: 40px;
@@ -666,8 +666,13 @@ fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
 	.header__sett {
 		left: 0;
 	}
-	.els-main-menu {
-    padding: 0 4px;
+	.header__secondary {
+    padding: 0;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+	}
+	.els-main-menu .header__secondary__content {
     max-width: 980px;
     margin: 0 auto;
 	}
@@ -693,7 +698,19 @@ fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
     text-align: center;
 	}
 	.els-main-menu .menu-item {
+    padding: 0;
+	}
+	.els-main-menu .menu-item > a {
     padding: 15px 20px;
+	}
+	.header__main .els-main-menu ul  li  ul.sub-menu {
+    display: none !important;
+	}
+	.els-main-menu ul li ul.sub-menu li a {
+    margin: 0;
+    display: block;
+    text-align: left;
+    width: 100%;
 	}
 	.is-sticky .header__primary {
     display: none;
@@ -2607,7 +2624,7 @@ ul.mag-tags li {
     font-size: 16px;
 	}
 	.els-shop-wrapper .els-shop-filter {
-    padding: 10px 12px;
+    padding: 10px 0;
     margin: 0;
 	}
 	.els-shop-filter > .els-order-filter > form.woocommerce-ordering > select.orderby {
@@ -4646,6 +4663,40 @@ ol.count-num > li:after {
 	}
 }
 @media only screen and (max-width: 47.99em) {
+	.header__secondary .header__secondary__content li.els-dropdown-menu ul {
+    position: relative;
+    top: auto;
+    width: 100%;
+    border: none;
+    left: auto;
+    z-index: 1;
+    display: none !important;
+	}
+	.header__user.display--small-only {
+    margin-top: 24px;
+    text-align: left;
+}
+.header__secondary__content > .header__user > a:before {
+    content: "";
+    display: inline-block;
+    font-family: 'caronew';
+    font-weight: normal;
+    speak: none;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+.header__secondary__content > .header__user > a.header__user__item:before {
+    content: "\ea0a";
+}
+.header__secondary__content > .header__user > a.header__user__item.els-wishlist-filled:before {
+    content: "\ea0b";
+}
+	.header__secondary__content > .header__user > a.header__user__item.guest-user:before {
+		content: "\ea0c";
+	}
 	.modal_button_wraper .button:not(:last-child) {
     margin-bottom: 10px;
 	}

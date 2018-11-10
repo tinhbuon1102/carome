@@ -13,7 +13,7 @@ else{
  * Enqueues child theme stylesheet, loading first the parent theme stylesheet.
  */
 function elsey_enqueue_child_theme_styles() {
-	wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri(), array(), null );
+	wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri().'?2018111100615', array(), null );
 	//wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri(), array(), filemtime( get_stylesheet_directory() . '/style.css' ) );
 }
 add_action( 'wp_enqueue_scripts', 'elsey_enqueue_child_theme_styles', 11 );
@@ -846,6 +846,7 @@ function smoke_scripts ()
 	wp_enqueue_script('remodal_js', get_stylesheet_directory_uri() . '/js/remodal/remodal.js', array( 'jquery' ),'', true);
 	wp_enqueue_style('remodal_css', get_stylesheet_directory_uri() . '/js/remodal/remodal.css');
 	wp_enqueue_style('remodaltheme_css', get_stylesheet_directory_uri() . '/js/remodal/remodal-default-theme.css');
+	wp_enqueue_style( 'woo_css', get_stylesheet_directory_uri() . '/css/woo.css?v='. time() );
 	wp_enqueue_style( 'overwrite_css', get_stylesheet_directory_uri() . '/overwrite.css', array(), filemtime( get_stylesheet_directory() . '/overwrite.css' ) );
 	wp_enqueue_style('slick_css', get_stylesheet_directory_uri() . '/js/slick/slick.css');
 	wp_enqueue_style('slicktheme_css', get_stylesheet_directory_uri() . '/js/slick/slick-theme.css');
@@ -901,7 +902,7 @@ function file_remove_scripts() {
 add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
 
 function custom_styles() {
-	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css', array('elsey-child-style') );
+	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css?v=' . time(), array('elsey-child-style') );
 	wp_register_style( 'quick-style', get_stylesheet_directory_uri() . '/css/quick-view.css', array('elsey-child-style') );
 	wp_register_style( 'event-style', get_stylesheet_directory_uri() . '/css/event-page.css', array('quick-style') );
 	if (isCustomerInPrivateEvent()) {
@@ -912,6 +913,39 @@ function custom_styles() {
 }
 add_action('wp_enqueue_scripts', 'custom_styles');
 
+//unset specific categories
+add_filter( 'get_terms', 'exclude_category', 10, 3 );
+function exclude_category( $terms, $taxonomies, $args ) {
+    $new_terms = array();
+    if ( is_shop() ){
+        foreach ( $terms as $key => $term ) {
+            if( is_object ( $term ) ) {
+                if ( 'twoset_price_jwl' == $term->slug && $term->taxonomy = 'product_cat' ) {
+                    unset($terms[$key]);
+                }
+				if ( 'threeset10poff' == $term->slug && $term->taxonomy = 'product_cat' ) {
+                    unset($terms[$key]);
+                }
+				if ( 'springfair2018mayacc' == $term->slug && $term->taxonomy = 'product_cat' ) {
+                    unset($terms[$key]);
+                }
+				if ( 'springfair2018may' == $term->slug && $term->taxonomy = 'product_cat' ) {
+                    unset($terms[$key]);
+                }
+				if ( 'springfair2018mayone' == $term->slug && $term->taxonomy = 'product_cat' ) {
+                    unset($terms[$key]);
+                }
+				if ( 'thespringsale18' == $term->slug && $term->taxonomy = 'product_cat' ) {
+                    unset($terms[$key]);
+                }
+				if ( 'finalsummersale' == $term->slug && $term->taxonomy = 'product_cat' ) {
+                    unset($terms[$key]);
+                }
+            }
+        }
+    }
+    return $terms;
+}
 //call remodal for enter page
 /*function call_enter_remodal() {
 

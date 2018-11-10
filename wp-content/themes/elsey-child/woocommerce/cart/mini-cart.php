@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 do_action( 'woocommerce_before_mini_cart' ); ?>
+<a href="javascript:void(0);" id="close-cart-trigger" class="minicart__link--close-cart cta cta--underlined txt--upper">Close</a>
 <p class="minicart__header align--center heading poppins">Your Shopping Bag</p>
 <?php if ( ! WC()->cart->is_empty() ) : ?>
 

@@ -30,7 +30,7 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 				  } elseif (strpos($browser , 'firefox') !== false) {
 					  //Firefoxからのアクセス
 					  $tabFirefoxClass = 'active';
-					  echo('<p>Firefoxです</p>');
+					  echo('<p><i class="evg-icon evg-icon-browser-firefox"></i> Firefoxです</p>');
 					  
 				  } elseif (strpos($browser , 'safari') !== false) {
 					  //Safariからのアクセス
@@ -39,7 +39,7 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 				  } else {
 					  //その他からのアクセス
 					  $tabOtherClass = 'active';
-					  echo('<p>その他ブラウザです</p>');
+					  echo('<p><i class="evg-icon evg-icon-globe"></i> その他ブラウザです</p>');
 					  
 				  }
 				  echo('<div class="browser-inst">');
@@ -47,8 +47,8 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 	 echo ('<li class="'.$tabSafariClass.'"><a href="#safariUser"><i class="evg-icon evg-icon-browser-safari"></i> Safariの方</a></li>');
 	 echo ('<li class="'.$tabChromeClass.'"><a href="#chromeUser"><i class="evg-icon evg-icon-browser-chrome"></i> Chromeの方</a></li>');
 	 if(!strpos($browser , 'safari') !== false || !strpos($browser , 'chrome') !== false) {
-		 echo ('<li class="'.$tabFirefoxClass.'"><a href="#firefoxUser">Firefoxの方</a></li>');
-		 echo ('<li class="'.$tabOtherClass.'"><a href="#otherUser">その他の方</a></li>');
+		 echo ('<li class="'.$tabFirefoxClass.'"><a href="#firefoxUser"><i class="evg-icon evg-icon-browser-firefox"></i> Firefoxの方</a></li>');
+		 echo ('<li class="'.$tabOtherClass.'"><a href="#otherUser"><i class="evg-icon evg-icon-globe"></i> その他の方</a></li>');
 	 }
 	 
 				  
@@ -65,13 +65,13 @@ $elsey_brand_logo_default = cs_get_option('brand_logo_default');
 				  if(!strstr($browser , 'safari') || !strstr($browser , 'chrome')) {
 				  //Firefox手順
 				  echo ('<div id="firefoxUser" class="tab_content">');
-				  echo ('準備中');
+				  get_template_part( 'template-parts/instbrowser', 'firefox' );
 	//get_template_part( 'template-parts/instbrowser', 'firefox' );
 				  echo ('</div>');//end of tab_content
 				  
 				  //その他手順
 				  echo ('<div id="otherUser" class="tab_content">');
-				  echo ('準備中');
+				  echo ('Androidのデフォルトブラウザ、またはChrome、Safari、Firefoxをご利用ください。');
 	//get_template_part( 'template-parts/instbrowser', 'other' );
 				  echo ('</div>');//end of tab_content
 					  }//if chrome nor safari

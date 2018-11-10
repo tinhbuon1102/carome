@@ -114,6 +114,14 @@ jQuery(document).ready(function($){
 		$('#els-shopping-cart-content-sticky').toggleClass('toggle--active');
 		$('.focus-overlay').toggleClass('set--active');
 	});
+	/*Added Newly Nov 2018*/
+	$('#close-cart-trigger').on("click", function() {
+		$('#els-shopping-cart-content .widget_shopping_cart_content').toggleClass('els-cart-popup-open');
+		$('#els-shopping-cart-content-sticky .widget_shopping_cart_content').toggleClass('els-cart-popup-open');
+		$('#els-shopping-cart-content').toggleClass('toggle--active');
+		$('#els-shopping-cart-content-sticky').toggleClass('toggle--active');
+		$('.focus-overlay').toggleClass('set--active');
+	});
 	$(".focus-overlay").unbind().click(function() {
 		$('#els-shopping-cart-content .widget_shopping_cart_content').toggleClass('els-cart-popup-open');
 		$('#els-shopping-cart-content-sticky .widget_shopping_cart_content').toggleClass('els-cart-popup-open');

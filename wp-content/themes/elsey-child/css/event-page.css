@@ -1,4 +1,7 @@
 /* CSS Document */
+.inst-txt img {
+    vertical-align: middle;
+}
 .remodal.event-enter-modal {
     margin: 0;
 }
@@ -100,7 +103,26 @@ ul.tabs > li.active > a {
 	margin-bottom: 15px;
 	color: red;
 }
+.not-get-geo p + .button {
+	margin-top: 24px;
+}
+.not-get-geo h2 {
+    font-size: 1.65rem;
+    font-weight: bold;
+    margin-bottom: 24px;
+    text-align: center;
+}
 @media only screen and (max-width: 47.99em) {
+	.woocommerce-customer-logout.my-account-template .woocommerce-message {
+    margin-top: 24px;
+	text-align: center;
+	}
+	.woocommerce-customer-logout.my-account-template .woocommerce-message > a {
+    display: inline-block;
+    background: rgba(241,221,222,1);
+    padding: 10px 15px;
+    line-height: 1;
+	}
 	.check-location-button {
     padding-top: 12px;
     padding-bottom: 12px;
