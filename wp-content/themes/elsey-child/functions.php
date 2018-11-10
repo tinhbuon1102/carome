@@ -3232,7 +3232,11 @@ function checkGeoLocationNearStore()
 	}
 	$shopLocation = array('lat' => get_event_coupon_by('store_latitude'), 'long' => get_event_coupon_by('store_longtitude'));
 	?>
-	<script src="https://maps.google.com/maps/api/js?libraries=geometry&key=AIzaSyC0zkZJ3sHFHJgzUsAteOnObvf3ouAbc68" type="text/javascript"></script>
+	<?php 
+	$google_keys = array('AIzaSyCMbwOMB5I-AbwMAbRDHvdDaqlnC62KGxk', 'AIzaSyC0zkZJ3sHFHJgzUsAteOnObvf3ouAbc68');
+	$google_key_index = array_rand($google_keys);
+	?>
+	<script src="https://maps.google.com/maps/api/js?libraries=geometry&key=<?php echo $google_keys[$google_key_index]?>" type="text/javascript"></script>
 	<script type="text/javascript">
 		function getMyPlace(is_button_click)
 		{
