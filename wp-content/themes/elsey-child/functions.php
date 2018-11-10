@@ -3521,6 +3521,41 @@ function elsey_registration_save( $user_id ) {
 	}
 }
 
+add_action( 'parse_request', 'elsey_search_user_with_id' );
+function elsey_search_user_with_id( $wp ) {
+	global $pagenow;
+	
+	// If it's not the post listing return
+	if ( 'users.php' != $pagenow ) return;
+	
+	// If it's not a search return
+	if ( ! isset($wp->query_vars['s']) ) return;
+	
+	// If it's a search but there's no prefix, return
+	if ( '#' != substr($wp->query_vars['s'], 0, 1) ) return;
+	
+	// Validate the numeric value
+	$id = absint(substr($wp->query_vars['s'], 1));
+	if ( ! $id ) return; // Return if no ID, absint returns 0 for invalid values
+	
+	// If we reach here, all criteria is fulfilled, unset search and select by ID instead
+	unset($wp->query_vars['s']);
+	$wp->query_vars['p'] = $id;
+}
+
+add_filter('manage_users_columns', 'elsey_add_user_id_column');
+function elsey_add_user_id_column($columns) {
+	$new_column['user_id'] = 'User ID';
+	$columns = insertAtSpecificIndex($columns, $new_column, array_search('username', array_keys($columns)) + 1);
+	return $columns;
+}
+
+add_action('manage_users_custom_column',  'else_show_user_id_column_content', 10, 3);
+function else_show_user_id_column_content($value, $column_name, $user_id) {
+	if ( 'user_id' == $column_name )
+		return $user_id;
+}
+
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
