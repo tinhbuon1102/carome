@@ -1155,7 +1155,7 @@ function elsey_wp_loaded()
 		wp_redirect(site_url('/enter/'));
 	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' )) {
 		wp_redirect(site_url('/shop/'));
-	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_page('enter') && !defined( 'DOING_AJAX' )) {
+	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_page('enter') && $_SESSION['user_agree_to_check_location'] && !defined( 'DOING_AJAX' )) {
 		wp_redirect(site_url('/shop/'));
 	}
 }
