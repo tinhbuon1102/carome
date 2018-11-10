@@ -3406,7 +3406,9 @@ function elsey_allow_use_free_shipping_coupon()
 		if (isset($_REQUEST['is_blocked']) && $_REQUEST['is_blocked'])
 		{
 			$_SESSION['user_agree_to_check_location'] = null;
+			$_SESSION['allow_private_coupon'] = null;
 			unset($_SESSION['user_agree_to_check_location']);
+			unset($_SESSION['allow_private_coupon']);
 		}
 		
 		if ($_POST['distance'] <= get_distance_event_coupon() && ($today >= $event_start_end['start'] || $today <= $event_start_end['end']))
