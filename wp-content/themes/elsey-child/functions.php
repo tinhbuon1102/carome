@@ -13,7 +13,7 @@ else{
  * Enqueues child theme stylesheet, loading first the parent theme stylesheet.
  */
 function elsey_enqueue_child_theme_styles() {
-	wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri().'?2018111100615', array(), null );
+	wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri().'?2018111100929', array(), null );
 	//wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri(), array(), filemtime( get_stylesheet_directory() . '/style.css' ) );
 }
 add_action( 'wp_enqueue_scripts', 'elsey_enqueue_child_theme_styles', 11 );
