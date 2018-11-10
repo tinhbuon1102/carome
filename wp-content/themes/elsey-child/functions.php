@@ -3343,6 +3343,12 @@ function elsey_allow_use_free_shipping_coupon()
 		$today = current_time('mysql');
 		$event_start_end = get_event_time_start_end();
 		$_SESSION['user_store_distance'] = $_POST['distance'];
+		//Test with developer distance = 1
+		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
+		{
+			$_SESSION['user_store_distance'] = 1;
+			die('xxx');
+		}
 		
 		if (isset($_REQUEST['is_blocked']) && $_REQUEST['is_blocked'])
 		{
