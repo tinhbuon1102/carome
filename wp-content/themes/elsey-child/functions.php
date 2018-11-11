@@ -3381,6 +3381,8 @@ function checkGeoLocationNearStore()
 add_action( 'init', 'elsey_check_private_coupon' );
 function elsey_check_private_coupon()
 {
+	isCustomerInPrivateEvent();
+	
 	$today = current_time('mysql');
 	$event_start_end = get_event_time_start_end();
 	
