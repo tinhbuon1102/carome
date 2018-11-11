@@ -3557,26 +3557,27 @@ function elsey_registration_save( $user_id ) {
 	}
 }
 
-add_action( 'parse_request', 'elsey_search_user_with_id' );
+add_action( 'pre_user_query', 'elsey_search_user_with_id', 10000 );
 function elsey_search_user_with_id( $wp ) {
 	global $pagenow;
-	
+	$search = str_replace('*', '', $wp->query_vars['search']);
 	// If it's not the post listing return
 	if ( 'users.php' != $pagenow ) return;
 	
 	// If it's not a search return
-	if ( ! isset($wp->query_vars['s']) ) return;
+	if ( ! isset($wp->query_vars['search']) ) return;
 	
 	// If it's a search but there's no prefix, return
-	if ( '#' != substr($wp->query_vars['s'], 0, 1) ) return;
+	if ( '#' != substr($search, 0, 1) ) return;
 	
 	// Validate the numeric value
-	$id = absint(substr($wp->query_vars['s'], 1));
+	$id = absint(substr($search, 1));
 	if ( ! $id ) return; // Return if no ID, absint returns 0 for invalid values
 	
 	// If we reach here, all criteria is fulfilled, unset search and select by ID instead
-	unset($wp->query_vars['s']);
-	$wp->query_vars['p'] = $id;
+	unset($wp->query_vars['search']);
+	$wp->query_where = ' WHERE wp_users.ID = ' . $id;
+	
 }
 
 add_filter('manage_users_columns', 'elsey_add_user_id_column');
