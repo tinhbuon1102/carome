@@ -2875,6 +2875,10 @@ function elsey_woocommerce_after_shipping_price_custom()
 		}
 		else {
 			echo '<div class="order__summary__row shipping_fee_message"><span class="small-text">' . __('This shipping fee is for 2 orders of normal order and pre-order', 'elsey') . '<span></div>';
+			if (isCustomerInPrivateEvent())
+			{
+				echo '<div class="order__summary__row shipping_fee_message event_message"><span class="small-text">' . __('送料が無料となるのは通常商品のご注文のみとなります。', 'elsey') . '<span></div>';
+			}
 		}
 	}
 }
