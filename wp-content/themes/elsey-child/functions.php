@@ -3184,8 +3184,11 @@ function isCustomerInPrivateEvent()
 	$user = wp_get_current_user();
 	$private_emails = get_emails_event_coupon();
 	
+	$today = current_time('mysql');
+	$event_start_end = get_event_time_start_end();
+	
 	$user_email = $user->get('user_email');
-	if ($user_email && in_array(trim($user->get('user_email')), $private_emails))
+	if ($user_email && in_array(trim($user->get('user_email')), $private_emails) && !empty($event_start_end) && ($today <= $event_start_end['start'] || $today >= $event_start_end['end']))
 	{
 		$_SESSION['user_store_distance'] = 1;
 		$_SESSION['user_at_store'] = 1;
