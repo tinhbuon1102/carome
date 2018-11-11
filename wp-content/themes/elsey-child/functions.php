@@ -3460,6 +3460,12 @@ function elsey_allow_use_free_shipping_coupon()
 add_action( 'woocommerce_checkout_update_order_meta', 'elsey_woocommerce_checkout_update_order_meta' );
 function elsey_woocommerce_checkout_update_order_meta( $order_id )
 {
+	$post = get_post($order_id);
+	if ($post->post_type !== 'shop_order')
+	{
+		return '';
+	}
+	
 	$order = new WC_Order($order_id);
 	$coupons = $order->get_used_coupons();
 	if (!empty($coupons))
@@ -3473,6 +3479,11 @@ function elsey_woocommerce_checkout_update_order_meta( $order_id )
 			}
 		}
 	}
+}
+
+add_action( 'save_post', 'elsey_store_event_coupon_meta' );
+function elsey_store_event_coupon_meta( $post_id ) {
+	elsey_woocommerce_checkout_update_order_meta( $post_id );
 }
 
 
