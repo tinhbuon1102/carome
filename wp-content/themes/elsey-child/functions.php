@@ -2107,7 +2107,7 @@ function elsey_woocommerce_payment_gateways($load_gateways)
 	$event_start_end = get_event_time_start_end();
 	$is_event_time = !empty($event_start_end) && $today >= $event_start_end['start'] && $today <= $event_start_end['end'];
 	
-	if (!$group || !$is_event_time)
+	if (!$group || !$is_event_time || !isCustomerInPrivateEvent())
 	{
 		if (($bacs_index = array_search('WC_Gateway_Offline', $load_gateways)) !== false)
 		{
