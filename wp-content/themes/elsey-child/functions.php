@@ -1826,7 +1826,7 @@ function elsey_woe_order_exported($order_id){
 
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
-	if ($_GET['update_insta_shop'])
+	if (isset($_GET['update_insta_shop']) && $_GET['update_insta_shop'])
 	{
 		$insta_related_products = get_option('insta_related_products');
 		$insta_related_products = $insta_related_products ? $insta_related_products : array();
@@ -2122,7 +2122,7 @@ function elsey_woocommerce_payment_gateways($load_gateways)
 add_action( 'wp_loaded', 'restoreUserWailist' );
 function restoreUserWailist()
 {
-	if ($_GET['restore_waitlist'])
+	if (isset($_GET['restore_waitlist']) && $_GET['restore_waitlist'])
 	{
 		$aRestore = array(
 			'4696' => 'a:42:{i:507;i:1518684954;i:520;i:1518686760;i:375;i:1518687460;i:491;i:1518693988;i:126;i:1518705446;i:603;i:1518708337;i:607;i:1518723825;i:528;i:1518742447;i:670;i:1518791770;i:215;i:1518827079;i:689;i:1518841801;i:94;i:1518871036;i:298;i:1518917790;i:730;i:1518946140;i:735;i:1518953435;i:279;i:1518961236;i:198;i:1518963751;i:751;i:1518964438;i:758;i:1518969203;i:7;i:1518969753;i:44;i:1518993623;i:775;i:1519007182;i:34;i:1519025065;i:788;i:1519027564;i:194;i:1519033084;i:943;i:1519033598;i:513;i:1519034252;i:539;i:1519034874;i:1062;i:1519041612;i:241;i:1519044929;i:594;i:1519059964;i:1205;i:1519110630;i:1234;i:1519137039;i:969;i:1519139195;i:448;i:1519171648;i:1247;i:1519191414;i:1250;i:1519198254;i:740;i:1519202869;i:1254;i:1519205406;i:1107;i:1519211304;i:317;i:1519211541;i:508;i:1519263128;}',
@@ -2426,7 +2426,7 @@ function else_woocommerce_variation_options_inventory($loop, $variation_data, $v
 
 add_action( 'wp_loaded', 'elsey_process_stock_schedule' );
 function elsey_process_stock_schedule() {
-	if (!$_GET['process_stock_schedule'])
+	if (!isset($_GET['process_stock_schedule']) || !$_GET['process_stock_schedule'])
 		return ;
 	
 	$current_time = date('Y-m-d H:i', current_time( 'timestamp', 0 ));
@@ -2471,7 +2471,7 @@ function elsey_process_stock_schedule() {
 
 add_action( 'wp_loaded', 'elsey_schedule_cancelled_not_paid' );
 function elsey_schedule_cancelled_not_paid() {
-	if ($_GET['cancelled_not_paid'])
+	if (isset($_GET['cancelled_not_paid']) && $_GET['cancelled_not_paid'])
 	{
 		do_action( 'woocommerce_cancel_unpaid_orders');
 		die('done');
@@ -2556,7 +2556,7 @@ function elsey_menu_report_removing() {
 			}
 			
 			require_once  get_stylesheet_directory() .'/woocommerce/includes/admin/class-wc-admin-reports.php';
-			add_submenu_page( 'woocommerce', __( 'Reports', 'woocommerce' ),  __( 'Reports', 'woocommerce' ) , 'view_woocommerce_reports', 'wc-reports', array( WC_Admin_Reports_New, 'output_new' ) );
+			add_submenu_page( 'woocommerce', __( 'Reports', 'woocommerce' ),  __( 'Reports', 'woocommerce' ) , 'view_woocommerce_reports', 'wc-reports', array( 'WC_Admin_Reports_New', 'output_new' ) );
 		}
 	}
 }
