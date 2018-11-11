@@ -3186,7 +3186,7 @@ function isCustomerInPrivateEvent()
 	
 	$today = current_time('mysql');
 	$event_start_end = get_event_time_start_end();
-	$is_time_event = !empty($event_start_end) && ($today <= $event_start_end['start'] || $today >= $event_start_end['end']);
+	$is_time_event = !empty($event_start_end) && ($today >= $event_start_end['start'] || $today <= $event_start_end['end']);
 	$user_email = $user->get('user_email');
 	if ($user_email && in_array(trim($user->get('user_email')), $private_emails) && $is_time_event)
 	{
