@@ -2510,7 +2510,7 @@ function elsey_restore_order_stock($order_id){
 	
 				$old_stock = $_product->stock;
 	
-				$qty = apply_filters( 'woocommerce_order_item_quantity', $item['qty'], $this, $item );
+				$qty = apply_filters( 'woocommerce_order_item_quantity', $item['qty'], $order, $item );
 	
 				$new_quantity = $_product->increase_stock( $qty );
 	
