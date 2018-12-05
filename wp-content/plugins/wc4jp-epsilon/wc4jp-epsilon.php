@@ -219,6 +219,11 @@ function epsilon_cc_recieved(){
 		$response_array = $epsilon_request->get_order_info_to_epsilon( $_GET['trans_code'], $testmode );
 		if($order->order_total){
 			$order->payment_complete( $_GET['trans_code'] );
+			if (!isset($_GET['payment_code']) || !$_GET['payment_code'])
+			{
+				// CC cart
+				update_post_meta($order_id, '_payment_method_title', __( 'Epsilon Credit Card', 'wc4jp-epsilon' ));
+			}
 			$redirect_url = $order->get_checkout_order_received_url();
 echo '<script type="text/javascript">
       location.href  = "'.$redirect_url.'";

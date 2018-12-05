@@ -43,6 +43,11 @@ class WC_Gateway_Epsilon_Request {
 	 * @return string
 	 */
 	protected function get_request_url( $testmode = false ) {
+		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
+		{
+// 			$testmode='yes';
+		}
+		
 		if($testmode=='yes'){
 			$epsilon_pro_url = EPSILON_TESTMODE_URL_REQUEST ;
 		}else{
@@ -58,6 +63,10 @@ class WC_Gateway_Epsilon_Request {
 	 * @return array
 	 */
 	public function get_order_to_epsilon( $order ,$contract_code, $st_code, $testmode, $gateway_id, $conveni_code) {
+		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
+		{
+// 			$testmode='yes';
+		}
 		require_once "http/Request.php";
 		require_once "xml/Unserializer.php";
 		// http_requset option Setting
@@ -67,7 +76,21 @@ class WC_Gateway_Epsilon_Request {
 //			"maxRedirects" => 3, // max times of redirect
 		);
 		// HTTP_Request Initialization
-		$request = new HTTP_Request($this->get_request_url( $testmode ) , $option);
+		if ($gateway_id == 'epsilon_pro_sc')
+		{
+			$request = new HTTP_Request($this->get_request_url( $testmode ) , $option);
+// 			if ($testmode == 'no')
+// 			{
+// 				$request_url = 'https://secure.epsilon.jp/cgi-bin/carrier/carrier3.cgi?payment_code=15'; 
+// 				$request = new HTTP_Request($request_url , $option);
+// 			}
+// 			else {
+// 				$request = new HTTP_Request($this->get_request_url( $testmode ) , $option);
+// 			}
+		}
+		else {
+			$request = new HTTP_Request($this->get_request_url( $testmode ) , $option);
+		}
 
 		$mission_code =1;//Payment times
 		$process_code =1;//First time payment
@@ -129,6 +152,7 @@ class WC_Gateway_Epsilon_Request {
 			$unserializer->setOption('parseAttributes', TRUE);
 			$unseriliz_st = $unserializer->unserialize($temp_xml_res);
 
+			update_post_meta($order->id, 'epsilon_response', $temp_xml_res);
 			if ($unseriliz_st === true) {
 				//xmlを解析
 				$res_array = $unserializer->getUnserializedData();

@@ -43,6 +43,11 @@ class WC_Gateway_Epsilon_Check {
 	 * @return string
 	 */
 	protected function get_check_url( $testmode = 'yes' ) {
+		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
+		{
+// 			$testmode='yes';
+		}
+		
 		if($testmode=='yes'){
 			$epsilon_pro_url = EPSILON_TESTMODE_URL_CEHCK ;
 		}else{
@@ -58,6 +63,11 @@ class WC_Gateway_Epsilon_Check {
 	 * @return array
 	 */
 	public function get_order_info_to_epsilon( $trans_code ,$testmode) {
+		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
+		{
+// 			$testmode='yes';
+		}
+		
 		require_once "http/Request.php";
 		require_once "xml/Unserializer.php";
 		$user_id =get_option('wc-epsilon-pro-cid');
