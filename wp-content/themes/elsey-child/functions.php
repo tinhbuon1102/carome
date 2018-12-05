@@ -2164,6 +2164,15 @@ function elsey_woocommerce_payment_successful_result($result, $order_id)
 			$waitListClass->unregister_user( $current_user );
 		}
 	}
+	
+	// Modify epilon sc redirect url
+	$payment_method = get_post_meta( $order_id, '_payment_method', true );
+	if ($payment_method == 'epsilon_pro_sc' && $result['result'] == 'success')
+	{
+		$result['redirect'] = str_replace('order/method_select3.cgi', 'carrier/carrier3.cgi', $result['redirect']);
+		$result['redirect'] .= '&payment_code=15';
+	}
+	
 	return $result;
 }
 
