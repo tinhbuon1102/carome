@@ -3349,7 +3349,7 @@ function checkGeoLocationNearStore()
 			}
 			function success(position) {
 				var crd = position.coords;
-				var distance = calcDistance (crd.latitude, crd.longitude, <?php echo $shopLocation['lat']?>, <?php echo $shopLocation['long']?>);
+				var distance = calcDistance (crd.latitude, crd.longitude, <?php echo $shopLocation['lat'] ? $shopLocation['lat'] : 0?>, <?php echo $shopLocation['long'] ? $shopLocation['long'] : 0?>);
 				checking_allow_free_shipping_coupon(distance);
 			}
 		

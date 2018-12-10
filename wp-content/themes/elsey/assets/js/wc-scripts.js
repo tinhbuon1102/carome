@@ -76,7 +76,7 @@
 
 				indexNum.find('li .els-product-featured-image .els-product-unveil-loader').hide();
 
-				indexNum.children('li').each(function(index) {
+				indexNum.children('li:not(.els-image-loaded)').each(function(index) {
 					var $this = $(this).find('.els-product-featured-image .wp-post-image');
 					var $realSrc = $this.attr('data-src');
 					$this.attr('src', $realSrc);
@@ -87,7 +87,7 @@
 				$(window).off('scroll.unveil resize.unveil lookup.unveil');
 				indexNum.find('li .els-product-featured-image .els-product-unveil-loader').show();
 
-				indexNum.children('li').each(function(index) {
+				indexNum.children('li:not(.els-image-loaded)').each(function(index) {
 					var $this = $(this).find('.els-product-featured-image .wp-post-image');
 					$this.attr('src', $lazySrc);
 				});
