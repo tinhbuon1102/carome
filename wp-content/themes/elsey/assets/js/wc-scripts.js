@@ -76,7 +76,7 @@
 
 				indexNum.find('li .els-product-featured-image .els-product-unveil-loader').hide();
 
-				indexNum.children('li').each(function(index) {
+				indexNum.children('li:not(.els-image-loaded)').each(function(index) {
 					var $this = $(this).find('.els-product-featured-image .wp-post-image');
 					var $realSrc = $this.attr('data-src');
 					$this.attr('src', $realSrc);
@@ -87,7 +87,7 @@
 				$(window).off('scroll.unveil resize.unveil lookup.unveil');
 				indexNum.find('li .els-product-featured-image .els-product-unveil-loader').show();
 
-				indexNum.children('li').each(function(index) {
+				indexNum.children('li:not(.els-image-loaded)').each(function(index) {
 					var $this = $(this).find('.els-product-featured-image .wp-post-image');
 					$this.attr('src', $lazySrc);
 				});
@@ -515,6 +515,7 @@
 
 		$('.els-shop-wrapper #els-shop-load-more-btn').on('click', function(e) {
 
+			$('body').LoadingOverlay('show');
 			e.preventDefault();
 
 			var $this = $(this);
@@ -537,6 +538,7 @@
 					},
 					complete: function() {
 						$(".els-shop-wrapper[data-scnumber='" + getScIndex + "'] .els-shop-load-more-controls").removeClass('els-loader');
+						$('body').LoadingOverlay('hide');
 					},
 					success: function(response) {
 						var $newElements = '';
@@ -626,6 +628,7 @@
 							$(".els-shop-wrapper[data-scnumber='" + getScIndex + "'] .els-load-more-link").find('a').removeAttr('href');
 							$(".els-shop-wrapper[data-scnumber='" + getScIndex + "'] .els-shop-load-more-controls #els-loaded").removeClass('els-link-present');
 						}
+						$('body').LoadingOverlay('hide');
 					}
 				});
 			} else {
