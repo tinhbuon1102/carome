@@ -3607,6 +3607,12 @@ function else_show_user_id_column_content($value, $column_name, $user_id) {
 		return $user_id;
 }
 
+add_filter( 'loop_shop_per_page', 'elsey_loop_shop_per_page', 2000 );
+function elsey_loop_shop_per_page( $cols ) {
+	return 30;
+}
+
+
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
