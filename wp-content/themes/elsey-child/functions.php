@@ -550,7 +550,7 @@ function notice_get_settings( $settings, $current_section ) {
 				'id'	=> 'msg_threshold_notice'
 			),
 			array(
-				'name' => __( 'About notes' ),
+				'name' => __( 'About notes In English' ),
 				'type' => 'textarea',
 				'desc' => __( 'Text on notes'),
 				'desc_tip' => true,
