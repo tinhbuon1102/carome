@@ -29,7 +29,25 @@ if ($product_swatch_data_array == '') {
 }
 $zoo_clever_swatch_product_page = new Zoo_Clever_Swatch_Product_Page();
 $product_swatch_data_array = $zoo_clever_swatch_product_page->prepare_single_page_data($product, $attributes, $product_swatch_data_array);
-
+if (!empty($product_swatch_data_array)) {
+foreach ($product_swatch_data_array as $attribute_swatch_name => $product_swatch_data)
+{
+	if (isset($product_swatch_data['options_data']))
+	{
+		foreach ($product_swatch_data['options_data'] as $swatch_option_name => $swatch_option_value)
+		{
+			if (!in_array($swatch_option_name, $attributes[$attribute_swatch_name]))
+			{
+				if (isset($_REQUEST['lang']))
+				{
+					$product_swatch_data_array[$attribute_swatch_name]['options_data'][$swatch_option_name . '-' . $_REQUEST['lang']] += $swatch_option_value;
+				}
+				unset($product_swatch_data_array[$attribute_swatch_name]['options_data'][$swatch_option_name]);
+			}
+		}
+	}
+}
+}
 $default_active = $zoo_clever_swatch_product_page->get_default_active_option($product);
 do_action('woocommerce_before_add_to_cart_form');
 ?>

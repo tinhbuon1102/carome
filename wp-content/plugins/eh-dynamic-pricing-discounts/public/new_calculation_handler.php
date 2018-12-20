@@ -207,6 +207,7 @@ class XA_NewCalculationHandler {
                 global $sitepress;
                 $trid = $sitepress->get_element_trid($pid);
                 $trans = $sitepress->get_element_translations($trid);
+                $all_ids = array();
                 foreach($trans as $lan){
                     $all_ids[]=$lan->element_id;
                 }
