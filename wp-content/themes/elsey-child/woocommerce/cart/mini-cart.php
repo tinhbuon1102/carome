@@ -50,7 +50,14 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 							</a>
 						<?php endif; ?>
 						<div class="mini-product__info">
-							<div class="mini-product__item mini-product__name p4"><?php echo $product_name ?></div>
+							<div class="mini-product__item mini-product__name p4">
+							<?php 
+							if (elsey_is_ja_lang())
+							{
+								echo apply_filters( 'woocommerce_cart_item_name_en', sprintf( '<div class="mini-product__item en-name small-text"><a class="link" href="%s">%s</a></div>', esc_url( $product_permalink ), get_post_meta($cart_item['product_id'], '_custom_product_text_field', true) ), $cart_item_key );
+							}
+							?>
+							<?php echo $product_name ?></div>
 						<?php
 						echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
 							'<a href="%s" class="remove remove_from_cart_button" aria-label="%s" data-product_id="%s" data-cart_item_key="%s" data-product_sku="%s">&times;</a>',
