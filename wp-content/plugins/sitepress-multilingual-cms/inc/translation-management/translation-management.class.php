@@ -583,6 +583,7 @@ class TranslationManagement {
 				}
 				$this->make_duplicates( $mdata );
 				do_action( 'wpml_new_duplicated_terms', (array) $mdata[ 'iclpost' ], false );
+				wp_send_json_success();
 				break;
 		}
 	}
@@ -970,48 +971,6 @@ class TranslationManagement {
 		}
 
 		return $translations;
-	}
-
-	/**
-	 * returns icon file name according to status code
-	 *
-	 * @param int $status
-	 * @param int $needs_update
-	 *
-	 * @return string
-	 */
-	public function status2img_filename( $status, $needs_update = 0 ) {
-		if ( $needs_update ) {
-			$img_file = 'needs-update.png';
-		} else {
-			switch ( $status ) {
-				case ICL_TM_NOT_TRANSLATED:
-					$img_file = 'not-translated.png';
-					break;
-				case ICL_TM_WAITING_FOR_TRANSLATOR:
-					$img_file = 'in-progress.png';
-					break;
-				case ICL_TM_IN_PROGRESS:
-					$img_file = 'in-progress.png';
-					break;
-				case ICL_TM_IN_BASKET:
-					$img_file = 'in-basket.png';
-					break;
-				case ICL_TM_NEEDS_UPDATE:
-					$img_file = 'needs-update.png';
-					break;
-				case ICL_TM_DUPLICATE:
-					$img_file = 'copy.png';
-					break;
-				case ICL_TM_COMPLETE:
-					$img_file = 'complete.png';
-					break;
-				default:
-					$img_file = '';
-			}
-		}
-
-		return $img_file;
 	}
 
 	/**
