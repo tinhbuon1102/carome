@@ -156,7 +156,7 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 								<p><strong><?php esc_html_e( 'Material', 'elsey' ); ?></strong><br/><?php echo $material; ?></p>
 								<?php endif; ?>
 								
-								<p><strong><?php esc_html_e( 'Notice', 'elsey' ); ?></strong><br/><?php echo __('custom_field_msg_threshold_notice', 'elsey')?></p>
+								<p><strong><?php esc_html_e( 'Notice', 'elsey' ); ?></strong><br/><?php echo elsey_is_ja_lang() ? get_option('msg_threshold_notice') : get_option('msg_threshold_notice_en')?></p>
 								
 								<?php do_action( 'woocommerce_product_meta_start' ); ?>
 

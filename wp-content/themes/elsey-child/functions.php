@@ -550,6 +550,13 @@ function notice_get_settings( $settings, $current_section ) {
 				'id'	=> 'msg_threshold_notice'
 			),
 			array(
+				'name' => __( 'About notes' ),
+				'type' => 'textarea',
+				'desc' => __( 'Text on notes'),
+				'desc_tip' => true,
+				'id'	=> 'msg_threshold_notice_en'
+			),
+			array(
 				'name' => __( 'Position' ),
 				'type' => 'select',
 				'desc' => __( 'Position of the notice on the product page'),
