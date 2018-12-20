@@ -51,6 +51,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 							?>
 						
 						<div class="mini-product__info">
+							<?php 
+							if (elsey_is_ja_lang())
+							{
+								echo apply_filters( 'woocommerce_cart_item_name_en', sprintf( '<div class="mini-product__item en-name small-text"><a class="link" href="%s">%s</a></div>', esc_url( $product_permalink ), get_post_meta($cart_item['product_id'], '_custom_product_text_field', true) ), $cart_item_key );
+							}
+							?>
 							<div class="mini-product__item name"><?php echo apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;'; ?></div>
 							<div class="mini-product__item mini-product__attribute"><?php echo apply_filters( 'woocommerce_checkout_cart_item_quantity', '<span class="cart-label">数量: </span><span class="value">' . sprintf( '%s', $cart_item['quantity'] ) . '</span>', $cart_item, $cart_item_key ); ?></div>
 							<div class="mini-product__item getitemdata"><?php echo WC()->cart->get_item_data( $cart_item ); ?></div>

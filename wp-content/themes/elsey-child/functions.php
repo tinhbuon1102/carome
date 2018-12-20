@@ -740,9 +740,13 @@ function wdm_test($product_title, $product){
 		$product_test    = get_product($product->variation_id);
 		$product_title = $parent->name;
 		$attributes = $product->get_attributes();
-		 
-		$html = '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' .
-				'<div class="mini-product__item mini-product__name-ja p6">
+		$html = '';
+		
+		if (elsey_is_ja_lang())
+		{
+			$html .= '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">' . get_post_meta($parent->id, '_custom_product_text_field', true) . '</a></div>';
+		}
+		$html .='<div class="mini-product__item mini-product__name-ja p6">
 			<a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $parent->id ) ) ) . '">
 				'.$product_title . '
 			</a>
@@ -771,8 +775,12 @@ function wdm_test($product_title, $product){
 	elseif( is_a($product, "WC_Product") ){
 		$product_test    = new WC_Product($product->id);
 
-		return '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>' .
-				'<div class="mini-product__item mini-product__name-ja p6">
+		$html = '';
+		if (elsey_is_ja_lang())
+		{
+			$html .= '<div class="mini-product__item mini-product__name-en small-text"><a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">' . get_post_meta($product->id, '_custom_product_text_field', true) . '</a></div>';
+		}
+		$html .= '<div class="mini-product__item mini-product__name-ja p6">
 			<a href="'. esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $product->id ) ) ) . '">
 				'.$product_title . '
 			</a>
@@ -3612,6 +3620,11 @@ function elsey_loop_shop_per_page( $cols ) {
 	return 30;
 }
 
+function elsey_is_ja_lang()
+{
+	$current_lang = apply_filters( 'wpml_current_language', NULL );
+	return $current_lang == 'ja';
+}
 
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )

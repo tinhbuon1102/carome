@@ -284,13 +284,14 @@ if ( class_exists( 'WooCommerce' ) ) {
   if (!function_exists('elsey_product_title')) {
 		function elsey_product_title() {
 			global $product;
+			$product_title = elsey_is_ja_lang() ? get_post_meta(get_the_ID(), '_custom_product_text_field', true) : $product->get_title(); 
 			$html = '<div class="els-product-title"><h3>';
 			if (!isCustomerInPrivateEvent())
 			{
-				$html .= '<a href="'.get_the_permalink($product->get_id()).'">'. get_post_meta(get_the_ID(), '_custom_product_text_field', true) .'</a>';
+				$html .= '<a href="'.get_the_permalink($product->get_id()).'">'. $product_title .'</a>';
 			}
 			else {
-				$html .= '<a class="wooqv-trigger title-link" data-id="'. $product->get_id() .'" href="'.get_the_permalink($product->get_id()).'">'. get_post_meta(get_the_ID(), '_custom_product_text_field', true) .'</a>';
+				$html .= '<a class="wooqv-trigger title-link" data-id="'. $product->get_id() .'" href="'.get_the_permalink($product->get_id()).'">'. $product_title .'</a>';
 			}
 			$html .= '</h3>';
 			

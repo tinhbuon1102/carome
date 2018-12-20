@@ -23,7 +23,10 @@ global $post, $main_product_id;
 $main_product_id = $post->ID;
 $current_user = wp_get_current_user();
 
-echo '<p class="pdp__name product_title_en">'. get_post_meta($post->ID, '_custom_product_text_field', true) .'</p>';
+if (elsey_is_ja_lang())
+{
+	echo '<p class="pdp__name product_title_en">'. get_post_meta($post->ID, '_custom_product_text_field', true) .'</p>';
+}
 // Display the value of custom product text field
 echo '<h1 class="product_title entry-title ja-product-name">';
 the_title();
