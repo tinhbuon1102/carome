@@ -42,6 +42,12 @@ $is_free_gift = isFreeGiftOrderProduct($order, $product);
 			}
 		?>
 	<div class="mini-product__info">
+	<?php 
+	if (elsey_is_ja_lang())
+	{
+		echo sprintf( '<div class="mini-product__item en-name small-text"><a class="link" href="%s">%s</a></div>', esc_url( $product_permalink ), get_post_meta($item->get_product_id(), '_custom_product_text_field', true));
+	}
+	?>
 	<p class="mini-product__item mini-product__name heading heading--small">
 		<?php 
 		if ($is_free_gift)
