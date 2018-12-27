@@ -1,0 +1,66 @@
+********************************************************************************
+DUPLICATOR PRO PACKAGE-LOG: 2018-12-25 07:11:22
+NOTICE: Do NOT post to public sites or forums 
+********************************************************************************
+VERSION:	3.7.9
+WORDPRESS:	4.9.8
+PHP INFO:	5.6.36 | SAPI: cgi-fcgi
+SERVER:		Apache 
+ARCHITECTURE:	64-bit 
+PHP TIME LIMIT: [7200] not allowed 
+PHP MAX MEMORY: 5000M (256M default) 
+RUN TYPE: Manual
+MEMORY STACK: 88MB 
+
+********************************************************************************
+DATABASE:
+********************************************************************************
+BUILD MODE:   PHP + CHUNKING (chunk size - 500 rows)
+ 
+TABLES: total:92 | filtered:0 | create:92 
+FILTERED: [] 
+SCHEMA SIZE: [62062592] 
+SQL CREATED: 20181225_carome_78e41104ca39f44e6552_20181225071047_database.sql 
+SQL FILE SIZE: 30.47MB 
+SQL FILE TIME: 2018-12-25 07:11:56 
+SQL RUNTIME: 33.299 sec. 
+MEMORY STACK: 86.75MB 
+
+******************************************************************************** 
+ARCHIVE  Type=ZIP Mode=Shell 
+******************************************************************************** 
+ARCHIVE DIR:  /home/carome/carome.xsrv.jp/public_html 
+ARCHIVE FILE: 20181225_carome_78e41104ca39f44e6552_20181225071047_archive.zip 
+FILTERS: *ON* 
+DIRS:  /home/carome/carome.xsrv.jp/public_html/.git
+	/home/carome/carome.xsrv.jp/public_html/wp-content/cache 
+EXTS:  zip;rar;tar;gz;bz2;7z; 
+FILES:  not set 
+---------------------------------------- 
+COMPRESSING 
+SIZE:	1.44GB 
+STATS:	Dirs 4,396 | Files 43,076 | Total 47,472 
+COMPRESSED SIZE: 1.06GB 
+ARCHIVE RUNTIME: 78.669 sec. 
+MEMORY STACK: 104.5MB 
+
+******************************************************************************** 
+STORAGE: 
+******************************************************************************** 
+LOCAL: Default, /home/carome/carome.xsrv.jp/public_html/wp-content/backups-dup-pro 
+
+******************************************************************************** 
+INTEGRITY CHECKS: 
+******************************************************************************** 
+SQL FILE: 30.47MB 
+INSTALLER FILE: 35.06KB 
+ARCHIVE FILE: 1.07GB  
+EXPECTED FILE/DIRECTORY COUNT: 47,472 
+ACTUAL FILE/DIRECTORY COUNT: 47,491 
+
+********************************************************************************
+RECORD ID:[2]
+TOTAL PROCESS RUNTIME: 120.070 sec.
+PEAK PHP MEMORY USED: 88.25MB
+DONE PROCESSING => 20181225_carome 2018-12-25 07:13:22
+ 

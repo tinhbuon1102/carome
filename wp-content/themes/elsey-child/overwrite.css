@@ -86,6 +86,19 @@ li.cat-item.cat-item-157 {
 .term-thespringsale18 .sub_banner.xs-show {
     border-bottom: 1px solid #eee;
 }
+.news-headline {
+    background: #000;
+    color: #FFF;
+    padding: 12px 14px 10px;
+    font-size: 12px;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 16px;
+}
+
+.news-headline a {
+    color: #FFF;
+}
 @media only screen and (min-width: 48em) {
 .sub_banner {
     padding: 20px;
