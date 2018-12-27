@@ -862,7 +862,7 @@ function smoke_scripts ()
 	wp_enqueue_style('remodal_css', get_stylesheet_directory_uri() . '/js/remodal/remodal.css');
 	wp_enqueue_style('remodaltheme_css', get_stylesheet_directory_uri() . '/js/remodal/remodal-default-theme.css');
 	wp_enqueue_style( 'woo_css', get_stylesheet_directory_uri() . '/css/woo.css?v='. time() );
-	wp_enqueue_style( 'overwrite_css', get_stylesheet_directory_uri() . '/overwrite.css', array(), filemtime( get_stylesheet_directory() . '/overwrite.css' ) );
+	wp_enqueue_style( 'overwrite_css', get_stylesheet_directory_uri() . '/overwrite.css?201812272312' );
 	wp_enqueue_style('slick_css', get_stylesheet_directory_uri() . '/js/slick/slick.css');
 	wp_enqueue_style('slicktheme_css', get_stylesheet_directory_uri() . '/js/slick/slick-theme.css');
 	wp_enqueue_style('validation_engine_css', get_stylesheet_directory_uri() . '/css/validationEngine.jquery.css');

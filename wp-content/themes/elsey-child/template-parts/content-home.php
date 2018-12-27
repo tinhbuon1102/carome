@@ -43,7 +43,7 @@
         'fields'  => 'ids',
         'slug'    => array( 
             'twoset_price_jwl', 
-            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle', '2days-limited-acc-ev1811' ),
+            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle', '2days-limited-acc-ev1811', 'uncategorized' ),
         'taxonomy' => $taxonomy,
     )
 );
@@ -167,7 +167,7 @@
 									$prod_ids_to_include[] = $get_prod_id_to_include->ID;
 								}
 							}
-							echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="'.implode(',', $prod_ids_to_include).'" visibility="visible"] ]');
+							echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="'.implode(',', $prod_ids_to_include).'" visibility="visible"]');
 							?>
 							<?php //echo do_shortcode('[products limit="4" columns="2" orderby="date" order="DESC" ids="17031,17023,17038,17002" visibility="visible"]'); ?>
 						</div>
