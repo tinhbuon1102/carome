@@ -18,6 +18,57 @@ function elsey_enqueue_child_theme_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'elsey_enqueue_child_theme_styles', 11 );
 
+// google fonts
+function custom_add_google_fonts() {
+	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,400|Pathway+Gothic+One|Poppins:300,400,500,600', false );
+}
+add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
+
+/*Jquery*/
+function custom_scripts ()
+{
+	wp_register_script('autokana', get_stylesheet_directory_uri() . '/js/jquery.autoKana.js', array( 'jquery' ),'', true);
+	wp_enqueue_script('autokana');
+
+	wp_register_script('simple-ticker', get_stylesheet_directory_uri() . '/js/jquery.simpleTicker/jquery.simpleTicker.js', array( 'jquery' ),'', true);
+	wp_enqueue_script('simple-ticker');
+	
+	wp_register_script('slick_js', get_stylesheet_directory_uri() . '/js/slick/slick.min.js', array( 'jquery' ),'', true);
+	wp_enqueue_script('slick_js');
+
+	wp_register_script('custom_js', get_stylesheet_directory_uri() . '/js/custom.js?v=' . time(), array( 'jquery' ),'', true);
+	wp_enqueue_script('custom_js');
+
+	wp_dequeue_script( 'sticky-header', ELSEY_SCRIPTS . '/sticky.min.js', array( 'jquery' ), '1.0.4', true );
+	wp_enqueue_script('sticky-header', get_stylesheet_directory_uri() . '/js/sticky.min.js', array( 'jquery' ),'', true);
+	
+	wp_register_script('event_js', get_stylesheet_directory_uri() . '/js/event.js?v=' . time(), array( 'custom_js' ),'', true);
+	if ( is_page('enter') ) {
+		wp_enqueue_script('event_js');
+	}
+}
+add_action('wp_enqueue_scripts', 'custom_scripts');
+
+function file_remove_scripts() {
+
+    // Check for the page you want to target
+    if ( is_page( 'insta-shop' ) ) {
+
+        // Remove Styles
+        wp_dequeue_style( 'slick_css' );
+        wp_dequeue_style( 'slicktheme_css' );
+        wp_deregister_style( 'slick_css' );
+        wp_deregister_style( 'slicktheme_css' );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
+
+//shortcode url
+add_shortcode('homeurl', 'shortcode_url');
+function shortcode_url() {
+	return get_bloginfo('url');
+}
+
 function remove_product_editor() {
 	remove_post_type_support( 'product', 'editor' );
 }
@@ -25,13 +76,6 @@ add_action( 'init', 'remove_product_editor' );
 
 remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_product_data_tabs', 10 );
 add_action( 'woocommerce_single_product_summary', 'woocommerce_output_product_data_tabs', 60 );
-
-// google fonts
-function custom_add_google_fonts() {
-	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,400|Pathway+Gothic+One|Poppins:300,400,500,600', false );
-}
-add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
-
 /*hide adminbar*/
 add_filter('show_admin_bar', '__return_false');
 
@@ -52,6 +96,7 @@ function update_nag_admin_only() {
 	}
 }
 add_action( 'admin_init', 'update_nag_admin_only' );
+
 
 add_action('woocommerce_before_cart', 'show_check_category_in_cart');
  
@@ -583,7 +628,7 @@ add_action('woocommerce_product_options_general_product_data', 'woocommerce_prod
 // Save Fields
 add_action('woocommerce_process_product_meta', 'woocommerce_product_custom_fields_save');
 
-
+//English Name
 function woocommerce_product_custom_fields()
 {
 	global $woocommerce, $post;
@@ -592,8 +637,8 @@ function woocommerce_product_custom_fields()
 	woocommerce_wp_text_input(
 			array(
 				'id' => '_custom_product_text_field',
-				'placeholder' => '日本語商品名',
-				'label' => __('Japanese Name', 'woocommerce'),
+				'placeholder' => '英語商品名',
+				'label' => __('English Name', 'woocommerce'),
 				'desc_tip' => 'true'
 			)
 			);
@@ -646,12 +691,7 @@ function woocommerce_product_custom_fields_save($post_id)
 
 }
 
-
-
-
-
-
-//variation custom field
+//variation custom field JAN CODE
 add_action('woocommerce_product_options_sku','add_jancode', 10, 0 );
 function add_jancode(){
 
@@ -834,15 +874,6 @@ function my_wc_hide_in_stock_message( $html='', $text, $product='' ) {
 }
 add_filter( 'woocommerce_stock_html', 'my_wc_hide_in_stock_message', 10, 3 );
 
-/*hide add to cart when out of stock not working
- if (!function_exists('woocommerce_template_loop_add_to_cart')) {
- function woocommerce_template_loop_add_to_cart() {
- global $product;
- if ( ! $product->is_in_stock() || ! $product->is_purchasable() ) return;
- woocommerce_get_template('loop/add-to-cart.php');
- }
- }*/
-
 //webfonts icons
 function webfonts_scripts ()
 {
@@ -876,57 +907,6 @@ function smoke_scripts ()
 	wp_enqueue_style('swiper', get_stylesheet_directory_uri() . '/js/swiper/swiper.css');
 }
 add_action('wp_enqueue_scripts', 'smoke_scripts');
-
-/*Jquery*/
-function custom_scripts ()
-{
-	wp_register_script('autokana', get_stylesheet_directory_uri() . '/js/jquery.autoKana.js', array( 'jquery' ),'', true);
-	wp_enqueue_script('autokana');
-
-	wp_register_script('simple-ticker', get_stylesheet_directory_uri() . '/js/jquery.simpleTicker/jquery.simpleTicker.js', array( 'jquery' ),'', true);
-	wp_enqueue_script('simple-ticker');
-	
-	wp_register_script('slick_js', get_stylesheet_directory_uri() . '/js/slick/slick.min.js', array( 'jquery' ),'', true);
-	wp_enqueue_script('slick_js');
-
-	wp_register_script('custom_js', get_stylesheet_directory_uri() . '/js/custom.js?v=' . time(), array( 'jquery' ),'', true);
-	wp_enqueue_script('custom_js');
-
-	wp_dequeue_script( 'sticky-header', ELSEY_SCRIPTS . '/sticky.min.js', array( 'jquery' ), '1.0.4', true );
-	wp_enqueue_script('sticky-header', get_stylesheet_directory_uri() . '/js/sticky.min.js', array( 'jquery' ),'', true);
-	
-	wp_register_script('event_js', get_stylesheet_directory_uri() . '/js/event.js?v=' . time(), array( 'custom_js' ),'', true);
-	if ( is_page('enter') ) {
-		wp_enqueue_script('event_js');
-	}
-}
-add_action('wp_enqueue_scripts', 'custom_scripts');
-
-function file_remove_scripts() {
-
-    // Check for the page you want to target
-    if ( is_page( 'insta-shop' ) ) {
-
-        // Remove Styles
-        wp_dequeue_style( 'slick_css' );
-        wp_dequeue_style( 'slicktheme_css' );
-        wp_deregister_style( 'slick_css' );
-        wp_deregister_style( 'slicktheme_css' );
-    }
-}
-add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
-
-function custom_styles() {
-	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css?v=' . time(), array('elsey-child-style') );
-	wp_register_style( 'quick-style', get_stylesheet_directory_uri() . '/css/quick-view.css', array('elsey-child-style') );
-	wp_register_style( 'event-style', get_stylesheet_directory_uri() . '/css/event-page.css?v='. time(), array('quick-style') );
-	if (isCustomerInPrivateEvent()) {
-		wp_enqueue_style('new-style');
-	}
-	wp_enqueue_style('quick-style');
-	wp_enqueue_style('event-style');
-}
-add_action('wp_enqueue_scripts', 'custom_styles');
 
 //unset specific categories
 add_filter( 'get_terms', 'exclude_category', 10, 3 );
@@ -1038,153 +1018,12 @@ remove_all_filters('woocommerce_cart_totals_order_total_html');
 add_filter( 'woocommerce_cart_totals_order_total_html', 'wc_cart_totals_order_total_html1' );
 
 
-function get_coupons_fields()
-{
-	$coupons_fields = acf_get_fields(BOOKING_FORM_ID);
-	return $coupons_fields;
-}
-
-function get_event_coupon_by($field_name)
-{
-	$coupons_fields = get_coupons_fields();
-	foreach ($coupons_fields as $coupon_field)
-	{
-		if ($coupon_field['name'] == $field_name)
-		{
-			return $coupon_field['default_value'] ? $coupon_field['default_value'] : $coupon_field['instructions'];
-			break;
-		}
-	}
-}
-
-function get_current_event_coupon()
-{
-	return get_event_coupon_by('current_event_coupon');
-}
-
-function get_distance_event_coupon()
-{
-	return get_event_coupon_by('distance_get_coupon');
-}
-
-function get_emails_event_coupon()
-{
-	$private_emails = get_event_coupon_by('email_of_users_for_event_coupon');
-	$private_emails = str_replace(PHP_EOL, ';', $private_emails);
-	$private_emails = str_replace(',', ';', $private_emails);
-	$private_emails = str_replace(' ', ';', $private_emails);
-	$private_emails = explode(';', $private_emails);
-	$private_emails = array_map('trim', $private_emails);
-	return $private_emails;
-}
-
-function get_event_time_start_end()
-{
-	$coupons_fields = get_coupons_fields();
-	$current_coupon = get_current_event_coupon();
-	$coupon_start_end = array();
-	foreach ($coupons_fields as $coupon_field)
-	{
-		if ($coupon_field['name'] == 'coupons_code')
-		{
-			foreach ($coupon_field['sub_fields'] as $coupon)
-			{
-				if ($coupon['name'] == $current_coupon)
-				{
-					foreach ($coupon['sub_fields'] as $coupon_time)
-					{
-						if ($coupon_time['name'] == 'event_start')
-						{
-							$coupon_start_end['start'] = date('Y-m-d H:i:s', strtotime($coupon_time['default_value']));
-						}
-						elseif ($coupon_time['name'] == 'event_end')
-						{
-							$coupon_start_end['end'] = date('Y-m-d H:i:s', strtotime($coupon_time['default_value']));
-						}
-					}
-				}
-			}
-		}
-	}
-	return $coupon_start_end;
-}
-
-function zoa_remove_email_event()
-{
-	$user = wp_get_current_user();
-	$private_emails = get_emails_event_coupon();
-	
-	$user_email = $user->get('user_email');
-	if (!empty($private_emails) && $user_email)
-	{
-		foreach ($private_emails as $key_email => $private_email)
-		{
-			if (trim($private_email) == trim($user_email))
-			{
-				// Load post and resave with email list
-				$posts = get_posts(array(
-					'posts_per_page'			=> -1,
-					'post_type'					=> 'acf-field',
-					'orderby'					=> 'menu_order',
-					'order'						=> 'ASC',
-					'suppress_filters'			=> true, // DO NOT allow WPML to modify the query
-					'post_parent'				=> BOOKING_FORM_ID,
-					'post_status'				=> 'publish, trash', // 'any' won't get trashed fields
-					'update_post_meta_cache'	=> false
-				));
-				foreach ($posts as $post)
-				{
-					if ($post->post_excerpt == 'email_of_users_for_event_coupon')
-					{
-						$email_field = maybe_unserialize($post->post_content);
-						unset($private_emails[$key_email]);
-						$email_field['instructions'] = implode(PHP_EOL, $private_emails);
-						$post->post_content = serialize($email_field);
-						wp_update_post( $post );
-						break;
-					}
-				}
-				break;
-			}
-		}
-	}
-}
-
-
-add_action('init', 'elsey_init', 1);
-function elsey_init() {
-	if (!session_id())
-	{
-		session_start();
-	}
-	
-	remove_shortcode('elsey_product');
-	require_once get_stylesheet_directory() . '/override/plugins/elsey-core/visual-composer/shortcodes/product/product.php';
-}
-
-add_action('wp', 'elsey_wp_loaded');
-function elsey_wp_loaded()
-{
-	if (!is_user_logged_in() && isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' ))
-	{
-		wp_redirect(site_url('/enter/'));
-	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' )) {
-		wp_redirect(site_url('/shop/'));
-	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_page('enter') && $_SESSION['user_agree_to_check_location'] && !defined( 'DOING_AJAX' )) {
-		wp_redirect(site_url('/shop/'));
-	}
-}
-
 add_filter( 'woocommerce_email_order_meta_fields', 'elsey_woocommerce_email_order_meta_fields', 1000, 3 );
 add_filter( 'woocommerce_email_order_meta_keys', 'elsey_woocommerce_email_order_meta_fields', 1000, 3 );
 function elsey_woocommerce_email_order_meta_fields($fields, $sent_to_admin = null, $order = null){
 	$fields = array();
 	return $fields;
 }
-
-
-
-
 
 add_filter( 'cs_framework_settings', 'elsey_cs_framework_settings', 100, 1 );
 function elsey_cs_framework_settings ($settings)
@@ -1452,6 +1291,7 @@ function carome_woocommerce_save_account_details_required_fields ($required_fiel
 	return $required_fields;
 }
 
+/*Customer Date of birth*/
 add_action( 'woocommerce_checkout_update_order_meta', 'elsey_custom_checkout_field_update_order_meta' );
 function elsey_custom_checkout_field_update_order_meta( $order_id )
 {
@@ -1820,12 +1660,14 @@ function else_parse_query ( $query )
 	return $query;
 }
 
+/*Order Bacs Email*/
 add_action('woocommerce_thankyou_bacs', 'elsey_woocommerce_thankyou_bacs', 1);
 function elsey_woocommerce_thankyou_bacs() 
 {
 	echo '<div class="before_bacs">' . __('ご注文の確定はご入金確認後となり、<strong>ご注文日から3営業日以内にご入金が確認できない場合はキャンセルとなります</strong>のであらかじめご了承ください。', 'elsey') . '</div>';
 }
 
+/*Order Export Function*/
 add_action( 'woe_order_exported', 'elsey_woe_order_exported', 1000, 2 );
 function elsey_woe_order_exported($order_id){
 	if (class_exists('WC_Order_Export_Manage'))
@@ -1839,6 +1681,7 @@ function elsey_woe_order_exported($order_id){
 	}
 }
 
+/*Insta Shop*/
 add_action( 'wp_loaded', 'change_orders_detail_name' );
 function change_orders_detail_name(){
 	if (isset($_GET['update_insta_shop']) && $_GET['update_insta_shop'])
@@ -1977,6 +1820,7 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
 }
 
 add_action('woocommerce_review_order_before_submit','wpdreamer_woocommerce_proceed_to_checkout',9999);
+
 add_action('woocommerce_proceed_to_checkout','wpdreamer_woocommerce_proceed_to_checkout');
 function wpdreamer_woocommerce_proceed_to_checkout(){
 	$show_text = array();
@@ -2200,7 +2044,7 @@ function elsey_woocommerce_order_status_on_hold($order_id, $order){
 	}
 	return $order_id;
 }
-
+/*Return Policy Setting*/
 add_filter( 'wpcf7_mail_components', 'elsey_wpcf7_mail_components', 100, 3);
 function elsey_wpcf7_mail_components ($components, $contactForm, $mailer)
 {
@@ -2310,7 +2154,7 @@ function else_add_meta_boxes_product_stock_record()
 {
 	add_meta_box( 'else_product_stock_record', __('Stock records','elsey'), 'else_show_product_stock_record', 'product', 'side', 'core' );
 }
-
+/*Stock Records*/
 function else_show_product_stock_record()
 {
 	global $post;
@@ -2382,7 +2226,6 @@ function else_woocommerce_process_product_meta_simple($post_id)
 	return $post_id;
 }
 
-
 add_action('woocommerce_product_options_stock_fields', 'else_woocommerce_product_options_stock_fields', 1000);
 function else_woocommerce_product_options_stock_fields()
 {
@@ -2447,7 +2290,7 @@ function else_woocommerce_variation_options_inventory($loop, $variation_data, $v
 	
 	echo '<script type="text/javascript">jQuery(".schedule_date_picker").datetimepicker({minDate: new Date()});</script>';
 }
-
+/*schedule stock*/
 add_action( 'wp_loaded', 'elsey_process_stock_schedule' );
 function elsey_process_stock_schedule() {
 	if (!isset($_GET['process_stock_schedule']) || !$_GET['process_stock_schedule'])
@@ -2501,7 +2344,7 @@ function elsey_schedule_cancelled_not_paid() {
 		die('done');
 	}
 }
-
+/*Restock when order is cancelled*/
 add_action( 'wp_loaded', 'elsey_restock_cancelled' );
 function elsey_restock_cancelled ()
 {
@@ -2607,6 +2450,7 @@ function else_woocommerce_admin_reports($reports)
 	return $reports;
 }
 
+/*Separete Shipping for pre and normal products*/
 add_filter('woocommerce_cart_shipping_packages', 'elsey_woocommerce_cart_shipping_packages', 10000, 1);
 function elsey_woocommerce_cart_shipping_packages($packages){
 	global $elsey_order_type;
@@ -2617,7 +2461,6 @@ function elsey_woocommerce_cart_shipping_packages($packages){
 	}
 	return $packages;
 }
-
 function isBothOrderTypeShipping($package)
 {
 	$aNormalProducts = $aPreOrderProducts = $package;
@@ -2651,7 +2494,7 @@ function isBothOrderTypeShipping($package)
 	}
 	return null;
 }
-
+/*Shipping Calculate Function*/
 function elsey_calculate_shipping($order_id) {
 	global $wpdb;
 	WC()->cart->calculate_shipping();
@@ -2700,6 +2543,7 @@ function elsey_calculate_shipping($order_id) {
 // add_filter( 'woocommerce_payment_successful_result', 'elsey_woocommerce_payment_successful_result_duplicate_order', 1000, 2 );
 // add_action( 'woocommerce_order_status_changed', 'elsey_woocommerce_order_status_changed', 1000, 4 );
 
+//pre order function
 add_action( 'woocommerce_order_status_pending', 'elsey_woocommerce_order_status_changed', 1, 2 );
 add_action( 'woocommerce_order_status_on-hold', 'elsey_woocommerce_order_status_changed', 1, 2 );
 add_action( 'woocommerce_order_status_processing', 'elsey_woocommerce_order_status_changed', 1, 2 );
@@ -2815,6 +2659,7 @@ function elsey_woocommerce_order_status_changed ($order_id, $order)
 	return $order_id;
 }
 
+//related product display number
 add_filter ('woocommerce_output_related_products_args', 'elsey_woocommerce_output_related_products_args', 1000, 1);
 function elsey_woocommerce_output_related_products_args ($args)
 {
@@ -2822,6 +2667,7 @@ function elsey_woocommerce_output_related_products_args ($args)
 	return $args;
 }
 
+//user profile function
 add_action( 'show_user_profile', 'elsey_edit_user_profile', 1, 1 );
 add_action( 'edit_user_profile', 'elsey_edit_user_profile', 1, 1 );
 function elsey_edit_user_profile($profileuser){
@@ -2883,30 +2729,8 @@ function elsey_update_extra_profile_fields($user_id) {
 		update_user_meta($user_id, 'birth_day', $_POST['birth_day']);
 }
 
-add_action('woocommerce_before_checkout_form', 'elsey_woocommerce_after_shipping_price_custom');
-add_action('woocommerce_before_cart', 'elsey_woocommerce_after_shipping_price_custom');
-add_action('woocommerce_after_shipping_price_custom', 'elsey_woocommerce_after_shipping_price_custom');
-function elsey_woocommerce_after_shipping_price_custom()
-{
-	$current_filter = current_filter();
-	$packages = WC()->cart->get_shipping_packages();
-	$aOrderBothType = isBothOrderTypeShipping($packages[0]);
-	if ($aOrderBothType && count($aOrderBothType) > 1)
-	{
-		if (in_array($current_filter, array('woocommerce_before_cart', 'woocommerce_before_checkout_form'))  )
-		{
-			echo '<div class="order__summary__row shipping_fee_message"><span class="big-text">' . __('This order will be separated as 2 orders for normal and pre-order. But payment will be total of both orders.', 'elsey') . '<span></div>';
-		}
-		else {
-			echo '<div class="order__summary__row shipping_fee_message"><span class="small-text">' . __('This shipping fee is for 2 orders of normal order and pre-order', 'elsey') . '<span></div>';
-			if (isCustomerInPrivateEvent())
-			{
-				echo '<div class="order__summary__row shipping_fee_message event_message"><span class="small-text">' . __('送料が無料となるのは通常商品のご注文のみとなります。', 'elsey') . '<span></div>';
-			}
-		}
-	}
-}
 
+//woo order email function
 add_action( 'woocommerce_email_before_order_table', 'elsey_woocommerce_email_before_order_table_show_both_order_total', 1, 4 );
 function elsey_woocommerce_email_before_order_table_show_both_order_total ($order, $sent_to_admin, $plain_text = '', $email = '')
 {
@@ -2929,6 +2753,7 @@ function elsey_woocommerce_email_before_order_table_show_both_order_total ($orde
 	}
 }
 
+//woo report function
 add_filter( 'woocommerce_reports_get_order_report_data_args', 'elsey_woocommerce_reports_get_order_report_data_args_add_pre_order', 1000, 1);
 function elsey_woocommerce_reports_get_order_report_data_args_add_pre_order($args)
 {
@@ -2954,6 +2779,108 @@ function elsey_woocommerce_reports_order_statuses_add_pre_order($statuses)
 	return $statuses;
 }
 
+add_filter( "option_woocommerce_email_footer_text", 'elsey_option_woocommerce_email_footer_text', 10000, 2);
+function elsey_option_woocommerce_email_footer_text ($value, $option )
+{
+	global $wpdb;
+	$row = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $option ) );
+	return $row->option_value;
+}
+
+//show scheduled product only for admin
+add_filter( 'posts_request', 'else_add_schedule_for_admin' );
+function else_add_schedule_for_admin( $input ) {
+	$user = wp_get_current_user();
+	$allowed_roles = array('administrator', 'shop_manager');
+	$is_admin_page = is_admin() && !defined( 'DOING_AJAX' );
+	// Check if on frontend and main query is modified
+	if( array_intersect($allowed_roles, $user->roles ) && !$is_admin_page) {
+		if (strpos($input, "post_type = 'product'") !== false)
+		{
+			$input = str_replace("wp_posts.post_status = 'publish'", "wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future'", $input);
+		}
+	}
+	return $input;
+}
+
+add_filter( 'woocommerce_ajax_get_customer_details', 'zoa_woocommerce_ajax_get_customer_details', 1000, 3 );
+function zoa_woocommerce_ajax_get_customer_details($data, $customer, $user_id)
+{
+	$data['billing']['first_name_kana'] = get_user_meta($user_id, 'billing_first_name_kana', true);
+	$data['billing']['last_name_kana'] = get_user_meta($user_id, 'billing_last_name_kana', true);
+	
+	$data['shipping']['first_name_kana'] = get_user_meta($user_id, 'shipping_first_name_kana', true);
+	$data['shipping']['last_name_kana'] = get_user_meta($user_id, 'shipping_last_name_kana', true);
+	
+	return $data;
+}
+
+add_action( 'user_register', 'elsey_registration_save', 10, 1 );
+function elsey_registration_save( $user_id ) {
+	$user = wp_get_current_user();
+	$allowed_roles = array('administrator', 'shop_manager');
+	if( !empty($user->roles) && array_intersect($allowed_roles, $user->roles ) ) {
+		update_user_meta($user_id, 'created_by_admin', 1);
+	}
+}
+
+add_action( 'pre_user_query', 'elsey_search_user_with_id', 10000 );
+function elsey_search_user_with_id( $wp ) {
+	global $pagenow;
+	$search = str_replace('*', '', $wp->query_vars['search']);
+	// If it's not the post listing return
+	if ( 'users.php' != $pagenow ) return;
+	
+	// If it's not a search return
+	if ( ! isset($wp->query_vars['search']) ) return;
+	
+	// If it's a search but there's no prefix, return
+	if ( '#' != substr($search, 0, 1) ) return;
+	
+	// Validate the numeric value
+	$id = absint(substr($search, 1));
+	if ( ! $id ) return; // Return if no ID, absint returns 0 for invalid values
+	
+	// If we reach here, all criteria is fulfilled, unset search and select by ID instead
+	unset($wp->query_vars['search']);
+	$wp->query_where = ' WHERE wp_users.ID = ' . $id;
+	
+}
+
+add_filter('manage_users_columns', 'elsey_add_user_id_column');
+function elsey_add_user_id_column($columns) {
+	$new_column['user_id'] = 'User ID';
+	$columns = insertAtSpecificIndex($columns, $new_column, array_search('username', array_keys($columns)) + 1);
+	return $columns;
+}
+
+add_action('manage_users_custom_column',  'else_show_user_id_column_content', 10, 3);
+function else_show_user_id_column_content($value, $column_name, $user_id) {
+	if ( 'user_id' == $column_name )
+		return $user_id;
+}
+
+add_filter( 'loop_shop_per_page', 'elsey_loop_shop_per_page', 2000 );
+function elsey_loop_shop_per_page( $cols ) {
+	return 30;
+}
+
+function elsey_is_ja_lang()
+{
+	$current_lang = apply_filters( 'wpml_current_language', NULL );
+	return $current_lang == 'ja';
+}
+
+function elsey_change_cssjs_ver( $src ) {
+	if( strpos( $src, '?ver=' ) )
+		$src = remove_query_arg( 'ver', $src );
+		$src = add_query_arg( array('ver' => '1.8'), $src );
+		return $src;
+}
+add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
+add_filter( 'script_loader_src', 'elsey_change_cssjs_ver', 1000 );
+
+//Kimono Rental Function
 function get_retal_contact_email_template($is_admin, $has_html = true)
 {
 	if ($is_admin)
@@ -3031,6 +2958,7 @@ function get_retal_contact_email_template($is_admin, $has_html = true)
 	return $html;
 }
 add_action( 'wp_ajax_nopriv_retal_submition', 'retal_submition' );
+
 add_action( 'wp_ajax_retal_submition', 'retal_submition' );
 function retal_submition() {
 	$user_email = $_POST['contact']['email'];
@@ -3059,10 +2987,28 @@ function retal_submition() {
 	echo json_encode(array('success' => $success, 'redirect' => get_site_url() . '/kimono-rental-thanks'));
 	die;
 }
-//shortcode url
-add_shortcode('homeurl', 'shortcode_url');
-function shortcode_url() {
-	return get_bloginfo('url');
+
+//Free Gift Function
+function isFreeGiftOrderProduct($order, $product)
+{
+	$order_items = $order->get_items();
+	$is_free_gift = '';
+	foreach ($order_items as $order_item_id => $order_item)
+	{
+		$free_gift_id = wc_get_order_item_meta( $order_item_id, '_product_id', true );
+		$free_gift_id = $free_gift_id ? $free_gift_id : wc_get_order_item_meta( $order_item_id, '_variation_id', true );
+		$item_price = $order->get_line_subtotal( $item );
+	
+		if ($product->get_id() == $free_gift_id && !$item_price)
+		{
+			$is_free_gift = wc_get_order_item_meta( $order_item_id, '_free_gift', true );
+			if ($is_free_gift == 'yes')
+			{
+				break;
+			}
+		}
+	}
+	return $is_free_gift;
 }
 
 add_filter('woocommerce_free_gift_settings_fields', 'kitt_add_free_gift_settings_fields', 10, 1);
@@ -3097,110 +3043,154 @@ function kitt_add_free_gift_settings_fields($fields)
 	return $new_fields;
 }
 
-function isFreeGiftOrderProduct($order, $product)
+/*Event Function*/
+
+function event_styles() {
+	wp_register_style( 'new-style', get_stylesheet_directory_uri() . '/css/new-woo-archive.css?v=' . time(), array('elsey-child-style') );
+	wp_register_style( 'quick-style', get_stylesheet_directory_uri() . '/css/quick-view.css', array('elsey-child-style') );
+	wp_register_style( 'event-style', get_stylesheet_directory_uri() . '/css/event-page.css?v='. time(), array('quick-style') );
+	if (isCustomerInPrivateEvent()) {
+		wp_enqueue_style('new-style');
+	}
+	wp_enqueue_style('quick-style');
+	wp_enqueue_style('event-style');
+}
+add_action('wp_enqueue_scripts', 'event_styles');
+function get_coupons_fields()
 {
-	$order_items = $order->get_items();
-	$is_free_gift = '';
-	foreach ($order_items as $order_item_id => $order_item)
+	$coupons_fields = acf_get_fields(BOOKING_FORM_ID);
+	return $coupons_fields;
+}
+
+function get_event_coupon_by($field_name)
+{
+	$coupons_fields = get_coupons_fields();
+	foreach ($coupons_fields as $coupon_field)
 	{
-		$free_gift_id = wc_get_order_item_meta( $order_item_id, '_product_id', true );
-		$free_gift_id = $free_gift_id ? $free_gift_id : wc_get_order_item_meta( $order_item_id, '_variation_id', true );
-		$item_price = $order->get_line_subtotal( $item );
-	
-		if ($product->get_id() == $free_gift_id && !$item_price)
+		if ($coupon_field['name'] == $field_name)
 		{
-			$is_free_gift = wc_get_order_item_meta( $order_item_id, '_free_gift', true );
-			if ($is_free_gift == 'yes')
+			return $coupon_field['default_value'] ? $coupon_field['default_value'] : $coupon_field['instructions'];
+			break;
+		}
+	}
+}
+
+function get_current_event_coupon()
+{
+	return get_event_coupon_by('current_event_coupon');
+}
+
+function get_distance_event_coupon()
+{
+	return get_event_coupon_by('distance_get_coupon');
+}
+
+function get_emails_event_coupon()
+{
+	$private_emails = get_event_coupon_by('email_of_users_for_event_coupon');
+	$private_emails = str_replace(PHP_EOL, ';', $private_emails);
+	$private_emails = str_replace(',', ';', $private_emails);
+	$private_emails = str_replace(' ', ';', $private_emails);
+	$private_emails = explode(';', $private_emails);
+	$private_emails = array_map('trim', $private_emails);
+	return $private_emails;
+}
+
+function get_event_time_start_end()
+{
+	$coupons_fields = get_coupons_fields();
+	$current_coupon = get_current_event_coupon();
+	$coupon_start_end = array();
+	foreach ($coupons_fields as $coupon_field)
+	{
+		if ($coupon_field['name'] == 'coupons_code')
+		{
+			foreach ($coupon_field['sub_fields'] as $coupon)
 			{
+				if ($coupon['name'] == $current_coupon)
+				{
+					foreach ($coupon['sub_fields'] as $coupon_time)
+					{
+						if ($coupon_time['name'] == 'event_start')
+						{
+							$coupon_start_end['start'] = date('Y-m-d H:i:s', strtotime($coupon_time['default_value']));
+						}
+						elseif ($coupon_time['name'] == 'event_end')
+						{
+							$coupon_start_end['end'] = date('Y-m-d H:i:s', strtotime($coupon_time['default_value']));
+						}
+					}
+				}
+			}
+		}
+	}
+	return $coupon_start_end;
+}
+
+function zoa_remove_email_event()
+{
+	$user = wp_get_current_user();
+	$private_emails = get_emails_event_coupon();
+	
+	$user_email = $user->get('user_email');
+	if (!empty($private_emails) && $user_email)
+	{
+		foreach ($private_emails as $key_email => $private_email)
+		{
+			if (trim($private_email) == trim($user_email))
+			{
+				// Load post and resave with email list
+				$posts = get_posts(array(
+					'posts_per_page'			=> -1,
+					'post_type'					=> 'acf-field',
+					'orderby'					=> 'menu_order',
+					'order'						=> 'ASC',
+					'suppress_filters'			=> true, // DO NOT allow WPML to modify the query
+					'post_parent'				=> BOOKING_FORM_ID,
+					'post_status'				=> 'publish, trash', // 'any' won't get trashed fields
+					'update_post_meta_cache'	=> false
+				));
+				foreach ($posts as $post)
+				{
+					if ($post->post_excerpt == 'email_of_users_for_event_coupon')
+					{
+						$email_field = maybe_unserialize($post->post_content);
+						unset($private_emails[$key_email]);
+						$email_field['instructions'] = implode(PHP_EOL, $private_emails);
+						$post->post_content = serialize($email_field);
+						wp_update_post( $post );
+						break;
+					}
+				}
 				break;
 			}
 		}
 	}
-	return $is_free_gift;
-}
-
-add_filter( "option_woocommerce_email_footer_text", 'elsey_option_woocommerce_email_footer_text', 10000, 2);
-function elsey_option_woocommerce_email_footer_text ($value, $option )
-{
-	global $wpdb;
-	$row = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $option ) );
-	return $row->option_value;
 }
 
 
-add_filter( 'posts_request', 'else_add_schedule_for_admin' );
-function else_add_schedule_for_admin( $input ) {
-	$user = wp_get_current_user();
-	$allowed_roles = array('administrator', 'shop_manager');
-	$is_admin_page = is_admin() && !defined( 'DOING_AJAX' );
-	// Check if on frontend and main query is modified
-	if( array_intersect($allowed_roles, $user->roles ) && !$is_admin_page) {
-		if (strpos($input, "post_type = 'product'") !== false)
-		{
-			$input = str_replace("wp_posts.post_status = 'publish'", "wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future'", $input);
-		}
+add_action('init', 'elsey_init', 1);
+function elsey_init() {
+	if (!session_id())
+	{
+		session_start();
 	}
-	return $input;
+	
+	remove_shortcode('elsey_product');
+	require_once get_stylesheet_directory() . '/override/plugins/elsey-core/visual-composer/shortcodes/product/product.php';
 }
 
-add_filter('woocommerce_package_rates', 'elsey_shipping_class_null_shipping_costs', 10, 2);
-function elsey_shipping_class_null_shipping_costs( $rates, $package ){
-	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
-		return $rates;
-		
-		$free_shipping = false;
-		if (!empty($package['applied_coupons']))
-		{
-			foreach ($package['applied_coupons'] as $applied_coupon)
-			{
-				if ($applied_coupon == get_current_event_coupon())
-				{
-					$free_shipping = true;
-				}
-			}
-		}
-		
-		// Set shipping costs to zero if use coupon freeshipping
-		if( $free_shipping ){
-			global $global_shipping_preorder_total;
-			foreach ( $rates as $rate_key => $rate ){
-				$has_taxes = false;
-				$taxes = array();
-				// Targetting "flat rate" and local pickup
-				if (isset($rates[$rate_key]->rate_normal) && isset($rates[$rate_key]->rate_preorder))
-				{
-					if ($rates[$rate_key]->rate_normal == $rates[$rate_key]->rate_preorder && $rates[$rate_key]->rate_normal > 0)
-					{
-						$rates[$rate_key]->cost = $rates[$rate_key]->rate_preorder;
-					}
-					else{
-						$rates[$rate_key]->cost = 0;
-					}
-				}
-				else {
-					if ($global_shipping_preorder_total)
-					{
-						$rates[$rate_key]->cost = $global_shipping_preorder_total;
-					}
-					else 
-					{
-						$rates[$rate_key]->cost = 0;
-					}
-				}
-				
-				// Taxes rate cost (if enabled)
-				foreach ($rates[$rate_key]->taxes as $key => $tax){
-					if( $rates[$rate_key]->taxes[$key] > 0 ){
-						$has_taxes = true;
-						// Set taxes cost to zero
-						$taxes[$key] = 0;
-					}
-				}
-				if( $has_taxes )
-					$rates[$rate_key]->taxes = $taxes;
-			}
-		}
-		return $rates;
+add_action('wp', 'elsey_wp_loaded');
+function elsey_wp_loaded()
+{
+	if (!is_user_logged_in() && isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' ))
+	{
+		wp_redirect(site_url('/enter/'));
+	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_front_page() && !defined( 'DOING_AJAX' )) {
+		wp_redirect(site_url('/shop/'));
+	} elseif (is_user_logged_in() && isCustomerInPrivateEvent() && is_page('enter') && $_SESSION['user_agree_to_check_location'] && !defined( 'DOING_AJAX' )) {
+		wp_redirect(site_url('/shop/'));
+	}
 }
 
 function isCustomerInPrivateEvent()
@@ -3229,7 +3219,6 @@ function isCustomerInPrivateEvent()
 	}
 }
 
-// add_action( 'woocommerce_add_to_cart', 'elsey_woocommerce_add_to_cart', 1000, 6 );
 function elsey_woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $variation_id = 0, $variation = array(), $cart_item_data = array())
 {
 	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
@@ -3519,7 +3508,6 @@ function elsey_store_event_coupon_meta( $post_id ) {
 	elsey_woocommerce_checkout_update_order_meta( $post_id );
 }
 
-
 function register_user_in_event_menu() {
 	register_nav_menus(
 		array(
@@ -3564,80 +3552,118 @@ function elsey_event_nav_menu_args( $args ) {
 	return $args;
 }
 
-
-add_filter( 'woocommerce_ajax_get_customer_details', 'zoa_woocommerce_ajax_get_customer_details', 1000, 3 );
-function zoa_woocommerce_ajax_get_customer_details($data, $customer, $user_id)
+add_action('woocommerce_before_checkout_form', 'elsey_woocommerce_after_shipping_price_custom');
+add_action('woocommerce_before_cart', 'elsey_woocommerce_after_shipping_price_custom');
+add_action('woocommerce_after_shipping_price_custom', 'elsey_woocommerce_after_shipping_price_custom');
+function elsey_woocommerce_after_shipping_price_custom()
 {
-	$data['billing']['first_name_kana'] = get_user_meta($user_id, 'billing_first_name_kana', true);
-	$data['billing']['last_name_kana'] = get_user_meta($user_id, 'billing_last_name_kana', true);
-	
-	$data['shipping']['first_name_kana'] = get_user_meta($user_id, 'shipping_first_name_kana', true);
-	$data['shipping']['last_name_kana'] = get_user_meta($user_id, 'shipping_last_name_kana', true);
-	
-	return $data;
-}
-
-add_action( 'user_register', 'elsey_registration_save', 10, 1 );
-function elsey_registration_save( $user_id ) {
-	$user = wp_get_current_user();
-	$allowed_roles = array('administrator', 'shop_manager');
-	if( !empty($user->roles) && array_intersect($allowed_roles, $user->roles ) ) {
-		update_user_meta($user_id, 'created_by_admin', 1);
+	$current_filter = current_filter();
+	$packages = WC()->cart->get_shipping_packages();
+	$aOrderBothType = isBothOrderTypeShipping($packages[0]);
+	if ($aOrderBothType && count($aOrderBothType) > 1)
+	{
+		if (in_array($current_filter, array('woocommerce_before_cart', 'woocommerce_before_checkout_form'))  )
+		{
+			echo '<div class="order__summary__row shipping_fee_message"><span class="big-text">' . __('This order will be separated as 2 orders for normal and pre-order. But payment will be total of both orders.', 'elsey') . '<span></div>';
+		}
+		else {
+			echo '<div class="order__summary__row shipping_fee_message"><span class="small-text">' . __('This shipping fee is for 2 orders of normal order and pre-order', 'elsey') . '<span></div>';
+			if (isCustomerInPrivateEvent())
+			{
+				echo '<div class="order__summary__row shipping_fee_message event_message"><span class="small-text">' . __('送料が無料となるのは通常商品のご注文のみとなります。', 'elsey') . '<span></div>';
+			}
+		}
 	}
 }
 
-add_action( 'pre_user_query', 'elsey_search_user_with_id', 10000 );
-function elsey_search_user_with_id( $wp ) {
-	global $pagenow;
-	$search = str_replace('*', '', $wp->query_vars['search']);
-	// If it's not the post listing return
-	if ( 'users.php' != $pagenow ) return;
-	
-	// If it's not a search return
-	if ( ! isset($wp->query_vars['search']) ) return;
-	
-	// If it's a search but there's no prefix, return
-	if ( '#' != substr($search, 0, 1) ) return;
-	
-	// Validate the numeric value
-	$id = absint(substr($search, 1));
-	if ( ! $id ) return; // Return if no ID, absint returns 0 for invalid values
-	
-	// If we reach here, all criteria is fulfilled, unset search and select by ID instead
-	unset($wp->query_vars['search']);
-	$wp->query_where = ' WHERE wp_users.ID = ' . $id;
-	
+add_filter('woocommerce_package_rates', 'elsey_shipping_class_null_shipping_costs', 10, 2);
+function elsey_shipping_class_null_shipping_costs( $rates, $package ){
+	if ( is_admin() && ! defined( 'DOING_AJAX' ) )
+		return $rates;
+		
+		$free_shipping = false;
+		if (!empty($package['applied_coupons']))
+		{
+			foreach ($package['applied_coupons'] as $applied_coupon)
+			{
+				if ($applied_coupon == get_current_event_coupon())
+				{
+					$free_shipping = true;
+				}
+			}
+		}
+		
+		// Set shipping costs to zero if use coupon freeshipping
+		if( $free_shipping ){
+			global $global_shipping_preorder_total;
+			foreach ( $rates as $rate_key => $rate ){
+				$has_taxes = false;
+				$taxes = array();
+				// Targetting "flat rate" and local pickup
+				if (isset($rates[$rate_key]->rate_normal) && isset($rates[$rate_key]->rate_preorder))
+				{
+					if ($rates[$rate_key]->rate_normal == $rates[$rate_key]->rate_preorder && $rates[$rate_key]->rate_normal > 0)
+					{
+						$rates[$rate_key]->cost = $rates[$rate_key]->rate_preorder;
+					}
+					else{
+						$rates[$rate_key]->cost = 0;
+					}
+				}
+				else {
+					if ($global_shipping_preorder_total)
+					{
+						$rates[$rate_key]->cost = $global_shipping_preorder_total;
+					}
+					else 
+					{
+						$rates[$rate_key]->cost = 0;
+					}
+				}
+				
+				// Taxes rate cost (if enabled)
+				foreach ($rates[$rate_key]->taxes as $key => $tax){
+					if( $rates[$rate_key]->taxes[$key] > 0 ){
+						$has_taxes = true;
+						// Set taxes cost to zero
+						$taxes[$key] = 0;
+					}
+				}
+				if( $has_taxes )
+					$rates[$rate_key]->taxes = $taxes;
+			}
+		}
+		return $rates;
 }
 
-add_filter('manage_users_columns', 'elsey_add_user_id_column');
-function elsey_add_user_id_column($columns) {
-	$new_column['user_id'] = 'User ID';
-	$columns = insertAtSpecificIndex($columns, $new_column, array_search('username', array_keys($columns)) + 1);
-	return $columns;
-}
+//end event function
+//woocommerce all discount plugin
+add_action('woocommerce_before_cart', 'my_custom_message');
+function my_custom_message() {
+  //plugin.phpを読み込む
+include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+if(is_plugin_active( 'woocommerce-all-discounts/wad.php' )){
+ //プラグインが有効の場合
+	//if( function_exists('get_discount_rules_callback') ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return;
+		//to display notice only on cart page
+		if ( ! is_cart() ) {
+			return;
+		}
+		global $woocommerce;
+		$items = $woocommerce->cart->get_cart();
+		foreach($items as $item => $values) { 
+            $_product =  wc_get_product( $values['data']->get_id()); 
 
-add_action('manage_users_custom_column',  'else_show_user_id_column_content', 10, 3);
-function else_show_user_id_column_content($value, $column_name, $user_id) {
-	if ( 'user_id' == $column_name )
-		return $user_id;
+            if(has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) && $values['quantity'] == 1 ){
+                wc_clear_notices();
+                echo wc_add_notice( __("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
+            }elseif(has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) && $values['quantity'] == 3 ){
+				echo wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
+			}elseif(has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) && $values['quantity'] == 5 ){
+				echo wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
+			}
+        } 
+	//}//function_exists('get_discount_rules_callback')
+}	
 }
-
-add_filter( 'loop_shop_per_page', 'elsey_loop_shop_per_page', 2000 );
-function elsey_loop_shop_per_page( $cols ) {
-	return 30;
-}
-
-function elsey_is_ja_lang()
-{
-	$current_lang = apply_filters( 'wpml_current_language', NULL );
-	return $current_lang == 'ja';
-}
-
-function elsey_change_cssjs_ver( $src ) {
-	if( strpos( $src, '?ver=' ) )
-		$src = remove_query_arg( 'ver', $src );
-		$src = add_query_arg( array('ver' => '1.8'), $src );
-		return $src;
-}
-add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
-add_filter( 'script_loader_src', 'elsey_change_cssjs_ver', 1000 );

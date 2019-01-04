@@ -5,12 +5,12 @@
 	endwhile;
 	?>
 </div>
-<?php if ( date_i18n('YmdHi') >= "201809221200" ) { ?>
+<?php if ( date_i18n('YmdHi') >= "201901051200" ) { ?>
 <div class="sub_banner xs-hide">
-<a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Desktop.jpg" alt="Set Discount" /></a>
+<a href="<?php echo home_url('/product-category/winter18-sale/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair20190105-Desktop.jpg" alt="Winter Sale" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Mobile.jpg" alt="Set Discount" /></a>
+		  <a href="<?php echo home_url('/product-category/winter18-sale/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair20190105-mobile.jpg" alt="Winter Sale" /></a>
 	  </div>
 
 	  <?php } else { ?><!--time set end-->
