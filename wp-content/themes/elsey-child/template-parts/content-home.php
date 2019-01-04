@@ -30,7 +30,7 @@
 	</section>
 	<section id="mobilecat" class="full_section xs-show">
 		<?php
-		$taxonomy     = 'product_cat';
+		$taxonomy     = array('product_cat', 'category');
 		$orderby      = 'name';
 		$show_count   = 0;      // 1 for yes, 0 for no
 		$pad_counts   = 0;      // 1 for yes, 0 for no
@@ -43,10 +43,11 @@
         'fields'  => 'ids',
         'slug'    => array( 
             'twoset_price_jwl', 
-            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle', '2days-limited-acc-ev1811', 'uncategorized' ),
+            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle', '2days-limited-acc-ev1811', 'uncategorized', '%e6%9c%aa%e5%88%86%e9%a1%9e' ),
         'taxonomy' => $taxonomy,
+		'hide_empty' => false,
     )
-);
+				);
 	if( !is_wp_error( $get_terms_to_exclude ) && count($get_terms_to_exclude) > 0){
     $ids_to_exclude = $get_terms_to_exclude; 
 	}
