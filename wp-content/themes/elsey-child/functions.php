@@ -142,7 +142,7 @@ function add_page_slug_class_name( $classes ) {
 //woo category sidebar widget
 add_filter( 'woocommerce_product_categories_widget_args', 'rv_exclude_wc_widget_categories' );
 function rv_exclude_wc_widget_categories( $cat_args ) {
-	$cat_args['exclude'] = array('77','72'); // Insert the product category IDs you wish to exclude
+	$cat_args['exclude'] = '77, 72, 1, 124'; // Insert the product category IDs you wish to exclude
 	return $cat_args;
 }
 /*add custom logo menu for sticky*/
