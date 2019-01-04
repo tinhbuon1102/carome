@@ -31,7 +31,7 @@ if ($product_swatch_data_array == '') {
 
 $zoo_clever_swatch_product_page = new Zoo_Clever_Swatch_Product_Page();
 $product_swatch_data_array = $zoo_clever_swatch_product_page->prepare_single_page_data($product, $attributes, $product_swatch_data_array);
-if (!empty($product_swatch_data_array)) {
+if (!empty($product_swatch_data_array) && !empty($attributes)) {
 foreach ($product_swatch_data_array as $attribute_swatch_name => $product_swatch_data)
 {
 	if (isset($product_swatch_data['options_data']))
