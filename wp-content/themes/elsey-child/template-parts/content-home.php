@@ -30,7 +30,7 @@
 	</section>
 	<section id="mobilecat" class="full_section xs-show">
 		<?php
-		$taxonomy     = array('product_cat', 'category');
+		$taxonomy     = array('product_cat');
 		$orderby      = 'name';
 		$show_count   = 0;      // 1 for yes, 0 for no
 		$pad_counts   = 0;      // 1 for yes, 0 for no

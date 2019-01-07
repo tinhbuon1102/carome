@@ -3059,6 +3059,7 @@ add_action('wp_enqueue_scripts', 'event_styles');
 function get_coupons_fields()
 {
 	$coupons_fields = acf_get_fields(BOOKING_FORM_ID);
+	$coupons_fields = $coupons_fields && !empty($coupons_fields) ? $coupons_fields : array();
 	return $coupons_fields;
 }
 
@@ -3638,7 +3639,7 @@ function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 
 //end event function
 //woocommerce all discount plugin
-add_action('woocommerce_before_cart', 'my_custom_message');
+add_action('woocommerce_before_notices', 'my_custom_message');
 function my_custom_message() {
   //plugin.phpを読み込む
 include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
@@ -3647,23 +3648,65 @@ if(is_plugin_active( 'woocommerce-all-discounts/wad.php' )){
 	//if( function_exists('get_discount_rules_callback') ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return;
 		//to display notice only on cart page
-		if ( ! is_cart() ) {
+		if ( ! is_cart() && !is_checkout()) {
 			return;
 		}
 		global $woocommerce;
 		$items = $woocommerce->cart->get_cart();
+		
+		$count_twoset_price_jwl_cart = 0;
 		foreach($items as $item => $values) { 
             $_product =  wc_get_product( $values['data']->get_id()); 
-
-            if(has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) && $values['quantity'] == 1 ){
-                wc_clear_notices();
-                echo wc_add_notice( __("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
-            }elseif(has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) && $values['quantity'] == 3 ){
-				echo wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
-			}elseif(has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) && $values['quantity'] == 5 ){
-				echo wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
-			}
+            if (has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ))
+            {
+            	$count_twoset_price_jwl_cart += $values['quantity'];
+            }
         } 
+        
+        
+        if($count_twoset_price_jwl_cart == 1 ){
+        	wc_clear_notices();
+        	wc_add_notice( __("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
+        }elseif($count_twoset_price_jwl_cart == 3 ){
+        	wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
+        }elseif($count_twoset_price_jwl_cart == 5 ){
+        	wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
+        }elseif($count_twoset_price_jwl_cart > 6 ) {
+			wc_add_notice( __("2点セットプライス対象アクセサリーは6点までのみのご注文に適用されます"), 'notice');
+		}
 	//}//function_exists('get_discount_rules_callback')
 }	
+}
+
+function showDiscountLabel($product)
+{
+	global $wad_discounts;
+	global $new_extraction_algorithm;
+	if ( $wad_discounts && ! empty($wad_discounts["product"]) )
+	{
+		global $wad_ignore_product_prices_calculations;
+		$previous_value=$wad_ignore_product_prices_calculations;
+		$wad_ignore_product_prices_calculations=TRUE;
+		$regular_price = $product->get_regular_price();
+		$sale_price= $regular_price;
+		$wad_ignore_product_prices_calculations=$previous_value;
+		
+		$pid = wad_get_product_id_to_use($product);
+		
+		foreach ( $wad_discounts["product"] as $discount_id => $discount_obj )
+		{
+			if ( $new_extraction_algorithm ) $list_products = $discount_obj->products_list->get_products(true);
+			else $list_products = $discount_obj->products_list->get_products();
+			$disable_on_products_pages = get_proper_value($discount_obj->settings, "disable-on-product-pages", "no");
+			// Even If the discount is disabled on the shop pages, we force it to be enabled in the minicart even if this minicart is on the shop pages
+			if ( $disable_on_products_pages && did_action('woocommerce_before_mini_cart_contents') && ! did_action('woocommerce_after_mini_cart') ) $disable_on_products_pages = false;
+			// if ($disable_on_products_pages == "yes" && (is_singular("product") || is_shop() || is_product_category() || is_front_page()))
+			if ( $disable_on_products_pages == "yes" && (! is_cart() && ! is_checkout()) ) continue;
+			if ( $discount_obj->is_applicable($pid) && is_array($list_products) && in_array($pid, $list_products) )
+			{
+				$sale_price = floatval($sale_price) - $discount_obj->get_discount_amount(floatval($sale_price));
+				echo '<span class="discount_title">'.$discount_obj->title . '</span>';
+			}
+		}
+	}
 }

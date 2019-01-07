@@ -23,7 +23,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
+do_action( 'woocommerce_before_notices' );
 wc_print_notices();
 
 do_action( 'woocommerce_before_checkout_form', $checkout );

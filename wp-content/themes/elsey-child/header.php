@@ -164,7 +164,7 @@ var user_agree_to_check_location = '<?php echo (int)isset($_SESSION['user_agree_
 		  <ol class="swiper-wrapper">
 <?php
 
-$taxonomy     = array('product_cat', 'category');
+$taxonomy     = array('product_cat');
   $orderby      = 'name';  
   $show_count   = 0;      // 1 for yes, 0 for no
   $pad_counts   = 0;      // 1 for yes, 0 for no

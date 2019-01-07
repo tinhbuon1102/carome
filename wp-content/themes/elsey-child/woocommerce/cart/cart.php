@@ -24,6 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+do_action( 'woocommerce_before_notices' );
 wc_print_notices();
 
 do_action( 'woocommerce_before_cart' ); ?>
@@ -85,6 +86,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 									
 									echo '<div class="mini-product__item item-price">';
 									echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
+									echo showDiscountLabel($_product);
 									echo '</div>';
 									
 									
