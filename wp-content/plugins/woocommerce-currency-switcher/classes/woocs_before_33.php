@@ -921,6 +921,7 @@ final class WOOCS {
         ?>
         <script type="text/javascript">
             var woocs_is_mobile = <?php echo (int) wp_is_mobile() ?>;
+            var woocs_special_ajax_mode =0;
             var woocs_drop_down_view = "<?php echo $this->get_drop_down_view(); ?>";
             var woocs_current_currency = <?php echo json_encode((isset($currencies[$this->current_currency]) ? $currencies[$this->current_currency] : $currencies[$this->default_currency])) ?>;
             var woocs_default_currency = <?php echo json_encode($currencies[$this->default_currency]) ?>;
@@ -1187,7 +1188,7 @@ final class WOOCS {
         $currencies = apply_filters('woocs_currency_data_manipulation', $currencies);
 
         /*
-          //http://currency-switcher.com/how-to-manipulate-with-currencies-rates/
+          //https://currency-switcher.com/how-to-manipulate-with-currencies-rates/
           foreach ($currencies as $key => $value)
           {
           if($key == 'EUR'){
@@ -1204,12 +1205,10 @@ final class WOOCS {
         if (count($currencies) < 2) {
             $currencies = $default;
         }
-        
-        
+
         if (count($currencies) > 2) {
             $currencies = array_slice($currencies, 0, 2);
         }
-
 
         return $currencies;
     }

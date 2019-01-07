@@ -29,6 +29,10 @@ if ( !defined('DUPXABSPATH') )
 
 date_default_timezone_set('UTC'); // Some machines don’t have this set so just do it here.
 
+@ignore_user_abort(true);
+@set_time_limit(1800);
+@ini_set('memory_limit', '2048M');
+
 ob_start();
 require_once(dirname(__FILE__) . '/classes/utilities/class.u.php');
 

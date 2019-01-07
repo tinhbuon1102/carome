@@ -422,7 +422,7 @@ Please check these items: <br/><br/>
         $dbdelete_count1 = @mysqli_affected_rows($this->dbh);
 
         @mysqli_query($this->dbh,
-                "DELETE FROM ".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` WHERE `option_name` LIKE ('_transient%') OR `option_name` LIKE ('_site_transient%')");
+                "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` WHERE `option_name` LIKE ('_transient%') OR `option_name` LIKE ('_site_transient%')");
         $dbdelete_count2 = @mysqli_affected_rows($this->dbh);
 
         $this->dbdelete_count += (abs($dbdelete_count1) + abs($dbdelete_count2));
@@ -684,7 +684,7 @@ Please check these items: <br/><br/>
 
     public function deactivatePlugin($slug)
     {
-        $sql = "SELECT * FROM wp_options WHERE option_name = 'active_plugins'";
+        $sql = "SELECT * FROM ".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options WHERE option_name = 'active_plugins'";
         $arr = mysqli_fetch_assoc(mysqli_query($this->dbh, $sql));
         $active_plugins_serialized = stripslashes($arr['option_value']);
         $active_plugins = unserialize($active_plugins_serialized);
@@ -693,12 +693,17 @@ Please check these items: <br/><br/>
                 unset($active_plugins[$key]);
                 $active_plugins = array_values($active_plugins);
                 $active_plugins_serialized = mysqli_real_escape_string($this->dbh,serialize($active_plugins));
-                $sql = "UPDATE `wp_options` SET `option_value`='".mysqli_real_escape_string($this->dbh, $active_plugins_serialized)."' WHERE `option_name` = 'active_plugins'";
+                $sql = "UPDATE `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` SET `option_value`='".mysqli_real_escape_string($this->dbh, $active_plugins_serialized)."' WHERE `option_name` = 'active_plugins'";
                 $result = mysqli_query($this->dbh, $sql);
                 return $result;
                 break;
             }
         }
+    }
+
+    public function insertMigrationFlag() {
+        $sql = "INSERT into ".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options (option_name, option_value) VALUES ('duplicator_pro_migration', '1');";
+        return mysqli_query($this->dbh, $sql);
     }
 
     public function __destruct()

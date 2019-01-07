@@ -60,7 +60,7 @@ final class WOOCS_AUTO_SWITCHER {
         $values = array(
             $currency['name'],
             $currency['symbol'],
-            "<img class='flag_auto_switcher' src='{$currency['flag']}' alt='{$currency['name']}' />&nbsp;",
+            "<img class='flag_auto_switcher' src='{$currency['flag']}' alt='{$currency['name']}' />&nbsp",
             $currency['description'],
         );
         $string = str_replace($patt_array, $values, str_replace(' ', '&nbsp;', $string));
@@ -68,9 +68,7 @@ final class WOOCS_AUTO_SWITCHER {
             $string = $currency['name'];
         }
 
-        if ($this->data['skin'] == 'classic_blocks') {
-            $string .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-        }
+
 
         return $string;
     }

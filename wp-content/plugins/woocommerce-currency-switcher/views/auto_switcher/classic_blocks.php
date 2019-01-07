@@ -20,6 +20,12 @@ $currencies = apply_filters('woocs_currency_manipulation_before_show', $WOOCS->g
     .woocs_auto_switcher li  a span {
         background:<?php echo $hover_color ?>;
     }
+    .woocs_auto_switcher.left li span:after {
+        border-right: 10px solid <?php echo $hover_color ?>;
+    }
+    .woocs_auto_switcher.right li a span:after {
+        border-left: 10px solid <?php echo $hover_color ?>;
+    }
 </style>
 
 <ul class='woocs_auto_switcher <?php echo $side ?>' data-view="classic_blocks">

@@ -823,7 +823,7 @@ class DUP_PRO_Installer
      */
     private function getEmbeddedFileListFilePath() {
         $package_hash = $this->Package->get_package_hash();
-        $embedded_file_list_file_path = 'dup-installer/dup-scanned_files__'.$package_hash.'.txt';
+        $embedded_file_list_file_path = 'dup-installer/dup-scanned-files__'.$package_hash.'.txt';
         return $embedded_file_list_file_path;
     }
 
@@ -834,7 +834,7 @@ class DUP_PRO_Installer
      */
     private function getEmbeddedDirListFilePath() {
         $package_hash = $this->Package->get_package_hash();
-        $embedded_dir_list_file_path = 'dup-installer/dup-scanned_dirs__'.$package_hash.'.txt';
+        $embedded_dir_list_file_path = 'dup-installer/dup-scanned-dirs__'.$package_hash.'.txt';
         return $embedded_dir_list_file_path;
     }
  

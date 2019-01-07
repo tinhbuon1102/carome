@@ -21,12 +21,14 @@ final class WOOCS {
     public $is_fixed_coupon = false;
     public $is_fixed_shipping = false;
     public $is_fixed_shipping_free = false;
+    public $is_fixed_user_role = false;
     public $force_pay_bygeoip_rules = false; //from options, works if is_fixed_enabled enabled
     public $is_geoip_manipulation = true; //from options, works if is_multiple_allowed is NOT enabled
     public $decimal_sep = '.';
     public $thousands_sep = ',';
     public $rate_auto_update = ''; //from options
-    public $shop_is_cached = true;
+    public $shop_is_cached = 0;
+    public $special_ajax_mode = true;
     private $is_first_unique_visit = false;
     public $no_cents = array('JPY', 'TWD'); //recount price without cents always!!
     public $price_num_decimals = 2;
@@ -79,6 +81,7 @@ final class WOOCS {
         $this->is_fixed_coupon = get_option('woocs_is_fixed_coupon', 0);
         $this->is_fixed_shipping = get_option('woocs_is_fixed_shipping', 0);
         $this->is_fixed_shipping_free = get_option('woocs_is_fixed_shipping', 0);
+        $this->is_fixed_user_role = get_option('woocs_is_fixed_user_role', 0);
 
         $this->force_pay_bygeoip_rules = get_option('woocs_force_pay_bygeoip_rules', 0);
         $this->rate_auto_update = get_option('woocs_currencies_rate_auto_update', 'no');
@@ -99,9 +102,11 @@ final class WOOCS {
             update_option('woocs_is_fixed_enabled', 0);
             update_option('woocs_is_fixed_shipping', 0);
             update_option('woocs_is_fixed_coupon', 0);
+            update_option('woocs_is_fixed_user_role', 0);
             update_option('woocs_force_pay_bygeoip_rules', 0);
             update_option('woocs_is_geoip_manipulation', 0);
             update_option('woocs_show_flags', 1);
+            update_option('woocs_special_ajax_mode', 0);
             update_option('woocs_show_money_signs', 1);
             update_option('woocs_customer_signs', '');
             update_option('woocs_customer_price_format', '');
@@ -110,6 +115,10 @@ final class WOOCS {
             //update_option('woocs_use_curl', 0);
             update_option('woocs_storage', 'transient');
             update_option('woocs_geo_rules', '');
+
+            update_option('woocs_payments_rule_enabled', '0');
+            update_option('woocs_payment_control', '0');
+            update_option('woocs_payments_rules', '');
             //update_option('woocs_use_geo_rules', 0);
             update_option('woocs_hide_cents', '');
             update_option('woocs_decimals', array());
@@ -118,9 +127,11 @@ final class WOOCS {
             update_option('woocs_restrike_on_checkout_page', 0);
             update_option('woocs_shop_is_cached', 0);
             update_option('woocs_show_approximate_amount', 0);
+            update_option('woocs_show_approximate_price', 0);
+
             //auto swither
             update_option('woocs_is_auto_switcher', 0);
-            update_option('woocs_auto_switcher_skin','classic_blocks');
+            update_option('woocs_auto_switcher_skin', 'classic_blocks');
             update_option('woocs_auto_switcher_side', 'left');
             update_option('woocs_auto_switcher_top_margin', '100px');
             update_option('woocs_auto_switcher_color', '#222222');
@@ -131,7 +142,7 @@ final class WOOCS {
             update_option('woocs_auto_switcher_hide_page', '');
             update_option('woocs_auto_switcher_mobile_show', 0);
             update_option('woocs_auto_switcher_roll_px', 90);
-            
+
             //+++
             $this->reset_currency();
             //***
@@ -310,10 +321,11 @@ final class WOOCS {
 //add_filter('woocommerce_update_shipping_method', array($this, 'woocommerce_update_shipping_method'), 1);
 //orders view on front
 //add_filter('woocommerce_view_order', array($this, 'woocommerce_view_order'), 1);
-        add_action('woocommerce_get_order_currency', array($this, 'woocommerce_get_order_currency'), 1, 2);
+        add_action('woocommerce_order_get_currency', array($this, 'woocommerce_get_order_currency'), 1, 2);
 //add_filter('woocommerce_get_formatted_order_total', array($this, 'woocommerce_get_formatted_order_total'), 1, 2);
 //+++
 //+++ AJAX ACTIONS
+
         add_action('woocommerce_before_calculate_totals', array($this, 'woocs_before_calculate_totals_geoip_fix'));
 
         add_action('wp_ajax_woocs_save_etalon', array($this, 'save_etalon'));
@@ -329,6 +341,12 @@ final class WOOCS {
         add_action('wp_ajax_nopriv_woocs_get_products_price_html', array($this, 'woocs_get_products_price_html'));
 
         add_action('wp_ajax_woocs_recalculate_order_data', array($this, 'woocs_recalculate_order_data'));
+        add_action('wp_ajax_woocs_all_order_ids', array($this, 'woocs_all_order_ids'));
+        add_action('wp_ajax_woocs_recalculate_orders_data', array($this, 'woocs_recalculate_orders_data'));
+
+        add_action('wp_ajax_woocs_set_currency_ajax', array($this, 'woocs_set_currency_ajax'));
+        add_action('wp_ajax_nopriv_woocs_set_currency_ajax', array($this, 'woocs_set_currency_ajax'));
+
 //+++
 
         add_action('woocommerce_settings_tabs_array', array($this, 'woocommerce_settings_tabs_array'), 9999);
@@ -419,9 +437,11 @@ final class WOOCS {
             $this->fixed_shipping = new WOOCS_FIXED_SHIPPING();
             $this->fixed_shipping_free = new WOOCS_FIXED_SHIPPING_FREE();
         }
-
-        if(get_option('woocs_is_auto_switcher',0)){
-            $auto_switcher= new WOOCS_AUTO_SWITCHER();
+        if ($this->is_fixed_user_role) {
+            $this->fixed_user_role = new WOOCS_FIXED_USER_ROLE();
+        }
+        if (get_option('woocs_is_auto_switcher', 0)) {
+            $auto_switcher = new WOOCS_AUTO_SWITCHER();
             $auto_switcher->init();
         }
         //for  any notises
@@ -430,9 +450,17 @@ final class WOOCS {
         add_filter('woocs_convert_price', array($this, 'woocs_convert_price'), 10, 2);
         add_filter('woocs_back_convert_price', array($this, 'woocs_back_convert_price'), 10, 2);
         add_filter('woocs_convert_price_wcdp', array($this, 'woocs_convert_price_wcdp'), 10, 3);
-        
+
+        //payments rule
+        if (get_option('woocs_payments_rule_enabled', 0)) {
+            add_filter('woocommerce_available_payment_gateways', array($this, 'woocs_filter_gateways'), 10, 1);
+        }
         // marketing alert
         add_action('init', array($this, 'init_marketig_woocs'));
+
+        //arder func
+
+        add_action('manage_posts_extra_tablenav', array($this, 'manage_posts_extra_tablenav'), 10, 1);
     }
 
 //for normal shippng update if to change currency
@@ -805,7 +833,7 @@ final class WOOCS {
     public function plugin_action_links($links) {
         return array_merge(array(
             '<a href="' . admin_url('admin.php?page=wc-settings&tab=woocs') . '">' . __('Settings', 'woocommerce-currency-switcher') . '</a>',
-            '<a target="_blank" href="' . esc_url('http://currency-switcher.com/documentation/') . '">' . __('Documentation', 'woocommerce-currency-switcher') . '</a>'
+            '<a target="_blank" href="' . esc_url('https://currency-switcher.com/documentation/') . '">' . __('Documentation', 'woocommerce-currency-switcher') . '</a>'
                 ), $links);
 
         return $links;
@@ -838,6 +866,69 @@ final class WOOCS {
             if ($_GET['page'] == 'wc-settings'/* AND $_GET['tab'] == 'woocs' */) {
                 wp_enqueue_script('woocs-admin', WOOCS_LINK . 'js/admin.js', array('jquery'));
             }
+        }
+        //orders 
+        global $typenow;
+        if (in_array($typenow, wc_get_order_types('order-meta-boxes'), true)) {
+            ?><script>
+                function woocs_recalculate_all_orders_data() {
+                    if (confirm('Sure? This operation could not be rollback!!')) {
+                        jQuery('.woocs_recalculate_all_orders_curr_button').prop('href', 'javascript:void(0);');
+
+                        var data_count = {
+                            action: "woocs_all_order_ids"
+                        };
+                        jQuery('.woocs_ajax_preload').show();
+                        jQuery.post(ajaxurl, data_count, function (ids) {
+                            console.log(ids);
+                            var orders = jQuery.parseJSON(ids);
+                            if (orders.length) {
+                                woocs_recalculate_all_orders_data_do(0, orders);
+                            }
+                        });
+
+                    }
+                }
+                function woocs_recalculate_all_orders_data_do(start, orders) {
+                    var count_orders = orders.length;
+                    var step = 10;
+                    var orders_ids = orders.slice(start, start + step);
+                    jQuery.ajax({
+                        method: "POST",
+                        url: ajaxurl,
+                        data: {
+                            action: 'woocs_recalculate_orders_data',
+                            order_ids: orders_ids
+                        },
+                        success: function (dat) {
+                            if ((start + step) > count_orders) {
+                                jQuery('.woocs_ajax_preload').hide();
+                                alert("Done!");
+                                window.location.reload();
+                            } else {
+                                //console.log(dat)
+                                woocs_recalculate_all_orders_data_do(start + step, orders)
+                            }
+                        },
+                        error: function () {
+                            alert("Something wrong!");
+                        }
+                    });
+
+                }
+            </script>
+            <style type="text/css">
+                .woocs_recalculate_all_orders_curr_button .woocs_ajax_preload{
+                    display:none;
+                    vertical-align: middle;
+                }
+                .tablenav a.woocs_recalculate_all_orders_curr_button {
+                    position: relative;
+                    display:inline-block;
+                    margin-top: 5px;
+                }
+            </style>
+            <?php
         }
     }
 
@@ -950,6 +1041,7 @@ final class WOOCS {
         ?>
         <script type="text/javascript">
             var woocs_is_mobile = <?php echo (int) wp_is_mobile() ?>;
+            var woocs_special_ajax_mode = <?php echo (int) get_option('woocs_special_ajax_mode', 0) ?>;
             var woocs_drop_down_view = "<?php echo $this->get_drop_down_view(); ?>";
             var woocs_current_currency = <?php echo json_encode((isset($currencies[$this->current_currency]) ? $currencies[$this->current_currency] : $currencies[$this->default_currency])) ?>;
             var woocs_default_currency = <?php echo json_encode($currencies[$this->default_currency]) ?>;
@@ -962,7 +1054,7 @@ final class WOOCS {
                 $sanitized_get_array[$this->escape($key)] = $this->escape($value);
             }
             ?>
-                woocs_array_of_get = '<?php echo str_replace("\\", "\\\\",str_replace("'", "", json_encode($sanitized_get_array))); ?>';
+                woocs_array_of_get = '<?php echo str_replace("\\", "\\\\", str_replace("'", "", json_encode($sanitized_get_array))); ?>';
         <?php endif; ?>
 
             woocs_array_no_cents = '<?php echo json_encode($this->no_cents); ?>';
@@ -1066,6 +1158,7 @@ final class WOOCS {
 //***
             update_option('woocs_is_multiple_allowed', (int) $_POST['woocs_is_multiple_allowed']);
             update_option('woocs_is_geoip_manipulation', (int) $_POST['woocs_is_geoip_manipulation']);
+            update_option('woocs_is_fixed_user_role', (int) $_POST['woocs_is_fixed_user_role']);
             if ((int) $_POST['woocs_is_multiple_allowed']) {
                 update_option('woocs_is_fixed_enabled', (int) $_POST['woocs_is_fixed_enabled']);
                 update_option('woocs_is_fixed_coupon', (int) $_POST['woocs_is_fixed_coupon']);
@@ -1086,14 +1179,16 @@ final class WOOCS {
             update_option('woocs_customer_price_format', $this->escape($_POST['woocs_customer_price_format']));
             update_option('woocs_currencies_rate_auto_update', $this->escape($_POST['woocs_currencies_rate_auto_update']));
             update_option('woocs_rate_auto_update_email', (int) $_POST['woocs_rate_auto_update_email']);
+            update_option('woocs_payments_rule_enabled', (int) $_POST['woocs_payments_rule_enabled']);
             update_option('woocs_show_flags', (int) $_POST['woocs_show_flags']);
+            update_option('woocs_special_ajax_mode', (int) $_POST['woocs_special_ajax_mode']);
             update_option('woocs_show_money_signs', (int) $_POST['woocs_show_money_signs']);
             //update_option('woocs_use_curl', (int) $_POST['woocs_use_curl']);
             update_option('woocs_storage', $this->escape($_POST['woocs_storage']));
             //auto swither
-            if(isset($_POST['woocs_is_auto_switcher'])){
+            if (isset($_POST['woocs_is_auto_switcher'])) {
                 update_option('woocs_is_auto_switcher', (int) $_POST['woocs_is_auto_switcher']);
-                if((int) $_POST['woocs_is_auto_switcher']){
+                if ((int) $_POST['woocs_is_auto_switcher']) {
                     update_option('woocs_auto_switcher_skin', $this->escape($_POST['woocs_auto_switcher_skin']));
                     update_option('woocs_auto_switcher_side', $this->escape($_POST['woocs_auto_switcher_side']));
                     update_option('woocs_auto_switcher_top_margin', $this->escape($_POST['woocs_auto_switcher_top_margin']));
@@ -1105,7 +1200,7 @@ final class WOOCS {
                     update_option('woocs_auto_switcher_hide_page', $this->escape($_POST['woocs_auto_switcher_hide_page']));
                     update_option('woocs_auto_switcher_mobile_show', $this->escape($_POST['woocs_auto_switcher_mobile_show']));
                     update_option('woocs_auto_switcher_roll_px', $this->escape($_POST['woocs_auto_switcher_roll_px']));
-                }else{
+                } else {
                     //update_option('woocs_auto_switcher_skin','classic_blocks');
                     //update_option('woocs_auto_switcher_side', 'left');
                     //update_option('woocs_auto_switcher_top_margin', '100px');
@@ -1114,7 +1209,6 @@ final class WOOCS {
                     //update_option('woocs_auto_switcher_basic_field', '__CODE__ __SIGN__');
                     //update_option('woocs_auto_switcher_additional_field', '__DESCR__');
                 }
-                
             }
             //+++
             if (isset($_POST['woocs_geo_rules'])) {
@@ -1133,12 +1227,39 @@ final class WOOCS {
             } else {
                 update_option('woocs_geo_rules', '');
             }
+
+            //+++
+            if (isset($_POST['woocs_payment_control'])) {
+                update_option('woocs_payment_control', (int) $this->escape($_POST['woocs_payment_control']));
+            } else {
+                update_option('woocs_payment_control', 0);
+            }
+
+            if (isset($_POST['woocs_payments_rules'])) {
+                $woocs_payments_rules = array();
+                if (!empty($_POST['woocs_payments_rules'])) {
+                    foreach ($_POST['woocs_payments_rules'] as $payment_key => $currencies) {
+                        $woocs_payments_rules[$this->escape($payment_key)] = array();
+                        if (!empty($currencies)) {
+                            foreach ($currencies as $curr) {
+                                $woocs_payments_rules[$this->escape($payment_key)][] = $this->escape($curr);
+                            }
+                        }
+                    }
+                }
+                update_option('woocs_payments_rules', $woocs_payments_rules);
+            } else {
+                update_option('woocs_payments_rules', '');
+            }
+
+
             //update_option('woocs_use_geo_rules', (int) $_POST['woocs_use_geo_rules']);
             update_option('woocs_hide_cents', (int) $_POST['woocs_hide_cents']);
             update_option('woocs_price_info', (int) $_POST['woocs_price_info']);
             update_option('woocs_no_cents', $this->escape($_POST['woocs_no_cents']));
             update_option('woocs_restrike_on_checkout_page', (int) $_POST['woocs_restrike_on_checkout_page']);
             update_option('woocs_show_approximate_amount', (int) $_POST['woocs_show_approximate_amount']);
+            update_option('woocs_show_approximate_price', (int) $_POST['woocs_show_approximate_price']);
             update_option('woocs_shop_is_cached', (int) $_POST['woocs_shop_is_cached']);
             update_option('woocs_woo_version', WOOCOMMERCE_VERSION);
 //***
@@ -1224,15 +1345,15 @@ final class WOOCS {
         if (empty($currencies) OR ! is_array($currencies) OR count($currencies) < 2) {
             $currencies = $this->prepare_default_currencies();
         }
+
+        $currencies = apply_filters('woocs_currency_data_manipulation', $currencies);
         
-        if (count($currencies) > 2) {
+         if (count($currencies) > 2) {
             $currencies = array_slice($currencies, 0, 2);
         }
 
-        $currencies = apply_filters('woocs_currency_data_manipulation', $currencies);
-
         /*
-          //http://currency-switcher.com/how-to-manipulate-with-currencies-rates/
+          //https://currency-switcher.com/how-to-manipulate-with-currencies-rates/
           foreach ($currencies as $key => $value)
           {
           if($key == 'EUR'){
@@ -1293,8 +1414,11 @@ final class WOOCS {
     }
 
     public function woocommerce_currency_symbol($currency_symbol) {
+
         if (is_order_received_page() || is_account_page()) {
-            return $currency_symbol;
+            if (apply_filters('woocs_currency_symbol_on_order', false)) {
+                return $currency_symbol;
+            }
         }
         $currencies = $this->get_currencies();
 
@@ -1378,7 +1502,17 @@ final class WOOCS {
                             $product = (object) array('id' => $product_id);
                             $price = $this->_get_product_geo_price($product, $price);
                         }
-
+                        if ($this->is_fixed_user_role) {
+                            $regular_price_tmp = floatval($this->fixed_user_role->get_value($product_id, '', 'regular'));
+                            $sale_price_tmp = floatval($this->fixed_user_role->get_value($product_id, '', 'sale'));
+                            if ((int) $regular_price_tmp !== -1 OR (int) $sale_price_tmp !== -1) {
+                                $price = $regular_price_tmp;
+                                if ((int) $sale_price_tmp !== -1 AND $sale_price_tmp < $regular_price_tmp) {
+                                    $price = $sale_price_tmp;
+                                }
+                                $is_price_custom = false;
+                            }
+                        }
 
                         if (!$is_price_custom) {
                             //if ($current_currency != $this->default_currency)
@@ -1519,6 +1653,19 @@ final class WOOCS {
                 }
 
                 $price = $this->_get_product_geo_price($product_emulator, $price);
+            }
+        }
+        if ($this->is_fixed_user_role AND $product !== NULL) {
+            if ($product->is_type('variation')) {
+
+                $tmp_val = $this->_get_product_fixed_user_role_price($product, 'variation', $price, $precision);
+            } else {
+                $tmp_val = $this->_get_product_fixed_user_role_price($product, 'single', $price, $precision);
+            }
+
+            if ((int) $tmp_val !== -1) {
+                $price = $tmp_val;
+                $is_price_custom = false;
             }
         }
 
@@ -1662,7 +1809,16 @@ final class WOOCS {
                     $sale_price = floatval($this->_get_product_geo_price($product, $sale_price));
                     //echo $regular_price . '~~~' . $sale_price . '+++';
                 }
+                if ($this->is_fixed_user_role) {
 
+                    $regular_price_tmp = floatval($this->fixed_user_role->get_value($var_prod_id, '', 'regular'));
+                    $sale_price_tmp = floatval($this->fixed_user_role->get_value($var_prod_id, '', 'sale'));
+                    if ((int) $regular_price_tmp !== -1 OR (int) $sale_price_tmp !== -1) {
+                        $regular_price = $regular_price_tmp;
+                        $sale_price = $sale_price_tmp;
+                        $is_price_custom = false;
+                    }
+                }
 
                 if (!$is_price_custom) {
                     $regular_price = floatval($currencies[$current_currency]['rate'] * $regular_price);
@@ -1718,6 +1874,31 @@ final class WOOCS {
 
         if ($is_exists AND ! $is_empty) {
             return number_format(floatval($this->fixed->get_value($product_id, $this->current_currency, $type)), $precision, $this->decimal_sep, '');
+        }
+
+
+        return -1;
+    }
+
+    public function _get_product_fixed_user_role_price($product, $product_type, $price, $precision = 2, $type = NULL) {
+
+        $product_id = $product->get_id();
+
+        $type = 'sale';
+        $currency = "";
+
+        $is_empty = $this->fixed_user_role->is_empty($product_id, $currency, $type);
+        $is_exists = $this->fixed_user_role->is_exists($product_id, $currency, $type);
+
+        if ($type == 'sale' AND $is_empty) {
+            $type = 'regular';
+            $is_exists = $this->fixed_user_role->is_exists($product_id, $currency, $type);
+            $is_empty = $this->fixed_user_role->is_empty($product_id, $currency, $type);
+        }
+
+
+        if ($is_exists AND ! $is_empty) {
+            return number_format(floatval($this->fixed_user_role->get_value($product_id, $this->current_currency, $type)), $precision, $this->decimal_sep, '');
         }
 
 
@@ -1937,6 +2118,163 @@ final class WOOCS {
         return $data;
     }
 
+    public function get_currency_freebase_id($currency_code) {
+        $freebase_ids = array(
+            "AED" => "/m/02zl8q",
+            "AFN" => "/m/019vxc",
+            "ALL" => "/m/01n64b",
+            "AMD" => "/m/033xr3",
+            "ANG" => "/m/08njbf",
+            "AOA" => "/m/03c7mb",
+            "ARS" => "/m/024nzm",
+            "AUD" => "/m/0kz1h",
+            "AWG" => "/m/08s1k3",
+            "AZN" => "/m/04bq4y",
+            "BAM" => "/m/02lnq3",
+            "BBD" => "/m/05hy7p",
+            "BDT" => "/m/02gsv3",
+            "BGN" => "/m/01nmfw",
+            "BHD" => "/m/04wd20",
+            "BIF" => "/m/05jc3y",
+            "BMD" => "/m/04xb8t",
+            "BND" => "/m/021x2r",
+            "BOB" => "/m/04tkg7",
+            "BRL" => "/m/03385m",
+            "BSD" => "/m/01l6dm",
+            "BTC" => "/m/05p0rrx",
+            "BWP" => "/m/02nksv",
+            "BYN" => "/m/05c9_x",
+            "BZD" => "/m/02bwg4",
+            "CAD" => "/m/0ptk_",
+            "CDF" => "/m/04h1d6",
+            "CHF" => "/m/01_h4b",
+            "CLP" => "/m/0172zs",
+            "CNY" => "/m/0hn4_",
+            "COP" => "/m/034sw6",
+            "CRC" => "/m/04wccn",
+            "CUC" => "/m/049p2z",
+            "CUP" => "/m/049p2z",
+            "CVE" => "/m/06plyy",
+            "CZK" => "/m/04rpc3",
+            "DJF" => "/m/05yxn7",
+            "DKK" => "/m/01j9nc",
+            "DOP" => "/m/04lt7_",
+            "DZD" => "/m/04wcz0",
+            "EGP" => "/m/04phzg",
+            "ETB" => "/m/02_mbk",
+            "EUR" => "/m/02l6h",
+            "FJD" => "/m/04xbp1",
+            "GBP" => "/m/01nv4h",
+            "GEL" => "/m/03nh77",
+            "GHS" => "/m/01s733",
+            "GMD" => "/m/04wctd",
+            "GNF" => "/m/05yxld",
+            "GTQ" => "/m/01crby",
+            "GYD" => "/m/059mfk",
+            "HKD" => "/m/02nb4kq",
+            "HNL" => "/m/04krzv",
+            "HRK" => "/m/02z8jt",
+            "HTG" => "/m/04xrp0",
+            "HUF" => "/m/01hfll",
+            "IDR" => "/m/0203sy",
+            "ILS" => "/m/01jcw8",
+            "INR" => "/m/02gsvk",
+            "IQD" => "/m/01kpb3",
+            "IRR" => "/m/034n11",
+            "ISK" => "/m/012nk9",
+            "JMD" => "/m/04xc2m",
+            "JOD" => "/m/028qvh",
+            "JPY" => "/m/088n7",
+            "KES" => "/m/05yxpb",
+            "KGS" => "/m/04k5c6",
+            "KHR" => "/m/03_m0v",
+            "KMF" => "/m/05yxq3",
+            "KRW" => "/m/01rn1k",
+            "KWD" => "/m/01j2v3",
+            "KYD" => "/m/04xbgl",
+            "KZT" => "/m/01km4c",
+            "LAK" => "/m/04k4j1",
+            "LBP" => "/m/025tsrc",
+            "LKR" => "/m/02gsxw",
+            "LRD" => "/m/05g359",
+            "LSL" => "/m/04xm1m",
+            "LYD" => "/m/024xpm",
+            "MAD" => "/m/06qsj1",
+            "MDL" => "/m/02z6sq",
+            "MGA" => "/m/04hx_7",
+            "MKD" => "/m/022dkb",
+            "MMK" => "/m/04r7gc",
+            "MOP" => "/m/02fbly",
+            "MRO" => "/m/023c2n",
+            "MUR" => "/m/02scxb",
+            "MVR" => "/m/02gsxf",
+            "MWK" => "/m/0fr4w",
+            "MXN" => "/m/012ts8",
+            "MYR" => "/m/01_c9q",
+            "MZN" => "/m/05yxqw",
+            "NAD" => "/m/01y8jz",
+            "NGN" => "/m/018cg3",
+            "NIO" => "/m/02fvtk",
+            "NOK" => "/m/0h5dw",
+            "NPR" => "/m/02f4f4",
+            "NZD" => "/m/015f1d",
+            "OMR" => "/m/04_66x",
+            "PAB" => "/m/0200cp",
+            "PEN" => "/m/0b423v",
+            "PGK" => "/m/04xblj",
+            "PHP" => "/m/01h5bw",
+            "PKR" => "/m/02svsf",
+            "PLN" => "/m/0glfp",
+            "PYG" => "/m/04w7dd",
+            "QAR" => "/m/05lf7w",
+            "RON" => "/m/02zsyq",
+            "RSD" => "/m/02kz6b",
+            "RUB" => "/m/01hy_q",
+            "RWF" => "/m/05yxkm",
+            "SAR" => "/m/02d1cm",
+            "SBD" => "/m/05jpx1",
+            "SCR" => "/m/01lvjz",
+            "SDG" => "/m/08d4zw",
+            "SEK" => "/m/0485n",
+            "SGD" => "/m/02f32g",
+            "SLL" => "/m/02vqvn",
+            "SOS" => "/m/05yxgz",
+            "SRD" => "/m/02dl9v",
+            "SSP" => "/m/08d4zw",
+            "STD" => "/m/06xywz",
+            "SZL" => "/m/02pmxj",
+            "THB" => "/m/0mcb5",
+            "TJS" => "/m/0370bp",
+            "TMT" => "/m/0425kx",
+            "TND" => "/m/04z4ml",
+            "TOP" => "/m/040qbv",
+            "TRY" => "/m/04dq0w",
+            "TTD" => "/m/04xcgz",
+            "TWD" => "/m/01t0lt",
+            "TZS" => "/m/04s1qh",
+            "UAH" => "/m/035qkb",
+            "UGX" => "/m/04b6vh",
+            "USD" => "/m/09nqf",
+            "UYU" => "/m/04wblx",
+            "UZS" => "/m/04l7bl",
+            "VEF" => "/m/021y_m",
+            "VND" => "/m/03ksl6",
+            "XAF" => "/m/025sw2b",
+            "XCD" => "/m/02r4k",
+            "XOF" => "/m/025sw2q",
+            "XPF" => "/m/01qyjx",
+            "YER" => "/m/05yxwz",
+            "ZAR" => "/m/01rmbs",
+            "ZMW" => "/m/0fr4f"
+        );
+        $freebase_id = '';
+        if ($currency_code && isset($freebase_ids[$currency_code])) {
+            $freebase_id = $freebase_ids[$currency_code];
+        }
+
+        return $freebase_id;
+    }
+
 //ajax
     public function get_rate() {
         $is_ajax = true;
@@ -1952,14 +2290,9 @@ final class WOOCS {
         $woocs_use_curl = 1;
         switch ($mode) {
             case 'yahoo':
-                //dead, doesn work
-//http://www.idiotinside.com/2015/01/28/create-a-currency-converter-in-php-python-javascript-and-jquery-using-yahoo-currency-api/
-                $yql_base_url = "http://query.yahooapis.com/v1/public/yql";
-                $yql_query = 'select * from yahoo.finance.xchange where pair in ("' . $this->default_currency . $this->escape($_REQUEST['currency_name']) . '")';
-                $yql_query_url = $yql_base_url . "?q=" . urlencode($yql_query);
-                $yql_query_url .= "&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
 //***
-
+                $date = current_time('timestamp', true);
+                $yql_query_url = 'https://query1.finance.yahoo.com/v8/finance/chart/' . $this->default_currency . $this->escape($_REQUEST['currency_name']) . '=X?symbol=' . $this->default_currency . $this->escape($_REQUEST['currency_name']) . '%3DX&period1=' . ( $date - 60 * 86400 ) . '&period2=' . $date . '&interval=1d&includePrePost=false&events=div%7Csplit%7Cearn&lang=en-US&region=US&corsDomain=finance.yahoo.com';
                 if (function_exists('curl_init') AND $woocs_use_curl) {
                     $res = $this->file_get_contents_curl($yql_query_url);
                 } else {
@@ -1967,29 +2300,37 @@ final class WOOCS {
                 }
                 //$yql_query_url="http://query.yahooapis.com/v1/public/yql?q=select+%2A+from+yahoo.finance.xchange+where+pair+in+EURGBP&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
 //***
-                $yql_json = json_decode($res, true);
-                $request = (float) $yql_json['query']['results']['rate']['Rate'];
+                $data = json_decode($res, true);
+                $result = isset($data['chart']['result'][0]['indicators']['quote'][0]['open']) ? $data['chart']['result'][0]['indicators']['quote'][0]['open'] : ( isset($data['chart']['result'][0]['meta']['previousClose']) ? array($data['chart']['result'][0]['meta']['previousClose']) : array() );
 
-
+                if (count($result) && is_array($result)) {
+                    $request = end($result);
+                }
                 break;
 
             case 'google':
-                $amount = urlencode(1);
+                //$amount = urlencode(1);
                 $from_Currency = urlencode($this->default_currency);
                 $to_Currency = urlencode($this->escape($_REQUEST['currency_name']));
-                //$url = "http://finance.google.com/finance/converter?a=$amount&from=$from_Currency&to=$to_Currency";
-                //test mode
-                $url = "https://finance.google.com/finance?q=" . $from_Currency . $to_Currency;
+                if ($to_Currency == $from_Currency) {
+                    $request = 1;
+                    break;
+                }
+                $url = 'https://www.google.com/async/currency_update?yv=2&async=source_amount:1,source_currency:' . $from_Currency . ',target_currency:' . $to_Currency . ',chart_width:270,chart_height:94,lang:en,country:vn,_fmt:jspb';
                 if (function_exists('curl_init') AND $woocs_use_curl) {
                     $html = $this->file_get_contents_curl($url);
                 } else {
                     $html = file_get_contents($url);
                 }
-                preg_match_all('/<span class=bld>(.*?)<\/span>/s', $html, $matches);
-                if (isset($matches[1][0])) {
-                    $request = floatval(str_replace(",", "", $matches[1][0]));
-                } else {
-                    $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
+
+                if ($html) {
+                    preg_match('/CurrencyUpdate\":\[\[(.+?)\,/', $html, $matches);
+
+                    if (count($matches) > 0) {
+                        $request = isset($matches[1]) ? $matches[1] : 1;
+                    } else {
+                        $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
+                    }
                 }
 
                 break;
@@ -2226,7 +2567,7 @@ final class WOOCS {
 
 
                 break;
-            case'free_converter':
+            case 'free_converter':
                 $from_Currency = urlencode($this->default_currency);
                 $to_Currency = urlencode($this->escape($_REQUEST['currency_name']));
                 $query_str = sprintf("%s_%s", $from_Currency, $to_Currency);
@@ -2252,12 +2593,12 @@ final class WOOCS {
                     $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
                 }
                 break;
-            case"cryptocompare":
+            case 'cryptocompare':
                 $from_Currency = urlencode($this->default_currency);
                 $to_Currency = urlencode($this->escape($_REQUEST['currency_name']));
                 //https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=BTC
                 $query_str = sprintf("?fsym=%s&tsyms=%s", $from_Currency, $to_Currency);
-                $url="https://min-api.cryptocompare.com/data/price".$query_str;
+                $url = "https://min-api.cryptocompare.com/data/price" . $query_str;
                 if (function_exists('curl_init') AND $woocs_use_curl) {
                     $res = $this->file_get_contents_curl($url);
                 } else {
@@ -2272,28 +2613,28 @@ final class WOOCS {
                 //***
                 if (!$request) {
                     $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
-                }                
+                }
                 break;
-                case 'xe':
-                    $amount = urlencode(1);
-                    $from_Currency = urlencode($this->default_currency);
-                    $to_Currency = urlencode($this->escape($_REQUEST['currency_name']));
-                    //http://www.xe.com/currencyconverter/convert/?Amount=1&From=ZWD&To=CUP
-                    $url = "http://www.xe.com/currencyconverter/convert/?Amount=1&From=" . $from_Currency ."&To=". $to_Currency;
-                    if (function_exists('curl_init') AND $woocs_use_curl) {
-                        $html = $this->file_get_contents_curl($url);
-                    } else {
-                        $html = file_get_contents($url);
-                    }
-                    //test
-                    preg_match_all('/<span class=\'uccResultAmount\'>(.*?)<\/span>/s', $html, $matches);
-                    if (isset($matches[1][0])) {
-                        $request = floatval(str_replace(",", "", $matches[1][0]));
-                    } else {
-                        $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
-                    }
+            case 'xe':
+                $amount = urlencode(1);
+                $from_Currency = urlencode($this->default_currency);
+                $to_Currency = urlencode($this->escape($_REQUEST['currency_name']));
+                //http://www.xe.com/currencyconverter/convert/?Amount=1&From=ZWD&To=CUP
+                $url = "http://www.xe.com/currencyconverter/convert/?Amount=1&From=" . $from_Currency . "&To=" . $to_Currency;
+                if (function_exists('curl_init') AND $woocs_use_curl) {
+                    $html = $this->file_get_contents_curl($url);
+                } else {
+                    $html = file_get_contents($url);
+                }
+                //test converterresult-toAmount
+                preg_match_all('/<span class=\'uccResultAmount\'>(.*?)<\/span>/s', $html, $matches);
+                if (isset($matches[1][0])) {
+                    $request = floatval(str_replace(",", "", $matches[1][0]));
+                } else {
+                    $request = sprintf(__("no data for %s", 'woocommerce-currency-switcher'), $this->escape($_REQUEST['currency_name']));
+                }
 
-                break;                
+                break;
             default:
                 break;
         }
@@ -2573,8 +2914,6 @@ final class WOOCS {
             }
         }
 
-
-
 //add additional info in price html
         if (get_option('woocs_price_info', 0) AND ! (is_admin() AND ! isset($_REQUEST['get_product_price_by_ajax'])) AND ! isset($_REQUEST['hide_woocs_price_info_list'])) {
             $info = "<ul class='woocs_price_info_list'>";
@@ -2634,7 +2973,7 @@ final class WOOCS {
                     $child_ids = $product->get_children();
                     $prices = array();
                     foreach ($child_ids as $prod_id) {
-                        $product1 = get_product($prod_id);
+                        $product1 = wc_get_product($prod_id);
                         $product_type1 = $product1->get_type();
                         if ($product_type1 == 'variable') {
 
@@ -2718,9 +3057,16 @@ final class WOOCS {
             $this->current_currency = $current_currency;
             $info .= "</ul>";
             $info = '<div class="woocs_price_info"><span class="woocs_price_info_icon"></span>' . $info . '</div>';
-            $price_html .= $info;
+            $add_icon = strripos($price_html, $info);
+            if ($add_icon === false) {
+                $price_html .= $info;
+            }
         }
 
+        //add approx in price html
+        if (get_option('woocs_show_approximate_price', 0) AND ! is_admin()) {
+            $price_html = $this->woocs_add_approx_to_price($price_html, $product);
+        }
 
         return $price_html;
     }
@@ -3054,6 +3400,32 @@ final class WOOCS {
                 }
             }
         }
+        if ($this->is_fixed_user_role AND ! is_null($product)) {
+            $type = 'sale';
+            $currency = "";
+            $product_id = $product->get_id();
+            $is_empty = $this->fixed_user_role->is_empty($product_id, $currency, $type);
+            $is_exists = $this->fixed_user_role->is_exists($product_id, $currency, $type);
+
+            if ($type == 'sale' AND $is_empty) {
+                $type = 'regular';
+                $is_exists = $this->fixed_user_role->is_exists($product_id, $currency, $type);
+                $is_empty = $this->fixed_user_role->is_empty($product_id, $currency, $type);
+            }
+
+            if ($is_exists AND ! $is_empty) {
+                $is_price_custom = true;
+                $is_price_custom = false;
+                if (floatval($this->fixed_user_role->get_value($product_id, $currency, $type)) > 0) {
+                    $price = floatval($this->fixed_user_role->get_value($product_id, $currency, $type));
+                    $price = $this->raw_woocommerce_price(floatval($negative ? $price * -1 : $price));
+                    if (wc_tax_enabled()) {
+                        $price = $this->woocs_calc_tax_price($product, $price);
+                    }
+                }
+            }
+        }
+
 
         //***
 
@@ -3454,6 +3826,22 @@ final class WOOCS {
         wp_die('done');
     }
 
+    public function woocs_recalculate_orders_data() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        $orders = array();
+        if (isset($_POST['order_ids'])) {
+            $orders = $_POST['order_ids'];
+        } else {
+            return;
+        }
+        foreach ($orders as $id) {
+            $this->recalculate_order((int) $id);
+        }
+        wp_die('done');
+    }
+
 //***************** BEGIN ADDITIONAL INFO HTML ON THE CHECKOUT+CART ***************
 //only attach some info in html
 //wp-content\plugins\woocommerce\templates\cart\cart.php
@@ -3754,6 +4142,151 @@ final class WOOCS {
 
 
         return $tax_totals;
+    }
+
+    public function woocs_add_approx_to_price($price_html, $product) {
+        $user_currency = $this->get_currency_by_country($this->storage->get_val('woocs_user_country'));
+        $currencies = $this->get_currencies();
+        $info = "";
+        if ($user_currency != $this->current_currency) {
+            $tmp_curr_currency = $this->current_currency;
+            $this->set_currency($user_currency);
+            $value = (float) $product->get_price('edit') * (float) $currencies[$user_currency]['rate'];
+
+            $precision = $this->get_currency_price_num_decimals($user_currency, $this->price_num_decimals);
+            $value = number_format($value, $precision, $this->decimal_sep, '');
+
+            //***
+
+            $product_type = '';
+
+            $product_type = $product->get_type();
+
+            if ($product_type == 'variable') {
+
+
+                $min_value = $product->get_variation_price('min', true) * $currencies[$user_currency]['rate'];
+                $max_value = $product->get_variation_price('max', true) * $currencies[$user_currency]['rate'];
+
+                //***
+                $min_max_values = $this->_get_min_max_variation_prices($product, $user_currency);
+                if (!empty($min_max_values)) {
+                    //echo '<pre>' . print_r($min_max_values, true) . '</pre>';
+                    $min_value = $min_max_values['min'] /* $currencies[$сurr['name']]['rate'] */;
+                    $max_value = $min_max_values['max'] /* $currencies[$сurr['name']]['rate'] */;
+                }
+                if (wc_tax_enabled()) {
+                    $min_value = $this->woocs_calc_tax_price($product, $min_value);
+                    $max_value = $this->woocs_calc_tax_price($product, $max_value);
+                }
+                //+++
+                $_REQUEST['woocs_wc_price_convert'] = FALSE;
+
+                $var_price = "";
+                $var_price1 = $this->wc_price($min_value, array('currency' => $user_currency), false, $product, $precision);
+                $var_price2 = $this->wc_price($max_value, array('currency' => $user_currency), false, $product, $precision);
+                if ($var_price1 == $var_price2) {
+                    $var_price = $var_price1;
+                } else {
+                    $var_price = sprintf("%s - %s", $var_price1, $var_price2);
+                }
+
+                unset($_REQUEST['woocs_wc_price_convert']);
+                $info .= $var_price;
+            } elseif ($product_type == 'grouped') {
+
+                $child_ids = $product->get_children();
+                $prices = array();
+                foreach ($child_ids as $prod_id) {
+                    $product1 = wc_get_product($prod_id);
+                    $product_type1 = $product1->get_type();
+                    if ($product_type1 == 'variable') {
+
+                        $min_value = $product1->get_variation_price('min', true) * $currencies[$user_currency]['rate'];
+                        $max_value = $product1->get_variation_price('max', true) * $currencies[$user_currency]['rate'];
+                        //***
+                        $min_max_values = $this->_get_min_max_variation_prices($product1, $user_currency);
+                        if (!empty($min_max_values)) {
+                            //echo '<pre>' . print_r($min_max_values, true) . '</pre>';
+                            $min_value = $min_max_values['min'] /* $currencies[$сurr['name']]['rate'] */;
+                            $max_value = $min_max_values['max'] /* $currencies[$сurr['name']]['rate'] */;
+                        }
+                        if (wc_tax_enabled()) {
+                            $prices[] = $this->woocs_calc_tax_price($product1, $min_value);
+                            $prices[] = $this->woocs_calc_tax_price($product1, $max_value);
+                        } else {
+                            $prices[] = $min_value;
+                            $prices[] = $max_value;
+                        }
+                    } else {
+
+                        if ($this->is_fixed_enabled AND $this->is_multiple_allowed) {
+                            $type = 'sale';
+                            $is_empty = $this->fixed->is_empty($prod_id, $user_currency, $type);
+                            $is_exists = $this->fixed->is_exists($prod_id, $user_currency, $type);
+
+                            if ($type == 'sale' AND $is_empty) {
+                                $type = 'regular';
+                                $is_exists = $this->fixed->is_exists($prod_id, $user_currency, $type);
+                                $is_empty = $this->fixed->is_empty($prod_id, $user_currency, $type);
+                            }
+
+                            if ($is_exists AND ! $is_empty) {
+                                $special_convert = true;
+                                $is_price_custom = true;
+                                if (floatval($this->fixed->get_value($prod_id, $user_currency, $type)) > 0) {
+
+                                    if (wc_tax_enabled()) {
+                                        $prices[] = $this->woocs_calc_tax_price($product1, floatval($this->fixed->get_value($prod_id, $user_currency, $type)));
+                                    } else {
+                                        $prices[] = floatval($this->fixed->get_value($prod_id, $user_currency, $type));
+                                    }
+                                }
+                            } else {
+                                if (wc_tax_enabled()) {
+                                    $prices[] = $this->woocs_calc_tax_price($product1, $product1->get_price('edit') * $currencies[$user_currency]['rate']);
+                                } else {
+                                    $prices[] = $product1->get_price('edit') * $currencies[$user_currency]['rate'];
+                                }
+                            }
+                        } else {
+                            if (wc_tax_enabled()) {
+                                $prices[] = $this->woocs_calc_tax_price($product1, $product1->get_price('edit') * $currencies[$user_currency]['rate']);
+                            } else {
+                                $prices[] = $product1->get_price('edit') * $currencies[$user_currency]['rate'];
+                            }
+                        }
+                    }
+                }
+                asort($prices);
+                $_REQUEST['woocs_wc_price_convert'] = FALSE;
+                $var_price = "";
+                $var_price1 = $this->wc_price(array_shift($prices), array('currency' => $user_currency), false, $product, $precision);
+                $var_price2 = $this->wc_price(array_pop($prices), array('currency' => $user_currency), false, $product, $precision);
+
+                if ($var_price1 == $var_price2) {
+                    $var_price = $var_price1;
+                } else {
+                    $var_price = sprintf("%s - %s", $var_price1, $var_price2);
+                }
+
+                $info .= $var_price;
+            } else {
+                //print_r($product);
+                if (wc_tax_enabled()) {
+                    $value = $this->woocs_calc_tax_price($product, $value);
+                }
+                $info .= $this->wc_price($value, false, array('currency' => $user_currency), $product, $precision);
+            }
+            $info = $this->get_cart_item_price_html($info);
+            $this->set_currency($tmp_curr_currency);
+        }
+        $add_icon = strripos($price_html, $info);
+        if ($add_icon === false) {
+            $price_html .= $info;
+        }
+
+        return $price_html;
     }
 
 //wp-content\plugins\woocommerce\includes\wc-cart-functions.php
@@ -4350,6 +4883,20 @@ final class WOOCS {
         );
     }
 
+    public function woocs_all_order_ids() {
+        $query_args = array(
+            'post_type' => wc_get_order_types(),
+            'post_status' => array_keys(wc_get_order_statuses()),
+            'posts_per_page' => 999999999999,
+        );
+        $order_ids = array();
+        $all_orders = get_posts($query_args);
+        foreach ($all_orders as $order) {
+            $order_ids[] = $order->ID;
+        }
+        die(json_encode($order_ids));
+    }
+
     public function woocommerce_admin_order_preview_line_items($items, $order) {
         if ($this->is_multiple_allowed) {
             $order_currency = get_post_meta($order->get_id(), '_order_currency', true);
@@ -4362,6 +4909,46 @@ final class WOOCS {
 
         return $items;
     }
+
+    function woocs_filter_gateways($gateway_list) {
+        global $WOOCS;
+        if (is_checkout() OR is_checkout_pay_page()) {
+            $exclude = get_option('woocs_payments_rules', array());
+            foreach ($exclude as $gateway_key => $currencies) {
+                $behavior = true;
+                $behavior = in_array($WOOCS->current_currency, $currencies);
+                if (get_option('woocs_payment_control', 0)) {
+                    $behavior = !$behavior;
+                }
+
+                if (isset($gateway_list[$gateway_key]) AND $behavior) {
+                    // var_dump($gateway_list);
+                    unset($gateway_list[$gateway_key]);
+                }
+            }
+        }
+        return $gateway_list;
+    }
+
+    function manage_posts_extra_tablenav($width) {
+        global $typenow;
+        if (get_option('woocs_is_multiple_allowed', 0)) {
+            if (in_array($typenow, wc_get_order_types('order-meta-boxes'), true) AND $width == 'top') {
+                ?>
+                <a href="javascript:woocs_recalculate_all_orders_data();void(0);" class="button woocs_recalculate_all_orders_curr_button"><?php _e("Recalculate all orders", 'woocommerce-currency-switcher') ?>&nbsp;<img class="help_tip" data-tip="WOOCS: <?php _e('Recalculate all orders with basic currency. Recommended test this option on the clone of your site! Read the documentation of the plugin about it!', 'woocommerce-currency-switcher') ?>" src="<?php echo WOOCS_LINK ?>/img/help.png" height="16" width="16" /><img class="woocs_ajax_preload" src="<?php echo WOOCS_LINK ?>/img/loading_large.gif" height="18" width="18" /></a>
+                <?php
+            }
+        }
+    }
+
+    public function woocs_set_currency_ajax() {
+
+        if (isset($_REQUEST['currency'])) {
+            $currency = sanitize_text_field($_REQUEST['currency']);
+            $this->set_currency($currency);
+        }
+    }
+
     public function init_marketig_woocs() {
         $alert = new WOOCS_ADV();
         $alert->init();

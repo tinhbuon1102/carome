@@ -1,5 +1,6 @@
 <?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <div class="woocs-admin-preloader"></div>
+
 <div class="subsubsub_section">
     <br class="clear" />
 
@@ -59,6 +60,19 @@
             'desc_tip' => true
         ),
         array(
+            'name' => __('No GET data in link', 'woocommerce-currency-switcher'),
+            'desc' => __('Switches currency without GET properties (?currency=USD) in the link. Works in woocommerce > 3.3.0.', 'woocommerce-currency-switcher'),
+            'id' => 'woocs_special_ajax_mode',
+            'type' => 'select',
+            'class' => 'chosen_select',
+            'css' => 'min-width:300px;',
+            'options' => array(
+                0 => __('No', 'woocommerce-currency-switcher'),
+                1 => __('Yes', 'woocommerce-currency-switcher')
+            ),
+            'desc_tip' => true
+        ),
+        array(
             'name' => __('Show money signs', 'woocommerce-currency-switcher'),
             'desc' => __('Show/hide money signs on the front drop-down', 'woocommerce-currency-switcher'),
             'id' => 'woocs_show_money_signs',
@@ -102,15 +116,15 @@
             'class' => 'chosen_select',
             'css' => 'min-width:300px;',
             'options' => array(
-                //'yahoo' => 'www.finance.yahoo.com',//failed
-                //'google' => 'www.google.com/finance',//failed
+                'yahoo' => 'www.finance.yahoo.com',
+                'google' => 'www.google.com/finance',
                 'ecb' => 'www.ecb.europa.eu',
                 'rf' => 'www.cbr.ru - russian centrobank',
                 'privatbank' => 'api.privatbank.ua - ukrainian privatbank',
                 'bank_polski' => 'Narodowy Bank Polsky',
                 'free_converter' => 'The Free Currency Converter',
                 'cryptocompare' => 'CryptoCompare',
-                'xe' => 'XE Currency Converter'
+            //'xe' => 'XE Currency Converter'
             ),
             'desc_tip' => true
         ),
@@ -145,7 +159,7 @@
         ),
         array(
             'name' => __('Rate auto update', 'woocommerce-currency-switcher'),
-            'desc' => __('Currencies rate auto update by wp cron. Use it for your own risk!', 'woocommerce-currency-switcher'),
+            'desc' => __('Currencies rate auto update by WordPress cron.', 'woocommerce-currency-switcher'),
             'id' => 'woocs_currencies_rate_auto_update',
             'type' => 'select',
             'class' => 'chosen_select',
@@ -192,9 +206,35 @@
             'desc_tip' => true
         ),
         array(
+            'name' => __('Payments rules', 'woocommerce-currency-switcher'),
+            'desc' => __('Hide/Show payments systems on checkout page depending on the current currency', 'woocommerce-currency-switcher'),
+            'id' => 'woocs_payments_rule_enabled',
+            'type' => 'select',
+            'class' => 'chosen_select',
+            'css' => 'min-width:300px;',
+            'options' => array(
+                0 => __('No', 'woocommerce-currency-switcher'),
+                1 => __('Yes', 'woocommerce-currency-switcher'),
+            ),
+            'desc_tip' => true
+        ),
+        array(
             'name' => __('Show approx. amount', 'woocommerce-currency-switcher'),
-            'desc' => __('THIS IS AN EXPERIMENTAL FEATURE! Show approximate amount on the checkout and the cart page with currency of user defined by IP in the GeoIp rules tab. Works only with currencies rates data and NOT with fixed prices rules and geo rules.', 'woocommerce-currency-switcher'),
+            'desc' => __('Show approximate amount on the checkout and the cart page with currency of user defined by IP in the GeoIp rules tab. Works only with currencies rates data and NOT with fixed prices rules and geo rules.', 'woocommerce-currency-switcher'),
             'id' => 'woocs_show_approximate_amount',
+            'type' => 'select',
+            'class' => 'chosen_select',
+            'css' => 'min-width:300px;',
+            'options' => array(
+                0 => __('No', 'woocommerce-currency-switcher'),
+                1 => __('Yes', 'woocommerce-currency-switcher'),
+            ),
+            'desc_tip' => true
+        ),
+        array(
+            'name' => __('Show approx. price', 'woocommerce-currency-switcher'),
+            'desc' => __('Show approximate price on the shop and the single product page with currency of user defined by IP in the GeoIp rules tab. Works only with currencies rates data and NOT with fixed prices rules and geo rules.', 'woocommerce-currency-switcher'),
+            'id' => 'woocs_show_approximate_price',
             'type' => 'select',
             'class' => 'chosen_select',
             'css' => 'min-width:300px;',
@@ -249,6 +289,7 @@
         ),
         array('type' => 'sectionend', 'id' => 'woocs_general_settings')
     );
+    $woocs_is_payments_rule_enable = get_option('woocs_payments_rule_enabled', 0);
     ?>
 
 
@@ -299,6 +340,17 @@
                                 <span><?php _e("Side switcher", 'woocommerce-currency-switcher') ?></span>
                             </a>
                         </li>
+
+                        <?php if ($woocs_is_payments_rule_enable): ?>    
+                            <li>
+                                <a href="#tabs-7">
+                                    <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
+                                    <svg viewBox="0 0 80 60" preserveAspectRatio="none"><use xlink:href="#tabshape"></use></svg>
+                                    <span><?php _e("Payments rules", 'woocommerce-currency-switcher') ?></span>
+                                </a>
+                            </li>  
+                        <?php endif; ?>  
+
                     <?php endif; ?>
                     <?php if ($this->is_use_geo_rules()): ?>
                         <li>
@@ -413,7 +465,7 @@
                                 <select name="woocs_use_geo_rules" id="woocs_use_geo_rules" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Use GeoLocation rules', 'woocommerce-currency-switcher') ?>">
 
                             <?php foreach ($opts as $val => $title): ?>
-                                                                                                                                                                                                            <option value="<?php echo $val ?>" <?php echo selected($selected, $val) ?>><?php echo $title ?></option>
+                                                                                                                                                                                                                                                                                <option value="<?php echo $val ?>" <?php echo selected($selected, $val) ?>><?php echo $title ?></option>
                             <?php endforeach; ?>
 
                                 </select>
@@ -440,7 +492,7 @@
                                             <option value="<?php echo $val ?>" <?php echo selected($woocs_is_fixed_enabled, $val) ?>><?php echo $title ?></option>
                                         <?php endforeach; ?>
 
-                                    </select>&nbsp;<a href="http://currency-switcher.com/video-tutorials#video_YHDQZG8GS6w" target="_blank" class="button"><?php _e('Watch video instructions', 'woocommerce-currency-switcher') ?></a>
+                                    </select>&nbsp;<a href="https://currency-switcher.com/video-tutorials#video_YHDQZG8GS6w" target="_blank" class="button"><?php _e('Watch video instructions', 'woocommerce-currency-switcher') ?></a>
                                 </td>
                             </tr>
 
@@ -521,6 +573,28 @@
                                         </select>
                                     </td>
                                 </tr>
+                                <tr valign="top">
+                                    <th scope="row" class="titledesc">
+                                        <label for="woocs_is_fixed_user_role"><?php _e('Individual prices based on user role', 'woocommerce-currency-switcher') ?>(*)</label>
+                                        <span class="woocommerce-help-tip" style="margin-top: -7px;" data-tip="<?php _e('Gives ability to set different prices for each user role', 'woocommerce-currency-switcher') ?>"></span>
+                                    </th>
+                                    <td class="forminp forminp-select">
+                                        <?php
+                                        $opts = array(
+                                            0 => __('No', 'woocommerce-currency-switcher'),
+                                            1 => __('Yes', 'woocommerce-currency-switcher')
+                                        );
+                                        $selected = get_option('woocs_is_fixed_user_role', 0);
+                                        ?>
+                                        <select name="woocs_is_fixed_user_role" id="woocs_is_fixed_user_role" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('User role price ', 'woocommerce-currency-switcher') ?>">
+
+                                            <?php foreach ($opts as $val => $title): ?>
+                                                <option value="<?php echo $val ?>" <?php echo selected($selected, $val) ?>><?php echo $title ?></option>
+                                            <?php endforeach; ?>
+
+                                        </select>
+                                    </td>
+                                </tr>                   
                             <?php endif; //end woo33?>
                             <tr valign="top">
                                 <th scope="row" class="titledesc">
@@ -542,8 +616,8 @@
                                         <?php endforeach; ?>
 
                                     </select>
-                                    &nbsp;<a href="http://currency-switcher.com/video-tutorials#video_PZugTH80-Eo" target="_blank" class="button"><?php _e('Watch video instructions', 'woocommerce-currency-switcher') ?></a>
-                                    &nbsp;<a href="http://currency-switcher.com/video-tutorials#video_zh_LVqKADBU" target="_blank" class="button"><?php _e('a hint', 'woocommerce-currency-switcher') ?></a>
+                                    &nbsp;<a href="https://currency-switcher.com/video-tutorials#video_PZugTH80-Eo" target="_blank" class="button"><?php _e('Watch video instructions', 'woocommerce-currency-switcher') ?></a>
+                                    &nbsp;<a href="https://currency-switcher.com/video-tutorials#video_zh_LVqKADBU" target="_blank" class="button"><?php _e('a hint', 'woocommerce-currency-switcher') ?></a>
                                 </td>
                             </tr>
 
@@ -554,7 +628,7 @@
                                 </th>
                                 <td class="forminp forminp-select">
 
-                                    <i><?php _e('Native WooCommerce price filter is blind for all data generated by features "Individual fixed prices rules for each product" and "Individual GeoIP rules for each product"!', 'woocommerce-currency-switcher') ?></i>
+                                    <i><?php _e('Native WooCommerce price filter is blind for all data generated by marked features', 'woocommerce-currency-switcher') ?></i>
 
                                 </td>
                             </tr>
@@ -763,6 +837,71 @@
                             </tbody>
                         </table>
                     </section>
+                    <?php if ($woocs_is_payments_rule_enable): ?>  
+                        <section id="tabs-7" style="position: relative;">
+
+                            <table class="form-table">
+                                <tbody>
+                                    <tr valign="top">
+                                        <th scope="row" class="titledesc">
+                                            <label for="woocs_payment_control"><?php _e('Payments behavior', 'woocommerce-currency-switcher') ?></label>
+                                            <span class="woocommerce-help-tip" data-tip="<?php _e('Should be payments system be hidden for selected currencies or vice versa shown!', 'woocommerce-currency-switcher') ?>"></span>
+                                        </th>
+                                        <td class="forminp forminp-select">
+                                            <?php
+                                            $opts = array(
+                                                0 => __('Is hidden', 'woocommerce-currency-switcher'),
+                                                1 => __('Is shown', 'woocommerce-currency-switcher')
+                                            );
+                                            $woocs_payment_control = get_option('woocs_payment_control', 0);
+                                            ?>
+                                            <select name="woocs_payment_control" id="woocs_payment_control" style="min-width: 300px;" class="chosen_select enhanced" tabindex="-1" title="<?php _e('Behavior', 'woocommerce-currency-switcher') ?>">
+
+                                                <?php foreach ($opts as $val => $title): ?>
+                                                    <option value="<?php echo $val ?>" <?php echo selected($woocs_payment_control, $val) ?>><?php echo $title ?></option>
+                                                <?php endforeach; ?>
+
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                    <?php
+                                    $payments = WC()->payment_gateways->get_available_payment_gateways();
+                                    $woocs_payments_rules = get_option('woocs_payments_rules', array());
+
+                                    foreach ($payments as $key => $payment) {
+                                        if ($payment->enabled == "yes"):
+                                            ?>
+                                            <tr valign="top">                                
+                                                <th scope="row" class="titledesc">
+                                                    <label for="woocs_payment_rule"><?php echo $payment->title ?></label>
+                                                </th>
+                                                <td class="forminp forminp-select">                                   
+                                                    <select name="woocs_payments_rules[<?php echo $key ?>][]" multiple="" style="min-width: 300px;" class="chosen_select"  title="<?php _e('Choise currencies', 'woocommerce-currency-switcher') ?>">
+                                                        <?php
+                                                        $payment_rules = array();
+                                                        if (isset($woocs_payments_rules[$key])) {
+                                                            $payment_rules = $woocs_payments_rules[$key];
+                                                        }
+                                                        if (!empty($currencies) AND is_array($currencies)) {
+                                                            foreach ($currencies as $key_curr => $currency) {
+                                                                ?>
+                                                                <option value="<?php echo $key_curr ?>" <?php echo(in_array($key_curr, $payment_rules) ? 'selected=""' : '') ?>><?php echo $key_curr ?></option>    
+                                                                <?php
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        endif;
+                                    }
+                                    ?>                       
+                                </tbody>
+                            </table>
+                        </section>  
+                    <?php endif; ?>
                 <?php endif; //end woo33 ?>
                 <?php if ($this->is_use_geo_rules()): ?>
                     <section id="tabs-4">
@@ -819,50 +958,63 @@
 
                 <section id="tabs-5">
 
-                    <ul>
-                        <li><a href="http://currency-switcher.com/documentation/" target="_blank" class="button"><?php _e("Documentation", 'woocommerce-currency-switcher') ?></a>
-                            &nbsp;<a href="https://currency-switcher.com/get-flags-free/" target="_blank" class="button button-primary"><?php _e("GET FREE FLAGS IMAGES", 'woocommerce-currency-switcher') ?></a>
-                            &nbsp;<a href="http://currency-switcher.com/category/faq/" target="_blank" class="button"><?php _e("FAQ", 'woocommerce-currency-switcher') ?></a>
-                            &nbsp;<a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes" target="_blank" class="button button-primary button-large"><?php _e("Read wiki about Currency Active codes  <-  Get right currencies codes here", 'woocommerce-currency-switcher') ?></a></li>
+                    <ol class="woocs-info">
+                        <li><a href="https://currency-switcher.com/get-flags-free/" target="_blank"><?php _e("Free flags images", 'woocommerce-currency-switcher') ?></a></li>
 
-                        <li><a href="http://currency-switcher.com/i-cant-add-flags-what-to-do/" target="_blank" class="button"><?php _e("I cant add flags! What to do?", 'woocommerce-currency-switcher') ?></a>
-                            &nbsp;<a href="http://currency-switcher.com/using-geolocation-causes-problems-doesnt-seem-to-work-for-me/" target="_blank" class="button"><?php _e("Using Geolocation causes problems, doesn’t seem to work for me", 'woocommerce-currency-switcher') ?></a>
-                            &nbsp;<a href="https://currency-switcher.com/wp-content/uploads/2017/09/woocs-options.png" target="_blank" class="button"><?php _e("The plugin options example screen", 'woocommerce-currency-switcher') ?></a></li>
+                        <li><a href="https://currency-switcher.com/category/faq/" target="_blank"><?php _e("FAQ", 'woocommerce-currency-switcher') ?></a></li>
 
-                        <li>
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/wUoM9EHjnYs" frameborder="0" allowfullscreen></iframe>
-                        </li>
+                        <li><a href="https://currency-switcher.com/codex/" target="_blank"><?php _e("Codex", 'woocommerce-currency-switcher') ?></a></li>
 
-                        <li>
-                            <a href="https://share.payoneer.com/nav/6I2wmtpBuitGE6ZnmaMXLYlP8iriJ-63OMLi3PT8SRGceUjGY1dvEhDyuAGBp91DEmf8ugfF3hkUU1XhP_C6Jg2" target="_blank"><img src="<?php echo WOOCS_LINK ?>/img/100125.png" alt=""></a>
-                        </li>
+                        <li><a href="https://currency-switcher.com/video-tutorials/" target="_blank"><?php _e("Video tutorials", 'woocommerce-currency-switcher') ?></a></li>
+
+                        <li><a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes" target="_blank"><?php _e("Read wiki about Currency Active codes", 'woocommerce-currency-switcher') ?></a></li>
+
+                    </ol>
+
+                    <hr />
+
+                    <ol class="woocs-info">
+
+                        <li><a href="https://currency-switcher.com/i-cant-add-flags-what-to-do/" target="_blank"><?php _e("I cant add flags! What to do?", 'woocommerce-currency-switcher') ?></a></li>
+                        <li><a href="https://currency-switcher.com/using-geolocation-causes-problems-doesnt-seem-to-work-for-me/" target="_blank"><?php _e("Using Geolocation causes problems, doesn’t seem to work for me", 'woocommerce-currency-switcher') ?></a></li>
+                        <li><a href="https://currency-switcher.com/wp-content/uploads/2017/09/woocs-options.png" target="_blank"><?php _e("The plugin options example screen", 'woocommerce-currency-switcher') ?></a></li>
+                    </ol>
+
+                    <hr />
+
+                    <h3><?php _e("Quick introduction", 'woocommerce-currency-switcher') ?></h3>
+
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/wUoM9EHjnYs" frameborder="0" allowfullscreen></iframe>
+
+                    <hr />
+
+                    <h3><?php _e("More power for your shop", 'woocommerce-currency-switcher') ?></h3>
+
+
+                    <a href="http://codecanyon.net/item/woof-woocommerce-products-filter/11498469?ref=realmag777" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woof_banner.png" /></a>&nbsp;
+                    <a href="https://codecanyon.net/item/woobe-woocommerce-bulk-editor-professional/21779835?ref=realmag777" target="_blank"><img width="300" src="<?php echo WOOCS_LINK ?>img/woobe_banner.png" /></a>
 
 
 
-                        <li>
-                            <a href="http://codecanyon.net/item/woof-woocommerce-products-filter/11498469?ref=realmag777" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woof_banner.png" /></a>&nbsp;
-                            <a href="https://codecanyon.net/item/woobe-woocommerce-bulk-editor-professional/21779835?ref=realmag777" target="_blank"><img width="300" src="<?php echo WOOCS_LINK ?>img/woobe_banner.png" /></a>
-                        </li>
+                    <?php if (!$WOOCS->notes_for_free): ?>
+                        <hr />
+                        <div id="plugin_warning" style="padding: 9px; border: solid red 3px; background: #eee; ">
+                            <div class="plugin_warning_head"><strong style="color: red;">ATTENTION MESSAGE FROM THE PLUGIN AUTHOR TO ALL USERS WHO USES PIRATE VERSION OF THE PLUGIN! IF YOU BOUGHT IT - DO NOT READ AND IGNORE IT!</strong>!<br></div>
+                            <br />
+                            GET YOUR COPY OF THE PLUGIN <em> <span style="text-decoration: underline;"><span style="color: #ff0000;"><strong>ONLY</strong></span></span></em> FROM <a href="http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777" target="_blank"><span style="color: #008000;"><strong>CODECANYON.NET</strong></span></a> OR <span style="color: #008000;"><strong><a href="https://wordpress.org/plugins/woocommerce-currency-switcher/" target="_blank">WORDPRESS.ORG</a></strong></span> IF YOU DO NOT WANT TO BE AN AFFILIATE OF ANY VIRUS SITE.<br>
+                            <br>
+                            <strong>DID YOU CATCH A VIRUS DOWNLOADING THE PLUGIN FROM ANOTHER (PIRATE) SITES<span style="color: #ff0000;">?</span></strong> THIS IS YOUR TROUBLES AND <em>DO NOT WRITE TO SUPPORT THAT GOOGLE DOWN YOUR SITE TO ZERO BECAUSE OF &nbsp;ANY VIRUS</em>!!<br>
+                            <br>
+                            <strong><span style="color: #ff0000;">REMEMBER</span></strong> - if somebody suggesting YOU premium version of the plugin for free - think twenty times before installing it ON YOUR SITE, as it can be trap for it! <strong>DOWNLOAD THE PLUGIN ONLY FROM OFFICIAL SITES TO AVOID THE COLLAPSE OF YOUR BUSINESS</strong>.<br>
+                            <br>
+                            <strong style="color: #ff0000;">Miser pays twice</strong>!<br>
+                            <br>
+                            P.S. Reason of this warning text - emails from the users! Be care!!
+                        </div>
 
-                        <?php if (!$WOOCS->notes_for_free): ?>
-                            <li>
-                                <div id="plugin_warning" style="padding: 9px; border: solid red 3px; background: #eee; ">
-                                    <div class="plugin_warning_head"><strong style="color: red;">ATTENTION MESSAGE FROM THE PLUGIN AUTHOR TO ALL USERS WHO USES PIRATE VERSION OF THE PLUGIN! IF YOU BOUGHT IT - DO NOT READ AND IGNORE IT!</strong>!<br></div>
-                                    <br />
-                                    GET YOUR COPY OF THE PLUGIN <em> <span style="text-decoration: underline;"><span style="color: #ff0000;"><strong>ONLY</strong></span></span></em> FROM <a href="http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777" target="_blank"><span style="color: #008000;"><strong>CODECANYON.NET</strong></span></a> OR <span style="color: #008000;"><strong><a href="https://wordpress.org/plugins/woocommerce-currency-switcher/" target="_blank">WORDPRESS.ORG</a></strong></span> IF YOU DO NOT WANT TO BE AN AFFILIATE OF ANY VIRUS SITE.<br>
-                                    <br>
-                                    <strong>DID YOU CATCH A VIRUS DOWNLOADING THE PLUGIN FROM ANOTHER (PIRATE) SITES<span style="color: #ff0000;">?</span></strong> THIS IS YOUR TROUBLES AND <em>DO NOT WRITE TO SUPPORT THAT GOOGLE DOWN YOUR SITE TO ZERO BECAUSE OF &nbsp;ANY VIRUS</em>!!<br>
-                                    <br>
-                                    <strong><span style="color: #ff0000;">REMEMBER</span></strong> - if somebody suggesting YOU premium version of the plugin for free - think twenty times before installing it ON YOUR SITE, as it can be trap for it! <strong>DOWNLOAD THE PLUGIN ONLY FROM OFFICIAL SITES TO AVOID THE COLLAPSE OF YOUR BUSINESS</strong>.<br>
-                                    <br>
-                                    <strong style="color: #ff0000;">Miser pays twice</strong>!<br>
-                                    <br>
-                                    P.S. Reason of this warning text - emails from the users! Be care!!
-                                </div>
-                            </li>
-                        <?php endif; ?>
+                    <?php endif; ?>
 
-                    </ul>
+
                 </section>
 
 
@@ -882,12 +1034,14 @@
 
 
     <b style="color:red;"><?php _e('Hint', 'woocommerce-currency-switcher'); ?>:</b>&nbsp;<?php _e('To update all currencies rates by one click - press radio button of the default currency and then press "Save changes" button!', 'woocommerce-currency-switcher'); ?><br />
+    <b style="color:red;"><?php _e('Hint', 'woocommerce-currency-switcher'); ?>:</b>&nbsp;<?php _e('If you not found money sign you need you can always add it in the tab Options -> Custom money signs', 'woocommerce-currency-switcher'); ?><br />
+    <b style="color:red;"><?php _e('Hint', 'woocommerce-currency-switcher'); ?>:</b>&nbsp;<?php _e('If you want let your customers pay in their selected currency in tab Advanced set the option Is multiple allowed to Yes.', 'woocommerce-currency-switcher'); ?><br />
 
 
     <?php if ($WOOCS->notes_for_free): ?>
         <hr />
 
-        <div style="font-style: italic;">In the free version of the plugin <b style="color: red;">you can operate with 2 ANY currencies only</b>. If you want more currencies and features you can make upgrade to the premium version of the plugin</div><br />
+        <div style="font-style: italic;">In the free version of the plugin <b style="color: red;">you can operate with 2 ANY currencies only</b>, BUT all features are unlocked! If you want to use more currencies you can make upgrade to the premium version of the plugin</div><br />
 
         <table style="width: 100%;">
             <tr>
@@ -906,10 +1060,10 @@
                     <a href="https://bulk-editor.com/" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/woobe_banner.png" width="300" alt="<?php _e("WOOBE - WooCommerce Bulk Editor Professional", 'woocommerce-currency-switcher'); ?>" /></a>
                 </td>
 
-                <!-- <td style="width: 33%;">
-                    <h3><?php _e("AliDropship is the best solution for drop shipping", 'woocommerce-currency-switcher') ?>:</h3>
-                    <a href="https://alidropship.com/plugin/?via=4352" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/drop-ship.jpg" alt="<?php _e("AliDropship is the best solution for drop shipping", 'woocommerce-currency-switcher'); ?>" /></a>
-                </td> -->
+                                                                                    <!-- <td style="width: 33%;">
+                                                                                        <h3><?php _e("AliDropship is the best solution for drop shipping", 'woocommerce-currency-switcher') ?>:</h3>
+                                                                                        <a href="https://alidropship.com/plugin/?via=4352" target="_blank"><img src="<?php echo WOOCS_LINK ?>img/drop-ship.jpg" alt="<?php _e("AliDropship is the best solution for drop shipping", 'woocommerce-currency-switcher'); ?>" /></a>
+                                                                                    </td> -->
 
             </tr>
         </table>
@@ -977,12 +1131,13 @@
                 }).init();
 
             });
-        }
+        };
+
 
     })(jQuery, window);
 
     jQuery('.wfc-tabs').wfcTabs();
-    jQuery(function () {
+    jQuery(function ($) {
 
         jQuery.fn.life = function (types, data, fn) {
             jQuery(this.context).on(types, this.selector, data, fn);
@@ -993,16 +1148,18 @@
 
         jQuery('body').append('<div id="woocs_buffer" style="display: none;"></div>');
 
-        jQuery("#woocs_list").sortable();
+        jQuery("#woocs_list").sortable({
+            handle: '.help_tip img'
+        });
 
-       
+
         jQuery('.woocs_is_etalon').life('click', function () {
             jQuery('.woocs_is_etalon').next('input[type=hidden]').val(0);
             jQuery('.woocs_is_etalon').prop('checked', 0);
             jQuery(this).next('input[type=hidden]').val(1);
             jQuery(this).prop('checked', 1);
             //instant save
-            var currency_name = jQuery(this).parent().find('input[name="woocs_name[]"]').val();
+            var currency_name = jQuery(this).parents('li').find('input[name="woocs_name[]"]').val();
             if (currency_name.length) {
                 woocs_show_stat_info_popup('Loading ...');
                 var data = {
@@ -1074,6 +1231,14 @@
             return false;
         });
 
+        //***
+
+        $('.label.container').life('click', function () {
+            $(this).find('input[type=radio]').trigger('click');
+            return true;
+        });
+
+
         //loader
         jQuery(".woocs-admin-preloader").fadeOut("slow");
 
@@ -1122,8 +1287,13 @@ function woocs_print_currency($_this, $currency) {
     global $WOOCS;
     ?>
     <li>
-        <input class="help_tip woocs_is_etalon" data-tip="<?php _e("Set etalon main currency. This should be the currency in which the price of goods exhibited!", 'woocommerce-currency-switcher') ?>" type="radio" <?php checked(1, $currency['is_etalon']) ?> />
-        <input type="hidden" name="woocs_is_etalon[]" value="<?php echo $currency['is_etalon'] ?>" />
+
+        <label class="container">
+            <input class="help_tip woocs_is_etalon" data-tip="<?php _e("Set etalon main currency. This should be the currency in which the price of goods exhibited!", 'woocommerce-currency-switcher') ?>" type="radio" <?php checked(1, $currency['is_etalon']) ?> />
+            <input type="hidden" name="woocs_is_etalon[]" value="<?php echo $currency['is_etalon'] ?>" />
+            <span class="checkmark"></span>
+        </label>
+
         <input type="text" value="<?php echo $currency['name'] ?>" name="woocs_name[]" class="woocs-text woocs-currency" placeholder="<?php _e("Exmpl.: USD,EUR", 'woocommerce-currency-switcher') ?>" />
         <select class="woocs-drop-down woocs-symbol" name="woocs_symbol[]">
             <?php foreach ($_this->currency_symbols as $symbol) : ?>
@@ -1132,8 +1302,28 @@ function woocs_print_currency($_this, $currency) {
         </select>
         <select class="woocs-drop-down woocs-position" name="woocs_position[]">
             <option value="0"><?php _e("Select symbol position", 'woocommerce-currency-switcher'); ?></option>
-            <?php foreach ($_this->currency_positions as $position) : ?>
-                <option value="<?php echo $position ?>" <?php selected($currency['position'], $position) ?>><?php echo str_replace('_', ' ', $position); ?></option>
+            <?php
+            foreach ($_this->currency_positions as $position) :
+
+                switch ($position) {
+                    case 'right':
+                        $position_desc_sign = __('P$ - right', 'woocommerce-currency-switcher');
+                        break;
+
+                    case 'right_space':
+                        $position_desc_sign = __('P $ - right space', 'woocommerce-currency-switcher');
+                        break;
+
+                    case 'left_space':
+                        $position_desc_sign = __('$ P - left space', 'woocommerce-currency-switcher');
+                        break;
+
+                    default:
+                        $position_desc_sign = __('$P - left', 'woocommerce-currency-switcher');
+                        break;
+                }
+                ?>
+                <option value="<?php echo $position ?>" <?php selected($currency['position'], $position) ?>><?php echo $position_desc_sign ?></option>
             <?php endforeach; ?>
         </select>
         <select name="woocs_decimals[]" class="woocs-drop-down woocs-decimals">
@@ -1159,12 +1349,12 @@ function woocs_print_currency($_this, $currency) {
             <?php endforeach; ?>
         </select>
         <input type="text" style="width: 100px;" value="<?php echo $currency['rate'] ?>" name="woocs_rate[]" class="woocs-text woocs-rate" placeholder="<?php _e("exchange rate", 'woocommerce-currency-switcher') ?>" />
-        <button class="button woocs_finance_yahoo help_tip" data-tip="<?php _e("Press this button if you want get currency rate from the selected aggregator above!", 'woocommerce-currency-switcher') ?>"><?php _e("finance", 'woocommerce-currency-switcher'); ?>.<?php echo get_option('woocs_currencies_aggregator', 'yahoo') ?></button>
+        <button class="button woocs_finance_btn woocs_finance_yahoo help_tip" data-tip="<?php _e("Press this button if you want get currency rate from the selected aggregator above!", 'woocommerce-currency-switcher') ?>"><span class="woocs-btn-update-rate dashicons-before dashicons-update" style=""></span></button>
         <select name="woocs_hide_cents[]" class="woocs-drop-down" <?php if (in_array($currency['name'], $WOOCS->no_cents)): ?>disabled=""<?php endif; ?>>
             <?php
             $woocs_hide_cents = array(
-                0 => __("Show cents on front", 'woocommerce-currency-switcher'),
-                1 => __("Hide cents on front", 'woocommerce-currency-switcher')
+                0 => __("Show cents", 'woocommerce-currency-switcher'),
+                1 => __("Hide cents", 'woocommerce-currency-switcher')
             );
             if (in_array($currency['name'], $WOOCS->no_cents)) {
                 $currency['hide_cents'] = 1;
@@ -1186,8 +1376,8 @@ function woocs_print_currency($_this, $currency) {
         }
         ?>
         <input type="hidden" value="<?php echo $flag ?>" class="woocs_flag_input" name="woocs_flag[]" />
-        <a href="#" class="woocs_flag help_tip" data-tip="<?php _e("Click to select the flag", 'woocommerce-currency-switcher'); ?>"><img src="<?php echo $flag ?>" style="vertical-align: middle; max-width: 50px;" alt="<?php _e("Flag", 'woocommerce-currency-switcher'); ?>" /></a>
-        &nbsp;<a href="#" class="help_tip" data-tip="<?php _e("drag and drope", 'woocommerce-currency-switcher'); ?>"><img style="width: 22px; vertical-align: middle;" src="<?php echo WOOCS_LINK ?>img/move.png" alt="<?php _e("move", 'woocommerce-currency-switcher'); ?>" /></a>
+        <a href="#" class="woocs_flag help_tip" data-tip="<?php _e("Click to select the flag", 'woocommerce-currency-switcher'); ?>" style="max-height: 25px; display: inline-block;"><img src="<?php echo $flag ?>" style="vertical-align: top; max-width: 45px;" alt="<?php _e("Flag", 'woocommerce-currency-switcher'); ?>" /></a>
+        &nbsp;<a href="#" class="help_tip" data-tip="<?php _e("drag and drope", 'woocommerce-currency-switcher'); ?>"><img style="width: 23px; vertical-align: middle;" src="<?php echo WOOCS_LINK ?>img/move.png" alt="<?php _e("move", 'woocommerce-currency-switcher'); ?>" /></a>
     </li>
     <?php
 }

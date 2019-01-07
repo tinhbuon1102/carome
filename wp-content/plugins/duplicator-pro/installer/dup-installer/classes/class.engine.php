@@ -154,6 +154,15 @@ class DUPX_UpdateEngine
 			$str = "`$str`";
 		}
 
+    	// init search and replace array
+    	$searchList = array();
+    	$replaceList = array();
+
+    	foreach ($list as $item) {
+    	    $searchList[] = $item['search'];
+    	    $replaceList[] = $item['replace'];
+    	}
+
         $profile_start = DUPX_U::getMicrotime();
         if (is_array($tables) && !empty($tables)) {
 
@@ -162,13 +171,16 @@ class DUPX_UpdateEngine
                 $columns = array();
 
                 // Get a list of columns in this table
-                $fields = mysqli_query($conn, 'DESCRIBE ' . mysqli_real_escape_string($conn, $table));
+                $sql = 'DESCRIBE ' . mysqli_real_escape_string($conn, $table);
+                $fields = mysqli_query($conn, $sql);
+                if (!$fields)  continue;
                 while ($column = mysqli_fetch_array($fields)) {
                     $columns[$column['Field']] = $column['Key'] == 'PRI' ? true : false;
                 }
 
                 // Count the number of rows we have in the table if large we'll split into blocks
                 $row_count = mysqli_query($conn, "SELECT COUNT(*) FROM `".mysqli_real_escape_string($conn, $table)."`");
+                if (!$row_count)  continue;
                 $rows_result = mysqli_fetch_array($row_count);
                 @mysqli_free_result($row_count);
                 $row_count = $rows_result[0];
@@ -177,7 +189,8 @@ class DUPX_UpdateEngine
                     continue;
                 }
 
-                $page_size = 25000;
+                // $page_size = 25000;
+                $page_size = 3500;
                 $offset = ($page_size + 1);
                 $pages = ceil($row_count / $page_size);
 
@@ -188,7 +201,7 @@ class DUPX_UpdateEngine
                 if (!$fullsearch) {
                     $colList = self::getTextColumns($conn, $table);
                     if ($colList != null && is_array($colList)) {
-                        array_walk($colList, set_sql_column_safe);
+                        array_walk($colList, 'set_sql_column_safe');
                         $colList = implode(',', $colList);
                     }
                     $colMsg = (empty($colList)) ? '*' : '~';
@@ -230,6 +243,7 @@ class DUPX_UpdateEngine
                         //Loops every cell
                         foreach ($columns as $column => $primary_key) {
                             $report['scan_cells']++;
+                            if (!isset($row[$column]))  continue;
                             $edited_data = $data_to_fix = $row[$column];
                             $base64converted = false;
                             $txt_found = false;
@@ -265,25 +279,22 @@ class DUPX_UpdateEngine
                                 }
 
                                 //Replace logic - level 1: simple check on any string or serlized strings
-                                foreach ($list as $item) {
-                                    $objArr = array();
-                                    if($fixpartials){
-                                        self::recursiveClassInclude(@unserialize($edited_data));
-                                    }
-                                    $edited_data = self::recursiveUnserializeReplace($item['search'], $item['replace'],
-                                        $edited_data, false, $objArr, $fixpartials);
-                                    if($fixpartials){
-                                        self::deleteTempClassFiles();
+/*
+                                *** fixpartials options become deprecated **/
+                                $edited_data = self::searchAndReplaceItems($searchList , $replaceList , $edited_data);
+
+
+                                                //Replace logic - level 2: repair serialized strings that have become broken
+                                // check value without unserialize it
+                                if (self::is_serialized_string( $edited_data )) {
+                                    $serial_check = self::fixSerialString($edited_data);
+                                    if ($serial_check['fixed']) {
+                                        $edited_data = $serial_check['data'];
+                                    } elseif ($serial_check['tried'] && !$serial_check['fixed']) {
+                                        $serial_err++;
                                     }
                                 }
 
-                                //Replace logic - level 2: repair serialized strings that have become broken
-                                $serial_check = self::fixSerialString($edited_data);
-                                if ($serial_check['fixed']) {
-                                    $edited_data = $serial_check['data'];
-                                } elseif ($serial_check['tried'] && !$serial_check['fixed']) {
-                                    $serial_err++;
-                                }
                             }
 
                             //Change was made
@@ -349,6 +360,126 @@ class DUPX_UpdateEngine
         return $report;
     }
 
+	/**
+	 * searches and replaces strings without deserializing
+	 * recursion for arrays
+	 *
+	 * @param array $search
+	 * @param array $replace
+	 * @param mixed $data
+	 *
+	 * @return mixed
+	 */
+	public static function searchAndReplaceItems($search , $replace , $data) {
+
+	    if (empty( $data ) || is_numeric($data) || is_bool($data) || is_callable($data) ) {
+
+		/* do nothing */
+
+	    } else if (is_string($data)) {
+
+		//  Multiple replace string. If the string is serialized will fixed with fixSerialString
+		$data = str_replace($search , $replace , $data);
+
+	    } else if (is_array($data)) {
+
+		$_tmp = array();
+		foreach ($data as $key => $value) {
+
+		    // prevent recursion overhead
+		    if (empty( $value ) || is_numeric($value) || is_bool($value) || is_callable($value) || is_object($data)) {
+
+		        $_tmp[$key] = $value;
+
+		    } else {
+
+		        $_tmp[$key] = self::searchAndReplaceItems($search, $replace , $value, false);
+
+		    }
+
+		}
+
+		$data = $_tmp;
+		unset($_tmp);
+
+	    } elseif (is_object($data)) {
+		// it can never be an object type
+		DUPX_Log::info("OBJECT DATA IMPOSSIBLE\n" , 1);
+
+	    }
+
+	    return $data;
+
+	}
+
+	/**
+	 * FROM WORDPRESS
+	 * Check value to find if it was serialized.
+	 *
+	 * If $data is not an string, then returned value will always be false.
+	 * Serialized data is always a string.
+	 *
+	 * @since 2.0.5
+	 *
+	 * @param string $data   Value to check to see if was serialized.
+	 * @param bool   $strict Optional. Whether to be strict about the end of the string. Default true.
+	 * @return bool False if not serialized and true if it was.
+	 */
+	public static function is_serialized_string( $data, $strict = true ) {
+	    // if it isn't a string, it isn't serialized.
+	    if ( ! is_string( $data ) ) {
+	        return false;
+	    }
+	    $data = trim( $data );
+	    if ( 'N;' == $data ) {
+	        return true;
+	    }
+	    if ( strlen( $data ) < 4 ) {
+	        return false;
+	    }
+	    if ( ':' !== $data[1] ) {
+	        return false;
+	    }
+	    if ( $strict ) {
+	        $lastc = substr( $data, -1 );
+	        if ( ';' !== $lastc && '}' !== $lastc ) {
+	            return false;
+	        }
+	    } else {
+	        $semicolon = strpos( $data, ';' );
+	        $brace     = strpos( $data, '}' );
+	        // Either ; or } must exist.
+	        if ( false === $semicolon && false === $brace )
+	            return false;
+	            // But neither must be in the first X characters.
+	            if ( false !== $semicolon && $semicolon < 3 )
+	                return false;
+	                if ( false !== $brace && $brace < 4 )
+	                    return false;
+	    }
+	    $token = $data[0];
+	    switch ( $token ) {
+	        case 's' :
+	            if ( $strict ) {
+	                if ( '"' !== substr( $data, -2, 1 ) ) {
+	                    return false;
+	                }
+	            } elseif ( false === strpos( $data, '"' ) ) {
+	                return false;
+	            }
+	            // or else fall through
+	        case 'a' :
+	        case 'O' :
+	            return (bool) preg_match( "/^{$token}:[0-9]+:/s", $data );
+	        case 'b' :
+	        case 'i' :
+	        case 'd' :
+	            $end = $strict ? '$' : '';
+	            return (bool) preg_match( "/^{$token}:[0-9.E-]+;$end/", $data );
+	    }
+	    return false;
+	}
+
     /**
      * Take a serialized array and unserialized it replacing elements and
      * serializing any subordinate arrays and performing the replace.
@@ -402,17 +533,20 @@ class DUPX_UpdateEngine
                 }else{
                     $props = get_object_vars($data);
                     foreach ($props as $key => $value) {
-                        if (isset($_tmp->$key)) {
+                        // if ("__PHP_Incomplete_Class_Name" == $key)  continue;
+                        // if (isset($_tmp->$key)) {
                             $_tmp->$key = self::recursiveUnserializeReplace($from, $to, $value, false, $objArr);
-                        } else {
+                        // } else {
                             // $key is like \0
+                            /*
                             $int_key = intval($key);
                             if ($key == $int_key && isset($_tmp->$int_key)) {
                                 $_tmp->$int_key = self::recursiveUnserializeReplace($from, $to, $value, false, $objArr);
                             } else {
                                 throw new Exception('Object key->'.$key.' is not exist');
                             }
-                        }
+                            */
+                        // }
                     }
                 }
                 $data = $_tmp;
@@ -562,31 +696,145 @@ class DUPX_UpdateEngine
      *
      * @return string  A serialized string that fixes and string length types
      */
-    public static function fixSerialString($data)
-    {
-        $result = array('data' => $data, 'fixed' => false, 'tried' => false);
-        if (preg_match("/s:[0-9]+:/", $data)) {
-            if (!self::isSerialized($data)) {
-                $regex = '!(?<=^|;)s:(\d+)(?=:"(.*?)";(?:}|a:|s:|b:|d:|i:|o:|N;))!s';
-                $serial_string = preg_match('/^s:[0-9]+:"(.*$)/s', trim($data), $matches);
-                //Nested serial string
-                if ($serial_string) {
-                    $inner = preg_replace_callback($regex, 'DUPX_UpdateEngine::fixStringCallback',
-                        rtrim($matches[1], '";'));
-                    $serialized_fixed = 's:' . strlen($inner) . ':"' . $inner . '";';
-                } else {
-                    $serialized_fixed = preg_replace_callback($regex, 'DUPX_UpdateEngine::fixStringCallback', $data);
-                }
+	public static function fixSerialString($data)
+	{
+		$result = array('data' => $data, 'fixed' => false, 'tried' => false);
 
-                if (self::isSerialized($serialized_fixed)) {
-                    $result['data'] = $serialized_fixed;
-                    $result['fixed'] = true;
-                }
-                $result['tried'] = true;
-            }
-        }
-        return $result;
-    }
+		if (!self::isSerialized($data)) {
+
+		    $serialized_fixed = self::recursiveFixSerialString($data);
+
+			if (self::isSerialized($serialized_fixed)) {
+
+			    $result['data'] = $serialized_fixed;
+
+			    $result['fixed'] = true;
+			}
+
+			$result['tried'] = true;
+		}
+
+		return $result;
+	}
+
+	/**
+	 *  Fixes the string length of a string object that has been serialized but the length is broken
+	 *  Work on nested serialized string recursively.
+	 *
+	 *  @param string $data	The string ojbect to recalculate the size on.
+	 *
+	 *  @return string  A serialized string that fixes and string length types
+	 */
+
+	public static function recursiveFixSerialString($data ) {
+
+	    if (!self::is_serialized_string($data)) {
+	        return $data;
+	    }
+
+	    $result = '';
+
+	    $matches = null;
+
+	    $openLevel = 0;
+	    $openContent = '';
+	    $openContentL2 = '';
+
+            // parse every char
+	    for ($i = 0 ; $i < strlen($data) ; $i++) {
+
+	        $cChar = $data[$i];
+
+	        $addChar = true;
+
+	        if ($cChar  == 's') {
+
+	            // test if is a open string
+	            if (preg_match ( '/^(s:\d+:")/', substr($data , $i)  , $matches )) {
+
+	                $addChar = false;
+
+	                $openLevel ++;
+
+	                $i += strlen($matches[0]) - 1;
+
+	            }
+
+	        } else if ($openLevel > 0 && $cChar  == '"') {
+
+                    // test if is a close string
+	            if (preg_match ( '/^";(?:}|a:|s:|S:|b:|d:|i:|o:|O:|C:|r:|R:|N;)/', substr($data , $i) ) ) {
+
+	                $addChar = false;
+
+	                switch ($openLevel) {
+		            case 1:
+		                // level 1
+				// flush string content
+		                $result .= 's:'.strlen($openContent).':"'.$openContent.'";';
+
+		                $openContent = '';
+
+		                break;
+		            case 2;
+		               // level 2
+			       // fix serial string level2
+			       $sublevelstr = self::recursiveFixSerialString($openContentL2);
+
+			       // flush content on level 1
+		               $openContent .= 's:'.strlen($sublevelstr).':"'.$sublevelstr.'";';
+
+		               $openContentL2 = '';
+
+		               break;
+		            default:
+                              // level > 2
+			      // keep writing at level 2; it will be corrected with recursion
+                              break;
+
+	                }
+
+	                $openLevel --;
+
+	                $closeString = '";';
+
+	                $i += strlen($closeString) -1;
+
+	            }
+
+	        }
+
+
+	        if ($addChar) {
+
+	            switch ($openLevel) {
+		        case 0:
+		            // level 0
+			    // add char on result
+		            $result .= $cChar;
+
+		            break;
+		        case 1:
+		            // level 1
+			    // add char on content level1
+		            $openContent .= $cChar;
+
+		            break;
+		        default:
+		            // level > 1
+			    // add char on content level2
+		            $openContentL2 .= $cChar;
+
+		            break;
+	            }
+
+	        }
+
+	    }
+
+	    return $result;
+
+	}
 
     /**
      *  The call back method call from via fixSerialString

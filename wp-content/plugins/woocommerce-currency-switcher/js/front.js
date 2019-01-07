@@ -301,18 +301,35 @@ function woocs_redirect(currency) {
     l = l[0];
     var string_of_get = '?';
     woocs_array_of_get.currency = currency;
+    
     /*
      l = l.replace(/(\?currency=[a-zA-Z]+)/g, '?');
      l = l.replace(/(&currency=[a-zA-Z]+)/g, '');
      */
 
-    if (Object.keys(woocs_array_of_get).length > 0) {
-        jQuery.each(woocs_array_of_get, function (index, value) {
-            string_of_get = string_of_get + "&" + index + "=" + value;
+    if(woocs_special_ajax_mode){
+        string_of_get="";
+        
+        var data = {
+            action: "woocs_set_currency_ajax",
+            currency: currency,
+        };
+
+        jQuery.post(woocs_ajaxurl, data, function (value) {
+            location.reload();
         });
-        //string_of_get+=decodeURIComponent(jQuery.param(woocs_array_of_get));
+
+    }else{
+        if (Object.keys(woocs_array_of_get).length > 0) {
+            jQuery.each(woocs_array_of_get, function (index, value) {
+                string_of_get = string_of_get + "&" + index + "=" + value;
+            });
+            //string_of_get+=decodeURIComponent(jQuery.param(woocs_array_of_get));        
+        } 
+        window.location = l + string_of_get;
     }
-    window.location = l + string_of_get;
+
+    
 }
 
 /*
@@ -397,13 +414,12 @@ function woocs_get_cookie(name) {
 
 jQuery(function () {
     jQuery('.woocs_auto_switcher_link').click(function () {
-        if (Object.keys(woocs_array_of_get).length == 0) {
-            window.location = window.location.href + '?currency=' + jQuery(this).data('currency');
-        } else {
-            woocs_redirect(jQuery(this).data('currency'));
-        }
-        
-        
+//        if (Object.keys(woocs_array_of_get).length == 0) {
+//            window.location = window.location.href + '?currency=' + jQuery(this).data('currency');
+//        } else {
+//            woocs_redirect(jQuery(this).data('currency'));
+//        }        
+        woocs_redirect(jQuery(this).data('currency'));
         return false;
     });
     

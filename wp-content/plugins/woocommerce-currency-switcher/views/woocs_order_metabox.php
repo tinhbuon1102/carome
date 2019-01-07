@@ -37,6 +37,7 @@ if (empty($base_currency))
     <?php if ($currency !== $this->default_currency): ?>
         <hr />
         <a href="javascript:woocs_recalculate_order_data();void(0);" class="button woocs_recalculate_order_curr_button"><?php _e("Recalculate order", 'woocommerce-currency-switcher') ?>&nbsp;<img class="help_tip" data-tip="<?php _e('Recalculate current order with basic currency. Recommended test this option on the clone of your site! Read the documentation of the plugin about it!', 'woocommerce-currency-switcher') ?>" src="<?php echo WOOCS_LINK ?>/img/help.png" height="16" width="16" /></a><br />
+
         <?php endif; ?>
 
 </div>
@@ -66,10 +67,13 @@ if (empty($base_currency))
                 action: "woocs_recalculate_order_data",
                 order_id: <?php echo $post->ID ?>
             };
+            
             jQuery.post(ajaxurl, data, function (data) {
                 window.location.reload();
             });
         }
     }
+    
+
 </script>
 

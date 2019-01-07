@@ -38,7 +38,7 @@ foreach ($product_swatch_data_array as $attribute_swatch_name => $product_swatch
 	{
 		foreach ($product_swatch_data['options_data'] as $swatch_option_name => $swatch_option_value)
 		{
-			if (!in_array($swatch_option_name, $attributes[$attribute_swatch_name]))
+			if (!in_array($swatch_option_name, (array)$attributes[$attribute_swatch_name]))
 			{
 				if (isset($_REQUEST['lang']))
 				{

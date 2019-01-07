@@ -810,7 +810,7 @@ class DUP_PRO_Archive
             $this->FilterInfo->TreeSize[] = array(
                 'size' => DUP_PRO_U::byteSize($sum, 0),
                 'dir' => $dir,
-                'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '', $dir),
+                'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '/', $dir),
                 'iscore' => $iscore,
                 'files' => $files
             );
@@ -834,7 +834,7 @@ class DUP_PRO_Archive
 
             $this->FilterInfo->TreeWarning[] = array(
                 'dir' => $dir,
-                'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '', $dir),
+                'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '/', $dir),
                 'iscore' => $iscore,
                 'count' => count($files),
                 'files' => $files);
@@ -862,7 +862,7 @@ class DUP_PRO_Archive
 
                 $this->FilterInfo->TreeWarning[] = array(
                     'dir' => $dir,
-                    'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '', $dir),
+                    'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '/', $dir),
                     'iscore' => $iscore,
                     'count' => 0);
             }

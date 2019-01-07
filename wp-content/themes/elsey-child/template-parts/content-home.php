@@ -120,12 +120,12 @@
 <div class="headline_inner">
 <div class="headline_inner_abs">
 <p>it's time to</p>
-<h3>CAROME. <br class="sp-none">Autumn</h3>
+<h3>CAROME. <br class="sp-none"><?php if ( '12' == date('n') || '1' == date('n') || '2' == date('n') || '3' == date('n') ) { ?>Winter<?php } elseif ( '4' == date('n')  || '5' == date('n') || '6' == date('n') ) { ?>Spring<?php } elseif ( '7' == date('n')  || '8' == date('n') ) { ?>Summer<?php } elseif ( '9' == date('n')  || '10' == date('n') || '11' == date('n') ) { ?>Autumn<?php } else {} ?></h3>
 <div class="mag-text">
 <ul class="mag-tags">
 <li>#CAROME</li>
 <li>#MUSTBUY</li>
-<li>#AUTUMN</li>
+<li>#<?php if ( '12' == date('n') || '1' == date('n') || '2' == date('n') || '3' == date('n') ) { ?>Winter<?php } elseif ( '4' == date('n')  || '5' == date('n') || '6' == date('n') ) { ?>Spring<?php } elseif ( '7' == date('n')  || '8' == date('n') ) { ?>Summer<?php } elseif ( '9' == date('n')  || '10' == date('n') || '11' == date('n') ) { ?>Autumn<?php } else {} ?></li>
 </ul>
 </div>
 </div>
@@ -146,10 +146,10 @@
 							<?php
 							global $wpdb;
 							$filter_titles = array(
-								'リボン付きセンタープレスフレアーパンツ',
-								'ベルト付きチェックノースリワンピース',
-								'タッキングテーラーワンピース',
-								'ウールハット'
+								'ベロアフレアースリーブハイネックトップス',
+								'畦Vネックニットトップス',
+								'ハイウエストツイードショートパンツ',
+								'袖ファー付きニットガウン'
 							);
 							$sql = $wpdb->prepare("
 								SELECT ID

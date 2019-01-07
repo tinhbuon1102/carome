@@ -193,7 +193,13 @@ class DUPX_Bootstrap
 
         //$archive_extension = strtolower(pathinfo($archive_filepath)['extension']);
         $archive_extension		= strtolower(pathinfo($archive_filepath, PATHINFO_EXTENSION));
-		$manual_extract_found   = file_exists($installer_directory."/main.installer.php");
+		$manual_extract_found   = (
+									file_exists($installer_directory."/main.installer.php")
+									&&
+									file_exists($installer_directory."/dup-archive__".self::PACKAGE_HASH.".txt")
+									&&
+									file_exists($installer_directory."/dup-database__".self::PACKAGE_HASH.".sql")
+									);
 
         $isZip = ($archive_extension == 'zip');
 
@@ -267,37 +273,53 @@ class DUPX_Bootstrap
 
 		
 
-		// INSTALL DIRECTORY: Check if its setup correctly AND we are not in overwrite mode
-		// disable extract installer mode by passing GET var like installer.php?extract-installer=0 or installer.php?extract-installer=disable
-        if ((isset($_GET['extract-installer']) && ('0' == $_GET['extract-installer'] || 'disable' == $_GET['extract-installer'] || 'false' == $_GET['extract-installer'])) && file_exists($installer_directory)) {
-//RSR for testing        if (file_exists($installer_directory)) {
+		if ($manual_extract_found) {
+			// INSTALL DIRECTORY: Check if its setup correctly AND we are not in overwrite mode
+			if (isset($_GET['force-extract-installer']) && ('1' == $_GET['force-extract-installer'] || 'enable' == $_GET['force-extract-installer'] || 'false' == $_GET['force-extract-installer'])) {
 
-			self::log("$installer_directory already exists");
-			$extract_installer = !file_exists($installer_directory."/main.installer.php");
+				self::log("Manual extract found with force extract installer get parametr");
+				$extract_installer = true;
 
-			($extract_installer)
-				? self::log("But main.installer.php doesn't so extracting anyway")
-				: self::log("main.installer.php also exists so not going to extract installer directory");
-
+			} else {
+				$extract_installer = false;
+				self::log("Manual extract found so not going to extract dup-installer dir");
+			}
 		} else {
-			self::log("Going to overwrite installer directory since either in overwrite mode or installer directory doesn't exist");
+			$extract_installer = true;
+			self::log("Manual extract didn't found so going to extract dup-installer dir");
 		}
 
-		if ($extract_installer && file_exists($installer_directory)) {
-			$scanned_directory = array_diff(scandir($installer_directory), array('..', '.'));
-			foreach ($scanned_directory as $object) {
-				$object_file_path = $installer_directory.'/'.$object;
-				if (is_file($object_file_path)) {
-					if (unlink($object_file_path)) {
-						self::log('Successfully deleted the file '.$object_file_path);
-					} else {
-						$error .= 'Error deleting the file '.$object_file_path.' Please manually delete it and try again.';
-						self::log($error);
+		// if ($extract_installer && file_exists($installer_directory)) {
+		if (file_exists($installer_directory)) {
+			$hash_pattern = '[a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]';
+			$file_patterns_with_hash_file = array(
+				// file pattern => hash file
+				'dup-archive__'.$hash_pattern.'.txt' => 'dup-archive__'.self::PACKAGE_HASH.'.txt',
+				'dup-database__'.$hash_pattern.'.sql' => 'dup-database__'.self::PACKAGE_HASH.'.sql',
+				'dup-installer-data__'.$hash_pattern.'.sql' => 'dup-installer-data__'.self::PACKAGE_HASH.'.sql',
+				'dup-installer-log__'.$hash_pattern.'.txt' => 'dup-installer-log__'.self::PACKAGE_HASH.'.txt',
+				'dup-scan__'.$hash_pattern.'.json' => 'dup-scan__'.self::PACKAGE_HASH.'.json',
+				'dup-scanned-dirs__'.$hash_pattern.'.txt' => 'dup-scanned-dirs__'.self::PACKAGE_HASH.'.txt',
+				'dup-scanned-files__'.$hash_pattern.'.txt' => 'dup-scanned-files__'.self::PACKAGE_HASH.'.txt',
+			);
+			foreach ($file_patterns_with_hash_file as $file_pattern => $hash_file) {
+				$globs = glob($installer_directory.'/'.$file_pattern);
+				if (!empty($globs)) {
+					foreach ($globs as $glob) {
+						$file = basename($glob);
+						if ($file != $hash_file) {
+							if (unlink($glob)) {
+								self::log('Successfully deleted the file '.$glob);
+							} else {
+								$error .= 'Error deleting the file '.$glob.'. Please manually delete it and try again.';
+								self::log($error);
+							}							
+						}
 					}
 				}
 			}
 		}
-
+		
 		//ATTEMPT EXTRACTION:
 		//ZipArchive and Shell Exec
 		if ($extract_installer) {
@@ -396,6 +418,16 @@ class DUPX_Bootstrap
                    $current_url = $current_url.':'.$server_port;
                 }
                 
+        if (!isset($_SERVER['REQUEST_URI']))  {
+
+            $_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'], 0);
+
+            if (isset($_SERVER['QUERY_STRING']) AND $_SERVER['QUERY_STRING'] != "") {
+
+                $_SERVER['REQUEST_URI'] .= '?'.$_SERVER['QUERY_STRING'];
+            }
+        }
+
 		$current_url .= $_SERVER['REQUEST_URI'];
 		$uri_start    = dirname($current_url);
 

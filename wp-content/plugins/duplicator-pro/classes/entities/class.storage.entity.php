@@ -190,6 +190,13 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         $instance->onedrive_token_obtained      = $storage_data->onedrive_token_obtained;
         $instance->onedrive_authorization_state = $storage_data->onedrive_authorization_state;
 
+        //ONEDRIVE BUSINESS FIELDS
+
+        $instance->onedrive_endpoint_url        = isset($storage_data->onedrive_endpoint_url) ? $storage_data->onedrive_endpoint_url : '';
+        $instance->onedrive_resource_id         = isset($storage_data->onedrive_resource_id) ? $storage_data->onedrive_resource_id : '';
+        $instance->onedrive_storage_folder_id   = isset($storage_data->onedrive_storage_folder_id) ? $storage_data->onedrive_storage_folder_id : '';
+        $instance->onedrive_storage_folder_web_url = isset($storage_data->onedrive_storage_folder_web_url) ? $storage_data->onedrive_storage_folder_web_url : '';
+
         // FTP FIELDS
         $instance->ftp_server          = $storage_data->ftp_server;
         $instance->ftp_port            = $storage_data->ftp_port;

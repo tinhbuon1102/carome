@@ -17,6 +17,16 @@ class DUPX_U
 	public static function init()
 	{
 		self::$on_php_53_plus = version_compare(PHP_VERSION, '5.3.2', '>=');
+        
+        if (!isset($_SERVER['REQUEST_URI']))  {
+
+            $_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'], 0);
+
+            if (isset($_SERVER['QUERY_STRING']) AND $_SERVER['QUERY_STRING'] != "") {
+
+                $_SERVER['REQUEST_URI'] .= '?'.$_SERVER['QUERY_STRING'];
+            }
+        }
 	}
 
 	/**
@@ -184,6 +194,10 @@ class DUPX_U
 			$excepted_subdirectories = array();
 		}
 
+		if (!file_exists($directory)) {
+			return false;
+		}
+		
 		$filenames = array_diff(scandir($directory), array('.', '..'));
 
 		foreach ($filenames as $filename) {

@@ -4,7 +4,7 @@ defined("ABSPATH") or die("");
   Plugin Name: Duplicator Pro
   Plugin URI: http://snapcreek.com/
   Description: Create, schedule and transfer a copy of your WordPress files and database. Duplicate and move a site from one location to another quickly.
-  Version: 3.7.9
+  Version: 3.7.9.1
   Author: Snap Creek
   Author URI: http://snapcreek.com
   License: GPLv2 or later
@@ -478,6 +478,18 @@ HTML;
      */
     function duplicator_pro_init()
     {
+        // Check post migration hook and take action of post migration
+        $is_migration = get_site_option('duplicator_pro_migration');
+        if ($is_migration) {
+            // For thread lock
+
+            $global = DUP_PRO_Global_Entity::get_instance();
+            $global->lock_mode = DUP_PRO_Global_Entity::get_lock_type();
+            $global->save();
+
+            delete_site_option('duplicator_pro_migration');
+        }
+
         // wp_doing_ajax introduced in WP 4.7
 		if (!function_exists('wp_doing_ajax') || ( ! wp_doing_ajax() ) ) {
 			// CSS

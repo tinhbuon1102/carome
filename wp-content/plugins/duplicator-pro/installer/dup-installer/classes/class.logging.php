@@ -42,7 +42,7 @@ class DUPX_Log
 
 	public static function infoObject($msg, $object, $logging = 1)
 	{
-		$msg = $msg + "\n" + print_r($object, true);
+		$msg = $msg . "\n" . print_r($object, true);
 
 		self::Info($msg, $logging);
 	}

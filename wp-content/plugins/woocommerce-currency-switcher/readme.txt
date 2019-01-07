@@ -1,24 +1,23 @@
-=== WooCommerce Currency Switcher ===
+=== WOOCS - Currency Switcher for WooCommerce ===
 Contributors: RealMag777
 Donate link: http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777
 Tags: woocommerce, currency, switcher, currency switcher, converter
 Requires at least: 4.1.0
-Tested up to: 4.9.6
+Tested up to: 5.0.3
 Requires PHP: 5.4
-Stable tag: 1.2.5.1
+Stable tag: 1.2.7.1
 
-WooCommerce Currency Switcher – is a WordPress plugin that allows to switch products prices and get their rates converted in the real time!
+WooCommerce Currency Switcher - WOOCS – is a WordPress plugin that allows to switch products prices and get their rates converted in the real time!
 
 == Description ==
 
-**WooCommerce Currency Switcher** – is a plugin that allows your site customers switch currencies and get their rates converted in the real time – Ideal solution to make an online store in multiple currencies - must have plugin for your WooCommerce powered online store!
+**WooCommerce Currency Switcher** - WOOCS – is a plugin that allows your site customers switch currencies and get their rates converted in the real time – Ideal solution to make an online store in multiple currencies - must have plugin for your WooCommerce powered online store!
 
 Currency Switcher is available as with shortcode **[woocs](https://currency-switcher.com/shortcode/woocs/)** so with the widget.
 
 Plus it is possible to show on the front 2 additional widgets: currency converter and currencies rates widget/shortcode as here [demo.currency-switcher.com](http://demo.currency-switcher.com/)
 
 More info is here: [currency-switcher.com/category/faq](https://currency-switcher.com/category/faq/)
-
 
 
 ### The Plugin Features:
@@ -28,20 +27,24 @@ More info is here: [currency-switcher.com/category/faq](https://currency-switche
 * 6 kinds of selectors with flags + flag mode + [fixed block (right/left)](https://demo.currency-switcher.com/)
 * 2 more additional AJAXED shortcodes: [woocs_rates exclude="" precision=2](https://currency-switcher.com/shortcode/exchange-rates/) & [woocs_converter exclude="" precision=2](https://currency-switcher.com/shortcode/currency-converter/)
 * Currency can be changed automatically according to visitor's IP using woo WC_Geolocation PHP class
-* **Individual GeoIP rules for each product**
+* **Individual GeoIP rules for each product** which allows to realize [WooCommerce Price Based on Country](https://currency-switcher.com/woocommerce-price-based-on-country/)
 * **Individual fixed prices rules for each product**
-* Fixed minimum amount for FREE delivery for each currency(actual only for woocommerce v3.3.1 and higher)
-* Fixed minimum amount for shipping for each currency(actual only for woocommerce v3.3.1 and higher)
-* Fixed amount for coupons for each currency(actual only for woocommerce v3.3.1 and higher)
-* Fixed minimum and maximum coupon verification amount for each currency (actual only for woocommerce v3.3.1 and higher)
+* **Individual prices based on user role** - Gives ability to set different prices for each user role
+* Fixed minimum amount for FREE delivery for each currency(woocommerce greater than v.3.3.1)
+* Fixed minimum amount for shipping for each currency(woocommerce greater than v.3.3.1)
+* Fixed amount for coupons for each currency(woocommerce greater than v.3.3.1)
+* Fixed minimum and maximum coupon verification amount for each currency (woocommerce greater than v.3.3.1)
 * **Checkout by GeoIP rules**
 * 7 currencies aggregators
 * **The customer is allowed to pay in the selected currency (optionally)**
+* Show approximate price on the shop and the single product page 
+* **Payments rules** - Hide/Show payment systems on checkout page depending on the current currency
 * WooCommerce native PayPal gate ready!
 * Possibility to show the visitors the approximate price in their currency on checkout
 * Ability to set new order currency which was created through admin panel by hands
 * Ability to recount order from any currency to basic currency in multiple mode of the plugin
 * Easy to use for administrators and shop customers
+* Compatible with [WPML](https://wpml.org/plugin/woocommerce-currency-switcher/)
 * Compatible with [WooCommerce Extra Product Options](http://codecanyon.net/item/woocommerce-extra-product-options/7908619?ref=realmag777)
 * Compatible with [Table Rate Shipping for WooCommerce by bolderelements](https://codecanyon.net/item/table-rate-shipping-for-woocommerce/3796656?ref=realmag777)
 * Compatible with – WooCommerce Stripe Gateway by woothemes
@@ -52,7 +55,7 @@ More info is here: [currency-switcher.com/category/faq](https://currency-switche
 
 Premium version of the plugin: [on Codecanyon](http://codecanyon.net/item/woocommerce-currency-switcher/8085217?ref=realmag777)
 
-Difference between FREE version of the plugin and PREMIUM - count of currencies, in free 2 any currency you want and unlimited count of them in the premium version of the plugin.
+**Difference between FREE version of the plugin and PREMIUM - count of currencies, in free 2 any currency you want and unlimited count of them in the premium version of the plugin.**
 
 https://www.youtube.com/watch?v=wUoM9EHjnYs
 
@@ -81,8 +84,11 @@ https://www.youtube.com/watch?v=wUoM9EHjnYs
 Q: Where can I see demo?
 R: [http://demo.currency-switcher.com/](http://demo.currency-switcher.com/)
 
+Q: API?
+R: [https://currency-switcher.com/codex/](https://currency-switcher.com/codex/)
+
 Q: Documentation?
-R: [https://currency-switcher.com/documentation/](https://currency-switcher.com/documentation/) and [https://currency-switcher.com/codex/](https://currency-switcher.com/codex/)
+R: [https://currency-switcher.com/documentation/](https://currency-switcher.com/documentation/)
 
 Q: Videos?
 R: [https://currency-switcher.com/video-tutorials/](https://currency-switcher.com/video-tutorials/)
@@ -94,16 +100,30 @@ R: [https://currency-switcher.com/category/faq/](https://currency-switcher.com/c
 == Screenshots ==
 1. Currencies options
 2. Options
-3. Advanced options
-4. Side switcher options (actual only for woocommerce v3.3.1 and higher)
-5. GeoLocation rules in the back panel
-6. Fixed prices for FREE delivery for each currency (actual only for woocommerce v3.3.1 and higher)
-7. Fixed minimum amount for shipping for each currency (actual only for woocommerce v3.3.1 and higher)
-8. Fixed amount for coupons for each currency (actual only for woocommerce v3.3.1 and higher)
-9. Fixed minimum and maximum coupon verification amount for each currency (actual only for woocommerce v3.3.1 and higher)
-10. Currency Switcher on the site front: on the left you can see Side switcher, in the sidebar inserted by widget/shortcode switcher as drop-down
+3. Options
+4. Advanced options
+5. Side switcher options (woocommerce > v.3.3.1)
+6. GeoLocation IP rules in the back panel
+7. Payment rules in the back panel
+8. Price based on user roles (woocommerce > v.3.3.1)
+9. Fixed prices for FREE delivery for each currency (woocommerce > v.3.3.1)
+10. Fixed minimum amount for shipping for each currency (woocommerce > v.3.3.1)
+11. Fixed amount for coupons for each currency (woocommerce > v.3.3.1)
+12. Fixed minimum and maximum coupon verification amount for each currency (woocommerce > v.3.3.1)
+13. Currency Switcher on the site front: on the left you can see Side switcher, in the sidebar inserted by widget/shortcode switcher as drop-down
 
 == Changelog ==
+
+= 1.2.7.1 =
+* fixes for WOOCS functionality for fixed amounts
+
+= 1.2.7 =
+* [https://currency-switcher.com/update-v-2-2-7-v-1-2-7/](https://currency-switcher.com/update-v-2-2-7-v-1-2-7/)
+
+= 1.2.6 =
+* removed currency agregators which stopped to work
+* added back Google and Yahoo currency agregators
+* new feature: No GET data in link - Switches currency without GET properties (?currency=USD) in the link
 
 = 1.2.5 =
 * minor fixes, removed some notices

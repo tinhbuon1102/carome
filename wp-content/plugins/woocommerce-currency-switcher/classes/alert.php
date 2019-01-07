@@ -6,7 +6,7 @@ class WOOCS_ADV {
 
     public function __construct($alert_list = array()) {
 
-        //fix to avoid disabling of 'Upload Theme' button action on /wp-admin/theme-install.php
+        //fix to avoid disabling of 'Upload Theme' button action on /wp-admin/theme-install.php?browse=featured
         if (isset($_SERVER['REQUEST_URI'])) {
             if (substr_count($_SERVER['REQUEST_URI'], 'theme-install.php')) {
                 return;

@@ -24,7 +24,7 @@ class DUPX_DB
      *
      * @return database connection handle
      */
-    public static function connect($host, $username, $password, $dbname = '', $port = null)
+    public static function connect($host, $username, $password, $dbname = '')
     {
         //sock connections
         if ('sock' === substr($host, -4)) {

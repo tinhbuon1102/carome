@@ -93,9 +93,6 @@ span.woocs_price_info_icon{
     display: inline;
     margin-left: 3px;
 }
-.woocs_price_code .woocs_price_info{
-    display: none ;
-}
 
 .woocs_price_info + .woocs_price_info{
     display: none !important;

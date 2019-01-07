@@ -260,7 +260,7 @@ if (!class_exists('DUP_PRO_DropboxV2Client')) {
             $url               = self::API_CONTENT_URL.$path;
             $args              = array(
                 'method' => 'POST',
-                'timeout' => 30,
+                'timeout' => 180,
                 'blocking' => true,
                 'stream' => true,
                 'filename' => $dest_path,
@@ -604,7 +604,7 @@ if (!class_exists('DUP_PRO_DropboxV2Client')) {
                  */
                 $url  = self::API_CONTENT_URL.$path;
                 $args = array(
-                    'timeout' => 25,
+                    'timeout' => 180,
                     'blocking' => true,
                     'method' => $method,
                     'headers' => array(

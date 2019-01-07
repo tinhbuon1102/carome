@@ -119,17 +119,21 @@ final class WOOCS_FIXED_PRICE extends WOOCS_FIXED_AMOUNT {
 		}
                 
 		foreach ($_POST['woocs_regular_price_geo'] as $post_id => $rules) {
-                    foreach($rules as &$val){
-                       $val=$this->prepare_float_val($val);
+                    if(is_array($rules)){
+                        foreach($rules as &$val){
+                           $val=$this->prepare_float_val($val);
+                        }
+                        update_post_meta($post_id, '_woocs_regular_price_geo', $rules);
                     }
-		    update_post_meta($post_id, '_woocs_regular_price_geo', $rules);
 		}
 
 		foreach ($_POST['woocs_sale_price_geo'] as $post_id => $rules) {
-                    foreach($rules as &$val){
-                       $val=$this->prepare_float_val($val);
-                    }                    
-		    update_post_meta($post_id, '_woocs_sale_price_geo', $rules);
+                    if(is_array($rules)){
+                        foreach($rules as &$val){
+                           $val=$this->prepare_float_val($val);
+                        }                    
+                        update_post_meta($post_id, '_woocs_sale_price_geo', $rules);
+                    }
 		}
 	    }
 	}

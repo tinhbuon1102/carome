@@ -107,7 +107,7 @@ SIZE CHECKS -->
 									<input type="checkbox" name="dir_paths[]" value="{{directory.dir}}" id="lf_dir_{{@index}}" onclick="DupPro.Pack.filesOff(this)" />
 								{{/if}}
 								<label for="lf_dir_{{@index}}" title="{{directory.dir}}">
-									<i class="size">[{{directory.size}}]</i> /{{directory.sdir}}/
+									<i class="size">[{{directory.size}}]</i> {{directory.sdir}}/
 								</label> <br/>
 								<div class="files">
 									{{#each directory.files as |file|}}
@@ -237,7 +237,7 @@ NAME CHECKS -->
 
 								<label for="nc1_dir_{{@index}}" title="{{directory.dir}}">
 									<i class="count">({{directory.count}})</i>
-									/{{directory.sdir}}/
+									{{directory.sdir}}/
 								</label> <br/>
 								<div class="files">
 									{{#each directory.files}}

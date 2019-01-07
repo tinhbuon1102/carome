@@ -1,3 +1,7 @@
+# 1.0.1
+
+* fixed fatal error when ACF plugin disabled (acfml-117)
+
 # 1.0
 * fixed missing repeater field on translated posts with "display when post is...' display rule (acfml-107)
 * fixed not displayed custom fields on post edit screen when Location rules wasn't correctly resolved (acfml-108)

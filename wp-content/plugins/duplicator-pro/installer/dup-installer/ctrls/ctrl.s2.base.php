@@ -297,6 +297,8 @@ if ($_POST['dbaction'] == 'manual') {
 
 $dbinstall->runCleanupRotines();
 $dbinstall->disableRSSSL();
+$dbinstall->insertMigrationFlag();
+
 
 $dbinstall->profile_end = DUPX_U::getMicrotime();
 $dbinstall->writeLog();

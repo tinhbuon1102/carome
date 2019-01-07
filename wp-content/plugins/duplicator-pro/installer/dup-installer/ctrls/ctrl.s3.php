@@ -11,8 +11,12 @@ require_once($GLOBALS['DUPX_INIT'].'/classes/utilities/class.u.multisite.php');
 /** JSON RESPONSE: Most sites have warnings turned off by default, but if they're turned on the warnings
   cause errors in the JSON data Here we hide the status so warning level is reset at it at the end */
 $ajax3_start		 = DUPX_U::getMicrotime();
+// We have already removing warning from json resp
+// It cause 500 internal server error so commenting out
+/*
 $ajax3_error_level	 = error_reporting();
 error_reporting(E_ERROR);
+*/
 
 //POST PARAMS
 $_POST['blogname']				 = isset($_POST['blogname']) ? htmlspecialchars($_POST['blogname'], ENT_QUOTES) : 'No Blog Title Set';
@@ -72,7 +76,7 @@ $subsite_id	 = (int)$_POST['subsite-id'];
 
 //MYSQL CONNECTION
 $post_dbpass = trim(DUPX_U::wp_unslash($_POST['dbpass']));
-$dbh		 = DUPX_DB::connect($_POST['dbhost'], $_POST['dbuser'], $post_dbpass, $_POST['dbname'], $_POST['dbport']);
+$dbh		 = DUPX_DB::connect($_POST['dbhost'], $_POST['dbuser'], $post_dbpass, $_POST['dbname']);
 $dbConnError = (mysqli_connect_error()) ? 'Error: '.mysqli_connect_error() : 'Unable to Connect';
 
 if (!$dbh) {
@@ -118,11 +122,11 @@ $log .= print_r($POST_LOG, true);
 $log .= "--------------------------------------\n";
 $log .= "TABLES TO SCAN\n";
 $log .= "--------------------------------------\n";
-$log .= (isset($_POST['tables']) && count($_POST['tables'] > 0)) ? print_r($_POST['tables'], true) : 'No tables selected to update';
+$log .= (isset($_POST['tables']) && count($_POST['tables']) > 0) ? print_r($_POST['tables'], true) : 'No tables selected to update';
 $log .= "--------------------------------------\n";
 $log .= "KEEP PLUGINS ACTIVE\n";
 $log .= "--------------------------------------\n";
-$log .= (isset($_POST['plugins']) && count($_POST['plugins'] > 0)) ? print_r($_POST['plugins'], true) : 'No plugins selected for activation';
+$log .= (isset($_POST['plugins']) && count($_POST['plugins']) > 0) ? print_r($_POST['plugins'], true) : 'No plugins selected for activation';
 DUPX_Log::info($log, 2);
 
 
@@ -937,5 +941,5 @@ $ajax3_sum = DUPX_U::elapsedTime(DUPX_U::getMicrotime(), $ajax3_start);
 DUPX_Log::info("\nSTEP-3 COMPLETE @ ".@date('h:i:s')." - RUNTIME: {$ajax3_sum} \n\n");
 
 $JSON['step3']['pass'] = 1;
-error_reporting($ajax3_error_level);
+// error_reporting($ajax3_error_level);
 die(json_encode($JSON));
