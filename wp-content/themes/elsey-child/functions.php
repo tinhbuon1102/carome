@@ -3641,18 +3641,32 @@ function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 
 //test to check user role depend on rule
 function get_current_user_role() {
-	global $woocommerce;
-	global $wp_roles;
-	global $wad_user_role;
-	$condition = $rule["condition"];
-    $evaluable_condition = false;
+	global $wad_discounts;
+	if (!$wad_discounts || !isset($wad_discounts['product'])) return '';
+	
 	$current_user = wp_get_current_user();
 	$roles = $current_user->roles;
-	$role = array_shift($roles);
-	$wad_active_role = $wad_user_role;
-	//if ($wad_get_user_groups) {
-		return '<p class="check_user">'.$role.' should be <strong>'.$wad_active_role.'</strong></p>';
-	//}
+	//$role = array_shift($roles);
+	if( is_user_logged_in() ) {
+		$role = array_shift($roles);
+	} else {
+		$role = 'not-logged-in';
+	}
+	$customer_discount_rule = '';
+	$first_condition = array_shift($wad_discounts['product']);
+	if (isset($first_condition->settings['rules'][0]))
+	{
+		foreach( $first_condition->settings['rules'][0] as $rule)
+		{
+			if ($rule['condition'] == 'customer-role')
+			{
+				$customer_discount_rule = $rule['value'][0];
+			}
+		}
+	}
+	if ($customer_discount_rule && $first_condition->title == '2点セット価格') {
+		return '<p class="check_user">'.$role.' should be <strong>'.$customer_discount_rule.'</strong></p>';
+	}
 	
 }
 //woocommerce all discount plugin
@@ -3672,8 +3686,7 @@ if(is_plugin_active( 'woocommerce-all-discounts/wad.php' )){
 	    global $wad_discounts;
 		$items = $woocommerce->cart->get_cart();
 	    
-	    $user = wp_get_current_user();
-	    $role = ( array ) $user->roles;
+	
 		if ( $wad_discounts && ! empty($wad_discounts["product"]) ) {
 			$count_twoset_price_jwl_cart = 0;
 			foreach($items as $item => $values) {
@@ -3683,7 +3696,30 @@ if(is_plugin_active( 'woocommerce-all-discounts/wad.php' )){
 					$count_twoset_price_jwl_cart += $values['quantity'];
 				}
 			}
-			if($count_twoset_price_jwl_cart == 1 ){
+			//get current user role
+	    $current_user = wp_get_current_user();
+	    $roles = $current_user->roles;
+//check current role slug
+	if( is_user_logged_in() ) {
+		$role = array_shift($roles);
+	} else {
+		$role = 'not-logged-in';
+	}
+	//check discount rule user role
+	$customer_discount_rule = '';
+	$first_condition = array_shift($wad_discounts['product']);
+	if (isset($first_condition->settings['rules'][0]))
+	{
+		foreach( $first_condition->settings['rules'][0] as $rule)
+		{
+			if ($rule['condition'] == 'customer-role')
+			{
+				$customer_discount_rule = $rule['value'][0];
+			}
+		}
+	}
+			if($role == $customer_discount_rule && $first_condition->title == '2点セット価格') {
+				if($count_twoset_price_jwl_cart == 1 ){
 				wc_clear_notices();
 				wc_add_notice( __("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
 			}elseif($count_twoset_price_jwl_cart == 3 ){
@@ -3694,6 +3730,8 @@ if(is_plugin_active( 'woocommerce-all-discounts/wad.php' )){
 				wc_add_notice( __("2点セットプライス対象アクセサリーのセット価格は6点までのみのご注文に適用されます"), 'notice');
 			}
 			//}//function_exists('get_discount_rules_callback')
+			}
+			
 		}
 }
 }
