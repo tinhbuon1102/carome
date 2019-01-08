@@ -46,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								if ( ! $product_permalink ) {
 									echo $thumbnail;
 								} else {
-									printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $thumbnail );
+									printf( '<a class="mini-product__link" href="%s">%s</a>', esc_url( $product_permalink ), $thumbnail );
 								}
 							?>
 						

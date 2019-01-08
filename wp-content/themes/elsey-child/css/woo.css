@@ -1,3 +1,7 @@
+.mini-product--group .mini-product__link img {
+    width: 94px;
+    max-height: none;
+}
 .header__main .els-icon li .widget_shopping_cart_content .minicart__link--close-cart {
     font-size: 12px;
     position: absolute;

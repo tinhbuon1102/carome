@@ -156,8 +156,12 @@ function wad_get_order_products_in_list($rule, $product_id=false) {
     {
         $list_products_ids=$list_products_ids->get_products();
     }
+	
+	if (! is_array($list_products_ids)) {
+		$list_products_ids = array();
+	}
 
-    if ($rule["order-product"]["operator"] == "IN") {
+	if ($rule["order-product"]["operator"] == "IN") {
         $to_count = array_intersect_key($order_items_counts_by_products, array_flip($list_products_ids));
     } else {
         $to_count = array_diff_key($order_items_counts_by_products, array_flip($list_products_ids));

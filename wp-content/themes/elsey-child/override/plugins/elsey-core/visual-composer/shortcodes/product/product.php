@@ -247,7 +247,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 
                   <li <?php post_class($product_masonry_size . ' els-pr-masonry-item'); ?>>
 
-                    <div class="els-product-image" <?php echo $product_bg_color; ?>>
+                    <div class="els-product-image test1" <?php echo $product_bg_color; ?>>
                       <a href="<?php echo get_the_permalink($product->get_id()); ?>" class="woocommerce-LoopProduct-link"></a>
                       <div class="els-product-info">
     	                  <div class="els-product-title">
@@ -265,11 +265,7 @@ if ( class_exists( 'WooCommerce' ) ) {
                       {
                       	echo '<span class="pre_order_bagges">予約商品</span>';
                       }
-    									if ( !$product->is_in_stock() ) {
-    									  echo '<span class="els-product-sold">' . esc_html__( 'Sold', 'elsey-core' ) . '</span>';
-    									} else if ( $product->is_on_sale() ) {
-    									  echo '<span class="els-product-onsale">' . esc_html__( 'Sale!', 'elsey-core' ) . '</span>'; 
-    									}
+    									do_action( 'woocommerce_shop_loop_label' );
 
                       if ( $product_hover_image && $product_meta_hover_image ) {
                         if( isset($product_masonry_image) && isset($product_masonry_hover_image) ) {  
@@ -351,7 +347,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 	                  </div>  
 	                </div>
 
-	                <div class="els-product-image" <?php echo $product_bg_color; ?>>        
+	                <div class="els-product-image test2" <?php echo $product_bg_color; ?>>        
                     <a href="<?php echo get_the_permalink($product->get_id()); ?>" class="woocommerce-LoopProduct-link"></a>
                     <?php 
                     $html = '';
@@ -397,7 +393,7 @@ if ( class_exists( 'WooCommerce' ) ) {
 
                 <li <?php post_class(); ?>>
                 
-                  <div class="els-product-image" <?php echo $product_bg_color; ?>>        
+                  <div class="els-product-image test3" <?php echo $product_bg_color; ?>>        
                   	<div class="els-product-wishlist">
 	                      <?php echo do_shortcode('[yith_wcwl_add_to_wishlist icon="fa-heart-o"]'); ?>
 	                    </div>
@@ -409,11 +405,8 @@ if ( class_exists( 'WooCommerce' ) ) {
                   		echo '<span class="pre_order_bagges">予約商品</span>';
 	                  }
 	                  ?>
-	                  <?php if ( !$product->is_in_stock() ) {
-	                    echo '<span class="els-product-sold">' . esc_html__( 'Sold', 'elsey-core' ) . '</span>';
-	                  } else if ( $product->is_on_sale() ) {
-	                    echo '<span class="els-product-onsale">' . esc_html__( 'Sale!', 'elsey-core' ) . '</span>'; 
-	                  }
+	                  <?php
+							do_action( 'woocommerce_shop_loop_label' );
 	  
                     $html = '';
 

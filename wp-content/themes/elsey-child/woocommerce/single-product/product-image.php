@@ -62,11 +62,8 @@ $product_sticky  = isset($product_options['product_sticky_info']) ? $product_opt
 				<figure class="woocommerce-product-gallery__wrapper">		
 					<!-- Custom Changes Start -->
 					<?php 
-					if ( !$product->is_in_stock() ) {
-						echo '<span class="els-product-sold">' . esc_html__( 'Out of Stock', 'elsey' ) . '</span>';
-					} else if ( $product->is_on_sale() ) {
-						echo '<span class="els-product-onsale">' . esc_html__( 'Sale!', 'elsey' ) . '</span>'; 
-					} ?>
+					do_action( 'woocommerce_shop_loop_label' );
+					 ?>
 
 					<div id="els-product-featured-image-slider" class="<?php echo esc_attr($image_gallery_class); ?> slick-slider slick-arrows-small" >
 						<!-- Custom Changes End -->

@@ -79,11 +79,7 @@ if ($product->is_type('variable')&&$is_gallery_enabled!=0):
 			<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $wrapper_classes ) ) ); ?>" data-columns="<?php echo esc_attr( $columns ); ?>" style="opacity: 0; transition: opacity .25s ease-in-out;">
         <figure class="woocommerce-product-gallery__wrapper">
 		<?php 
-					if ( !$product->is_in_stock() ) {
-						echo '<span class="els-product-sold">' . esc_html__( 'Out of Stock', 'elsey' ) . '</span>';
-					} else if ( $product->is_on_sale() ) {
-						echo '<span class="els-product-onsale">' . esc_html__( 'Sale!', 'elsey' ) . '</span>'; 
-					} ?>
+					do_action( 'woocommerce_shop_loop_label' ); ?>
 					<div id="els-product-featured-image-slider" class="<?php echo esc_attr($image_gallery_class); ?> slick-slider slick-arrows-small" >
             <?php
 			

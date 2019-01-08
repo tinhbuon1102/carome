@@ -3638,6 +3638,23 @@ function elsey_shipping_class_null_shipping_costs( $rates, $package ){
 }
 
 //end event function
+
+//test to check user role depend on rule
+function get_current_user_role() {
+	global $woocommerce;
+	global $wp_roles;
+	global $wad_user_role;
+	$condition = $rule["condition"];
+    $evaluable_condition = false;
+	$current_user = wp_get_current_user();
+	$roles = $current_user->roles;
+	$role = array_shift($roles);
+	$wad_active_role = $wad_user_role;
+	//if ($wad_get_user_groups) {
+		return '<p class="check_user">'.$role.' should be <strong>'.$wad_active_role.'</strong></p>';
+	//}
+	
+}
 //woocommerce all discount plugin
 add_action('woocommerce_before_notices', 'my_custom_message');
 function my_custom_message() {
@@ -3652,30 +3669,33 @@ if(is_plugin_active( 'woocommerce-all-discounts/wad.php' )){
 			return;
 		}
 		global $woocommerce;
+	    global $wad_discounts;
 		$items = $woocommerce->cart->get_cart();
-		
-		$count_twoset_price_jwl_cart = 0;
-		foreach($items as $item => $values) { 
-            $_product =  wc_get_product( $values['data']->get_id()); 
-            if (has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ))
-            {
-            	$count_twoset_price_jwl_cart += $values['quantity'];
-            }
-        } 
-        
-        
-        if($count_twoset_price_jwl_cart == 1 ){
-        	wc_clear_notices();
-        	wc_add_notice( __("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
-        }elseif($count_twoset_price_jwl_cart == 3 ){
-        	wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
-        }elseif($count_twoset_price_jwl_cart == 5 ){
-        	wc_add_notice( __("2点セットプライス対象アクセサリーは2点、4点、6点のご注文のみに適用されます"), 'notice');
-        }elseif($count_twoset_price_jwl_cart > 6 ) {
-			wc_add_notice( __("2点セットプライス対象アクセサリーは6点までのみのご注文に適用されます"), 'notice');
+	    
+	    $user = wp_get_current_user();
+	    $role = ( array ) $user->roles;
+		if ( $wad_discounts && ! empty($wad_discounts["product"]) ) {
+			$count_twoset_price_jwl_cart = 0;
+			foreach($items as $item => $values) {
+				$_product =  wc_get_product( $values['data']->get_id());
+				if (has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) )
+				{
+					$count_twoset_price_jwl_cart += $values['quantity'];
+				}
+			}
+			if($count_twoset_price_jwl_cart == 1 ){
+				wc_clear_notices();
+				wc_add_notice( __("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
+			}elseif($count_twoset_price_jwl_cart == 3 ){
+				wc_add_notice( __("2点セットプライス対象アクセサリーのセット価格は2点、4点、6点のご注文のみに適用されます"), 'notice');
+			}elseif($count_twoset_price_jwl_cart == 5 ){
+				wc_add_notice( __("2点セットプライス対象アクセサリーのセット価格は2点、4点、6点のご注文のみに適用されます"), 'notice');
+			}elseif($count_twoset_price_jwl_cart > 6 ) {
+				wc_add_notice( __("2点セットプライス対象アクセサリーのセット価格は6点までのみのご注文に適用されます"), 'notice');
+			}
+			//}//function_exists('get_discount_rules_callback')
 		}
-	//}//function_exists('get_discount_rules_callback')
-}	
+}
 }
 
 function showDiscountLabel($product)
@@ -3705,8 +3725,61 @@ function showDiscountLabel($product)
 			if ( $discount_obj->is_applicable($pid) && is_array($list_products) && in_array($pid, $list_products) )
 			{
 				$sale_price = floatval($sale_price) - $discount_obj->get_discount_amount(floatval($sale_price));
-				echo '<span class="discount_title">'.$discount_obj->title . '</span>';
+				echo '<span class="discount_title">'.$discount_obj->title . esc_html__( '適用中', 'elsey' ) . '</span>';
 			}
 		}
 	}
 }
+function my_custom_item_label() {
+	global $product;
+	global $wad_discounts;
+	global $new_extraction_algorithm;
+	if ( !$product->is_in_stock() ) {
+		echo '<span class="els-product-sold">' . esc_html__( 'Out of Stock', 'elsey' ) . '</span>';
+	} else if ( $wad_discounts && ! empty($wad_discounts["product"]) ) {
+		echo '';
+		//echo '<span class="els-product-onsale">' . esc_html__( 'Campaign Price!', 'elsey' ) . '</span>';
+	} else if ( $product->is_on_sale() ) {
+		echo '<span class="els-product-onsale">' . esc_html__( 'Sale!!', 'elsey' ) . '</span>';
+	}
+}
+add_action('woocommerce_shop_loop_label', 'my_custom_item_label');
+
+add_action( 'woocommerce_before_shop_loop_item_title', 'elsey_show_product_badge', 10);
+  if ( ! function_exists('elsey_show_product_badge') ) {
+	  function elsey_show_product_badge() {
+	  	global $product;
+		global $wad_discounts;
+		global $new_extraction_algorithm;
+		  if ( !$product->is_in_stock() ) {
+				echo '<span class="els-product-sold">' . esc_html__( 'Sold', 'elsey' ) . '</span>';
+			} else if ( $wad_discounts && ! empty($wad_discounts["product"]) ) {
+			  global $wad_ignore_product_prices_calculations;
+		$previous_value=$wad_ignore_product_prices_calculations;
+		$wad_ignore_product_prices_calculations=TRUE;
+		$regular_price = $product->get_regular_price();
+		$sale_price= $regular_price;
+		$wad_ignore_product_prices_calculations=$previous_value;
+		
+		$pid = wad_get_product_id_to_use($product);
+			  foreach ( $wad_discounts["product"] as $discount_id => $discount_obj )
+		{
+			if ( $new_extraction_algorithm ) $list_products = $discount_obj->products_list->get_products(true);
+			else $list_products = $discount_obj->products_list->get_products();
+			$disable_on_products_pages = get_proper_value($discount_obj->settings, "disable-on-product-pages", "no");
+			// Even If the discount is disabled on the shop pages, we force it to be enabled in the minicart even if this minicart is on the shop pages
+			if ( $disable_on_products_pages && did_action('woocommerce_before_mini_cart_contents') && ! did_action('woocommerce_after_mini_cart') ) $disable_on_products_pages = false;
+			// if ($disable_on_products_pages == "yes" && (is_singular("product") || is_shop() || is_product_category() || is_front_page()))
+			if ( $disable_on_products_pages == "yes" && (! is_cart() && ! is_checkout()) ) continue;
+			if ( $discount_obj->is_applicable($pid) && is_array($list_products) && in_array($pid, $list_products) )
+			{
+				$sale_price = floatval($sale_price) - $discount_obj->get_discount_amount(floatval($sale_price));
+				echo '';
+				//echo '<span class="els-product-onsale">' . esc_html__( 'Campaign Price!', 'elsey' ) . '</span>';
+			}
+		}
+		  } else if ( $product->is_on_sale() ) {
+				echo '<span class="els-product-onsale">' . esc_html__( 'Sale!!', 'elsey' ) . '</span>';
+			}
+	  }
+	}

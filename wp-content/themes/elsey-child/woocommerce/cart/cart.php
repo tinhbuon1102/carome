@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 do_action( 'woocommerce_before_notices' );
 wc_print_notices();
-
+echo get_current_user_role();
 do_action( 'woocommerce_before_cart' ); ?>
 <div class="row flex-justify-between">
 	<div class="order--cart__col col-md-7 col-xs-12">
