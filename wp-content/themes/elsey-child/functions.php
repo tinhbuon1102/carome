@@ -3821,3 +3821,38 @@ add_action( 'woocommerce_before_shop_loop_item_title', 'elsey_show_product_badge
 			}
 	  }
 	}
+function ch_custom_price_message($price) {
+
+    global $product;
+	$product_cat_slug = 'twoset_price_jwl';
+	$product_cat = get_category_by_slug($product_cat_slug);
+	$product_cat_id = $product_cat->term_id;
+    $product_cats_ids = wc_get_product_term_ids($product->get_id(), 'product_cat');
+	date_default_timezone_set('Asia/Tokyo');
+    $from = "2019-01-08 12:00:00.0";
+    $to = "2019-01-14 23:59:00.0";
+    if (in_array(349, $product_cats_ids) && (time() >= strtotime($from) && time() <= strtotime($to))) {
+
+        return $price . '<span class="discount_title">2点セット価格</span>';
+    } else {
+        return $price;
+    }
+}
+
+add_filter('woocommerce_get_price_html', 'ch_custom_price_message');
+
+add_filter('woocommerce_available_variation', 'ch_variation_price_custom_suffix', 10, 3 );
+function ch_variation_price_custom_suffix( $variation_data, $product, $variation ) {
+	global $product;
+	$product_cat_slug = 'twoset_price_jwl';
+	$product_cat = get_category_by_slug($product_cat_slug);
+	$product_cat_id = $product_cat->term_id;
+    $product_cats_ids = wc_get_product_term_ids($product->get_id(), 'product_cat');
+	date_default_timezone_set('Asia/Tokyo');
+    $from = "2019-01-08 12:00:00.0";
+    $to = "2019-01-14 23:59:00.0";
+    //if (in_array(349, $product_cats_ids) && (time() >= strtotime($from) && time() <= strtotime($to))) {
+		$variation_data['price_html'] .= '<span class="discount_title">2点セット価格</span>';
+	//}
+    return $variation_data;
+}
