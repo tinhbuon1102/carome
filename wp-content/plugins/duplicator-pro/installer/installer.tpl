@@ -433,6 +433,11 @@ class DUPX_Bootstrap
 
 		if ($error === null) {
                  
+                if(!file_exists($installer_directory)) {
+        
+                    $error = 'Can\'t extract installer directory. See <a target="_blank" href="https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-022-q">this FAQ item</a> for details on how to resolve.</a>';
+                }
+                
                     if($error == null) {
 
                         $bootloader_name	 = basename(__FILE__);

@@ -3821,38 +3821,32 @@ add_action( 'woocommerce_before_shop_loop_item_title', 'elsey_show_product_badge
 			}
 	  }
 	}
-function ch_custom_price_message($price) {
+function ch_custom_price_message($price, $product = null) {
 
-    global $product;
+	if (!$product) return $price;
+	
 	$product_cat_slug = 'twoset_price_jwl';
-	$product_cat = get_category_by_slug($product_cat_slug);
+	$product_cat = get_term_by( 'slug', $product_cat_slug, 'product_cat' );
+	
+	if (!$product_cat) return $price;
+	
 	$product_cat_id = $product_cat->term_id;
     $product_cats_ids = wc_get_product_term_ids($product->get_id(), 'product_cat');
 	date_default_timezone_set('Asia/Tokyo');
-    $from = "2019-01-08 12:00:00.0";
-    $to = "2019-01-14 23:59:00.0";
-    if (in_array(349, $product_cats_ids) && (time() >= strtotime($from) && time() <= strtotime($to))) {
-
-        return $price . '<span class="discount_title">2点セット価格</span>';
+    $from = "2019-01-08 12:00:00";
+    $to = "2019-01-14 23:59:00";
+    
+    if (in_array($product_cat_id, $product_cats_ids) && (time() >= strtotime($from) && time() <= strtotime($to))) {
+    	return $price . '<span class="discount_title">2点セット価格</span>';
     } else {
         return $price;
     }
 }
 
-add_filter('woocommerce_get_price_html', 'ch_custom_price_message');
+add_filter('woocommerce_get_price_html', 'ch_custom_price_message',99999, 2);
 
-add_filter('woocommerce_available_variation', 'ch_variation_price_custom_suffix', 10, 3 );
-function ch_variation_price_custom_suffix( $variation_data, $product, $variation ) {
-	global $product;
-	$product_cat_slug = 'twoset_price_jwl';
-	$product_cat = get_category_by_slug($product_cat_slug);
-	$product_cat_id = $product_cat->term_id;
-    $product_cats_ids = wc_get_product_term_ids($product->get_id(), 'product_cat');
-	date_default_timezone_set('Asia/Tokyo');
-    $from = "2019-01-08 12:00:00.0";
-    $to = "2019-01-14 23:59:00.0";
-    //if (in_array(349, $product_cats_ids) && (time() >= strtotime($from) && time() <= strtotime($to))) {
-		$variation_data['price_html'] .= '<span class="discount_title">2点セット価格</span>';
-	//}
-    return $variation_data;
+add_action('woocommerce_no_products_found', 'ch_woocommerce_no_products_found', 9);
+function ch_woocommerce_no_products_found() {
+    remove_action('woocommerce_no_products_found', 'wc_no_products_found', 10);
+    echo '<div class="no_result_msg">' . __('Item is not found by your keyword.', 'elsey') . '</div> ';
 }

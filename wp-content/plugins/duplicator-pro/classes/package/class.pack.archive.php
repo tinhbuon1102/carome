@@ -63,6 +63,7 @@ class DUP_PRO_Archive
     private $global;
     private $tmpFilterDirsAll = array();
     private $wpCorePaths = array();
+    private $wpCoreExactPaths = array();
     private $FileListHandle = null;
     private $DirListHandle = null;
 //del    private $isForcedScanQuit = false;
@@ -83,6 +84,9 @@ class DUP_PRO_Archive
         $this->wpCorePaths[] = DUP_PRO_U::safePath(WP_PLUGIN_DIR);
         $this->wpCorePaths[] = DUP_PRO_U::safePath(get_theme_root());
         $this->wpCorePaths[] = DUP_PRO_U::safePath("{$rootPath}/wp-includes");
+
+        $this->wpCoreExactPaths[] = DUP_PRO_U::safePath("{$rootPath}");
+		$this->wpCoreExactPaths[] = DUP_PRO_U::safePath(WP_CONTENT_DIR);
     }
 
     /**
@@ -175,11 +179,16 @@ class DUP_PRO_Archive
 //del            DUP_PRO_Log::trace(print_r($this->Dirs,true));
 //            die();
             $this->getFileLists($rootPath);
+                if ($this->isOuterWPContentDir()) {
+                    $this->Dirs[] = WP_CONTENT_DIR;
+                    $this->getFileLists(WP_CONTENT_DIR);
+                }
                $this->setFileDirCount(); 
 //del            if($this->ScanStatus == self::ScanStatusComplete){
 //                if(!$this->Dirs->has($this->PackDir)){
 //                    $this->Dirs[] = $this->PackDir;
 //                }
+
                 $this->setDirFilters();
                 $this->setFileFilters();
                 $this->setTreeFilters();
@@ -467,8 +476,13 @@ class DUP_PRO_Archive
         $this->FilterInfo->Files->Unreadable = array();
         $unset_key_list = array();
 
-         $this->Files = $this->getFileArray();
-              
+        $this->Files = $this->getFileArray();
+        $WPConfigFilePath = $this->getWPConfigFilePath();
+        if (!is_readable($WPConfigFilePath)) {
+            $this->FilterInfo->Files->Unreadable[] = $WPConfigFilePath;
+        }
+       
+      
         foreach ($this->Files as $key => $filePath) {
 
             $fileName = basename($filePath);
@@ -559,109 +573,75 @@ class DUP_PRO_Archive
      */
     private function getFileLists($path)
     {
-//del        global $global;
-//        if(empty($global) || !isset($global)){
-//            $global = DUP_PRO_Global_Entity::get_instance();
-//        }
-//
-//        global $start_time;
-//        if(empty($start_time) || !isset($start_time)){
-//            $start_time = DUP_PRO_U::getMicrotime();
-//        }
-//
-//        $doChunking = $global->package_scan_mode == DUP_PRO_Scan_Mode::Multithreaded;
-//        if($doChunking){
-//            $elapsed_time = abs(DUP_PRO_U::getMicrotime() - $start_time);
-//            $continue_scanning = $elapsed_time < $global->php_max_worker_time_in_sec;
-//        }else{
-//            $continue_scanning = true;
-//        }
-
         $handle = @opendir($path);
+
         if ($handle) {
-              while (($file = readdir($handle)) !== false) {
-//del            while (($file = readdir($handle)) !== false && $continue_scanning) {
-//
-//                if($doChunking){
-//                    $elapsed_time = abs(DUP_PRO_U::getMicrotime() - $start_time);
-//                    if($elapsed_time > $global->php_max_worker_time_in_sec){
-//                        $continue_scanning = false;
-//                        $this->isForcedScanQuit = true;
-//                        $this->ScanStatus = self::ScanStatusRunning;
-//                    }
-//                }
+            while (($file = readdir($handle)) !== false) {
 
                 if ($file == '.' || $file == '..') {
                     continue;
                 }
 
-                $fullPath = str_replace("\\", '/', "{$path}/{$file}");
+                $fullPath      = str_replace("\\", '/', "{$path}/{$file}");
+                $relative_path = $fullPath;
 
-                if (is_dir($fullPath)) {
-//del                    if($doChunking && $this->Dirs->has($fullPath)){
-////                        DUP_PRO_Log::trace("Have to Continue");
-//                        continue;
-//                    }
+                if (is_link($relative_path)) {
+                    $is_link = true;
 
-                    $add = true;
-                    if(!is_link($fullPath)){
-                        foreach ($this->tmpFilterDirsAll as $key => $val) {
-                            $trimmedFilterDir = rtrim($val, '/');
-                            if ($fullPath == $trimmedFilterDir || strpos($fullPath, $trimmedFilterDir . '/') !== false) {
-                                $add = false;
+                    //Convert relative path of link to absolute path
+                    chdir($relative_path);
+                    $real_path = realpath(readlink($relative_path));
+                    chdir(dirname(__FILE__));
+                } else {
+                    $is_link   = false;
+                    $real_path = realpath($relative_path);
+                }
+
+                $exclude_check = array_unique(array($real_path, $relative_path));
+
+                if (is_dir($real_path)) {
+                    $exclude = false;
+
+                    foreach ($this->tmpFilterDirsAll as $key => $val) {
+                        $trimmedFilterDir = rtrim($val, '/');
+                        foreach ($exclude_check as $c_check) {
+                            if ($c_check == $trimmedFilterDir || strpos($c_check, $trimmedFilterDir.'/') !== false) {
+                                $exclude = true;
                                 unset($this->tmpFilterDirsAll[$key]);
+                                break 2;
+                            }
+                        }
+                    }
+
+                    if (!$exclude) {
+                        if ($is_link) {
+                            $this->RecursiveLinks[] = $relative_path;
+                            /* $this->FilterDirsAll[]  = $relative_path; */
+                        }
+
+                        $this->getFileLists($relative_path);
+                        $this->addToList($relative_path,'dir');
+                    }
+                } else {
+                    $exclude = false;
+                    if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->FilterExtsAll) || in_array($file, $this->FilterFilesAll)) {
+                        $exclude = true;
+                    } else {
+                        foreach ($exclude_check as $c_check) {
+                            if (in_array($c_check, $this->FilterFilesAll)) {
+                                $exclude = true;
                                 break;
                             }
                         }
-                    }else{
-//del                        if(in_array($fullPath,$this->RecursiveLinks) || in_array($fullPath,$this->FilterDirsAll)){
-//                            continue;
-//                        }
-                        //Convert relative path of link to absolute paths
-                        chdir($fullPath);
-                        $link_path = realpath(readlink($fullPath));
-                        chdir(dirname(__FILE__));
-
-                        $link_pos = strpos($fullPath,$link_path);
-                        if($link_pos === 0 && (strlen($link_path) <  strlen($fullPath))){
-                            $add = false;
-                            $this->RecursiveLinks[] = $fullPath;
-                            $this->FilterDirsAll[] = $fullPath;
-                        }
                     }
-
-                    if ($add) {
-                        $this->getFileLists($fullPath);
-  //$this->Dirs[] = $fullPath;
-
--                       $this->addToList($fullPath,'dir');
-//del
-//                        if(!$this->isForcedScanQuit){
-//                            if(!$this->Dirs->has($fullPath))  $this->Dirs[] = $fullPath;
-//                        }
-                    }
-                } else {
-                    // Note: The last clause is present to perform just a filename check
-                     if ( ! (in_array(pathinfo($file, PATHINFO_EXTENSION) , $this->FilterExtsAll)
-                   //del if ( ! (($doChunking && $this->Files->has($fullPath))
-                   //     || in_array(pathinfo($file, PATHINFO_EXTENSION) , $this->FilterExtsAll)
-                        || in_array($fullPath, $this->FilterFilesAll)
-                        || in_array($file, $this->FilterFilesAll))) {
-
-                        //$this->Files[] = $fullPath;
-
--                       $this->addToList($fullPath,'file');
-                        //$this->Files[] = $fullPath;
+                    if (!$exclude) {
+                        $this->addToList($relative_path,'file');
                     }
                 }
             }
             closedir($handle);
         }
-          
         return $this->Dirs;
-//del        if(!$this->isForcedScanQuit){
-//            $this->ScanStatus = self::ScanStatusComplete;
-//        }
     }
 
     /**
@@ -755,7 +735,16 @@ class DUP_PRO_Archive
     private function updateFileList($fileList)
     {
         ftruncate($this->FileListHandle,0);
-        fwrite($this->FileListHandle,implode($this->ListDelimiter,$fileList));
+        // fwrite($this->FileListHandle,implode($this->ListDelimiter,$fileList));
+        
+        $fileListCount = count($fileList);
+        $fileListLastIndex = $fileListCount - 1;
+        foreach ($fileList as $fileIndex=>$file) {
+            $str = ($fileListLastIndex == $fileIndex)
+                                            ? $file
+                                            : $file.$this->ListDelimiter;
+            fwrite($this->FileListHandle, $str);
+        }
     }
 
     /**
@@ -776,7 +765,15 @@ class DUP_PRO_Archive
     private function updateDirList($dirList)
     {
         ftruncate($this->DirListHandle,0);
-        fwrite($this->DirListHandle,implode($this->ListDelimiter,$dirList));
+
+        $dirListCount = count($dirList);
+        $dirListLastIndex = $dirListCount - 1;
+        foreach ($dirList as $dirIndex=>$dir) {
+            $str = ($dirListLastIndex == $dirIndex)
+                                            ? $dir
+                                            : $dir.$this->ListDelimiter;
+            fwrite($this->DirListHandle, $str);
+        }
     }
 
     /**
@@ -806,6 +803,12 @@ class DUP_PRO_Archive
                     break;
                 }
             }
+            // Check root and content exact dir
+			if (!$iscore) {
+				if (in_array($dir, $this->wpCoreExactPaths)) {
+					$iscore = 1;
+				}
+			}
 
             $this->FilterInfo->TreeSize[] = array(
                 'size' => DUP_PRO_U::byteSize($sum, 0),
@@ -831,6 +834,12 @@ class DUP_PRO_Archive
                     break;
                 }
             }
+            // Check root and content exact dir
+			if (!$iscore) {
+				if (in_array($dir, $this->wpCoreExactPaths)) {
+					$iscore = 1;
+				}
+			}
 
             $this->FilterInfo->TreeWarning[] = array(
                 'dir' => $dir,
@@ -859,6 +868,12 @@ class DUP_PRO_Archive
                         break;
                     }
                 }
+                // Check root and content exact dir
+                if (!$iscore) {
+                    if (in_array($dir, $this->wpCoreExactPaths)) {
+                        $iscore = 1;
+                    }
+                }
 
                 $this->FilterInfo->TreeWarning[] = array(
                     'dir' => $dir,
@@ -872,5 +887,68 @@ class DUP_PRO_Archive
             return strcmp($a["dir"], $b["dir"]);
         }
         usort($this->FilterInfo->TreeWarning, "_sortDir");
+    }
+
+    public function getWPConfigFilePath() { 
+        $wpconfig_filepath = ''; 
+        if (file_exists(DUPLICATOR_PRO_WPROOTPATH . 'wp-config.php')) { 
+            $wpconfig_filepath = DUPLICATOR_PRO_WPROOTPATH . 'wp-config.php'; 
+        } elseif (@file_exists(dirname(DUPLICATOR_PRO_WPROOTPATH) . '/wp-config.php') && !@file_exists(dirname(DUPLICATOR_PRO_WPROOTPATH) . '/wp-settings.php')) { 
+            $wpconfig_filepath = dirname(DUPLICATOR_PRO_WPROOTPATH) . '/wp-config.php'; 
+        } 
+        return $wpconfig_filepath; 
+	}
+	
+	public function isOuterWPContentDir() {
+		if (!isset($this->isOuterWPContentDir)) {
+			$abspath_normalize = wp_normalize_path(ABSPATH); 
+			$wp_content_dir_normalize = wp_normalize_path(WP_CONTENT_DIR); 
+			if (0 !== strpos($wp_content_dir_normalize, $abspath_normalize)) {
+				$this->isOuterWPContentDir = true;
+			} else {
+				$this->isOuterWPContentDir = false;
+			}
+		}
+		return $this->isOuterWPContentDir;
+    }
+    
+	public function wpContentDirNormalizePath() {
+		if (!isset($this->wpContentDirNormalizePath)) {
+			$this->wpContentDirNormalizePath = trailingslashit(wp_normalize_path(WP_CONTENT_DIR));
+		}
+		return $this->wpContentDirNormalizePath;
+    }
+    
+	public function getLocalDirPath($dir, $basePath = '') {
+		$isOuterWPContentDir = $this->isOuterWPContentDir();
+		$wpContentDirNormalizePath = $this->wpContentDirNormalizePath();
+		$compressDir = rtrim(wp_normalize_path(DUP_PRO_U::safePath($this->PackDir)), '/');
+			
+        $dir = trailingslashit(wp_normalize_path($dir));
+        if ($isOuterWPContentDir && 0 === strpos($dir, $wpContentDirNormalizePath)) {
+			$newWPContentDirPath = empty($basePath) 
+										? 'wp-content/' 
+										: $basePath.'wp-content/';
+			$emptyDir = ltrim(str_replace($wpContentDirNormalizePath, $newWPContentDirPath, $dir), '/');
+        } else {
+            $emptyDir = ltrim(str_replace($compressDir, $basePath, $dir), '/');
+        }
+        return $emptyDir;
+    }
+
+    public function getLocalFilePath($file, $basePath = '') {
+		$isOuterWPContentDir = $this->isOuterWPContentDir();
+		$wpContentDirNormalizePath = $this->wpContentDirNormalizePath();
+		$compressDir = rtrim(wp_normalize_path(DUP_PRO_U::safePath($this->PackDir)), '/');
+        $file = wp_normalize_path($file);
+        if ($isOuterWPContentDir && 0 === strpos($file, $wpContentDirNormalizePath)) {
+			$newWPContentDirPath = empty($basePath) 
+										? 'wp-content/' 
+										: $basePath.'wp-content/';
+            $localFileName = ltrim(str_replace($wpContentDirNormalizePath, $newWPContentDirPath, $file), '/');
+        } else {
+            $localFileName = ltrim(str_replace($compressDir, $basePath, $file), '/');
+        }
+        return $localFileName;
     }
 }

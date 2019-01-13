@@ -356,7 +356,7 @@ class DUP_PRO_Extraction
 
         DUPX_Log::info("ZIP:\tShell Exec Unzip");
 
-        $command = "{$this->shell_exec_path} -o -qq \"{$this->archive_path}\" -d {$this->root_path} 2>&1";
+        $command = escapeshellcmd($this->shell_exec_path)." -o -qq ".escapeshellarg($this->archive_path)." -d ".escapeshellarg($this->root_path)." 2>&1";
         if ($this->zip_filetime == 'original') {
             DUPX_Log::info("\nShell Exec Current does not support orginal file timestamp please use ZipArchive");
         }

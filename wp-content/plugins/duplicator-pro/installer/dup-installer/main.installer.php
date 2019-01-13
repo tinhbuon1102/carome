@@ -99,13 +99,13 @@ if (!empty($GLOBALS['view'])) {
 }
 
 // CSRF checking
-if (!empty($post_view)) {
+if (!empty($post_view) &&  (isset($_GET['view']) && $_GET['view'] !== 'help')) {
 	$csrf_views = array(
 		'secure',
 		'step1',
 		'step2',
 		'step3',
-		'step4',
+		'step4'
 	);
 	
 	if (in_array($post_view, $csrf_views)) {
@@ -158,6 +158,14 @@ if ($GLOBALS['DUPX_STATE'] == null) {
 	// RSR TODO: Fail 'gracefully'
 	die("Can't initialize installer state");
 }
+
+if ($GLOBALS['DUPX_STATE']->mode === DUPX_InstallerMode::OverwriteInstall) {
+    if ('step1' == $GLOBALS["VIEW"] || 'secure' == $GLOBALS["VIEW"]) {
+        DUPX_U::maintenanceMode(true, $GLOBALS['DUPX_ROOT']);
+    } elseif ('step4' == $GLOBALS["VIEW"]) {
+        DUPX_U::maintenanceMode(false, $GLOBALS['DUPX_ROOT']);
+    }
+}
 	
 
 require_once($GLOBALS['DUPX_INIT'] . '/classes/class.db.php');
@@ -165,7 +173,6 @@ require_once($GLOBALS['DUPX_INIT'] . '/classes/class.logging.php');
 require_once($GLOBALS['DUPX_INIT'] . '/classes/class.http.php');
 require_once($GLOBALS['DUPX_INIT'] . '/classes/class.server.php');
 require_once($GLOBALS['DUPX_INIT'] . '/classes/config/class.conf.srv.php');
-require_once($GLOBALS['DUPX_INIT'] . '/classes/config/class.conf.wp.php');
 require_once($GLOBALS['DUPX_INIT'] . '/classes/class.engine.php');
 
 $GLOBALS['_CURRENT_URL_PATH'] = $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']);

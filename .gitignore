@@ -20,6 +20,7 @@ wp-content/ai1wm-backups
 wp-content/plugins/wpide/backups
 wp-content/plugins/bwp-minify/cache
 wp-content/plugins/bwp-minify/min/config.php
+test
 
 /.htaccess
 /license.txt

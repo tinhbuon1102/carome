@@ -24,9 +24,9 @@ if (isset($_POST['action']) && $_POST['action'] == 'save') {
 	$global->clientside_kickoff	= isset($_REQUEST['_clientside_kickoff']);
 
     // Auto setting the max package runtime in case of client kickoff is turned off and
-	// the max package runtime is less than 180 minutes - 3 hours
-	if($global->clientside_kickoff && $global->max_package_runtime_in_min < 180 ) {
-		$global->max_package_runtime_in_min = 180;
+	// the max package runtime is less than 480 minutes - 8 hours
+	if($global->clientside_kickoff && $global->max_package_runtime_in_min < 480 ) {
+		$global->max_package_runtime_in_min = 480;
 	}
 
     $global->basic_auth_enabled	= isset($_REQUEST['_basic_auth_enabled']) ? 1 : 0;

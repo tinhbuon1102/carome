@@ -4,7 +4,7 @@ defined("ABSPATH") or die("");
   Plugin Name: Duplicator Pro
   Plugin URI: http://snapcreek.com/
   Description: Create, schedule and transfer a copy of your WordPress files and database. Duplicate and move a site from one location to another quickly.
-  Version: 3.7.9.1
+  Version: 3.8.0
   Author: Snap Creek
   Author URI: http://snapcreek.com
   License: GPLv2 or later
@@ -168,6 +168,45 @@ if (!function_exists('_sanitize_text_fields')) {
         }
 
         return $filtered;
+    }
+}
+
+if (!function_exists('wp_normalize_path')) {
+    /**
+     * Normalize a filesystem path.
+     *
+     * On windows systems, replaces backslashes with forward slashes
+     * and forces upper-case drive letters.
+     * Allows for two leading slashes for Windows network shares, but
+     * ensures that all other duplicate slashes are reduced to a single.
+     *
+     * @since 3.9.0
+     * @since 4.4.0 Ensures upper-case drive letters on Windows systems.
+     * @since 4.5.0 Allows for Windows network shares.
+     * @since 4.9.7 Allows for PHP file wrappers.
+     *
+     * @param string $path Path to normalize.
+     * @return string Normalized path.
+     */
+    function wp_normalize_path( $path ) {
+        $wrapper = '';
+        if ( wp_is_stream( $path ) ) {
+            list( $wrapper, $path ) = explode( '://', $path, 2 );
+            $wrapper .= '://';
+        }
+
+        // Standardise all paths to use /
+        $path = str_replace( '\\', '/', $path );
+
+        // Replace multiple slashes down to a singular, allowing for network shares having two slashes.
+        $path = preg_replace( '|(?<=.)/+|', '/', $path );
+
+        // Windows paths should uppercase the drive letter
+        if ( ':' === substr( $path, 1, 1 ) ) {
+            $path = ucfirst( $path );
+        }
+
+        return $wrapper . $path;
     }
 }
 
@@ -479,7 +518,7 @@ HTML;
     function duplicator_pro_init()
     {
         // Check post migration hook and take action of post migration
-        $is_migration = get_site_option('duplicator_pro_migration');
+        $is_migration = get_option('duplicator_pro_migration');
         if ($is_migration) {
             // For thread lock
 
@@ -487,7 +526,7 @@ HTML;
             $global->lock_mode = DUP_PRO_Global_Entity::get_lock_type();
             $global->save();
 
-            delete_site_option('duplicator_pro_migration');
+            delete_option('duplicator_pro_migration');
         }
 
         // wp_doing_ajax introduced in WP 4.7
@@ -622,6 +661,7 @@ HTML;
         wp_enqueue_script('jquery-ui-progressbar');
         wp_enqueue_script('jquery-ui-datepicker');
         wp_enqueue_script('parsley');
+        wp_enqueue_script('accordion');
         wp_enqueue_script('dup-pro-jquery-qtip');
 		wp_enqueue_script('dup-pro-formstone');
     }

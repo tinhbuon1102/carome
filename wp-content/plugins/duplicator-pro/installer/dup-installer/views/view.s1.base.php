@@ -53,6 +53,14 @@ $notice['40'] = DUPX_Server::$php_version_53_plus	 ? 'Good' : 'Warn';
 $notice['50'] = empty($openbase) ? 'Good' : 'Warn';
 $notice['60'] = !$max_time_warn ? 'Good' : 'Warn';
 $notice['70'] = !$parent_has_wordfence ? 'Good' : 'Warn';
+$notice['80'] = !$GLOBALS['DUPX_AC']->is_outer_root_wp_config_file	? 'Good' : 'Warn';
+if ($GLOBALS['DUPX_AC']->exportOnlyDB) {
+	$notice['90'] = 'Good';
+} else {
+	$notice['90'] = (!$GLOBALS['DUPX_AC']->is_outer_root_wp_content_dir) 
+						? 'Good' 
+						: 'Warn';
+}
 $all_notice = in_array('Warn', $notice) ? 'Warn' : 'Good';
 
 //SUMMATION
@@ -131,10 +139,6 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
                     <tr>
                         <td>Size:</td>
                         <td><?php echo DUPX_U::readableByteSize($arcSize);?> </td>
-                    </tr>
-                    <tr>
-                        <td>Name:</td>
-                        <td><?php echo "{$GLOBALS['FW_PACKAGE_NAME']}"; ?> </td>
                     </tr>
                     <tr>
                         <td>Path:</td>
@@ -421,6 +425,24 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
             Having Wordfence in a parent site can interfere with the install, however no such condition was detected.
             <?php endif;?>
         </div>
+
+        <!-- NOTICE 80 -->
+		<div class="status <?php echo ($notice['80'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo DUPX_U::esc_html($notice['80']); ?></div>
+		<div class="title" data-type="toggle" data-target="#s1-notice80"><i class="fa fa-caret-right"></i> wp-config.php file location</div>
+		<div class="info" id="s1-notice80">
+			The wp-config.php file have moved up one level and out of the wordpress root folder in package creation site. 
+			<br/><br/>
+			Duplicator Installer will place this wp-config.php file in the wordpress setup root folder of this installation site. It will not break anything in your installation site. It is just for your information.
+		</div>
+
+		<!-- NOTICE 90 -->
+		<div class="status <?php echo ($notice['90'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo DUPX_U::esc_html($notice['90']); ?></div>
+		<div class="title" data-type="toggle" data-target="#s1-notice90"><i class="fa fa-caret-right"></i> wp-content directory location</div>
+		<div class="info" id="s1-notice90">
+			The wp-content directory was out of the wordpress root folder in package creation site. 
+			<br/><br/>
+			Duplicator Installer will place this wp-content directory in the wordpress setup root folder of this installation site. It will not break anything in your installation site. It is just for your information.
+		</div>
         </div>
     </div>
     <br/><br/>
@@ -908,10 +930,19 @@ DUPX.pingDAWS = function ()
 	$.ajax({
 		type: "POST",
 		timeout: DUPX.DAWS.PingWorkerTimeInSec * 2000, // Double worker time and convert to ms
-		dataType: "json",
 		url: DUPX.DAWS.Url,
 		data: JSON.stringify(request),
-		success: function (data) {
+		success: function (respData, textStatus, xHr) {
+            try {
+                var data = DUPX.parseJSON(respData);
+            } catch(err) {
+                console.error(err);
+                console.error('JSON parse failed for response data: ' + respData);
+                console.log('AJAX error. textStatus=');
+                console.log(textStatus);
+                DUPX.handleDAWSCommunicationProblem(xHr, true, textStatus, 'ping');
+                return false;
+            }
 
 			DUPX.DAWS.FailureCount = 0;
 			console.log("pingDAWS:AJAX success. Resetting failure count");
@@ -1062,7 +1093,6 @@ DUPX.kickOffDupArchiveExtract = function ()
 	$.ajax({
 		type: "POST",
 		timeout: DUPX.DAWS.KickoffWorkerTimeInSec * 2000,  // Double worker time and convert to ms
-		dataType: "json",
 		url: DUPX.DAWS.Url,
 		data: requestString,
 		beforeSend: function () {
@@ -1071,7 +1101,16 @@ DUPX.kickOffDupArchiveExtract = function ()
 			$('#s1-result-form').show();
 			DUPX.updateProgressPercent(0);
 		},
-		success: function (data) {
+		success: function (respData, textStatus, xHr) {
+            try {
+                var data = DUPX.parseJSON(respData);
+            } catch(err) {
+                console.error(err);
+                console.error('JSON parse failed for response data: ' + respData);
+                console.log('kickOffDupArchiveExtract:AJAX error. textStatus=', textStatus);
+			    DUPX.handleDAWSCommunicationProblem(xHr, false, textStatus);
+                return false;
+            }
 
 			console.log('kickOffDupArchiveExtract:success');
 			if (typeof (data) != 'undefined' && data.pass == 1) {
@@ -1129,13 +1168,23 @@ DUPX.finalizeDupArchiveExtraction = function(dawsStatus)
 	$.ajax({
 		type: "POST",
 		timeout: 30000,
-		dataType: "json",
 		url: window.location.href,
 		data: formData,
 		beforeSend: function () {
 
 		},
-		success: function (data) {
+		success: function (respData, textStatus, xHr) {
+            try {
+                var data = DUPX.parseJSON(respData);
+            } catch(err) {
+                console.error(err);
+                console.error('JSON parse failed for response data: ' + respData);
+                console.log("finalizeDupArchiveExtraction:error");
+                console.log(xHr.statusText);
+                console.log(xHr.getAllResponseHeaders());
+                console.log(xHr.responseText);
+                return false;
+            }
 			console.log("finalizeDupArchiveExtraction:success");
 		},
 		error: function (xHr) {
@@ -1167,12 +1216,16 @@ DUPX.runStandardExtraction = function ()
 			$form.hide();
 			$('#s1-result-form').show();
 		},
-		success: function (data, textstatus, xHr) {
-            $("#ajax-json-debug").val(data);
-            var dataJSON = data;
-            data = DUPX.parseJSON(data, xHr, textstatus);
-            if (false === data) {
-                return;
+		success: function (respData, textStatus, xHr) {
+            $("#ajax-json-debug").val(respData);
+            var dataJSON = respData;
+            try {
+                var data = DUPX.parseJSON(respData);
+            } catch(err) {
+                console.error(err);
+                console.error('JSON parse failed for response data: ' + respData);
+                DUPX.ajaxCommunicationFailed(xHr, textStatus, 'extract');
+                return false;
             }
 			if (typeof (data) != 'undefined' && data.pass == 1) {
 				$("#ajax-logging").val($("input:radio[name=logging]:checked").val());
@@ -1242,13 +1295,17 @@ DUPX.runChunkedExtraction = function (data)
                 DUPX.updateProgressPercent(0);
             }
         },
-        success: function (data, textstatus, xHr) {
-            if(typeof (data) != 'undefined'){
-                var dataJSON = data;
-                $("#ajax-json-debug").val(data);
-                data = DUPX.parseJSON(data, xHr, textstatus);
-                if (false === data) {
-                    return;
+        success: function (respData, textStatus, xHr) {
+            if(typeof (respData) != 'undefined'){
+                var dataJSON = respData;
+                $("#ajax-json-debug").val(respData);
+                try {
+                    var data = DUPX.parseJSON(respData);
+                } catch(err) {
+                    console.error(err);
+                    console.error('JSON parse failed for response data: ' + respData);
+                    DUPX.ajaxCommunicationFailed(xHr, textStatus, 'extract');
+                    return false;
                 }
                 if (data.pass == 1) {
                     $("#ajax-logging").val($("input:radio[name=logging]:checked").val());
@@ -1288,20 +1345,20 @@ DUPX.runChunkedExtraction = function (data)
                 }
             }
         },
-        error: function (xHr, textstatus) {
-            DUPX.ajaxCommunicationFailed(xHr, textstatus, 'extract');
+        error: function (xHr, textStatus) {
+            DUPX.ajaxCommunicationFailed(xHr, textStatus, 'extract');
         }
     });
 };
 
 
-DUPX.ajaxCommunicationFailed = function (xhr, textstatus, page)
+DUPX.ajaxCommunicationFailed = function (xhr, textStatus, page)
 {
 	var status = "<b>Server Code:</b> " + xhr.status + "<br/>";
 	status += "<b>Status:</b> " + xhr.statusText + "<br/>";
 	status += "<b>Response:</b> " + xhr.responseText + "<hr/>";
 
-	if(textstatus && textstatus.toLowerCase() == "timeout" || textstatus.toLowerCase() == "service unavailable") {
+	if(textStatus && textStatus.toLowerCase() == "timeout" || textStatus.toLowerCase() == "service unavailable") {
 
 		var default_timeout_message = "<b>Recommendation:</b><br/>";
 			default_timeout_message += "See <a target='_blank' href='https://snapcreek.com/duplicator/docs/faqs-tech/?180116102141#faq-trouble-100-q'>this FAQ item</a> for possible resolutions.";
@@ -1358,31 +1415,6 @@ DUPX.ajaxCommunicationFailed = function (xhr, textstatus, page)
 	$('#ajaxerr-data').html(status);
 	DUPX.hideProgressBar();
 };
-
-DUPX.parseJSON = function(mixData, xHr, textstatus) {
-    try {
-		var parsed = JSON.parse(mixData);
-		return parsed;
-	} catch (e) {
-		console.log("JSON parse failed - 1");
-	}
-
-	var jsonStartPos = mixData.indexOf('{');
-	var jsonLastPos = mixData.lastIndexOf('}');
-	if (jsonStartPos > -1 && jsonLastPos > -1) {
-		var expectedJsonStr = mixData.slice(jsonStartPos, jsonLastPos + 1);
-		try {
-			var parsed = JSON.parse(expectedJsonStr);
-			return parsed;
-		} catch (e) {
-            console.log("JSON parse failed - 2");
-            DUPX.ajaxCommunicationFailed(xHr, textstatus, 'extract');
-            return false;
-		}
-	}
-    DUPX.ajaxCommunicationFailed(xHr, textstatus, 'extract');
-    return false;
-}
 
 /** Go back on AJAX result view */
 DUPX.hideErrorResult = function ()

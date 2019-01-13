@@ -39,31 +39,14 @@ if (isset($_REQUEST['action'])) {
 }
 
 $pending_cancelled_package_ids = DUP_PRO_Package::get_pending_cancellations();
-$qryResult			= $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}duplicator_pro_packages` ORDER BY id DESC", ARRAY_A);
-$qryStatusActive	= $wpdb->get_results("SELECT status FROM `{$wpdb->base_prefix}duplicator_pro_packages` WHERE status < 100 and status > 0", ARRAY_A);
-$totalElements		= count($qryResult);
-$statusActive		= count($qryStatusActive);
-
-//Report All Packages sizes:
-$totalSize = 0;
-foreach ($qryResult as $row) {
-	$Package = DUP_PRO_Package::get_from_json($row['package']);
-	if (is_object($Package)) {
-		$pack_archive_size	 = $Package->Archive->Size;
-	} else {
-		$pack_archive_size	 = 0;
-	}
-	$totalSize = $totalSize + $pack_archive_size;
-}
-
+$totalElements = $wpdb->get_var("SELECT count(id) as totalElements FROM `{$wpdb->base_prefix}duplicator_pro_packages`");
+$statusActive = $wpdb->get_var("SELECT count(id) as totalElements FROM `{$wpdb->base_prefix}duplicator_pro_packages`  WHERE status < 100 and status > 0");
 
 $pager		= new DUP_PRO_Package_Pagination();
 $per_page	= $pager->get_per_page();
-if ($totalElements > $per_page) {
-	$current_page	= ($statusActive >= 1) ? 1 : $pager->get_pagenum();
-	$offset			= ( $current_page - 1 ) * $per_page;
-	$qryResult		= $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}duplicator_pro_packages` ORDER BY id DESC LIMIT ${offset}, ${per_page} ", ARRAY_A);
-}
+$current_page	= ($statusActive >= 1) ? 1 : $pager->get_pagenum();
+$offset			= ( $current_page - 1 ) * $per_page;
+$qryResult		= $wpdb->get_results("SELECT * FROM `{$wpdb->base_prefix}duplicator_pro_packages` ORDER BY id DESC LIMIT ${offset}, ${per_page} ", ARRAY_A);
 
 $global = DUP_PRO_Global_Entity::get_instance();
 $active_package_present = DUP_PRO_Package::is_active_package_present();
@@ -387,7 +370,7 @@ foreach ($rows as $row) {
 						</button>
 					 <?php endif; ?>
 					<nav class="dpro-dnload-menu-items">
-						<div onClick="DupPro.Pack.DownloadFile(<?php echo $js_arc_params ?>); DupPro.Pack.DownloadPackageFile(0, <?php echo $Package->ID; ?>); jQuery(this).parent().hide();" >
+						<div onClick="DupPro.Pack.DownloadFile(<?php echo $js_arc_params ?>); setTimeout(function(){ DupPro.Pack.DownloadPackageFile(0, <?php echo $Package->ID; ?>); }, 700); jQuery(this).parent().hide();" >
 							<span title="<?php if(!$archive_exists){DUP_PRO_U::esc_html_e("Download not accessible from here");} ?>">
 								<i class="fa <?php echo ($archive_exists && $installer_exists  ? 'fa-download' : 'fa-exclamation-triangle') ?>"></i> <?php DUP_PRO_U::esc_html_e("Both Files") ?>
 							</span>
@@ -485,7 +468,17 @@ foreach ($rows as $row) {
 			} else if ($status == DUP_PRO_PackageStatus::PENDING_CANCEL) {
 				$progress_error = '<div class="progress-error"><i class="fa fa-exclamation-triangle"></i> '.DUP_PRO_U::__('Cancelling Build')."</div><span style='display:none' id='status-$id'>$status</span>";
 			} else if ($status == DUP_PRO_PackageStatus::REQUIREMENTS_FAILED) {
-				$progress_error = '<div class="progress-error"><i class="fa fa-exclamation-triangle"></i> '.DUP_PRO_U::__('Requirements Failed')."</div><span style='display:none' id='status-$id'>$status</span>";
+				$package_id = $row['id'];
+				$package = DUP_PRO_Package::get_by_id($package_id);
+				$package_log_store_dir = dirname($package->StorePath);
+				$package_log_store_dir = trailingslashit($package_log_store_dir);
+				$is_txt_log_file_exist = file_exists("{$package_log_store_dir}{$package->NameHash}_log.txt");
+				if ($is_txt_log_file_exist) {
+					$link_log = "{$package->StoreURL}{$package->NameHash}_log.txt";    
+				} else { // .log is for backward compatibility
+					$link_log = "{$package->StoreURL}{$package->NameHash}.log";
+				}
+				$progress_error = '<div class="progress-error"><a href="'.esc_url($link_log).'" target="_blank"><i class="fa fa-exclamation-triangle"></i> '.DUP_PRO_U::__('Requirements Failed')."</a></div><span style='display:none' id='status-$id'>$status</span>";
 			}
 		}
 		?>
@@ -586,7 +579,6 @@ foreach ($rows as $row) {
 			</div>
 			<div style="float:right">
 				<?php
-					echo DUP_PRO_U::__("Total Size")	. ': ' . DUP_PRO_U::byteSize($totalSize).  ' &nbsp;|&nbsp; ';
 					echo '<i>' . DUP_PRO_U::__("Time")	. ': <span id="dpro-clock-container"></span></i>';
 				?>
 			</div>
@@ -731,15 +723,27 @@ DupPro.Pack.QuickFix = function(e, pharams){
     $.ajax({
 		type: "POST",
 		url: ajaxurl,
-		dataType: "json",
 		data: {
             action : 'duplicator_pro_quick_fix',
             setup : pharams,
 			id : id,
 			nonce: '<?php echo wp_create_nonce('duplicator_pro_quick_fix'); ?>'
         }
-	}).done(function(data){
-        console.log(data);
+	}).done(function(respData, x){
+        try {
+			var data = DupPro.parseJSON(respData);  
+		} catch(err) {
+			console.error(err); 
+            console.error('JSON parse failed for response data: ' + respData);
+
+			button.reset();
+			error.message('<?php DUP_PRO_U::esc_html_e('Unexpected Error!')?>');
+			console.log(respData);
+			console.log(x);
+			return false;
+		}
+		
+		console.log(data);
         if(data.error === false)
         {
             fix.remove();
@@ -887,9 +891,16 @@ DupPro.Pack.Delete = function()
 	$.ajax({
 		type: "POST",
 		url: ajaxurl,
-		dataType: "json",
 		data: {action: 'duplicator_pro_package_delete', duplicator_pro_delid: list, nonce: '<?php echo $delete_nonce; ?>'},
-		success: function(data) {
+		success: function(respData) {
+			try {
+				var data = DupPro.parseJSON(respData);
+			} catch(err) {
+				console.error(err);
+				console.error('JSON parse failed for response data: ' + respData);
+				alert('Failed to delete package with AJAX resp: '+respData);
+				return false;
+			}
 			//Increment back a page-set if no items are left
 			if ($('#form-duplicator-nav').length) {
 				if (pageItems.length == list.split(",").length)
@@ -953,11 +964,20 @@ DupPro.Pack.ShowRemote = function(package_id, name)
 	$.ajax({
 		type: "POST",
 		url: ajaxurl,
-		dataType: "json",
 		timeout: 10000000,
 		data: data,
 		complete: function() {},
-		success: function(data) {
+		success: function(respData) {
+			try {
+				var data = DupPro.parseJSON(respData);
+			} catch(err) {
+				console.error(err);
+				console.error('JSON parse failed for response data: ' + respData);
+				<?php $alert5->showAlert(); ?>
+				console.log(respData);
+				return false;
+			}
+				
 			if (! data.succeeded) {
 				var text = "<?php DUP_PRO_U::esc_html_e('Got an error or a warning'); ?>: " + data.message;
                 <?php $alert4->showAlert(); ?>
@@ -1096,9 +1116,17 @@ $('#btn-logs-gift').on('click touchstart',function(e)
     $.ajax({
 		type: "POST",
 		url: ajaxurl,
-		dataType: "json",
 		data: data
-	}).done(function(data) {
+	}).done(function(respData) {
+		try {
+			var data = DupPro.parseJSON(respData);
+		} catch(err) {
+			console.error(err);
+			console.error('JSON parse failed for response data: ' + respData);
+			DupPro.Pack.SetUpdateInterval(60);
+			console.log(data);
+			return false;
+		}
         window.location.href = href;
     }).fail(function(data) {
         DupPro.Pack.SetUpdateInterval(60);
@@ -1113,11 +1141,21 @@ DupPro.Pack.UpdateUnfinishedPackages = function()
 	$.ajax({
 		type: "POST",
 		url: ajaxurl,
-		dataType: "json",
+		dataType: "text",
 		timeout: 10000000,
 		data: data,
 		complete: function() { },
-		success: function(data) {
+		success: function(respData) {
+			try {
+				var data = DupPro.parseJSON(respData);
+			} catch(err) {
+				// console.error(err);
+				console.error('JSON parse failed for response data: ' + respData);
+				DupPro.Pack.SetUpdateInterval(60);
+				console.log(respData);
+				return false;
+			}
+			
 			var activePackagePresent = false;
 
 			if(DupPro.Pack.packageCount == -1) {

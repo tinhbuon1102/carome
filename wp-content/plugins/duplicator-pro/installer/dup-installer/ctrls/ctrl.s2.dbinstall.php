@@ -82,50 +82,6 @@ class DUPX_DBInstall
 		$this->dbchunk		   = isset($post['dbchunk'])     ? DUPX_U::sanitize_text_field($post['dbchunk']) : 0;
     }
 
-    public function prepareSQL()
-    {
-        $faq_url      = $GLOBALS['FAQ_URL'];
-        @chmod($this->sql_file_path , 0777);
-        $sql_file = file_get_contents($this->sql_file_path, true);
-
-        //ERROR: Reading database.sql file
-        if ($sql_file === false || strlen($sql_file) < 10) {
-            $spacer = str_repeat("&nbsp;", 5);
-            $sql_file_rel_path = "dup-installer/dup-database__{$GLOBALS['DUPX_AC']->package_hash}.sql";
-            $msg    = "
-<b>Unable to read/find the ".DUPX_U::esc_html($sql_file_rel_path)." file from the archive.</b><br/>
-Please check these items: <br/><br/>
-1. Validate permissions and/or group-owner rights on these items: <br/>
-{$spacer}- File: dup-database__".DUPX_U::esc_html($GLOBALS['DUPX_AC']->package_hash).".sql file in dup-installer folder<br/>
-{$spacer}- Directory: [".DUPX_U::esc_html($this->root_path)."] <br/>
-{$spacer}<small>See: <a href='".DUPX_U::esc_url($faq_url.'#faq-trouble-055-q')."' target='_blank'>".DUPX_U::esc_url($faq_url.'#faq-trouble-055-q')."</a></small><br/><br/>
-2. Validate the dup-database__".DUPX_U::esc_html($GLOBALS['DUPX_AC']->package_hash).".sql file exists and is in the dup-installer folder of the archive.zip file <br/>
-{$spacer}<small>See: <a href='".DUPX_U::esc_url($faq_url.'#faq-installer-020-q')."' target='_blank'>".DUPX_U::esc_url($faq_url.'#faq-installer-020-q')."</a></small><br/><br/> ";
-            DUPX_Log::error($msg);
-        }
-
-        //Removes invalid space characters
-        //Complex Subject See: http://webcollab.sourceforge.net/unicode.html
-        $sql_file = $this->nbspFix($sql_file);
-
-        //Write new contents to install-data.sql
-        @chmod($this->sql_result_file_path, 0777);
-        $sql_file_copy_status         = file_put_contents($this->sql_result_file_path, $sql_file);
-        $this->sql_result_data        = explode(";\n", $sql_file);
-        $this->sql_result_data_length = count($this->sql_result_data);
-        $sql_file                     = null;
-
-        //WARNING: Create installer-data.sql failed
-        if ($sql_file_copy_status === false || filesize($this->sql_result_file_path) == 0 || !is_readable($this->sql_result_file_path)) {
-            $sql_file_path = "{$GLOBALS['DUPX_INIT']}/dup-database__{$GLOBALS['DUPX_AC']->package_hash}.sql";
-            $sql_file_size = DUPX_U::readableByteSize(filesize($sql_file_path));
-            $msg           = "\nWARNING: Unable to properly copy dup-installer/dup-database__{$GLOBALS['DUPX_AC']->package_hash}.sql ({$sql_file_size}) to {$GLOBALS['SQL_FILE_NAME']}.  Please check these items:\n";
-            $msg           .= "- Validate permissions and/or group-owner rights on dup-database__{$GLOBALS['DUPX_AC']->package_hash}.sql and directory [{$GLOBALS['DUPX_INIT']}/] \n";
-            $msg           .= "- see: {$faq_url}#faq-trouble-055-q \n";
-            DUPX_Log::info($msg);
-        }
-    }
-
     public function prepareDB()
     {
         @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
@@ -210,6 +166,11 @@ Please check these items: <br/><br/>
             DUPX_Log::info("Retrying count: ".$this->post['dbchunk_retry']);
         }
 
+        if (!empty($this->post['delimiter'])) {
+            $delimiter = $this->post['delimiter'];
+        } else {
+            $delimiter = ';';
+        }
 
         $handle = fopen($this->sql_file_path, 'rb');
        	if ($handle === false) {
@@ -228,8 +189,14 @@ Please check these items: <br/><br/>
                 DUPX_Log::info("Iterating query loop");
                 $query = null;
                 while (($line = fgets($handle)) !== false) {
+                    if ('DELIMITER ;' == trim($query)) {
+                        $delimiter = ';';
+                        $query = null;
+                        continue;
+                    }
                     $query .= $line;
-                    if (preg_match('/;\s*$/S', $query)) {
+
+                    if (preg_match('/'.$delimiter.'\s*$/S', $query)) {
                         // Temp: Uncomment this to randomly kill the php db process to simulate real world hosts and verify system recovers properly
                         /*
                         $rand_no = rand(0, 500);
@@ -241,16 +208,22 @@ Please check these items: <br/><br/>
                         */
 
                         $query = trim($query);
-                        if (0 === strpos($query, "DELIMITER")) {
-                            DUPX_Log::info("Skipping delimiter query");
-                            $query = null;
-                            continue;
+                        if (0 === strpos($query, "DELIMITER")) { 
+                            // Ending delimiter
+                            // control never comes in this if condition, but written
+                            if ('DELIMITER ;' == $query) {  
+                                $delimiter = ';'; 
+                            } else { // starting delimiter 
+                                $delimiter =  substr($query, 10);
+                                $delimiter =  trim($delimiter);
+                            } 
+     
+                            DUPX_Log::info("Skipping delimiter query"); 
+                            $query = null; 
+                            continue; 
                         }
 
-                        // If any query have double query
-                        $query_explode = explode(";\n", $query);
-                        $this->writeInDB($query_explode);
-                        
+                        $this->writeQueryInDB($query);
                         $elapsed_time = (microtime(true) - $this->thread_start_time);
                         DUPX_Log::info("Elapsed time: ".$elapsed_time);
                         if ($elapsed_time > $this->threadTimeOut) {
@@ -273,6 +246,7 @@ Please check these items: <br/><br/>
 
             $json['profile_start']   = $this->profile_start;
             $json['start_microtime'] = $this->start_microtime;
+            $json['delimiter'] = $delimiter;
             $json['dbquery_errs']    = $this->dbquery_errs;
             $json['drop_tbl_log']    = $this->drop_tbl_log;
             $json['dbquery_rows']    = $this->dbquery_rows;
@@ -355,60 +329,128 @@ Please check these items: <br/><br/>
         return $json;
     }
     
-    public function writeInDB($sql_data = array())
+    public function writeInDB()
     {
         //WRITE DATA
         $fcgi_buffer_pool  = 5000;
         $fcgi_buffer_count = 0;
         $counter           = 0;
-        if (!empty($sql_data)) {
-            $this->sql_result_data = $sql_data;
+        
+        $handle = fopen($this->sql_file_path, 'rb');
+        if ($handle === false) {
+            return false;
         }
-		
-        $this->applyCollationFallback();
-        $this->applyProcUserFix();
-        $sql_data_length = count($this->sql_result_data);
+
         @mysqli_autocommit($dbh, false);
-
-        while ($counter < $sql_data_length) {
-
-            $query_strlen = strlen(trim($this->sql_result_data[$counter]));
-            if ($this->dbvar_maxpacks < $query_strlen) {
-                DUPX_Log::info("**ERROR** Query size limit [length={$this->dbvar_maxpacks}] [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]");
-                $this->dbquery_errs++;
-            } elseif ($query_strlen > 0) {
-                $this->delimiterFix($counter);
-                @mysqli_free_result(@mysqli_query($this->dbh, ($this->sql_result_data[$counter])));
-                $err = mysqli_error($this->dbh);
-                //Check to make sure the connection is alive
-                if (!empty($err)) {
-                    if (!mysqli_ping($this->dbh)) {
-                        mysqli_close($this->dbh);
-                        $this->dbh = DUPX_DB::connect($this->post['dbhost'], $this->post['dbuser'], $this->post['dbpass'], $this->post['dbname']);
-                        // Reset session setup
-                        @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
-                        DUPX_DB::setCharset($this->dbh, mysqli_real_escape_string($this->dbh, $this->post['dbcharset']), mysqli_real_escape_string($this->dbh, $this->post['dbcollate']));
-                    }
-                    DUPX_Log::info("**ERROR** database error write '{$err}' - [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]");
-
-                    if (DUPX_U::contains($err, 'Unknown collation')) {
-                        DUPX_Log::info('RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q');
-                    }
-
-                    $this->dbquery_errs++;
-
-                    //Buffer data to browser to keep connection open
-                } else {
-                    if ($fcgi_buffer_count++ > $fcgi_buffer_pool) {
-                        $fcgi_buffer_count = 0;
-                    }
-                    $this->dbquery_rows++;
-                }
+        $query = null;
+        $delimiter = ';';
+        while (($line = fgets($handle)) !== false) {
+            if ('DELIMITER ;' == trim($query)) {
+                $delimiter = ';';
+                $query = null;
+                continue;
             }
-            $counter++;
+            $query .= $line;
+            if (preg_match('/'.$delimiter.'\s*$/S', $query)) {
+                $query_strlen = strlen(trim($query));
+                if ($this->dbvar_maxpacks < $query_strlen) {
+                    DUPX_Log::info("**ERROR** Query size limit [length={$this->dbvar_maxpacks}] [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]");
+                    $this->dbquery_errs++;
+                } elseif ($query_strlen > 0) {
+                    $query = $this->nbspFix($query);
+                    $query = $this->applyQueryCollationFallback($query);
+                    $query = $this->applyQueryProcUserFix($query);
+
+                    // $query = $this->queryDelimiterFix($query);
+                    $query = trim($query);
+                    if (0 === strpos($query, "DELIMITER")) {
+                        // Ending delimiter
+                        // control never comes in this if condition, but written
+                        if ('DELIMITER ;' == $query) { 
+                            $delimiter = ';';
+                        } else { // starting delimiter
+                            $delimiter =  substr($query, 10);
+                            $delimiter =  trim($delimiter);
+                        }
+
+                        DUPX_Log::info("Skipping delimiter query");
+                        $query = null;
+                        continue;
+                    }
+
+                    @mysqli_free_result(@mysqli_query($this->dbh, $query));
+                    $err = mysqli_error($this->dbh);
+                    //Check to make sure the connection is alive
+                    if (!empty($err)) {
+                        if (!mysqli_ping($this->dbh)) {
+                            mysqli_close($this->dbh);
+                            $this->dbh = DUPX_DB::connect($this->post['dbhost'], $this->post['dbuser'], $this->post['dbpass'], $this->post['dbname']);
+                            // Reset session setup
+                            @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($dbh, $GLOBALS['DB_MAX_TIME']));
+                            DUPX_DB::setCharset($this->dbh, $this->post['dbcharset'], $this->post['dbcollate']);
+                        }
+                        DUPX_Log::info("**ERROR** database error write '{$err}' - [sql=".substr($query, 0, 75)."...]");
+
+                        if (DUPX_U::contains($err, 'Unknown collation')) {
+                            DUPX_Log::info('RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q');
+                        }
+
+                        $this->dbquery_errs++;
+
+                        //Buffer data to browser to keep connection open
+                    } else {
+                        if ($fcgi_buffer_count++ > $fcgi_buffer_pool) {
+                            $fcgi_buffer_count = 0;
+                        }
+                        $this->dbquery_rows++;
+                    }
+                }
+                $query = null;
+                $counter++;
+            }
         }
         @mysqli_commit($this->dbh);
         @mysqli_autocommit($this->dbh, true);
+    }
+
+    public function writeQueryInDB($query) {
+        $query_strlen = strlen(trim($query));
+        if ($this->dbvar_maxpacks < $query_strlen) {
+            DUPX_Log::info("**ERROR** Query size limit [length={$this->dbvar_maxpacks}] [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]");
+            $this->dbquery_errs++;
+        } elseif ($query_strlen > 0) {
+            $query = $this->nbspFix($query);
+            $query = $this->applyQueryCollationFallback($query);
+            $query = $this->applyQueryProcUserFix($query);
+            $query = trim($query);
+         
+            @mysqli_free_result(@mysqli_query($this->dbh, $query));
+            $err = mysqli_error($this->dbh);
+            //Check to make sure the connection is alive
+            if (!empty($err)) {
+                if (!mysqli_ping($this->dbh)) {
+                    mysqli_close($this->dbh);
+                    $this->dbh = DUPX_DB::connect($this->post['dbhost'], $this->post['dbuser'], $this->post['dbpass'], $this->post['dbname']);
+                    // Reset session setup
+                    @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($dbh, $GLOBALS['DB_MAX_TIME']));
+                    DUPX_DB::setCharset($this->dbh, $this->post['dbcharset'], $this->post['dbcollate']);
+                }
+                DUPX_Log::info("**ERROR** database error write '{$err}' - [sql=".substr($query, 0, 75)."...]");
+
+                if (DUPX_U::contains($err, 'Unknown collation')) {
+                    DUPX_Log::info('RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q');
+                }
+
+                $this->dbquery_errs++;
+
+                //Buffer data to browser to keep connection open
+            } else {
+                if ($fcgi_buffer_count++ > $fcgi_buffer_pool) {
+                    $fcgi_buffer_count = 0;
+                }
+                $this->dbquery_rows++;
+            }
+        }
     }
 
 	public function runCleanupRotines()
@@ -548,8 +590,6 @@ Please check these items: <br/><br/>
 
     public function writeLog()
     {
-
-		
         DUPX_Log::info("ERRORS FOUND:\t{$this->dbquery_errs}");
         DUPX_Log::info("DROPPED TABLES:\t{$this->drop_tbl_log}");
         DUPX_Log::info("RENAMED TABLES:\t{$this->rename_tbl_log}");
@@ -586,8 +626,7 @@ Please check these items: <br/><br/>
         return $json;
     }
 
-    private function applyCollationFallback()
-    {
+    private function applyQueryCollationFallback($query) {
         if (!empty($this->post['dbcolsearchreplace']) && $this->post['dbcollatefb']) {
             $collation_replace_list = json_decode(stripslashes($this->post['dbcolsearchreplace']), true);
 
@@ -607,21 +646,27 @@ Please check these items: <br/><br/>
                     if (strpos($val['search'], 'utf8mb4') !== false && strpos($val['replace'], 'utf8mb4') === false) {
                         $replace_charset = true;
                     }
+                    /*
                     foreach ($this->sql_result_data as $key => $query) {
-                        if (strpos($query, $val['search'])) {
-                            $this->sql_result_data[$key] = str_replace($val['search'], $val['replace'], $query);
-                            $sub_query                   = str_replace("\n", '', substr($query, 0, 80));
-                            DUPX_Log::info("\tNOTICE: {$val['search']} replaced by {$val['replace']} in query [{$sub_query}...]");
-                        }
-                        if ($replace_charset && strpos($query, 'utf8mb4')) {
-                            $this->sql_result_data[$key] = str_replace('utf8mb4', 'utf8', $this->sql_result_data[$key]);
-                            $sub_query                   = str_replace("\n", '', substr($query, 0, 80));
-                            DUPX_Log::info("\tNOTICE: utf8mb4 replaced by utf8 in query [{$sub_query}...]");
-                        }
+                    */
+                    if (strpos($query, $val['search'])) {
+                        $query = str_replace($val['search'], $val['replace'], $query);
+                        $sub_query                   = str_replace("\n", '', substr($query, 0, 80));
+                        DUPX_Log::info("\tNOTICE: {$val['search']} replaced by {$val['replace']} in query [{$sub_query}...]");
                     }
+                    if ($replace_charset && strpos($query, 'utf8mb4')) {
+                        $query = str_replace('utf8mb4', 'utf8', $this->sql_result_data[$key]);
+                        $sub_query                   = str_replace("\n", '', substr($query, 0, 80));
+                        DUPX_Log::info("\tNOTICE: utf8mb4 replaced by utf8 in query [{$sub_query}...]");
+                    }
+                    /*
+                    }
+                    */
                 }
             }
         }
+
+        return $query;
     }
 
     private function applyProcUserFix()
@@ -633,6 +678,14 @@ Please check these items: <br/><br/>
                 $this->sql_result_data[$key] = $query;
             }
         }
+    }
+
+    private function applyQueryProcUserFix($query) {
+        if (preg_match("/DEFINER.*PROCEDURE/", $query) === 1) {
+            $query                       = preg_replace("/DEFINER.*PROCEDURE/", "PROCEDURE", $query);
+            $query                       = str_replace("BEGIN", "SQL SECURITY INVOKER\nBEGIN", $query);
+        }
+        return $query;
     }
 
     private function delimiterFix($counter)
@@ -699,11 +752,6 @@ Please check these items: <br/><br/>
                 break;
             }
         }
-    }
-
-    public function insertMigrationFlag() {
-        $sql = "INSERT into ".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options (option_name, option_value) VALUES ('duplicator_pro_migration', '1');";
-        return mysqli_query($this->dbh, $sql);
     }
 
     public function __destruct()

@@ -71,7 +71,7 @@ $archive_export_onlydb = isset($_POST['export-onlydb']) ? 1 :0;
 	div.scan-item div.text {font-weight:bold; font-size:14px; float:left;  position:relative; left:10px}
 	div.scan-item div.badge {float:right; border-radius:4px; color:#fff; min-width:40px; text-align:center; position:relative; right:10px; font-size:12px; padding:0 3px 0 3px}
 	div.scan-item div.badge-pass {background:green;}
-	div.scan-item div.badge-warn {background:#630f0f;}
+	div.scan-item div.badge-warn {background:#636363;}
 	div.scan-item div.info {display:none; padding:10px; background:#fff}
 	div.scan-good {display:inline-block; color:green;font-weight:bold;}
 	div.scan-warn {display:inline-block; color:#630f0f;font-weight:bold;}
@@ -263,14 +263,27 @@ jQuery(document).ready(function ($)
 		$.ajax({
 			type: "POST",
 			cache: false,
+			dataType: "text",
 			url: ajaxurl,
-			dataType: "json",
 			timeout: 10000000,
 			data: input,
 			complete: function () {},
-			success: function (data) {
-
-				var data    = data || new Object();
+			success: function (respData, textStatus, xHr) {
+				try {
+					var data = DupPro.parseJSON(respData);
+				} catch(err) {
+					console.error(err);
+					console.error('JSON parse failed for response data: ' + respData);
+					var status = xHr.status + ' -' + xHr.statusText;
+					$('#dup-progress-bar-area, #dup-build-button').hide();
+					$('#dup-msg-error-response-status').html(status)
+					$('#dup-msg-error-response-text').html(xHr.responseText);
+					$('#dup-msg-error, .dup-button-footer').show();
+					console.log(data);					
+					return false;
+				}
+				var data = data || new Object();
+				
 				if(data.ScanStatus !== undefined && data.ScanStatus == 'running'){
                     DupPro.Pack.runScanner();
                 }else{
@@ -425,8 +438,9 @@ jQuery(document).ready(function ($)
 		}
 
 		var sizeChecks = $('#hb-files-large-result input:checked');
+		var addonChecks = $('#hb-addon-sites-result input:checked');
 		var utf8Checks = $('#hb-files-utf8-result input:checked');
-		if (sizeChecks.length > 0 || utf8Checks.length > 0) {
+		if (sizeChecks.length > 0 || addonChecks.length > 0 || utf8Checks.length > 0) {
 			$('#dpro-confirm-area').show();
 			$('#dup-build-button').prop('disabled', true);
 			return false;

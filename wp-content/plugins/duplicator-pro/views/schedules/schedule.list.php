@@ -255,11 +255,18 @@ TOOL-BAR -->
               $.ajax({
                   type: "POST",
                   url: ajaxurl,
-                  dataType: "json",
                   timeout: 10000000,
                   data: data
-              }).done(function (data) {
-                  window.location.href = "admin.php?page=duplicator-pro";
+              }).done(function (respData) {
+                    try {
+                        var data = DupPro.parseJSON(respData);
+                    } catch(err) {
+                        console.error(err);
+                        console.error('JSON parse failed for response data: ' + respData);
+                        return false;
+                    }
+
+                    window.location.href = "admin.php?page=duplicator-pro";
               });
         }
 
@@ -372,9 +379,20 @@ TOOL-BAR -->
             $.ajax({
                 type: "POST",
                 url: ajaxurl,
-                dataType: "json",
                 data: data,
-                success: function (schedule_infos) {
+                success: function (respData) {
+                    try {
+                        var schedule_infos = DupPro.parseJSON(respData);
+                    } catch(err) {
+                        console.error(err);
+                        console.error('JSON parse failed for response data: ' + respData);
+                        console.log("error");
+                        console.log(data);
+                        $(".schedule-status-icon").display('none');
+                        DupPro.Schedule.SetUpdateInterval(60);
+                        return false;
+                    }
+
                     activeSchedulePresent = false;
                     for(schedule_info_key in schedule_infos) 
 					{

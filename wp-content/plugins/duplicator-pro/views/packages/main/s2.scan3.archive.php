@@ -128,7 +128,7 @@ SIZE CHECKS -->
 				<div class="apply-warn">
 					 <?php DUP_PRO_U::esc_html_e('*Checking a directory will exclude all items in that path recursively.'); ?>
 				</div>
-				<button type="button" class="button-small" onclick="DupPro.Pack.applyFilters(this, 'large')">
+				<button type="button" class="button-small duplicator-pro-quick-filter-btn" disabled="disabled" onclick="DupPro.Pack.applyFilters(this, 'large')">
 					<i class="fa fa-filter"></i> <?php DUP_PRO_U::esc_html_e('Add Filters &amp; Rescan');?>
 				</button>
 				<button type="button" class="button-small" onclick="DupPro.Pack.showPathsDlg('large')" title="<?php DUP_PRO_U::esc_attr_e('Copy Paths to Clipboard');?>">
@@ -183,7 +183,7 @@ ADDON SITES -->
                 <div class="apply-warn">
                     <?php DUP_PRO_U::esc_html_e('*Checking a directory will exclude all items in that path recursively.'); ?>
                 </div>
-                <button type="button" class="button-small" onclick="DupPro.Pack.applyFilters(this, 'addon')">
+                <button type="button" class="button-small duplicator-pro-quick-filter-btn" disabled="disabled" onclick="DupPro.Pack.applyFilters(this, 'addon')">
                     <i class="fa fa-filter"></i> <?php DUP_PRO_U::esc_html_e('Add Filters &amp; Rescan');?>
                 </button>
             </div>
@@ -255,7 +255,7 @@ NAME CHECKS -->
 				</div>
 			</div>
 			<div class="apply-btn">
-				<button type="button" class="button-small" onclick="DupPro.Pack.applyFilters(this, 'utf8')">
+				<button type="button" class="button-small duplicator-pro-quick-filter-btn" disabled="disabled" onclick="DupPro.Pack.applyFilters(this, 'utf8')">
 					<i class="fa fa-filter"></i> <?php DUP_PRO_U::esc_html_e('Add Filters &amp; Rescan');?>
 				</button>
 				<button type="button" class="button-small" onclick="DupPro.Pack.showPathsDlg('utf8')" title="<?php DUP_PRO_U::esc_attr_e('Copy Paths to Clipboard');?>">
@@ -656,12 +656,23 @@ jQuery(document).ready(function($)
 		$.ajax({
 			type: "POST",
 			cache: false,
+			dataType: "text",
 			url: ajaxurl,
-			dataType: "json",
 			timeout: 100000,
 			data: data,
 			complete: function() { },
-			success:  function() {  DupPro.Pack.reRunScanner();},
+			success:  function(respData) {
+				try {
+                    var data = DupPro.parseJSON(respData);
+                } catch(err) {
+                    console.error(err);
+					console.error('JSON parse failed for response data: ' + respData);
+					console.log(respData);
+                	<?php $alert4->showAlert(); ?>
+					return false;
+				}
+				DupPro.Pack.reRunScanner();
+			},
 			error: function(data) {
 				console.log(data);
                 <?php $alert4->showAlert(); ?>
@@ -716,5 +727,28 @@ jQuery(document).ready(function($)
 		DupPro.UI.loadQtip();
 
 	}
+
+	$("#form-duplicator").on('change', "#hb-files-large-result input[type='checkbox'], #hb-files-utf8-result input[type='checkbox'], #hb-addon-sites-result input[type='checkbox']", function() {
+		if ($("#hb-files-large-result input[type='checkbox']:checked").length) {
+			var large_disabled_prop = false;
+		} else {
+			var large_disabled_prop = true;
+		}
+		$("#hb-files-large-result .duplicator-pro-quick-filter-btn").prop("disabled", large_disabled_prop);
+		
+		if ($("#hb-files-utf8-result input[type='checkbox']:checked").length) {
+			var utf8_disabled_prop = false;
+		} else {
+			var utf8_disabled_prop = true;
+		}
+		$("#hb-files-utf8-result .duplicator-pro-quick-filter-btn").prop("disabled", utf8_disabled_prop);
+		
+		if ($("#hb-addon-sites-result input[type='checkbox']:checked").length) {
+			var addon_disabled_prop = false;
+		} else {
+			var addon_disabled_prop = true;
+		}
+		$("#hb-addon-sites-result .duplicator-pro-quick-filter-btn").prop("disabled", addon_disabled_prop);			
+	});
 });
 </script>

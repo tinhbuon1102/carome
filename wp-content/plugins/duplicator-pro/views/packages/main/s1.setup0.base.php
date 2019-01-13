@@ -343,8 +343,6 @@ jQuery(function($)
             $("#dbname").val(selectedTemplate.installer_opts_db_name);
             $("#dbuser").val(selectedTemplate.installer_opts_db_user);
 
-            $("#cache-wp").prop("checked", selectedTemplate.installer_opts_cache_wp);
-            $("#cache-path").prop("checked", selectedTemplate.installer_opts_cache_path);
         } else {
             console.log("Template ID doesn't exist?? " + selectedId);
         }
@@ -433,11 +431,22 @@ jQuery(document).ready(function ($) {
 
         $.ajax({
 			type: "POST",
-			dataType: "json",
 			url: ajaxurl,
 			data: ajaxData,
 			beforeSend: function () {},
-			success: function (data) {location.reload();},
+			success: function (respData, textStatus, xHr) {
+                try {
+                    var data = DupPro.parseJSON(respData);
+                } catch(err) {
+                    console.error(err);
+                    console.error('JSON parse failed for response data: ' + respData);
+                    console.log('switchDupArchiveNotice:AJAX error. textStatus=');
+                    console.log(textStatus);
+                    location.reload();
+                    return false;
+                }
+                location.reload();
+            },
 			error: function (xHr, textStatus) {
 				console.log('switchDupArchiveNotice:AJAX error. textStatus=');
 				console.log(textStatus);

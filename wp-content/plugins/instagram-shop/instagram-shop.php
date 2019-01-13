@@ -8,7 +8,7 @@
  * Domain Path: /languages
  */
 load_plugin_textdomain('instagram-shop', false, dirname(plugin_basename(__FILE__)) . '/languages');
-if ( $_POST['insta_shop_id'] )
+if ( isset($_POST['insta_shop_id']) && $_POST['insta_shop_id'] )
 {
 	update_option('insta_shop_id', $_POST['insta_shop_id']);
 }

@@ -244,6 +244,8 @@ class DUPX_UpdateEngine
                         foreach ($columns as $column => $primary_key) {
                             $report['scan_cells']++;
                             if (!isset($row[$column]))  continue;
+
+                            $safe_column = '`'.mysqli_real_escape_string($conn, $column).'`';
                             $edited_data = $data_to_fix = $row[$column];
                             $base64converted = false;
                             $txt_found = false;
@@ -252,21 +254,12 @@ class DUPX_UpdateEngine
                             //Added this here to add all columns to $where_sql
                             //The if statement with $txt_found would skip additional columns -TG
                             if($is_unkeyed && ! empty($data_to_fix)) {
-                                $where_sql[] = mysqli_real_escape_string($conn, $column) . ' = "' . mysqli_real_escape_string($conn, $data_to_fix) . '"';
+                                $where_sql[] = $safe_column . ' = "' . mysqli_real_escape_string($conn, $data_to_fix) . '"';
                             }
 
                             //Only replacing string values
                             if (!empty($row[$column]) && !is_numeric($row[$column]) && $primary_key != 1) {
-                                //Base 64 detection
-                                if (base64_decode($row[$column], true)) {
-                                    $decoded = base64_decode($row[$column], true);
-                                    if (self::isSerialized($decoded)) {
-                                        $edited_data = $decoded;
-                                        $base64converted = true;
-                                    }
-                                }
-
-                                //Skip table cell if match not found
+                                // Search strings in data
                                 foreach ($list as $item) {
                                     if (strpos($edited_data, $item['search']) !== false) {
                                         $txt_found = true;
@@ -275,7 +268,24 @@ class DUPX_UpdateEngine
                                 }
 
                                 if (!$txt_found) {
-                                    continue;
+                                    //if not found decetc Base 64
+                                    if (($decoded = DUPX_U::is_base64($row[$column])) !== false) {
+                                        $edited_data = $decoded;
+                                        $base64converted = true;
+
+                                        // Search strings in data decoded
+                                        foreach ($list as $item) {
+                                            if (strpos($edited_data, $item['search']) !== false) {
+                                                $txt_found = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    //Skip table cell if match not found
+                                    if (!$txt_found) {
+                                        continue;
+                                    }
                                 }
 
                                 //Replace logic - level 1: simple check on any string or serlized strings
@@ -304,13 +314,13 @@ class DUPX_UpdateEngine
                                 if ($base64converted) {
                                     $edited_data = base64_encode($edited_data);
                                 }
-                                $upd_col[] = $column;
-                                $upd_sql[] = $column . ' = "' . mysqli_real_escape_string($conn, $edited_data) . '"';
+                                $upd_col[] = $safe_column;
+                                $upd_sql[] = $safe_column . ' = "' . mysqli_real_escape_string($conn, $edited_data) . '"';
                                 $upd = true;
                             }
 
                             if ($primary_key) {
-                                $where_sql[] = $column . ' = "' . mysqli_real_escape_string($conn, $data_to_fix) . '"';
+                                $where_sql[] = $safe_column . ' = "' . mysqli_real_escape_string($conn, $data_to_fix) . '"';
                             }
                         }
 

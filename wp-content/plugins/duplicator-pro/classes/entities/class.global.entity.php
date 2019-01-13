@@ -120,7 +120,7 @@ class DUP_PRO_Global_Entity extends DUP_PRO_JSON_Entity_Base
 
     //GENERAL
     public $uninstall_settings; // no longer used
-    public $uninstall_files;  // no longer used
+    public $uninstall_packages;  // no longer used
     public $uninstall_tables; // no longer used
     public $wpfront_integrate;
 
@@ -173,7 +173,7 @@ class DUP_PRO_Global_Entity extends DUP_PRO_JSON_Entity_Base
     public $dropbox_upload_chunksize_in_kb;
     public $dropbox_transfer_mode;
     public $gdrive_upload_chunksize_in_kb;  // Not exposed through the UI (yet)
-    public $s3_upload_part_size_in_kb;   // Not exposed through the UI (yet)
+    public $s3_upload_part_size_in_kb;
     public $manual_mode_storage_ids;
 
     //LICENSING
@@ -248,7 +248,7 @@ class DUP_PRO_Global_Entity extends DUP_PRO_JSON_Entity_Base
     {
         //GENERAL
         $this->uninstall_settings = false;
-        $this->uninstall_files    = false;
+        $this->uninstall_packages    = false;
         $this->uninstall_tables   = true;
         $this->wpfront_integrate  = false;
 
@@ -333,6 +333,7 @@ class DUP_PRO_Global_Entity extends DUP_PRO_JSON_Entity_Base
 
         $this->custom_ajax_url         = admin_url('admin-ajax.php', 'http');
 
+        set_transient('duplicator_pro_settings_message', DUP_PRO_U::__('Settings reset to defaults successfully'), 60);
 
     }
 
@@ -386,7 +387,7 @@ class DUP_PRO_Global_Entity extends DUP_PRO_JSON_Entity_Base
     {
         //GENERAL
         $this->uninstall_settings = $global_data->uninstall_settings;
-        $this->uninstall_files    = $global_data->uninstall_files;
+        $this->uninstall_packages    = $global_data->uninstall_packages;
         $this->uninstall_tables   = $global_data->uninstall_tables;
         $this->wpfront_integrate  = $global_data->wpfront_integrate;
 
@@ -430,7 +431,7 @@ class DUP_PRO_Global_Entity extends DUP_PRO_JSON_Entity_Base
         $this->dropbox_upload_chunksize_in_kb = $global_data->dropbox_upload_chunksize_in_kb;
         $this->dropbox_transfer_mode          = $global_data->dropbox_transfer_mode;
         $this->gdrive_upload_chunksize_in_kb  = $global_data->gdrive_upload_chunksize_in_kb;  // Not exposed through the UI (yet)
-        $this->s3_upload_part_size_in_kb      = $global_data->s3_upload_part_size_in_kb;   // Not exposed through the UI (yet)
+        $this->s3_upload_part_size_in_kb      = $global_data->s3_upload_part_size_in_kb;
         $this->manual_mode_storage_ids        = $global_data->manual_mode_storage_ids;
 
         //LICENSING
