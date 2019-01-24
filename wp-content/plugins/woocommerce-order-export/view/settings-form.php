@@ -300,6 +300,22 @@ $readonly_php = WC_Order_Export_Admin::user_can_add_custom_php() ? '' : 'readonl
 			<br>
 		<?php endif; ?>
 
+			<!-- thangtq added - BEGIN -->
+			<div id="region_filter" class="my-block" title = "<?php _e( 'Select region you want to filter', 'woocommerce-order-export' ) ?>">
+				<div style="display: inline;">
+					<span class="wc-oe-header"><?php _e( 'Select region you want to filter', 'woocommerce-order-export' ) ?></span>
+					<select name="settings[region]">
+						<option value="japan" selected="selected"><?php _e( 'Japan', 'woocommerce-order-export' ) ?></option>
+						<option value="international"><?php _e( 'International', 'woocommerce-order-export' ) ?></option>
+						<option value="both"><?php _e( 'Both', 'woocommerce-order-export' ) ?></option>
+					</select>
+				</div>
+
+			</div>
+			<br>
+			<!-- thangtq added - END -->
+			
+			
 			<div id="my-export-file" class="my-block">
 				<div class="wc-oe-header">
 					<?php _e( 'Export filename', 'woocommerce-order-export' ) ?>:

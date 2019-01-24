@@ -331,6 +331,7 @@ class WC_Order_Export_Engine {
 
 		self::kill_buffers();
 		$settings = self::validate_defaults( $settings );
+		
 		self::$current_job_settings = $settings;
 		self::$current_job_build_mode = $make_mode;
 		self::$date_format = trim( $settings['date_format'] . ' ' . $settings['time_format'] );
@@ -377,8 +378,22 @@ class WC_Order_Export_Engine {
 		// check it once
 		self::_check_products_and_coupons_fields( $settings, $export, $labels, $get_coupon_meta );
 
+		// Thangtq added - BEGIN
+		$old_labels = $labels;
+		if ($settings['region'] == 'japan')
+		{
+			unset($labels['order']['billing_country']);
+			unset($labels['order']['billing_country_full']);
+		}
+		// Thangtq added - END
+		
 		// make header
 		$header = self::_make_header( $format, $labels, $csv_max );
+		
+		if ($settings['region'] == 'japan')
+		{
+			$labels = $old_labels;
+		}
 
 		if ( $make_mode != 'partial' ) { // Preview or start_estimate
 			self::maybe_init_summary_report( $labels );
@@ -399,13 +414,64 @@ class WC_Order_Export_Engine {
 			self::$order_id = $order_id;
 			$rows = WC_Order_Export_Data_Extractor::fetch_order_data( $order_id, $labels, $format, $filters_active,
 				$csv_max, $export, $get_coupon_meta, $static_vals, self::$extractor_options );
+			
+			// Thangtq added - BEGIN
+			$removed_rows = array();
+			// Thangtq added - END
+			
 			foreach ( $rows as $row ) {
+				// Thangtq added - BEGIN
+				$is_ignore_export = false;
+				switch ($settings['region'])
+				{
+					case  'japan' :
+						if ($row['billing_country'] == 'JP')
+						{
+							// Remove country + country code
+							unset($row['billing_country']);
+							unset($row['billing_country_full']);
+							
+							$formater->settings['global_job_settings']['order_fields']['billing_country']['checked'] = 0;
+							$formater->settings['global_job_settings']['order_fields']['billing_country_full']['checked'] = 0;
+							unset($formater->labels['order']['billing_country']);
+							unset($formater->labels['order']['billing_country_full']);
+						}
+						else {
+							// If not japan, dont export
+							$removed_rows['order_id'] = $row['order_id'];
+							$is_ignore_export = true;
+						}
+						break;
+					case  'international' :
+						if ($row['billing_country'] == 'JP')
+						{
+							// If is japan, dont export
+							$removed_rows['order_id'] = $row['order_id'];
+							$is_ignore_export = true;
+						}
+						break;
+				}
+				if ($is_ignore_export == true)
+				{
+					continue;
+				}
+				// Thangtq added - END
+				
 				$row=apply_filters( "woe_fetch_order_row", $row, $order_id);
+				
 				if ($row) {
 					$formater->output( $row );
 					do_action( "woe_order_row_exported", $row, $order_id);
 				}
 			}
+			
+			// Thangtq added - BEGIN
+			if (in_array($order_id, $removed_rows))
+			{
+				continue;
+			}
+			// Thangtq added - END
+			
 			if ( $make_mode != 'preview' ) {
 				do_action( "woe_order_exported", $order_id);
 				self::try_mark_order( $order_id, $settings );

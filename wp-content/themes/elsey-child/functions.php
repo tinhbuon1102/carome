@@ -1157,11 +1157,11 @@ function elsey_woe_fetch_order_row ($row, $order_id)
 {
 	foreach($row as $key => $field)
 	{
-		if (strpos($key, '_country') !== false)
+		if (strpos($key, '_country') !== false && ($field == 'JP'))
 		{
 			$row[$key] = WC()->countries->countries[ 'JP' ];
 		}
-		elseif (strpos($key, '_state') !== false)
+		elseif (strpos($key, '_state') !== false && ($row['billing_country'] == 'JP' || $row['shipping_country'] == 'JP'))
 		{
 			$states = WC()->countries->get_states( 'JP' );
 			$row[$key] = $states[$field] ? $states[$field] : $row[$key];
