@@ -1337,7 +1337,7 @@ fieldset .mc4wp-checkbox.mc4wp-checkbox-woocommerce {
 
 /*Reset Woo default*/
 p#billing_country_field, p#shipping_country_field {
-    display: none;
+    /* display: none; */
 }
 h3.wc-bacs-bank-details-account-name {
     display: none;
