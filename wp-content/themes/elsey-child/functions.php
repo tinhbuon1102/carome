@@ -3204,7 +3204,7 @@ function elsey_init() {
 	
 	$ip = $_SERVER['REMOTE_ADDR'];
 	
-	$_SESSION['ip_country_code'] = '';
+// 	$_SESSION['ip_country_code'] = '';
 	
 	if (!isset($_SESSION['ip_country_code']) || !$_SESSION['ip_country_code'])
 	{
