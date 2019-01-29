@@ -175,7 +175,7 @@ TOOL-BAR -->
                                 <?php case 'SFTP': ?>
                                 <div>
 									<label><?php DUP_PRO_U::esc_html_e('Server') ?>:</label>
-									<?php echo esc_html($storage->sftp_serve);r ?>:<?php echo esc_html($storage->sftp_port); ?> <br/>
+									<?php echo esc_html($storage->sftp_server); ?>:<?php echo esc_html($storage->sftp_port); ?> <br/>
                                     <label><?php DUP_PRO_U::esc_html_e('Location') ?>:</label>
 									<?php 
 										$url = $storage->get_storage_location_string();

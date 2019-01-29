@@ -514,6 +514,7 @@ if (!class_exists('DUP_PRO_Web_Services')) {
                     die('Security issue');
                 }
                 header('Content-Type: application/json');
+                @ob_flush();
             }
             $json     = array();
             $errLevel = error_reporting();

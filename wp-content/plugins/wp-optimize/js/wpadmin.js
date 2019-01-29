@@ -468,7 +468,7 @@ var WP_Optimize = function (send_command) {
 
 				// Get table type information.
 				table_type = $table_information.eq(5).text();
-				table = $table_information.eq(1).text();
+				table = $table_information.eq(1).data('tablename');
 				optimizable = $table_information.eq(5).data('optimizable');
 
 				// Make sure the table isnt blank.
@@ -477,7 +477,7 @@ var WP_Optimize = function (send_command) {
 					if ('1' == optimizable || optimization_force) {
 						var data = {
 							optimization_id: id,
-							optimization_table: $table_information.eq(1).text(),
+							optimization_table: table,
 							optimization_table_type: table_type,
 							optimization_force: optimization_force
 						};

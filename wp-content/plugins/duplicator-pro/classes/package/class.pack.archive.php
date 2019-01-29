@@ -163,6 +163,8 @@ class DUP_PRO_Archive
         $rootPath = DUP_PRO_U::safePath(rtrim(DUPLICATOR_PRO_WPROOTPATH, '//'));
         $rootPath = (trim($rootPath) == '') ? '/' : $rootPath;
 
+        $this->RecursiveLinks = array();
+
 //del        $scanPath = DUPLICATOR_PRO_SSDIR_PATH_TMP.'/'.$this->Package->ScanFile;
 //        $this->Files = new DUP_PRO_ScanList($scanPath,'file',$global->package_scan_size,true);
 //        $this->Dirs = new DUP_PRO_ScanList($scanPath,'dir',$global->package_scan_size,true);
@@ -319,9 +321,23 @@ class DUP_PRO_Archive
         
         //FILTER: INSTANCE ITEMS
         if ($this->FilterOn) {
+            /*
             $this->FilterInfo->Dirs->Instance  = array_map('DUP_PRO_U::safePath', explode(";", $this->FilterDirs, -1));
             $this->FilterInfo->Exts->Instance  = explode(";", $this->FilterExts, -1);
             $this->FilterInfo->Files->Instance = array_map('DUP_PRO_U::safePath', explode(";", $this->FilterFiles, -1));
+            */
+            
+            $this->FilterInfo->Dirs->Instance  = array_map('DUP_PRO_U::safePath', explode(";", $this->FilterDirs));
+            // Remove blank entries
+            $this->FilterInfo->Dirs->Instance  = array_filter(array_map('trim', $this->FilterInfo->Dirs->Instance));
+
+            $this->FilterInfo->Exts->Instance  = explode(";", $this->FilterExts);
+            // Remove blank entries
+            $this->FilterInfo->Exts->Instance  = array_filter(array_map('trim', $this->FilterInfo->Exts->Instance));
+
+            $this->FilterInfo->Files->Instance = array_map('DUP_PRO_U::safePath', explode(";", $this->FilterFiles));
+            // Remove blank entries
+            $this->FilterInfo->Files->Instance  = array_filter(array_map('trim', $this->FilterInfo->Files->Instance));
         }
 
         //FILTER: GLOBAL ITMES
@@ -591,7 +607,15 @@ class DUP_PRO_Archive
                     //Convert relative path of link to absolute path
                     chdir($relative_path);
                     $real_path = realpath(readlink($relative_path));
+                    $real_path = str_replace("\\", '/', $real_path);
                     chdir(dirname(__FILE__));
+                    $link_pos = strpos($fullPath, $real_path);
+                    if($link_pos === 0 && (strlen($real_path) <  strlen($fullPath))){
+                        // $exclude = true;
+                        $this->RecursiveLinks[] = $fullPath;
+                        $this->FilterDirsAll[] = $fullPath;
+                        continue;
+                    }
                 } else {
                     $is_link   = false;
                     $real_path = realpath($relative_path);
@@ -614,13 +638,19 @@ class DUP_PRO_Archive
                     }
 
                     if (!$exclude) {
-                        if ($is_link) {
-                            $this->RecursiveLinks[] = $relative_path;
+                        // if ($is_link) {
+                            // $this->RecursiveLinks[] = $relative_path;
                             /* $this->FilterDirsAll[]  = $relative_path; */
+                        // }
+                        
+                        if ($is_link) {
+                            $this->getFileLists($relative_path);
+                            $this->addToList($relative_path, 'dir');
+                        } else {
+                            $this->getFileLists($relative_path);
+                            $this->addToList($relative_path, 'dir');
                         }
-
-                        $this->getFileLists($relative_path);
-                        $this->addToList($relative_path,'dir');
+                        
                     }
                 } else {
                     $exclude = false;

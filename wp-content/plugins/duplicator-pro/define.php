@@ -4,7 +4,7 @@ defined("ABSPATH") or die("");
 
 //Prevent directly browsing to the file
 if (function_exists('plugin_dir_url')) {
-    define('DUPLICATOR_PRO_VERSION', '3.8.0');
+    define('DUPLICATOR_PRO_VERSION', '3.8.0.2');
     define('DUPLICATOR_PRO_LIMIT_UPLOAD_VERSION', '3.3.0.0'); // Limit Drag & Drop`
     define('DUPLICATOR_PRO_GIFT_THIS_RELEASE', false); // Display Gift - should be true for new features OR if we want them to fill out survey
     define('DUPLICATOR_PRO_PLUGIN_URL', plugin_dir_url(__FILE__));

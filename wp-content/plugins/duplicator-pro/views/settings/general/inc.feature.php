@@ -43,13 +43,22 @@ if (isset($_REQUEST['action'])) {
 
 <!-- ===============================
 NEW FEATURES -->
-<label class="profile-type"><?php DUP_PRO_U::esc_html_e("New Features "); echo  "({$dup_version})" ; ?></label>
-<?php
-        //DUP_PRO_U::esc_html_e('Primarily a security and bug-fix release.');
-	?>
-<br/>
-    See <a href="https://snapcreek.com/duplicator/docs/changelog/" target="_blank">changelog</a> for details on new features and fixes in this release.
-<br/><br/><br/>
+<label class="profile-type"><?php DUP_PRO_U::esc_html_e("New Feature Highlights "); echo  "({$dup_version})" ; ?></label>
+
+<p class="item">
+
+        <?php
+            echo '<b>';
+            DUP_PRO_U::esc_html_e('S3-Compatible Storage: ');
+            echo '</b>';
+            
+            DUP_PRO_U::esc_html_e('Support for S3-Compatible Storage types besides Amazon (Wasabi, Digital Ocean, etc...)');
+        ?>
+
+    <br/><br/>
+    See <a href="https://snapcreek.com/duplicator/docs/changelog/" target="_blank">changelog</a> for details on all new features and fixes in this release.           
+</p>
+
 
 <!-- ===============================
 RECENT FEATURES -->

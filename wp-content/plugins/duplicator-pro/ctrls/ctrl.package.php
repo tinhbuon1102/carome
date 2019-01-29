@@ -120,7 +120,7 @@ class DUP_PRO_CTRL_Package extends DUP_PRO_CTRL_Base
 			//OUTPUT: Installer, Archive, SQL File
             if ($is_binary) {
 				@session_write_close();
-				@ob_flush();
+				// @ob_flush();
 				// @flush();
 
                 header("Pragma: public");

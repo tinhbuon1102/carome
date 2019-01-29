@@ -32,7 +32,7 @@ class DUPX_InstallerState
 		if($init_state) {
 			self::$instance = null;
 			if(file_exists(self::$state_filepath)) {
-				unlink(self::$state_filepath);
+				@unlink(self::$state_filepath);
 			}
 		}
 

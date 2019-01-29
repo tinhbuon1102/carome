@@ -197,7 +197,7 @@ class DUP_PRO_Extraction
                         DUPX_Log::error($zip_err_msg);
                         die();
                     }
-                    DUPX_Log::info("Done {$extract_filenames_str}");
+                  //RSR removing this - cluttering the log..if we need to do this we should do with debug flag  DUPX_Log::info("Done {$extract_filenames_str}");
                 }
 
                 $extracted_size += $size_in_micro_chunk;

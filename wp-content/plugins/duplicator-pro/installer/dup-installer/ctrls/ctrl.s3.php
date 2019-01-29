@@ -577,7 +577,7 @@ if ($subsite_id != -1) {
 }
 
 if ($GLOBALS['DUPX_AC']->mu_mode !== DUPX_MultisiteMode::Standalone) {
-	$config_transformer->update('constant', 'NOBLOGREDIRECT', $_POST['url_new'], array('raw' => true, 'add'=> false, 'normalize' => true));
+    $config_transformer->update('constant', 'NOBLOGREDIRECT', $_POST['url_new'], array( 'add'=> false, 'normalize' => true));
 }
 
 $config_transformer->update('constant', 'DB_NAME', trim(DUPX_U::wp_unslash($_POST['dbname'])));

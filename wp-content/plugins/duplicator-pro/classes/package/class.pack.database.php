@@ -445,7 +445,7 @@ class DUP_PRO_Database
             $handle = popen($cmd, "r");
             if ($handle) {
                 $sql_header  = "/* DUPLICATOR-PRO (MYSQL-DUMP BUILD MODE) MYSQL SCRIPT CREATED ON : ".@date("Y-m-d H:i:s")." */\n\n";
-                file_put_contents($this->dbStorePath, $sql_header, FILE_APPEND);
+                file_put_contents($this->dbStorePathPublic, $sql_header, FILE_APPEND);
                 while (!feof($handle)) {
                     $line = fgets($handle); //get ony one line
                     if ($line) {

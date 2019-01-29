@@ -22,7 +22,7 @@
 		$no++;
 		echo "<tr>\n";
 		echo '<td data-colname="'.__('No.', 'wp-optimize').'">'.number_format_i18n($no).'</td>'."\n";
-		echo '<td data-colname="'.__('Table', 'wp-optimize').'">'.htmlspecialchars($tablestatus->Name);
+		echo '<td data-tablename="'.esc_attr($tablestatus->Name).'" data-colname="'.__('Table', 'wp-optimize').'">'.htmlspecialchars($tablestatus->Name);
 
 		if ($tablestatus->plugin) {
 			echo "<br><span style='font-size: 11px;'>".__('Belongs to:', 'wp-optimize')."</span> ";
