@@ -3202,7 +3202,7 @@ function elsey_init() {
 		session_start();
 	}
 	
-	$ip = $_SESSION['REMOTE_ADDR'];
+	$ip = $_SERVER['REMOTE_ADDR'];
 	
 	$_SESSION['ip_country_code'] = '';
 	
