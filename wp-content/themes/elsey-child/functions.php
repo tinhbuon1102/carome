@@ -3214,7 +3214,14 @@ function elsey_init() {
 			$_SESSION['ip_country_code'] = $country_code;
 		}
 	}
-	
+	if (isset($_GET['thang_test_ip']))
+	{
+		var_dump($country_code);
+		var_dump("http://www.geoplugin.net/json.gp?ip=" . $ip);
+		$ipdat = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ip));
+		var_dump($ipdat);
+		die;
+	}
 	remove_shortcode('elsey_product');
 	require_once get_stylesheet_directory() . '/override/plugins/elsey-core/visual-composer/shortcodes/product/product.php';
 }
