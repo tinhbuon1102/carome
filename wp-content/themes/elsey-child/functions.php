@@ -8,6 +8,14 @@ else{
 	define('BOOKING_FORM_ID', 19579);
 }
 
+function elsey_change_cssjs_ver( $src ) {
+	if( strpos( $src, '?ver=' ) )
+		$src = remove_query_arg( 'ver', $src );
+		$src = add_query_arg( array('ver' => '1.9'), $src );
+		return $src;
+}
+add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
+add_filter( 'script_loader_src', 'elsey_change_cssjs_ver', 1000 );
 
 /**
  * Enqueues child theme stylesheet, loading first the parent theme stylesheet.
@@ -2889,14 +2897,6 @@ function elsey_is_ja_lang()
 	return $current_lang == 'ja';
 }
 
-function elsey_change_cssjs_ver( $src ) {
-	if( strpos( $src, '?ver=' ) )
-		$src = remove_query_arg( 'ver', $src );
-		$src = add_query_arg( array('ver' => '1.8'), $src );
-		return $src;
-}
-add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
-add_filter( 'script_loader_src', 'elsey_change_cssjs_ver', 1000 );
 
 //Kimono Rental Function
 function get_retal_contact_email_template($is_admin, $has_html = true)
