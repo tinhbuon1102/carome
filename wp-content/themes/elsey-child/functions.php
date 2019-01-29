@@ -1566,6 +1566,14 @@ function elsey_restrict_manage_posts(){
 		    </select>
 		</span>
 		
+		<span id="region_filter_wrap">
+		    <select name="region_filter" id="region_filter">
+		    	<option value=""><?php _e('Choose Region', 'elsey'); ?></option>
+		    	<option value="JP" <?php echo (isset($_REQUEST['region_filter']) && $_REQUEST['region_filter'] == 'JP') ? 'selected' : '';?>><?php _e('Domestic Orders Only', 'elsey'); ?></option>
+		    	<option value="notJP" <?php echo (isset($_REQUEST['region_filter']) && $_REQUEST['region_filter'] == 'notJP') ? 'selected' : '';?>><?php _e('International Orders Only', 'elsey'); ?></option>
+		    </select>
+		</span>
+		
 	    <span id="event_coupon_wraper">
 		    <select name="event_coupon" id="event_coupon">
 		    	<option value=""><?php _e('Filter Event Coupon', 'elsey'); ?></option>
@@ -1656,6 +1664,16 @@ function else_parse_query ( $query )
 				$query->query_vars['post__in'][] = $product->post_id;
 			}
 		}
+	}
+	
+	if ( 'shop_order' == $query->query['post_type'] && is_admin() && $pagenow == 'edit.php' && isset($_GET['region_filter']) && $_GET['region_filter'] !== '' )
+	{
+		$query->query_vars['meta_query'] = isset($query->query_vars['meta_query']) ? $query->query_vars['meta_query'] : array();
+		$query->query_vars['meta_query'][] = array(
+			'key' => '_billing_country',
+			'value' => 'JP',
+			'compare' => $_GET['region_filter'] == 'JP' ? '=' : '!='
+		);
 	}
 	return $query;
 }
