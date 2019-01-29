@@ -3187,12 +3187,33 @@ function zoa_remove_email_event()
 	}
 }
 
+function else_ip_country($ip = NULL) {
+	$ipdat = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ip));
+	if (@strlen(trim($ipdat->geoplugin_countryCode)) == 2) {
+		return $ipdat->geoplugin_countryCode;
+	}
+	return '';
+}
 
 add_action('init', 'elsey_init', 1);
 function elsey_init() {
 	if (!session_id())
 	{
 		session_start();
+	}
+	
+	$ip = $_SESSION['REMOTE_ADDR'];
+	
+// 	$_SESSION['ip_country_code'] = '';
+// 	$ip = '43.230.181.112';
+	
+	if (!isset($_SESSION['ip_country_code']) || !$_SESSION['ip_country_code'])
+	{
+		$country_code = else_ip_country($ip);
+		if ($country_code)
+		{
+			$_SESSION['ip_country_code'] = $country_code;
+		}
 	}
 	
 	remove_shortcode('elsey_product');

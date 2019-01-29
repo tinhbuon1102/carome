@@ -90,6 +90,12 @@ jQuery(document).ready(function($){
   			}
   		});
   		
+  		// Default select country JP
+  		if (gl_ip_country_code == 'JP' && $('#billing_country').val() != 'JP')
+  		{
+  			$('#billing_country').val(gl_ip_country_code);
+  			$('#billing_country').trigger('change');
+  		}
   	}
   
 	$('h2.icon--plus').on("click", function() {
