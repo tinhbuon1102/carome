@@ -1296,6 +1296,7 @@ function carome_woocommerce_save_account_details_required_fields ($required_fiel
 {
 	$required_fields['account_first_name_kana'] = __( 'First Name Kana', 'woocommerce' );
 	$required_fields['account_last_name_kana'] = __( 'Last Name Kana', 'woocommerce' );
+	unset($required_fields['account_display_name']);
 	return $required_fields;
 }
 
