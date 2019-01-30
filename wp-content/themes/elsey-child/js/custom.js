@@ -91,7 +91,7 @@ jQuery(document).ready(function($){
   		});
   		
   		// Default select country JP
-  		if (gl_ip_country_code == 'JP' && $('#billing_country').val() != 'JP')
+  		if (gl_ip_country_code == 'JP' && !$('#billing_country').val())
   		{
   			$('#billing_country').val(gl_ip_country_code);
   			$('#billing_country').trigger('change');
