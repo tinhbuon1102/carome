@@ -156,6 +156,8 @@ class WC_Gateway_Epsilon_Request {
 			if ($unseriliz_st === true) {
 				//xmlを解析
 				$res_array = $unserializer->getUnserializedData();
+				update_post_meta($order->id, 'epsilon_response_array', $res_array);
+				
 				$is_xml_error = false;
 				$response_array = array();
 				foreach($res_array['result'] as $uns_k => $uns_v){
