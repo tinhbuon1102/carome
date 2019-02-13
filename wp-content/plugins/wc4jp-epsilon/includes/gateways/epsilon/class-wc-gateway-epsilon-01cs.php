@@ -249,7 +249,18 @@ class WC_Gateway_Epsilon_Pro_CS extends WC_Payment_Gateway {
 		'35' => __( 'Circle K', 'wc4jp-epsilon' ),
 		'36' => __( 'Thanks', 'wc4jp-epsilon' )
 		);
-		echo '<p class="cv_detail">'.__('Your selected Convenience Store : ', 'wc4jp-epsilon' ).$cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)].'</p><br />';
+		$epsilon_response = get_post_meta($order_id, 'epsilon_response_array', true);
+		$epsilon_data = array();
+		foreach ( $epsilon_response['result'] as $uns_k => $uns_v )
+		{
+			list ($result_atr_key, $result_atr_val) = each($uns_v);
+			$epsilon_data[$result_atr_key] = $result_atr_val;
+		}
+		echo '<p class="cv_detail">
+		<span class="cv_store">'.__('Your selected Convenience Store : ', 'wc4jp-epsilon' ).$cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)].'</span>
+		<span class="receipt_no">, '. __('Receip Number : ', 'wc4jp-epsilon' ) .$epsilon_data['receipt_no'] . '</span>
+		<span class="receipt_expire">, '. __('Expire date : ', 'wc4jp-epsilon' ) . $epsilon_data['conveni_limit'] . '</span>
+</p><br />';
 	}
 
 	/*

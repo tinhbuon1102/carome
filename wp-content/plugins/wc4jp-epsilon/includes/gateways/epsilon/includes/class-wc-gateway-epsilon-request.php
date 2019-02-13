@@ -13,13 +13,13 @@ class WC_Gateway_Epsilon_Request {
 	 * Stores line items to send to PayPal
 	 * @var array
 	 */
-//	protected $line_items = array();
+//	public $line_items = array();
 
 	/**
 	 * Pointer to gateway making the request
 	 * @var WC_Gateway_Epsilon_Pro
 	 */
-	protected $gateway;
+	public $gateway;
 
 	/**
 	 * Endpoint for requests from Epsilon
@@ -42,7 +42,7 @@ class WC_Gateway_Epsilon_Request {
 	 * @param  boolean $sandbox
 	 * @return string
 	 */
-	protected function get_request_url( $testmode = false ) {
+	public function get_request_url( $testmode = false ) {
 		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
 		{
 // 			$testmode='yes';
@@ -175,7 +175,7 @@ class WC_Gateway_Epsilon_Request {
 							$response_array['error_msg'] = $result_atr_val.'1';
 							break;
 						case 'err_detail':
-							$response_array['error_msg'] = mb_convert_encoding(urldecode($result_atr_val.'2'), "UTF8" ,"auto");
+							$response_array['error_msg'] = urldecode($result_atr_val);
 							break;
 /*						case 'memo1':
 							$response_array['error_msg'] = mb_convert_encoding(urldecode($result_atr_val.'3'), "UTF8" ,"auto");
@@ -200,7 +200,7 @@ class WC_Gateway_Epsilon_Request {
 		return $response_array;
 	}
 
-	protected function get_customer_id( $order ) {
+	public function get_customer_id( $order ) {
 		$user = new WP_User( $order->user_id );
 		if($order->user_id){
 			$customer_id   = $order->user_id;
@@ -210,7 +210,7 @@ class WC_Gateway_Epsilon_Request {
 		return $customer_id;
 	}
 
-	protected function get_item_code( $order ) {
+	public function get_item_code( $order ) {
 		if ( sizeof( $order->get_items() ) > 0 ) {
 			foreach ( $order->get_items() as $item ) {
 				if ( $item['qty'] ) {
@@ -227,7 +227,7 @@ class WC_Gateway_Epsilon_Request {
 		if(!$item_codes)$item_codes='no-item-codes';
 		return $item_codes;
 	}
-	protected function get_item_name( $order ) {
+	public function get_item_name( $order ) {
 		if ( sizeof( $order->get_items() ) > 0 ) {
 			foreach ( $order->get_items() as $item ) {
 				if ( $item['qty'] ) {
