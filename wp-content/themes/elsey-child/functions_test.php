@@ -9,6 +9,31 @@ function elsey_init_test ()
 }
 function test_epsilon_cs ()
 {
+	// Find not paid Convenience gateway
+	$query_args = array(
+		'post_type' => 'shop_order',
+		'post_status' => wc_get_order_statuses(),
+		'posts_per_page' => 2,
+		'meta_query' => array(
+			'relation' => 'AND',
+			array(
+				'key' => '_payment_method',
+				'value' => 'epsilon_pro_cs',
+				'compare' => '='
+			),
+			array(
+				'key' => '_custom_payment_status',
+				'value' => '1',
+				'compare' => '!='
+			),
+		),
+	);
+	$query = new WP_Query( $query_args );
+	$posts = $query->posts;
+	pr($posts);die;
+	
+	
+	
 	$epsilon_response = get_post_meta($_GET['test_epsilon_cs'], 'epsilon_response_array', true);
 	$epsilon_data = array();
 	foreach ( $epsilon_response['result'] as $uns_v )
