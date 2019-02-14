@@ -1,55 +1,55 @@
 <?php
-add_action('init', 'elsey_init_test', 1);
+add_action('init', 'elsey_init_test', 100);
 function elsey_init_test ()
 {
-	if ( isset($_GET['test_epsilon_cs']) )
+	if ( isset($_REQUEST['epsilon_cs_checking']) )
 	{
-		test_epsilon_cs();
+		check_epsilon_paid_cs_orders();
+		die('done');
 	}
 }
-function test_epsilon_cs ()
+
+function check_epsilon_paid_cs_orders ()
 {
+	global $wpdb;
 	// Find not paid Convenience gateway
-	$query_args = array(
-		'post_type' => 'shop_order',
-		'post_status' => wc_get_order_statuses(),
-		'posts_per_page' => 2,
-		'meta_query' => array(
-			'relation' => 'AND',
-			array(
-				'key' => '_payment_method',
-				'value' => 'epsilon_pro_cs',
-				'compare' => '='
-			),
-			array(
-				'key' => '_custom_payment_status',
-				'value' => '1',
-				'compare' => '!='
-			),
-		),
-	);
-	$query = new WP_Query( $query_args );
-	$unpaid_orders = $query->posts;
+	$sql = "SELECT wp_posts.ID, wp_posts.menu_order FROM wp_posts
+			INNER JOIN wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id )
+			INNER JOIN wp_postmeta AS mt1 ON ( wp_posts.ID = mt1.post_id ) WHERE 1=1  AND (
+		  ( wp_postmeta.meta_key = '_payment_method' AND wp_postmeta.meta_value = 'epsilon_pro_cs' )
+		  AND
+		  ( mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' OR wp_posts.post_status = 'wc-on-hold')
+		) AND wp_posts.post_type = 'shop_order' GROUP BY wp_posts.ID
+		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 1";
 	
-	$epsilon_response = get_post_meta($_GET['test_epsilon_cs'], 'epsilon_response_array', true);
+	$orders = $wpdb->get_results($sql);
+	
+	if (is_array($orders) && !empty($orders))
+	{
+		foreach ($orders as $order)
+		{
+			$wpdb->query('UPDATE wp_posts SET menu_order = ' . ($order->menu_order + 1) . ' WHERE ID = ' . $order->ID);
+			epsilon_get_paid_cs_order($order->ID);
+		}
+	}
+}
+
+function epsilon_get_paid_cs_order($order_id)
+{
+	$epsilon_response = get_post_meta($order_id, 'epsilon_response_array', true);
 	$epsilon_data = array();
 	foreach ( $epsilon_response['result'] as $uns_v )
 	{
 		list ($result_atr_key, $result_atr_val) = each($uns_v);
 		$epsilon_data[$result_atr_key] = $result_atr_val;
 	}
-
-	$order_id = mb_ereg_replace('[^0-9]', '', $epsilon_data['order_number']);
+	
 	$content_folder = dirname(dirname(dirname(__FILE__)));
-// 	include_once ($content_folder . '/plugins/wc4jp-epsilon/includes/gateways/epsilon/includes/class-wc-gateway-epsilon-request.php');
-// 	include_once ($content_folder . '/plugins/wc4jp-epsilon/includes/gateways/epsilon/includes/class-wc-gateway-epsilon-check.php');
 	require_once $content_folder . "/plugins/wc4jp-epsilon/includes/gateways/epsilon/includes/http/Request.php";
 	require_once $content_folder . "/plugins/wc4jp-epsilon/includes/gateways/epsilon/includes/xml/Unserializer.php";
-
-// 	$epsilon_request = new WC_Gateway_Epsilon_Request('WC_Gateway_Epsilon_Pro_CS');
-// 	$epsilon_check = new WC_Gateway_Epsilon_Check();
+	
 	$gateway_id = 'epsilon_pro_cs';
-
+	
 	// http_requset option Setting
 	$option = array(
 		"timeout" => "20" // Seconds
@@ -62,7 +62,7 @@ function test_epsilon_cs ()
 		$epsilon_pro_url = EPSILON_RUNMODE_URL_CHECK ;
 	}
 	$request = new HTTP_Request($epsilon_pro_url, $option);
-
+	
 	// set method
 	$request->setMethod(HTTP_REQUEST_METHOD_POST);
 	// set post data
@@ -82,7 +82,7 @@ function test_epsilon_cs ()
 		$request->addPostData('conveni_limit', $epsilon_data['conveni_limit']);
 		$request->addPostData('conveni_time', $epsilon_data['conveni_time']);
 	}
-
+	
 	// HTTP REQUEST Action
 	$response = $request->sendRequest();
 	if ( ! PEAR::isError($response) )
@@ -94,7 +94,7 @@ function test_epsilon_cs ()
 		$unserializer = new XML_Unserializer();
 		$unserializer->setOption('parseAttributes', TRUE);
 		$unseriliz_st = $unserializer->unserialize($temp_xml_res);
-
+		
 		if ( $unseriliz_st === true )
 		{
 			$res_array = $unserializer->getUnserializedData();
@@ -108,16 +108,20 @@ function test_epsilon_cs ()
 				}
 			}
 			
-			pr($epsilon_data_check);die;
-			if ($epsilon_data_check['paid'] == 1)
+			if (!empty($epsilon_data_check) && $epsilon_data_check['paid'] == 1)
 			{
 				// Order are paid by customer => Set status to completed
-				$order = wc_get_order( $order_id );
-				$order->update_status( 'completed', __( 'Complete Convenience Store payment', 'elsey' ));
+				epsilon_complete_cs_payment($order_id);
 			}
-			pr($epsilon_data_check);
-			pr('---------------------------------');
-			die();
 		}
 	}
+}
+
+function epsilon_complete_cs_payment($order_id)
+{
+	$order = wc_get_order( $order_id );
+	update_post_meta($order_id, '_custom_payment_status', 1);
+	$order->update_status( 'processing', __( 'Complete Convenience Store payment', 'elsey' ));
+	var_dump($order_id);
+	
 }

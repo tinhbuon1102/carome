@@ -1,8 +1,6 @@
 <?php
-if (isset($_GET['test']))
-{
-	include dirname(__FILE__) . '/functions_test.php';
-}
+include dirname(__FILE__) . '/functions_epsilon.php';
+
 define('CONTACT_EMAIL_ADMIN_WITH_FILE', 'return@carome.net');
 
 if (strpos($_SERVER['SERVER_NAME'], 'carome.net') !== false){
