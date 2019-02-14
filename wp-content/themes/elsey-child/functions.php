@@ -35,7 +35,14 @@ function custom_add_google_fonts() {
 	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,400|Pathway+Gothic+One|Poppins:300,400,500,600', false );
 }
 add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
-
+/*Add New CSS*/
+function custom_styles () {
+	wp_register_style('osum-style', get_stylesheet_directory_uri() . '/css/ordersummary.css', array(), '');
+	if (is_wc_endpoint_url( 'order-received' )) {
+		wp_enqueue_style('osum-style');
+	}
+}
+add_action('wp_enqueue_scripts', 'custom_styles');
 /*Jquery*/
 function custom_scripts ()
 {

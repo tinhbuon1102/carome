@@ -19,7 +19,6 @@ function test_epsilon_cs ()
 
 	$order_id = mb_ereg_replace('[^0-9]', '', $epsilon_data['order_number']);
 	$order = wc_get_order($order_id);
-	pr($epsilon_data);die;
 	$content_folder = dirname(dirname(dirname(__FILE__)));
 	include_once ($content_folder . '/plugins/wc4jp-epsilon/includes/gateways/epsilon/includes/class-wc-gateway-epsilon-request.php');
 	require_once $content_folder . "/plugins/wc4jp-epsilon/includes/gateways/epsilon/includes/http/Request.php";
@@ -42,26 +41,25 @@ function test_epsilon_cs ()
 	$request->setMethod(HTTP_REQUEST_METHOD_POST);
 	// set post data
 	$request->addPostData('memo2', 'woocommerce');
-	$request->addPostData('xml', '1');
+// 	$request->addPostData('xml', '1');
 	$request->addPostData('currency_id', get_woocommerce_currency());
 	if ( $gateway_id == 'epsilon_pro_cs' )
 	{
-		foreach ( $epsilon_data as $data_key => $data_value )
-		{
-			$request->addPostData($data_key, $data_value);
-		}
-		$request->addPostData('user_mail_add', $order->billing_email);
-
-		// $request->addPostData('conveni_code', $epsilon_data['conveni_code']);
-		// $request->addPostData('contract_code', $epsilon_data['contract_code']);
-		// $request->addPostData('trans_code', $epsilon_data['trans_code']);
-		// $request->addPostData('receipt_no', $epsilon_data['receipt_no']);
-		// $request->addPostData('kigyou_code', $epsilon_data['kigyou_code']);
-		// $request->addPostData('haraikomi_url', $epsilon_data['haraikomi_url']);
-		// $request->addPostData('paid', $epsilon_data['paid']);
-		// $request->addPostData('receipt_date', $epsilon_data['receipt_date']);
-		// $request->addPostData('conveni_limit', $epsilon_data['conveni_limit']);
-		// $request->addPostData('conveni_time', $epsilon_data['conveni_time']);
+		$request->addPostData('st_code', $epsilon_data['contract_code']);
+		$request->addPostData('user_id', $epsilon_data['user_id']);
+		$request->addPostData('user_tel', $order->billing_phone);
+		$request->addPostData('user_name_kana', mb_convert_encoding($order->billing_yomigana_last_name." ".$order->billing_yomigana_first_name, "EUC-JP", "auto"));
+		$request->addPostData('contract_code', $epsilon_data['contract_code']);
+		$request->addPostData('trans_code', $epsilon_data['trans_code']);
+		
+		$request->addPostData('conveni_code', $epsilon_data['conveni_code']);
+		$request->addPostData('receipt_no', $epsilon_data['receipt_no']);
+		$request->addPostData('kigyou_code', $epsilon_data['kigyou_code']);
+		$request->addPostData('haraikomi_url', $epsilon_data['haraikomi_url']);
+		$request->addPostData('paid', $epsilon_data['paid']);
+		$request->addPostData('receipt_date', $epsilon_data['receipt_date']);
+		$request->addPostData('conveni_limit', $epsilon_data['conveni_limit']);
+		$request->addPostData('conveni_time', $epsilon_data['conveni_time']);
 	}
 
 	// HTTP REQUEST Action
@@ -70,6 +68,7 @@ function test_epsilon_cs ()
 	{
 		$res_code = $request->getResponseCode();
 		$res_content = $request->getResponseBody();
+		pr($epsilon_data);
 		pr($request);
 		var_dump($res_content);
 		// xml unserializer
