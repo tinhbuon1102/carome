@@ -8,3 +8,34 @@ p.cv_detail {
     margin-top: 12px;
     font-weight: bold;
 }
+.inst_pay span.inst_txt {
+    display: block;
+    margin-top: 5px;
+	
+}
+.inst_pay span.inst_txt + strong {
+	margin-top: 15px;
+	display: inline-block;
+}
+p.inst_pay {
+    margin-top: 24px;
+}
+p.cv_detail a, .inst_pay a {
+    text-decoration: underline;
+}
+ul.notion {
+    list-style: none;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+ul.notion li:not(:last-child) {
+    margin-bottom: 4px;
+}
+.order--details__info--half .conv_info {
+    background: #efefef;
+    padding: 12px;
+}
+.conv_info a {
+    text-decoration: underline;
+}

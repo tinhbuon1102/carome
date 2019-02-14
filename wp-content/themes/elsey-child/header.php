@@ -152,7 +152,7 @@ var gl_ip_country_code = '<?php echo isset($_SESSION['ip_country_code']) ? $_SES
 	  <?php if (isCustomerInPrivateEvent()) { ?>
 	  <div class="event-message"><?php esc_html_e( 'イベントクーポン適用中', 'elsey' ); ?></div>
 	  <?php } ?>
-	  <div class="news-headline"><a href="#modal">年末年始期間の営業及び配送に関しましてのご案内</a></div>
+	  <div class="news-headline"><a href="#modal">コンビニ決済開始のお知らせ</a></div>
     <?php if (!$elsey_hide_header) { ?>
     <header class="els-header" style="<?php echo esc_attr($elsey_bottom_border); ?>">
       <?php if ($elsey_topbar_show) { /*Top Bar*/ get_template_part( 'layouts/header/top', 'bar' ); }

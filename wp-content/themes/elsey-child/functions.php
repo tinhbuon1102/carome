@@ -37,8 +37,8 @@ function custom_add_google_fonts() {
 add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
 /*Add New CSS*/
 function custom_styles () {
-	wp_register_style('osum-style', get_stylesheet_directory_uri() . '/css/ordersummary.css', array(), '');
-	if (is_wc_endpoint_url( 'order-received' )) {
+	wp_register_style('osum-style', get_stylesheet_directory_uri() . '/css/ordersummary.css?201902141409', array(), '');
+	if (is_wc_endpoint_url( 'order-received' ) || is_wc_endpoint_url( 'view-order' )) {
 		wp_enqueue_style('osum-style');
 	}
 }
@@ -3905,6 +3905,7 @@ function show_epsilon_cs_order_success_text($order)
 	if ($order->get_payment_method() == 'epsilon_pro_cs')
 	{
 		$order_id = $order->get_id();
+		$phone = get_post_meta($order_id, '_billing_phone', true);
 		$cs_stores_ids = array(
 			'11' => __('Seven Eleven', 'wc4jp-epsilon' ),
 			'21' => __('Family Mart', 'wc4jp-epsilon' ),
@@ -3921,20 +3922,72 @@ function show_epsilon_cs_order_success_text($order)
 			list ($result_atr_key, $result_atr_val) = each($uns_v);
 			$epsilon_data[$result_atr_key] = $result_atr_val;
 		}
+		if ($epsilon_data['conveni_code'] == 11) {
+			$receiptLabel = '払込票番号';
+			$instruction = '詳しいお支払い手順は下記マニュアルにてご確認いただけます。';
+			$instUrl = 'http://www.epsilon.jp/mb/conv/seven/index.html?pay';
+		} elseif ($epsilon_data['conveni_code'] == 31 || $epsilon_data['conveni_code'] == 32 || $epsilon_data['conveni_code'] == 33) {
+			$receiptLabel = '受付番号';
+			$phoneLabel = '電話番号/取扱番号';
+			$instruction = 'お客様がご選択いただいたコンビニブランドはローソンその他ですが、以下のいずれのコンビニブランドでもお支払いただけます。<br/>(ローソン、ミニストップ、セイコーマート)<br/>コンビニ店頭の設置端末を操作し、受付番号を入力ください。';
+			$instUrl01 = 'http://www.epsilon.jp/mb/conv/lawson/index.html?pay';
+			$instUrl02 = 'http://www.epsilon.jp/mb/conv/seico/index.html?pay';
+			$instUrl03 = 'http://www.epsilon.jp/mb/conv/ministop/index.html?pay';
+		} elseif ($epsilon_data['conveni_code'] == 21) {
+			$receiptLabel = '注文番号';
+			$instruction = '詳しいお支払い手順は下記マニュアルにてご確認いただけます。';
+			$instUrl = 'http://www.epsilon.jp/mb/conv/famima/index.html?pay';
+		} elseif ($epsilon_data['conveni_code'] == 35 || $epsilon_data['conveni_code'] == 36) {
+			$receiptLabel = 'お支払受付番号';
+			$phoneLabel = '電話番号';
+			$instruction = 'お近くのサークルＫサンクスの店頭にあるKステーション(情報端末)の画面で「各種支払い」を選択し、次の画面で「6ケタの番号をお持ちの方」を選択します。<br/>画面の表示に従い、「お支払受付番号」とお申込時の「電話番号」を入力してください。<br/>誤りがなければ受付票が発券されますので、レジに提示して、代金を現金にてお支払いください。';
+		} else {
+			$receiptLabel = '受付番号';
+		}
 		echo '<p class="order--details__date serif">
-			<span class="label">'. __('Convenience name : ', 'wc4jp-epsilon' ) .'</span>
-			<span class="value">'. $cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)] .'</span>
+			<span class="label">決済方法</span>
+			<span class="value">'. $cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)] .'(コンビニ決済)</span>
 		</p>';
-		
-		echo '<p class="order--details__date serif">
-			<span class="label">'. __('Receipt number : ', 'wc4jp-epsilon' ) .'</span>
+		echo '<div class="conv_info">';
+		if ($epsilon_data['conveni_code'] == 21) {
+			echo '<p class="order--details__kigyo conv_list serif"><span class="label">企業コード：</span><span class="value">' . $epsilon_data['kigyou_code'] . '</span></p>';
+		}
+		if ($epsilon_data['conveni_code'] == 11) {
+			$hurl = urldecode($epsilon_data['haraikomi_url']);
+			echo '<p class="order--details__haraiurl conv_list serif"><span class="label">'. __('Harai url : ', 'wc4jp-epsilon' ).'</span><span class="value"><a href="'. $hurl .'" target="_blank">'. $hurl .'</a></span></p>';
+		}
+		echo '<p class="order--details__date conv_list serif">
+			<span class="label">'. $receiptLabel .'：</span>
 			<span class="value">'. $epsilon_data['receipt_no'] .'</span>
 		</p>';
-		
-		echo '<p class="order--details__date serif">
-			<span class="label">'. __('Payment deadline : ', 'wc4jp-epsilon' ) .'</span>
+		if ($epsilon_data['conveni_code'] == 31 || $epsilon_data['conveni_code'] == 32 || $epsilon_data['conveni_code'] == 33 || $epsilon_data['conveni_code'] == 35 || $epsilon_data['conveni_code'] == 36) {
+			echo '<p class="order--details__torinum conv_list serif"><span class="label">'. $phoneLabel .'：</span><span class="value">' . $phone . '</span></p>';
+		}
+		echo '<p class="order--details__date conv_list serif">
+			<span class="label">'. __('Expire date : ', 'wc4jp-epsilon' ) .'</span>
 			<span class="value">'. $epsilon_data['conveni_limit'] .'</span>
 		</p>';
+		echo '<p class="inst_pay">';
+		if ($epsilon_data['conveni_code'] == 31 || $epsilon_data['conveni_code'] == 32 || $epsilon_data['conveni_code'] == 33) {
+			echo '';
+		} else {
+			echo '<strong>&#9660'.$cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)].'でのお支払い方法</strong>';
+		}
+		echo '<span class="inst_txt">'. $instruction .'</span>';
+		if ($epsilon_data['conveni_code'] == 31 || $epsilon_data['conveni_code'] == 32 || $epsilon_data['conveni_code'] == 33) {
+			echo '<strong>&#9660ローソンでのお支払い方法</strong><br/>';
+			echo '<a href="'. $instUrl01 .'" target="_blank">'. $instUrl01 .'</a><br/><br/>';
+			echo '<strong>&#9660セイコーマートでのお支払い方法</strong><br/>';
+			echo '<a href="'. $instUrl02 .'" target="_blank">'. $instUrl02 .'</a><br/><br/>';
+			echo '<strong>&#9660ミニストップでのお支払い方法</strong><br/>';
+			echo '<a href="'. $instUrl03 .'" target="_blank">'. $instUrl03 .'</a>';
+		} elseif ($epsilon_data['conveni_code'] == 35 || $epsilon_data['conveni_code'] == 36) {
+			echo '';
+		} else {
+			echo '<a href="'. $instUrl .'" target="_blank">'. $instUrl .'</a>';
+		}
+		echo '</p>';
+		echo '</div>';
 	}
 	
 }
