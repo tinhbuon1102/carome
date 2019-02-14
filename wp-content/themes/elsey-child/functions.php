@@ -3899,3 +3899,42 @@ function ch_woocommerce_no_products_found() {
     remove_action('woocommerce_no_products_found', 'wc_no_products_found', 10);
     echo '<div class="no_result_msg">' . __('Item is not found by your keyword.', 'elsey') . '</div> ';
 }
+
+function show_epsilon_cs_order_success_text($order)
+{
+	if ($order->get_payment_method() == 'epsilon_pro_cs')
+	{
+		$order_id = $order->get_id();
+		$cs_stores_ids = array(
+			'11' => __('Seven Eleven', 'wc4jp-epsilon' ),
+			'21' => __('Family Mart', 'wc4jp-epsilon' ),
+			'31' => __( 'Lawson', 'wc4jp-epsilon' ),
+			'32' => __( 'Seicomart', 'wc4jp-epsilon' ),
+			'33' => __( 'Mini Stop', 'wc4jp-epsilon' ),
+			'35' => __( 'Circle K', 'wc4jp-epsilon' ),
+			'36' => __( 'Thanks', 'wc4jp-epsilon' )
+		);
+		$epsilon_response = get_post_meta($order_id, 'epsilon_response_array', true);
+		$epsilon_data = array();
+		foreach ( $epsilon_response['result'] as $uns_k => $uns_v )
+		{
+			list ($result_atr_key, $result_atr_val) = each($uns_v);
+			$epsilon_data[$result_atr_key] = $result_atr_val;
+		}
+		echo '<p class="order--details__date serif">
+			<span class="label">'. __('Convenience name : ', 'wc4jp-epsilon' ) .'</span>
+			<span class="value">'. $cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)] .'</span>
+		</p>';
+		
+		echo '<p class="order--details__date serif">
+			<span class="label">'. __('Receipt number : ', 'wc4jp-epsilon' ) .'</span>
+			<span class="value">'. $epsilon_data['receipt_no'] .'</span>
+		</p>';
+		
+		echo '<p class="order--details__date serif">
+			<span class="label">'. __('Payment deadline : ', 'wc4jp-epsilon' ) .'</span>
+			<span class="value">'. $epsilon_data['conveni_limit'] .'</span>
+		</p>';
+	}
+	
+}

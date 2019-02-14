@@ -257,14 +257,10 @@ class WC_Gateway_Epsilon_Pro_CS extends WC_Payment_Gateway {
 			$epsilon_data[$result_atr_key] = $result_atr_val;
 		}
 		echo '<p class="cv_detail">
-		<span class="cv_store">'.__('Your selected Convenience Store : ', 'wc4jp-epsilon' ).$cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)].'</span>
-		<span class="receipt_no">'. __('Receip Number : ', 'wc4jp-epsilon' ) .$epsilon_data['receipt_no'] . '</span>
-		<span class="receipt_expire">'. __('Expire date : ', 'wc4jp-epsilon' ) . $epsilon_data['conveni_limit'] . '</span>';
-		if ($epsilon_data['conveni_code'] == 11) {
-			$hurl = $epsilon_data['haraikomi_url'];
-			echo '<span class="what">'. $hurl .'</span>';
-		}
-		echo '</p><br />';
+		<span class="cv_store">'.__('Convenience name : ', 'wc4jp-epsilon' ).$cs_stores_ids[get_post_meta($order_id,'_cvs_company_id',true)].'</span>
+		<span class="receipt_no">, '. __('Receipt number : ', 'wc4jp-epsilon' ) .$epsilon_data['receipt_no'] . '</span>
+		<span class="receipt_expire">, '. __('Payment deadline : ', 'wc4jp-epsilon' ) . $epsilon_data['conveni_limit'] . '</span>
+</p><br />';
 	}
 
 	/*
