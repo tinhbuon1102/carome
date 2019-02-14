@@ -29,10 +29,7 @@ function test_epsilon_cs ()
 		),
 	);
 	$query = new WP_Query( $query_args );
-	$posts = $query->posts;
-	pr($posts);die;
-	
-	
+	$unpaid_orders = $query->posts;
 	
 	$epsilon_response = get_post_meta($_GET['test_epsilon_cs'], 'epsilon_response_array', true);
 	$epsilon_data = array();
@@ -110,6 +107,8 @@ function test_epsilon_cs ()
 					$epsilon_data_check[$result_atr_key] = $result_atr_val;
 				}
 			}
+			
+			pr($epsilon_data_check);die;
 			if ($epsilon_data_check['paid'] == 1)
 			{
 				// Order are paid by customer => Set status to completed
