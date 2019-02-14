@@ -129,6 +129,7 @@ function epsilon_complete_cs_payment($order_id)
 }
 
 function epsilon_cs_checking_shortcode( $atts ) {
+	wp_mail('quocthang.2001@gmail.com', 'Epsilon response', var_export($_REQUEST, true));
 	if (isset($_REQUEST['order_number']) && isset($_REQUEST['paid']) && $_REQUEST['paid'] == 1)
 	{
 		$order_id = mb_ereg_replace('[^0-9]', '', $_REQUEST['order_number']);
