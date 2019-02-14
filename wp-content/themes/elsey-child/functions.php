@@ -133,7 +133,50 @@ foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
         break;
     }
 }
-   
+//add extra charge for conv payment order
+function woocommerce_custom_fee( ) {
+ 
+	if ( ( is_admin() && ! defined( 'DOING_AJAX' ) ) || ! is_checkout() )
+		return;
+ 
+	$chosen_gateway = WC()->session->chosen_payment_method;
+ 
+	$fee = 350;
+	// or calculate your $fee with all the php magic...
+        // $fee = WC()->cart->cart_contents_total * .025; // sample computation for getting 2.5% of the cart total.
+ 
+	if ( $chosen_gateway == 'epsilon_pro_cs' ) { //test with paypal method
+		WC()->cart->add_fee( 'コンビニ支払い手数料', $fee, true );
+	}
+}
+add_action( 'woocommerce_cart_calculate_fees','woocommerce_custom_fee' );
+ 
+function cart_update_script() {
+    if (is_checkout()) :
+    ?>
+    <script>
+		jQuery( function( $ ) {
+ 
+			// woocommerce_params is required to continue, ensure the object exists
+			if ( typeof woocommerce_params === 'undefined' ) {
+				return false;
+			}
+ 
+			$checkout_form = $( 'form.checkout' );
+ 
+			$checkout_form.on( 'change', 'input[name="payment_method"]', function() {
+					$checkout_form.trigger( 'update' );
+			});
+ 
+ 
+		});
+    </script>
+    <?php
+    endif;
+}
+add_action( 'wp_footer', 'cart_update_script', 999 );
+	
+	
 // Do something if category "download" is in the Cart      
 if ( $cat_in_cart ) {
  
