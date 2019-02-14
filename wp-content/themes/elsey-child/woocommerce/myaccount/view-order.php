@@ -71,6 +71,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	
 			?>
 		</div>
+		
+		<?php echo show_epsilon_cs_order_success_text($order)?>
+		
 		<p class="order--details__date serif">
 			<span class="label"><?php _e( 'Order date', 'elsey' ); ?></span>
 			<?php

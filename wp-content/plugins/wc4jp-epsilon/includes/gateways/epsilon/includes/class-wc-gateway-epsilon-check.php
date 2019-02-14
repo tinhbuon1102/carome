@@ -49,7 +49,7 @@ class WC_Gateway_Epsilon_Check {
 		}
 		
 		if($testmode=='yes'){
-			$epsilon_pro_url = EPSILON_TESTMODE_URL_CEHCK ;
+			$epsilon_pro_url = EPSILON_TESTMODE_URL_CHECK;
 		}else{
 			$epsilon_pro_url = EPSILON_RUNMODE_URL_CHECK ;
 		}

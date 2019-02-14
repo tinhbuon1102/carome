@@ -175,7 +175,7 @@ class WC_Gateway_Epsilon_Request {
 							$response_array['error_msg'] = $result_atr_val.'1';
 							break;
 						case 'err_detail':
-							$response_array['error_msg'] = mb_convert_encoding(urldecode($result_atr_val.'2'), "UTF8" ,"auto");
+							$response_array['error_msg'] = urldecode($result_atr_val);
 							break;
 /*						case 'memo1':
 							$response_array['error_msg'] = mb_convert_encoding(urldecode($result_atr_val.'3'), "UTF8" ,"auto");
