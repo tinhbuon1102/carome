@@ -88,6 +88,25 @@ function shortcode_url() {
 	return get_bloginfo('url');
 }
 
+//add extra charge for conv payment order
+function woocommerce_custom_fee( ) {
+	
+	if ( ( is_admin() && ! defined( 'DOING_AJAX' ) ) || ! is_checkout() )
+		return;
+		
+		$chosen_gateway = WC()->session->chosen_payment_method;
+		
+		$fee = 350;
+		// or calculate your $fee with all the php magic...
+		// $fee = WC()->cart->cart_contents_total * .025; // sample computation for getting 2.5% of the cart total.
+		
+		if ( $chosen_gateway == 'epsilon_pro_cs' ) { //test with paypal method
+			WC()->cart->add_fee( 'コンビニ支払い手数料', $fee, true );
+		}
+}
+add_action( 'woocommerce_cart_calculate_fees','woocommerce_custom_fee' );
+
+
 function remove_product_editor() {
 	remove_post_type_support( 'product', 'editor' );
 }
@@ -133,24 +152,7 @@ foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
         break;
     }
 }
-//add extra charge for conv payment order
-function woocommerce_custom_fee( ) {
- 
-	if ( ( is_admin() && ! defined( 'DOING_AJAX' ) ) || ! is_checkout() )
-		return;
- 
-	$chosen_gateway = WC()->session->chosen_payment_method;
- 
-	$fee = 350;
-	// or calculate your $fee with all the php magic...
-        // $fee = WC()->cart->cart_contents_total * .025; // sample computation for getting 2.5% of the cart total.
- 
-	if ( $chosen_gateway == 'epsilon_pro_cs' ) { //test with paypal method
-		WC()->cart->add_fee( 'コンビニ支払い手数料', $fee, true );
-	}
-}
-add_action( 'woocommerce_cart_calculate_fees','woocommerce_custom_fee' );
- 
+
 function cart_update_script() {
     if (is_checkout()) :
     ?>
