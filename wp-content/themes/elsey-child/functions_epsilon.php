@@ -19,7 +19,9 @@ function check_epsilon_paid_cs_orders ()
 		  ( wp_postmeta.meta_key = '_payment_method' AND wp_postmeta.meta_value = 'epsilon_pro_cs' )
 		  AND
 		  ( mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' OR wp_posts.post_status = 'wc-on-hold')
-		) AND wp_posts.post_type = 'shop_order' GROUP BY wp_posts.ID
+		) AND wp_posts.post_type = 'shop_order'  
+		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-10 days')) . "' 
+		GROUP BY wp_posts.ID
 		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 1";
 	
 	$orders = $wpdb->get_results($sql);
@@ -125,3 +127,12 @@ function epsilon_complete_cs_payment($order_id)
 	var_dump($order_id);
 	
 }
+
+function epsilon_cs_checking_shortcode( $atts ) {
+	if (isset($_REQUEST['order_number']) && isset($_REQUEST['paid']) && $_REQUEST['paid'] == 1)
+	{
+		$order_id = mb_ereg_replace('[^0-9]', '', $_REQUEST['order_number']);
+		epsilon_complete_cs_payment($order_id);
+	}
+}
+add_shortcode( 'epsilon_cs_checking', 'epsilon_cs_checking_shortcode' );
