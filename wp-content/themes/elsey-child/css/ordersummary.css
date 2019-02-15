@@ -39,3 +39,10 @@ ul.notion li:not(:last-child) {
 .conv_info a {
     text-decoration: underline;
 }
+.payment_method_epsilon_pro_cs fieldset {
+    padding-left: 0 !important;
+}
+
+.payment_method_epsilon_pro_cs p + fieldset {
+    margin-top: 24px;
+}
