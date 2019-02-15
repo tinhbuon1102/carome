@@ -36,7 +36,7 @@ function check_epsilon_paid_cs_orders ()
 	}
 }
 
-function epsilon_get_paid_cs_order($order_id)
+function get_epsilon_response_array($order_id)
 {
 	$epsilon_response = get_post_meta($order_id, 'epsilon_response_array', true);
 	$epsilon_data = array();
@@ -45,6 +45,12 @@ function epsilon_get_paid_cs_order($order_id)
 		list ($result_atr_key, $result_atr_val) = each($uns_v);
 		$epsilon_data[$result_atr_key] = $result_atr_val;
 	}
+	return $epsilon_data;
+}
+
+function epsilon_get_paid_cs_order($order_id)
+{
+	$epsilon_data = get_epsilon_response_array($order_id);
 	
 	$content_folder = dirname(dirname(dirname(__FILE__)));
 	require_once $content_folder . "/plugins/wc4jp-epsilon/includes/gateways/epsilon/includes/http/Request.php";
@@ -109,11 +115,14 @@ function epsilon_get_paid_cs_order($order_id)
 					$epsilon_data_check[$result_atr_key] = $result_atr_val;
 				}
 			}
-			
 			if (!empty($epsilon_data_check) && $epsilon_data_check['paid'] == 1)
 			{
 				// Order are paid by customer => Set status to completed
 				epsilon_complete_cs_payment($order_id);
+			}
+			elseif ($epsilon_data['conveni_limit'] < current_time('Y-m-d'))
+			{
+				epsilon_cancel_cs_payment($order_id);
 			}
 		}
 	}
@@ -128,15 +137,35 @@ function epsilon_complete_cs_payment($order_id)
 	
 }
 
+function epsilon_cancel_cs_payment($order_id)
+{
+	$order = wc_get_order( $order_id );
+	update_post_meta($order_id, '_custom_payment_status', 0);
+	$order->update_status( 'cancel', __( 'Cancel Convenience Store payment, Expired deadline date', 'elsey' ));
+	var_dump($order_id);
+	
+}
+
 function epsilon_cs_checking_shortcode( $atts ) {
 	if (site_url() == 'https://www.carome.net/')
 	{
 		wp_mail('quocthang.2001@gmail.com', 'Epsilon response', var_export($_REQUEST, true));
 	}
-	if (isset($_REQUEST['order_number']) && isset($_REQUEST['paid']) && $_REQUEST['paid'] == 1)
+	if (isset($_REQUEST['order_number']) && isset($_REQUEST['paid']))
 	{
 		$order_id = mb_ereg_replace('[^0-9]', '', $_REQUEST['order_number']);
-		epsilon_complete_cs_payment($order_id);
+		if ($_REQUEST['paid'] == 1)
+		{
+			epsilon_complete_cs_payment($order_id);
+		}
+		else {
+			// Paid = 0 & expired deadline date
+			$epsilon_data = get_epsilon_response_array($order_id);
+			if ($epsilon_data['conveni_limit'] < current_time('Y-m-d'))
+			{
+				epsilon_cancel_cs_payment($order_id);
+			}
+		}
 	}
 }
 add_shortcode( 'epsilon_cs_checking', 'epsilon_cs_checking_shortcode' );
