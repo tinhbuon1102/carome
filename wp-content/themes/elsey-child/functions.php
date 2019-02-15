@@ -35,7 +35,7 @@ function custom_add_google_fonts() {
 add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
 /*Add New CSS*/
 function custom_styles () {
-	wp_register_style('osum-style', get_stylesheet_directory_uri() . '/css/ordersummary.css?201902141409', array(), '');
+	wp_register_style('osum-style', get_stylesheet_directory_uri() . '/css/ordersummary.css?201902151312', array(), '');
 	if (is_wc_endpoint_url( 'order-received' ) || is_wc_endpoint_url( 'view-order' )) {
 		wp_enqueue_style('osum-style');
 	}
@@ -94,7 +94,7 @@ function woocommerce_custom_fee( ) {
 		
 		$chosen_gateway = WC()->session->chosen_payment_method;
 		
-		$fee = 350;
+		$fee = 300;
 		// or calculate your $fee with all the php magic...
 		// $fee = WC()->cart->cart_contents_total * .025; // sample computation for getting 2.5% of the cart total.
 		
