@@ -99,7 +99,7 @@ function woocommerce_custom_fee( ) {
 		// $fee = WC()->cart->cart_contents_total * .025; // sample computation for getting 2.5% of the cart total.
 		
 		if ( $chosen_gateway == 'epsilon_pro_cs' ) { //test with paypal method
-			WC()->cart->add_fee( 'コンビニ支払い手数料', $fee, true );
+			WC()->cart->add_fee( 'コンビニ支払い手数料', $fee, false );
 		}
 }
 add_action( 'woocommerce_cart_calculate_fees','woocommerce_custom_fee' );
