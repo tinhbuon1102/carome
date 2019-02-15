@@ -19,7 +19,7 @@ function check_epsilon_paid_cs_orders ()
 		  ( wp_postmeta.meta_key = '_payment_method' AND wp_postmeta.meta_value = 'epsilon_pro_cs' )
 		  AND
 		  ( mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' OR wp_posts.post_status = 'wc-on-hold'	
-		) AND wp_posts.post_type = 'shop_order'  
+		)) AND wp_posts.post_type = 'shop_order'  
 		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-10 days')) . "' 
 		GROUP BY wp_posts.ID
 		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 1";
@@ -115,6 +115,7 @@ function epsilon_get_paid_cs_order($order_id)
 					$epsilon_data_check[$result_atr_key] = $result_atr_val;
 				}
 			}
+			
 			if (!empty($epsilon_data_check) && $epsilon_data_check['paid'] == 1)
 			{
 				// Order are paid by customer => Set status to completed
@@ -141,7 +142,7 @@ function epsilon_cancel_cs_payment($order_id)
 {
 	$order = wc_get_order( $order_id );
 	update_post_meta($order_id, '_custom_payment_status', 0);
-	$order->update_status( 'cancel', __( 'Cancel Convenience Store payment, Expired deadline date', 'elsey' ));
+	$order->update_status( 'cancelled', __( 'Cancel Convenience Store payment, Expired deadline date', 'elsey' ));
 	var_dump($order_id);
 	
 }
