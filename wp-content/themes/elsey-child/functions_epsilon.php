@@ -145,26 +145,38 @@ function epsilon_cancel_cs_payment($order_id)
 	$order = wc_get_order( $order_id );
 	update_post_meta($order_id, '_custom_payment_status', 0);
 	$order->update_status( 'cancelled', __( 'Cancel Convenience Store payment, Expired deadline date', 'elsey' ));
-	var_dump($order_id);
+// 	var_dump($order_id);
 	
 }
 
 function epsilon_cs_checking_shortcode( $atts ) {
+	$atts = shortcode_atts( array(
+		'order_number' => '',
+		'paid' => '',
+		'conveni_limit' => '',
+	), $atts );
+	
+	$order_number = isset($_REQUEST['order_number']) ? $_REQUEST['order_number'] : $atts['order_number']; 
+	$paid = isset($_REQUEST['paid']) ? $_REQUEST['paid'] : $atts['paid']; 
+	
 	if (site_url() == 'https://www.carome.net/')
 	{
 		wp_mail('quocthang.2001@gmail.com', 'Epsilon response', var_export($_REQUEST, true));
 	}
-	if (isset($_REQUEST['order_number']) && isset($_REQUEST['paid']))
+	
+	if ($order_number)
 	{
-		$order_id = mb_ereg_replace('[^0-9]', '', $_REQUEST['order_number']);
-		if ($_REQUEST['paid'] == 1)
+		$order_id = mb_ereg_replace('[^0-9]', '', $order_number);
+		if ($paid == 1)
 		{
 			epsilon_complete_cs_payment($order_id);
 		}
 		else {
 			// Paid = 0 & expired deadline date
 			$epsilon_data = get_epsilon_response_array($order_id);
-			if ($epsilon_data['conveni_limit'] < current_time('Y-m-d'))
+			$conveni_limit = $atts['conveni_limit'] ? $atts['conveni_limit'] : $epsilon_data['conveni_limit'];
+			
+			if ($conveni_limit < current_time('Y-m-d'))
 			{
 				epsilon_cancel_cs_payment($order_id);
 			}
