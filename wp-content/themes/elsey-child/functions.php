@@ -2421,6 +2421,37 @@ add_action( 'wp_loaded', 'elsey_schedule_cancelled_not_paid' );
 function elsey_schedule_cancelled_not_paid() {
 	if (isset($_GET['cancelled_not_paid']) && $_GET['cancelled_not_paid'])
 	{
+		$held_duration = get_option( 'woocommerce_hold_stock_minutes' ); 
+
+	    if ( $held_duration < 1 || 'yes' !== get_option( 'woocommerce_manage_stock' ) ) { 
+	        return; 
+	    } 
+	
+	global $wpdb;
+	$date = strtotime( '-' . absint( $held_duration ) . ' MINUTES', current_time( 'timestamp' ) );
+		    $unpaid_orders = $wpdb->get_col(
+		      $wpdb->prepare(
+		        // @codingStandardsIgnoreStart
+		        "SELECT posts.ID
+						FROM {$wpdb->posts} AS posts
+						WHERE   posts.post_type   IN ('" . implode( "','", wc_get_order_types() ) . "')
+						AND     posts.post_status IN ('wc-pending', 'wc-on-hold')
+						AND     posts.post_modified < %s",
+		        // @codingStandardsIgnoreEnd
+		        date( 'Y-m-d H:i:s', absint( $date ) )
+		      )
+		    );
+
+	    if ( $unpaid_orders ) { 
+	        foreach ( $unpaid_orders as $unpaid_order ) { 
+	            $order = wc_get_order( $unpaid_order ); 
+	            $order->update_status( 'cancelled', __( 'Unpaid order cancelled - time limit reached.', 'woocommerce' ) ); 
+	        } 
+	    } 
+	    wp_clear_scheduled_hook( 'woocommerce_cancel_unpaid_orders' ); 
+	    wp_schedule_single_event( time() + ( absint( $held_duration ) * 60 ), 'woocommerce_cancel_unpaid_orders' ); 
+	    
+	
 		do_action( 'woocommerce_cancel_unpaid_orders');
 		die('done');
 	}
