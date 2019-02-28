@@ -2442,10 +2442,21 @@ function elsey_schedule_cancelled_not_paid() {
 		      )
 		    );
 
+		$time_now = current_time('timestamp');
 	    if ( $unpaid_orders ) { 
 	        foreach ( $unpaid_orders as $unpaid_order ) { 
 	            $order = wc_get_order( $unpaid_order ); 
-	            $order->update_status( 'cancelled', __( 'Unpaid order cancelled - time limit reached.', 'woocommerce' ) ); 
+	            if ($order->get_payment_method() == 'epsilon')
+	            {
+	            	// If passed 3 days -> cancel
+	            	if (($time_now - (60*60*24*3)) >= strtotime($order->get_date_created()->format('Y-m-d')))
+	            	{
+	            		$order->update_status( 'cancelled', __( 'Unpaid order cancelled - time limit reached.', 'woocommerce' ) );
+	            	}
+	            }
+	            else {
+	            	$order->update_status( 'cancelled', __( 'Unpaid order cancelled - time limit reached.', 'woocommerce' ) );
+	            }
 	        } 
 	    } 
 	    wp_clear_scheduled_hook( 'woocommerce_cancel_unpaid_orders' ); 
