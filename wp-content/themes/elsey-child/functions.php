@@ -4076,3 +4076,39 @@ function show_epsilon_cs_order_success_text($order)
 	}
 	
 }
+
+//Delete cache of shop page and product category page when product is published
+add_action( 'save_post', 'ch_published_product_scheduled', 10, 3);
+
+function ch_published_product_scheduled($post_id, $post, $update){
+    if ($post->post_status != 'publish' || $post->post_type != 'product') {
+        return;
+    }
+
+    if (!$product = wc_get_product( $post )) {
+        return;
+    }
+
+    $path_cache=ABSPATH.'wp-content/cache/wp-rocket/'.$_SERVER['HTTP_HOST'];
+    $shop=$path_cache.'/shop';
+    ch_rmdir__files_recurse($shop);
+    
+    $product_category=$path_cache.'/product-category';
+    ch_rmdir__files_recurse($product_category);
+}
+
+function ch_rmdir__files_recurse($path) {
+  $path = rtrim($path, '/') . '/';
+  $handle = opendir($path);
+
+  while (false !== ($file = readdir($handle))) {
+    if($file != '.' and $file != '..' ) {
+      $fullpath = $path.$file;
+      if (is_dir($fullpath)) ch_rmdir__files_recurse($fullpath);
+      else unlink($fullpath);
+    }
+  }
+  closedir($handle);
+  rmdir($path);
+}
+//end
