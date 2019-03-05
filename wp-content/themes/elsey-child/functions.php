@@ -713,7 +713,7 @@ function woocommerce_product_custom_fields()
 		array(
 		'id' => '_is_specific_cart_item',
 		'label' => __('Is Specific Cart Item ?', 'elsey'),
-		'description' => __('This is specific item, must be checkout separeate this product with other', 'elsey'),
+		'description' => __('This is specific item, which must be purchased separeately with other', 'elsey'),
 		'desc_tip' => 'true'
 		)
 	);
