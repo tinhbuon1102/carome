@@ -712,7 +712,9 @@ function woocommerce_product_custom_fields()
 	woocommerce_wp_checkbox(
 		array(
 		'id' => '_is_specific_cart_item',
-		'label' => __('Is Specific Cart Item ?', 'woocommerce'),
+		'label' => __('Is Specific Cart Item ?', 'elsey'),
+		'description' => __('This is specific item, must be checkout separeate this product with other', 'elsey'),
+		'desc_tip' => 'true'
 		)
 	);
 	echo '</div>';
