@@ -236,7 +236,7 @@ class WC_Pre_Orders_Product {
 				item_meta.meta_key = '_product_id' AND
 				item_meta.meta_value = '%s' AND
 				post_meta.meta_key = '_wc_pre_orders_status' AND
-				post_meta.meta_value = 'active'
+				post_meta.meta_value = 'active' AND
 				mt1.meta_key = '_wc_pre_orders_is_pre_order' AND
 				mt1.meta_value = 1
 			", $product->get_id()

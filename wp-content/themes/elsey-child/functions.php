@@ -1,5 +1,6 @@
 <?php
 include dirname(__FILE__) . '/functions_epsilon.php';
+include dirname(__FILE__) . '/functions_new_shipping.php';
 
 define('CONTACT_EMAIL_ADMIN_WITH_FILE', 'return@carome.net');
 
@@ -705,6 +706,16 @@ function woocommerce_product_custom_fields()
 			)
 			);
 	echo '</div>';
+	
+	echo '<div class="product_custom_field">';
+	// Custom Product Text Field
+	woocommerce_wp_checkbox(
+		array(
+		'id' => '_is_specific_cart_item',
+		'label' => __('Is Specific Cart Item ?', 'woocommerce'),
+		)
+	);
+	echo '</div>';
 	/*
 
 	echo '<div class="product_custom_field">';
@@ -733,6 +744,14 @@ function woocommerce_product_custom_fields_save($post_id)
 	if (!empty($woocommerce_custom_product_text_field))
 		update_post_meta($post_id, '_custom_product_text_field', esc_attr($woocommerce_custom_product_text_field));
 
+	if ( isset($_POST['_is_specific_cart_item']) )
+	{
+		update_post_meta($post_id, '_is_specific_cart_item', esc_attr($_POST['_is_specific_cart_item']));
+	}
+	else
+	{
+		update_post_meta($post_id, '_is_specific_cart_item', '');
+	}
 		/*
 
 		// Custom Product Text Field
@@ -4099,8 +4118,11 @@ function ch_published_product_scheduled($post_id, $post, $update){
 
 function ch_rmdir__files_recurse($path) {
   $path = rtrim($path, '/') . '/';
-  $handle = opendir($path);
-
+  $handle = opendir($path);  
+  
+  if (!is_dir($path))
+  	return ;
+  
   while (false !== ($file = readdir($handle))) {
     if($file != '.' and $file != '..' ) {
       $fullpath = $path.$file;
@@ -4112,3 +4134,86 @@ function ch_rmdir__files_recurse($path) {
   rmdir($path);
 }
 //end
+
+function elsey_cart_contains_specific_product( ) {
+	
+	global $woocommerce;
+	
+	$contains_specific_product = false;
+	
+	if ( ! empty($woocommerce->cart->cart_contents) )
+	{
+		
+		foreach ( $woocommerce->cart->cart_contents as $cart_item )
+		{
+			if ( elsey_is_specific_product($cart_item['product_id']) )
+			{
+				$contains_specific_product = true;
+				break;
+			}
+		}
+	}
+	
+	return $contains_specific_product;
+	
+}
+
+function elsey_is_specific_product($product_id)
+{
+	$is_specific_product = get_post_meta( $product_id, '_is_specific_cart_item', true );
+	return 'yes' === $is_specific_product ? true : false;
+}
+add_filter('woocommerce_add_to_cart_validation', 'elsey_validate_specific_product_in_cart', 1, 2);
+function elsey_validate_specific_product_in_cart ( $valid, $product_id )
+{
+	global $woocommerce;
+
+	if ( elsey_is_specific_product($product_id) )
+	{
+		if ( $woocommerce->cart->get_cart_contents_count() >= 1 )
+		{
+			foreach ( WC()->cart->get_cart() as $cart_item )
+			{
+				if ( ! elsey_is_specific_product($cart_item['product_id']) )
+				{
+					$valid = false;
+
+					// Backwards compatible (pre 2.1) for outputting notice
+					if ( function_exists('wc_add_notice') )
+					{
+						wc_add_notice(__('This product cannot be added to your cart because this product is specific product, which must be purchased separately.', 'elsey'));
+					}
+					else
+					{
+						$woocommerce->add_error(__('This product cannot be added to your cart because this product is specific product, which must be purchased separately.', 'elsey'));
+					}
+					return $valid;
+					break;
+				}
+			}
+		}
+		else
+		{
+			return $valid;
+		}
+	}
+	else
+	{
+		// if there's a specific product in the cart already, prevent anything else from being added
+		if ( elsey_cart_contains_specific_product() )
+		{
+			// Backwards compatible (pre 2.1) for outputting notice
+			if ( function_exists('wc_add_notice') )
+			{
+				wc_add_notice(__('This product cannot be added to your cart because it already contains a specific product, which must be purchased separately.', 'elsey'));
+			}
+			else
+			{
+				$woocommerce->add_error(__('This product cannot be added to your cart because it already contains a specific product, which must be purchased separately.', 'elsey'));
+			}
+
+			$valid = false;
+		}
+	}
+	return $valid;
+}
