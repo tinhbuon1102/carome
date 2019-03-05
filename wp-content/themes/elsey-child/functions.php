@@ -2470,7 +2470,7 @@ function elsey_schedule_cancelled_not_paid() {
 	            if (strpos($order->get_payment_method(), 'epsilon_pro_cs') !== false)
 	            {
 	            	// If passed 3 days -> cancel
-	            	if (($time_now - (60*60*24*3)) >= strtotime($order->get_date_created()->format('Y-m-d')))
+	            	if (($time_now - (60*60*24*4)) >= strtotime($order->get_date_created()->format('Y-m-d')))
 	            	{
 	            		$order->update_status( 'cancelled', __( 'Unpaid order cancelled - time limit reached.', 'woocommerce' ) );
 	            	}
