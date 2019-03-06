@@ -11,17 +11,16 @@ function elsey_init_test ()
 
 function check_epsilon_paid_cs_orders ()
 {
-	die('x');
 	global $wpdb;
 	// Find not paid Convenience gateway
-	$sql = "SELECT wp_posts.ID, wp_posts.menu_order FROM wp_posts
+	$sql = "SELECT wp_posts.ID, wp_posts.post_status, wp_posts.menu_order FROM wp_posts
 			INNER JOIN wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id )
 			INNER JOIN wp_postmeta AS mt1 ON ( wp_posts.ID = mt1.post_id ) WHERE 1=1  AND (
 		  ( wp_postmeta.meta_key = '_payment_method' AND wp_postmeta.meta_value = 'epsilon_pro_cs' )
 		  AND
 		  ( (mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' AND wp_posts.post_status = 'wc-on-hold') OR wp_posts.post_status = 'wc-on-hold'	
 		)) AND wp_posts.post_type = 'shop_order'  
-		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-10 days')) . "' 
+		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-5 days')) . "' 
 		GROUP BY wp_posts.ID
 		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 1";
 	
@@ -31,8 +30,11 @@ function check_epsilon_paid_cs_orders ()
 	{
 		foreach ($orders as $order)
 		{
-			$wpdb->query('UPDATE wp_posts SET menu_order = ' . ($order->menu_order + 1) . ' WHERE ID = ' . $order->ID);
-			epsilon_get_paid_cs_order($order->ID);
+			if ($order->post_status == 'wc-on-hold')
+			{
+				$wpdb->query('UPDATE wp_posts SET menu_order = ' . ($order->menu_order + 1) . ' WHERE ID = ' . $order->ID);
+				epsilon_get_paid_cs_order($order->ID);
+			}
 		}
 	}
 }

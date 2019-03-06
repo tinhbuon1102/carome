@@ -2469,7 +2469,6 @@ function elsey_schedule_cancelled_not_paid() {
 	            $order = wc_get_order( $unpaid_order ); 
 	            if (strpos($order->get_payment_method(), 'epsilon_pro_cs') !== false)
 	            {
-	            	die('x');
 	            	// If passed 3 days -> cancel
 	            	if (($time_now - (60*60*24*4)) >= strtotime($order->get_date_created()->format('Y-m-d')))
 	            	{
