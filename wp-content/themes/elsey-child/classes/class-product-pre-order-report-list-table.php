@@ -104,7 +104,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 
 		$where = " WHERE p.post_type = 'shop_order' AND p.post_status IN ('wc-pre-ordered')
 			AND ot.order_item_type = 'line_item'
-			AND om1.meta_key = '_qty' AND om2.meta_key = '_product_id' 
+			AND om1.meta_key = '_qty' AND om2.meta_key = '". $this->product_type ."' 
 			 " . $this->get_where();
 		
 		$sql = "
