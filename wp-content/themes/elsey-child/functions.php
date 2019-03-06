@@ -2073,6 +2073,7 @@ function elsey_wp_ajax_load_table_list_widget_dashboard()
 	parse_str($url_parts['query'], $url_query);
 	
 	$widget_function = $aWidget[$_REQUEST['wg']];
+	$url_query['paged'] = isset($url_query['paged']) ? $url_query['paged'] : 1;
 	
 	if (isset($url_query['paged']))
 	{
