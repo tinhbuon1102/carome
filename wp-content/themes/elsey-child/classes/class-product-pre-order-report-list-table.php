@@ -108,7 +108,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 			 " . $this->get_where();
 		
 		$sql = "
-		SELECT om2.meta_value as product_id, post.post_title as product_name, COUNT(om1.meta_value) as quantity
+		SELECT om2.meta_value as product_id, post.post_title as product_name, post.post_parent as parent, COUNT(om1.meta_value) as quantity
 		FROM wp_posts p
 			INNER JOIN {$wpdb->prefix}woocommerce_order_items ot ON p.ID = ot.order_id
 			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta om1 ON ot.order_item_id = om1.order_item_id
@@ -236,12 +236,12 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 			{
 				$sku = get_post_meta($product_id, '_sku', true);
 				$sku = $sku ? $sku : "#$product_id";
-				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. $product_id .'&action=edit'.'">'. $sku .'</a>';
+				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. ($item['parent'] ? $item['parent'] : $product_id) .'&action=edit'.'">'. $sku .'</a>';
 			}
 			elseif ('product_name' == $column_name)
 			{
 				
-				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. $product_id .'&action=edit'.'">'. $item[$column_name] .'</a>';
+				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. ($item['parent'] ? $item['parent'] : $product_id) .'&action=edit'.'">'. $item[$column_name] .'</a>';
 			}
 			elseif ( 'quantity' == $column_name)
 			{
