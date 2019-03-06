@@ -1976,6 +1976,12 @@ function product_report_dashboard_widget() {
 			__('Product Preorder Report', 'elsey'),
 			'elsey_pre_order_report_dashboard_widget_function'
 			);
+	
+	wp_add_dashboard_widget(
+			'pre_variation_order_report_dashboard_widget',
+			__('Variations Preorder Report', 'elsey'),
+			'elsey_pre_variation_order_report_dashboard_widget_function'
+			);
 }
 add_action( 'wp_dashboard_setup', 'product_report_dashboard_widget' );
 
@@ -2027,6 +2033,15 @@ function elsey_pre_order_report_dashboard_widget_function()
 {
 	require_once get_stylesheet_directory() . '/classes/class-product-pre-order-report-list-table.php';
 	$product_list = new Product_Pre_Order_Report_List();
+	$product_list->prepare_items();
+	return $product_list->display();
+}
+
+function elsey_pre_variation_order_report_dashboard_widget_function()
+{
+	require_once get_stylesheet_directory() . '/classes/class-product-pre-order-report-list-table.php';
+	$product_list = new Product_Pre_Order_Report_List();
+	$product_list->product_type = '_variation_id';
 	$product_list->prepare_items();
 	return $product_list->display();
 }

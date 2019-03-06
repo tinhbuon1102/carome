@@ -4,9 +4,11 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 }
 
 class Product_Pre_Order_Report_List extends WP_List_Table {
+	public $product_type = '_product_id';
 	/** Class constructor */
-	public function __construct() {
+	public function __construct($type = '') {
 	
+		$this->product_type = $type ? $type : $this->product_type;
 		parent::__construct( [
 			'singular' => __( 'Product Pre Order Report', 'elsey' ), //singular name of the listed records
 			'plural'   => __( 'Product Pre Order ', 'elsey' ), //plural name of the listed records
@@ -154,7 +156,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 		WHERE
 			post_type = 'shop_order' AND post_status IN ('". implode("','", $statuses) . "')
 			AND ot.order_item_type = 'line_item'
-			AND om1.meta_key = '_qty' AND om2.meta_key = '_product_id' 
+			AND om1.meta_key = '_qty' AND om2.meta_key = '". $this->product_type ."' 
 			 ". $this->get_where($product_id) ."
 			GROUP BY om2.meta_value";
 	
