@@ -203,6 +203,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 	 */
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
+			case 'id':
 			case 'product_name':
 			case 'product_id':
 			case 'quantity':
@@ -222,7 +223,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 			'product_name' => __( 'Product Name', 'elsey' ),
 			'quantity'    => __( 'Sold Quantity', 'elsey' )
 		];
-	
+			$columns = ['id' => __( 'ID', 'elsey' )] + $columns;
 		return $columns;
 	}
 	
@@ -232,7 +233,11 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 		{
 			$product_id = $item['product_id'];
 			echo "<td>";
-			if ( 'product_id' == $column_name)
+			if ( 'id' == $column_name)
+			{
+				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. $product_id .'&action=edit'.'">#'. $product_id .'</a>';
+			}
+			elseif ( 'product_id' == $column_name)
 			{
 				$sku = get_post_meta($product_id, '_sku', true);
 				$sku = $sku ? $sku : "#$product_id";
