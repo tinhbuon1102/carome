@@ -2073,9 +2073,13 @@ function elsey_wp_ajax_load_table_list_widget_dashboard()
 	parse_str($url_parts['query'], $url_query);
 	
 	$widget_function = $aWidget[$_REQUEST['wg']];
+	
 	if (isset($url_query['paged']))
 	{
-		$_GET['paged'] = $_REQUEST['paged'] = $url_query['paged'];
+		foreach ($url_query as $param_key => $param_value)
+		{
+			$_GET[$param_key] = $_REQUEST[$param_key] = $param_value;
+		}
 		$table_list = $widget_function();
 		echo $table_list;die;
 	}
