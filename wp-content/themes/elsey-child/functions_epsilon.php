@@ -11,6 +11,7 @@ function elsey_init_test ()
 
 function check_epsilon_paid_cs_orders ()
 {
+	die('x');
 	global $wpdb;
 	// Find not paid Convenience gateway
 	$sql = "SELECT wp_posts.ID, wp_posts.menu_order FROM wp_posts
