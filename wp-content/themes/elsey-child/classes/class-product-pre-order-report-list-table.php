@@ -235,7 +235,7 @@ class Product_Pre_Order_Report_List extends WP_List_Table {
 			echo "<td>";
 			if ( 'id' == $column_name)
 			{
-				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. $product_id .'&action=edit'.'">#'. $product_id .'</a>';
+				echo '<a target="_blank" href="'. site_url() . '/wp-admin/post.php?post='. ($item['parent'] ? $item['parent'] : $product_id) .'&action=edit'.'">#'. $product_id .'</a>';
 			}
 			elseif ( 'product_id' == $column_name)
 			{
