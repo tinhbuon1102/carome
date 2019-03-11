@@ -22,7 +22,7 @@ function check_epsilon_paid_cs_orders ()
 		)) AND wp_posts.post_type = 'shop_order'  
 		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-5 days')) . "' 
 		GROUP BY wp_posts.ID
-		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 1";
+		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 2";
 	
 	$orders = $wpdb->get_results($sql);
 	
