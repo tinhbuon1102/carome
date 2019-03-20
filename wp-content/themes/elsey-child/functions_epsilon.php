@@ -126,7 +126,7 @@ function epsilon_get_paid_cs_order($order_id)
 				// Order are paid by customer => Set status to completed
 				epsilon_complete_cs_payment($order_id);
 			}
-			elseif ($epsilon_data['conveni_limit'] < current_time('Y-m-d'))
+			elseif ($epsilon_data['conveni_limit'] < current_time('Y-m-d') && $epsilon_data_check['paid'] == 0)
 			{
 				epsilon_cancel_cs_payment($order_id);
 			}
