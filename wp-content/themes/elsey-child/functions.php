@@ -58,16 +58,16 @@ function custom_scripts ()
 {
 	wp_register_script('autokana', get_stylesheet_directory_uri() . '/js/jquery.autoKana.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('autokana');
-
+	
 	wp_register_script('simple-ticker', get_stylesheet_directory_uri() . '/js/jquery.simpleTicker/jquery.simpleTicker.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('simple-ticker');
 	
 	wp_register_script('slick_js', get_stylesheet_directory_uri() . '/js/slick/slick.min.js', array( 'jquery' ),'', true);
 	wp_enqueue_script('slick_js');
-
+	
 	wp_register_script('custom_js', get_stylesheet_directory_uri() . '/js/custom.js?v=' . time(), array( 'jquery' ),'', true);
 	wp_enqueue_script('custom_js');
-
+	
 	wp_dequeue_script( 'sticky-header', ELSEY_SCRIPTS . '/sticky.min.js', array( 'jquery' ), '1.0.4', true );
 	wp_enqueue_script('sticky-header', get_stylesheet_directory_uri() . '/js/sticky.min.js', array( 'jquery' ),'', true);
 	
@@ -97,16 +97,16 @@ function custom_scripts ()
 add_action('wp_enqueue_scripts', 'custom_scripts');
 
 function file_remove_scripts() {
-
-    // Check for the page you want to target
-    if ( is_page( 'insta-shop' ) ) {
-
-        // Remove Styles
-        wp_dequeue_style( 'slick_css' );
-        wp_dequeue_style( 'slicktheme_css' );
-        wp_deregister_style( 'slick_css' );
-        wp_deregister_style( 'slicktheme_css' );
-    }
+	
+	// Check for the page you want to target
+	if ( is_page( 'insta-shop' ) ) {
+		
+		// Remove Styles
+		wp_dequeue_style( 'slick_css' );
+		wp_dequeue_style( 'slicktheme_css' );
+		wp_deregister_style( 'slick_css' );
+		wp_deregister_style( 'slicktheme_css' );
+	}
 }
 add_action( 'wp_enqueue_scripts', 'file_remove_scripts' );
 
@@ -165,25 +165,25 @@ add_action( 'admin_init', 'update_nag_admin_only' );
 
 
 add_action('woocommerce_before_cart', 'show_check_category_in_cart');
- 
-function show_check_category_in_cart() {
- 
-// Set $cat_in_cart to false
-$cat_in_cart = false;
- 
-// Loop through all products in the Cart        
-foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
- 
-    // If Cart has category "download", set $cat_in_cart to true
-    if ( has_term( 'twoset_price_jwl', 'product_cat', $cart_item['product_id'] ) ) {
-        $cat_in_cart = true;
-        break;
-    }
-}
 
-function cart_update_script() {
-    if (is_checkout()) :
-    ?>
+function show_check_category_in_cart() {
+	
+	// Set $cat_in_cart to false
+	$cat_in_cart = false;
+	
+	// Loop through all products in the Cart
+	foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+		
+		// If Cart has category "download", set $cat_in_cart to true
+		if ( has_term( 'twoset_price_jwl', 'product_cat', $cart_item['product_id'] ) ) {
+			$cat_in_cart = true;
+			break;
+		}
+	}
+	
+	function cart_update_script() {
+		if (is_checkout()) :
+		?>
     <script>
 		jQuery( function( $ ) {
  
@@ -281,7 +281,7 @@ add_filter('body_class', 'add_preload_class_names');
 function add_preload_class_names($classes) {
 	if ( is_page_template('page-eyeliner.php') ) {
 			$classes[] = 'preload';
-		}
+	}
 	return $classes;
 }
 //woo category sidebar widget
@@ -3742,6 +3742,46 @@ function elsey_woocommerce_checkout_update_order_meta( $order_id )
 			}
 		}
 	}
+	
+	// Add specific option by customer
+	$items = $order ->get_items();
+	$purchased_products = array();
+	foreach ( $items as $item ) {
+		if (elsey_is_specific_product($item['product_id']))
+		{
+			if (isset($item [ 'variation_id' ]) && $item [ 'variation_id' ])
+			{
+				$purchased_products[$item [ 'variation_id' ]]['id'] = $item [ 'variation_id' ];
+				$purchased_products[$item [ 'variation_id' ]]['is_variation'] = true;
+			}
+			else {
+				$purchased_products[$item [ 'product_id' ]]['id'] = $item [ 'product_id' ];
+				$purchased_products[$item [ 'product_id' ]]['is_variation'] = false;
+			}
+		}
+	}
+	if (!empty($purchased_products))
+	{
+		$user_id = get_current_user_id();
+		$user_email = $order->get_billing_email();
+		$user_phone = $order->get_billing_phone();
+		
+		$old_purchased_products = get_option('specific_user_' . $user_id);
+		$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_email);
+		$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_phone);
+		
+		if ($old_purchased_products)
+		{
+			$purchased_products = $purchased_products + $old_purchased_products;
+		}
+		
+		if ($user_id)
+		{
+			update_option('specific_user_' . $user_id, $purchased_products);
+		}
+		update_option('specific_user_' . $user_email, $purchased_products);
+		update_option('specific_user_' . $user_phone, $purchased_products);
+	}
 }
 
 add_action( 'save_post', 'elsey_store_event_coupon_meta' );
@@ -4250,32 +4290,58 @@ function elsey_is_specific_product($product_id)
 	$is_specific_product = get_post_meta( $product_id, '_is_specific_cart_item', true );
 	return 'yes' === $is_specific_product ? true : false;
 }
-add_filter('woocommerce_add_to_cart_validation', 'elsey_validate_specific_product_in_cart', 1, 2);
-function elsey_validate_specific_product_in_cart ( $valid, $product_id )
+add_filter('woocommerce_add_to_cart_validation', 'elsey_validate_specific_product_in_cart', 1, 5);
+function elsey_validate_specific_product_in_cart ( $valid, $product_id, $quantity = 0, $variation_id = 0, $variations = null )
 {
 	global $woocommerce;
-
 	if ( elsey_is_specific_product($product_id) )
 	{
-		if ( $woocommerce->cart->get_cart_contents_count() >= 1 )
+		// Check this product id is ordered by this customer before or not
+		$user_id = get_current_user_id();
+		$is_purchased_by_customer = false;
+		if ($user_id)
+		{
+			$user_email = get_user_meta($user_id, 'billing_email', true);
+			$user_phone = get_user_meta($user_id, 'billing_phone', true);
+			
+			$old_purchased_products = get_option('specific_user_' . $user_id);
+			$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_email);
+			$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_phone);
+			
+			if (!empty($old_purchased_products))
+			{
+				$old_purchased_product_ids = array_keys($old_purchased_products);
+				if (in_array($variation_id, $old_purchased_product_ids) || in_array($product_id, $old_purchased_product_ids))
+				{
+					$is_purchased_by_customer = true;
+				}
+					
+			}
+		}
+		if ($is_purchased_by_customer)
+		{
+			wc_add_notice(__('Sorry, You already ordered this product before.', 'elsey'));
+			$valid = false;
+		}
+		// Check this product is purchased before or not.
+		elseif ( $woocommerce->cart->get_cart_contents_count() >= 1 )
 		{
 			foreach ( WC()->cart->get_cart() as $cart_item )
 			{
 				if ( ! elsey_is_specific_product($cart_item['product_id']) )
 				{
 					$valid = false;
-
-					// Backwards compatible (pre 2.1) for outputting notice
-					if ( function_exists('wc_add_notice') )
-					{
-						wc_add_notice(__('This product cannot be added to your cart because this product is specific product, which must be purchased separately.', 'elsey'));
-					}
-					else
-					{
-						$woocommerce->add_error(__('This product cannot be added to your cart because this product is specific product, which must be purchased separately.', 'elsey'));
-					}
+					wc_add_notice(__('This product cannot be added because this product is specific product, which must be purchased separately.', 'elsey'));
 					return $valid;
 					break;
+				}
+				else {
+					// If it is specific item, prevent same id
+					if (($variation_id && $variation_id == $cart_item['variation_id']) || (!$variation_id && $product_id == $cart_item['product_id']))
+					{
+						$valid = false;
+						wc_add_notice(__('This product cannot be added to your cart because it already added in cart', 'elsey'));
+					}
 				}
 			}
 		}
@@ -4289,18 +4355,46 @@ function elsey_validate_specific_product_in_cart ( $valid, $product_id )
 		// if there's a specific product in the cart already, prevent anything else from being added
 		if ( elsey_cart_contains_specific_product() )
 		{
-			// Backwards compatible (pre 2.1) for outputting notice
-			if ( function_exists('wc_add_notice') )
-			{
-				wc_add_notice(__('This product cannot be added to your cart because it already contains a specific product, which must be purchased separately.', 'elsey'));
-			}
-			else
-			{
-				$woocommerce->add_error(__('This product cannot be added to your cart because it already contains a specific product, which must be purchased separately.', 'elsey'));
-			}
-
+			wc_add_notice(__('This product cannot be added to your cart because it already contains a specific product, which must be purchased separately.', 'elsey'));
 			$valid = false;
 		}
 	}
 	return $valid;
 }
+
+function elsey_woocommerce_after_checkout_validation($data, $errors) {
+	global $woocommerce;
+	$user_id = get_current_user_id();
+	$old_purchased_products = null;
+	if ($user_id )
+	{
+		$user_email = get_user_meta($user_id, 'billing_email', true);
+		$user_phone = get_user_meta($user_id, 'billing_phone', true);
+		$old_purchased_products = get_option('specific_user_' . $user_id);
+	}
+	else
+	{
+		$user_email = $data['billing_email'];
+		$user_phone = $data['billing_phone'];
+	}
+	$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_email);
+	$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_phone);
+	
+	if ( $woocommerce->cart->get_cart_contents_count() >= 1 && !empty($old_purchased_products))
+	{
+		$old_purchased_product_ids = array_keys($old_purchased_products);
+		foreach ( WC()->cart->get_cart() as $cart_item )
+		{
+			if ( elsey_is_specific_product($cart_item['product_id']) )
+			{
+				if (in_array($cart_item['variation_id'], $old_purchased_product_ids) || in_array($cart_item['product_id'], $old_purchased_product_ids))
+				{
+					$errors->add( 'validation', sprintf(__( 'You already ordered Product %s before, please go to cart and remove it.', 'elsey' ), $cart_item['data']->name));
+				}
+			}
+		}
+	}
+	return $errors;
+}
+add_action('woocommerce_after_checkout_validation', 'elsey_woocommerce_after_checkout_validation',10,2);
+
