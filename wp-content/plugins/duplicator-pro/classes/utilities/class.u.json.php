@@ -15,10 +15,14 @@ class DUP_PRO_JSON_U
     public static function customEncode($value, $iteration = 1)
     {
         if (DUP_PRO_U::PHP53()) {
-            if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-                $encoded = json_encode($value, JSON_PRETTY_PRINT);
+            if (function_exists('wp_json_encode')) {
+                $encoded = wp_json_encode($value);
             } else {
-                $encoded = json_encode($value);
+                if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+                    $encoded = json_encode($value, JSON_PRETTY_PRINT);
+                } else {
+                    $encoded = json_encode($value);
+                }
             }
 
             switch (json_last_error()) {

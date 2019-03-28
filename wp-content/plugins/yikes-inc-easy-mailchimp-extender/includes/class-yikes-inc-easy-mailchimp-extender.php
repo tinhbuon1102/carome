@@ -55,7 +55,7 @@ class Yikes_Inc_Easy_Mailchimp_Extender {
 	/**
 	 * Our form interface instance.
 	 *
-	 * @var Yikes_Inc_Easy_MailChimp_Extender_Form_Interface
+	 * @var Yikes_Inc_Easy_Mailchimp_Extender_Form_Interface
 	 */
 	protected $form_interface;
 
@@ -68,9 +68,9 @@ class Yikes_Inc_Easy_Mailchimp_Extender {
 	 *
 	 * @since    1.0.0
 	 *
-	 * @param Yikes_Inc_Easy_MailChimp_Extender_Form_Interface $form_interface
+	 * @param Yikes_Inc_Easy_Mailchimp_Extender_Form_Interface $form_interface
 	 */
-	public function __construct( Yikes_Inc_Easy_MailChimp_Extender_Form_Interface $form_interface ) {
+	public function __construct( Yikes_Inc_Easy_Mailchimp_Extender_Form_Interface $form_interface ) {
 		$this->version = YIKES_MC_VERSION;
 		$this->form_interface = $form_interface;
 		$this->load_dependencies();
@@ -111,7 +111,7 @@ class Yikes_Inc_Easy_Mailchimp_Extender {
 		/**
 		 * The class responsible for orchestrating the actions and filters for the Gutenberg blocks
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'blocks/blocks.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'blocks/maybe-do-blocks.php';
 		$this->loader = new Yikes_Inc_Easy_Mailchimp_Extender_Loader();
 	}
 	/**

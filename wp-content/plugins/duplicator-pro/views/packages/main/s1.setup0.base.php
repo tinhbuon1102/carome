@@ -329,14 +329,16 @@ jQuery(function($)
 
             //-- Database
             var	filterTableKey;
-            var databaseFilterTables = selectedTemplate.database_filter_tables.split(",");
-            $("#dup-dbtables input").prop("checked", false).css('text-decoration', 'none');
+            if ("" != selectedTemplate.database_filter_tables) {
+                var databaseFilterTables = selectedTemplate.database_filter_tables.split(",");
+                $("#dup-dbtables input").prop("checked", false).css('text-decoration', 'none');
 
-            for (filterTableKey in databaseFilterTables) {
-                    var filterTable = databaseFilterTables[filterTableKey];
-                    var selector = "#dbtables-" + filterTable;
-                    $(selector).prop("checked", true);
-                    $(selector).parent().css('text-decoration', 'line-through');
+                for (filterTableKey in databaseFilterTables) {
+                        var filterTable = databaseFilterTables[filterTableKey];
+                        var selector = "#dbtables-" + filterTable;
+                        $(selector).prop("checked", true);
+                        $(selector).parent().css('text-decoration', 'line-through');
+                }
             }
 
             $("#dbhost").val(selectedTemplate.installer_opts_db_host);

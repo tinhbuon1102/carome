@@ -76,6 +76,7 @@ class DUPX_RemoveRedundantData {
                     '=WP_UNINSTALL_PLUGIN=',
                     '!=WP_UNINSTALL_PLUGIN',
 
+                    'current_user_can',
                 );
                 foreach ($prohibited_codes as $prohibited_code) {
                     if (false !== stripos($uninstall_file_content, $prohibited_code)) {

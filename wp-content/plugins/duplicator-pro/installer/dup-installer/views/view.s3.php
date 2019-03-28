@@ -324,8 +324,28 @@ VIEW: STEP 3- INPUT -->
 						</div><br style="clear:both" />
 						<select id="tables" name="tables[]" multiple="multiple" style="width:315px; height:100px">
 							<?php
+							$need_to_check_scan_table = false;
+							if ($GLOBALS['DUPX_AC']->mu_generation > 0
+									&& $GLOBALS['DUPX_AC']->mu_mode > 0
+									&& $subsite_id > 0) {
+								$subsite_table_prefix = $GLOBALS['DUPX_AC']->wp_tableprefix.$subsite_id.'_';
+								$prefix_len = strlen($GLOBALS['DUPX_AC']->wp_tableprefix);
+								
+								$need_to_check_scan_table = true;
+							}
 							foreach( $all_tables as $table ) {
-								echo '<option selected="selected" value="' . DUPX_U::esc_attr($table) . '">' . DUPX_U::esc_html($table) . '</option>';
+								if ($need_to_check_scan_table) {
+									$table_len = strlen($table);
+									$table_without_base_prefix = substr($table, $prefix_len, $table_len);
+									$table_subsite_id = intval($table_without_base_prefix);
+									if (($subsite_id != $GLOBALS['DUPX_AC']->main_site_id && 0 === stripos($table, $subsite_table_prefix)) 
+										|| 
+										0 === $table_subsite_id) {
+										echo '<option selected="selected" value="' . DUPX_U::esc_attr($table) . '">' . DUPX_U::esc_html($table) . '</option>';
+									}
+								} else {
+									echo '<option selected="selected" value="' . DUPX_U::esc_attr($table) . '">' . DUPX_U::esc_html($table) . '</option>';
+								}
 							}
 							?>
 						</select>
@@ -358,9 +378,9 @@ VIEW: STEP 3- INPUT -->
 				</tr>
 			</table>
 			<br>
-			<input type="checkbox" name="fixpartials" id="fixpartials" value="1" /> <label for="fixpartials">Fix Incomplete Serialized Objects </label><br/>
+			<input type="checkbox" name="search_replace_email_domain" id="search_replace_email_domain" value="1" /> <label for="search_replace_email_domain">Update email domains</label><br/>
 			<input type="checkbox" name="fullsearch" id="fullsearch" value="1" /> <label for="fullsearch">Use Database Full Search Mode</label><br/>
-			<input type="checkbox" name="postguid" id="postguid" value="1" /> <label for="postguid">Keep Post GUID Unchanged</label><br/>
+			<input type="checkbox" name="postguid" id="postguid" value="1" /> <label for="postguid">Keep Post GUID Unchanged</label><br/>			
 			<br/><br/>
 		</div>
 
@@ -375,9 +395,15 @@ VIEW: STEP 3- INPUT -->
 				require_once($GLOBALS['DUPX_INIT'].'/classes/config/class.wp.config.tranformer.php');
 				$root_path		= $GLOBALS['DUPX_ROOT'];
 				$wpconfig_ark_path	= "{$root_path}/dup-wp-config-arc__{$GLOBALS['DUPX_AC']->package_hash}.txt";
-				$config_transformer = new WPConfigTransformer($wpconfig_ark_path);
+                if (file_exists($wpconfig_ark_path)) {
+    				$config_transformer = new WPConfigTransformer($wpconfig_ark_path);
+                } else {
+                    $config_transformer = null;
+                }
 			?>
 			<table class="dupx-opts dupx-advopts">
+                <?php
+                if (file_exists($wpconfig_ark_path) && !is_null($config_transformer)) { ?>
 				<tr><td colspan="2"><div class="hdr-sub3">Posts/Pages</div></td></tr>
 				<tr>
 					<td>Editor:</td>
@@ -637,6 +663,13 @@ VIEW: STEP 3- INPUT -->
 						<small class="info"> Maximum memory limit (default:256M)</small>
 					</td>
 				</tr>
+            <?php } else { ?>
+                <tr>
+                    <td>wp-config.php not found</td>
+                    <td>No action on the wp-config is possible.<br>
+                        After migration, be sure to insert a properly modified wp-config for correct wordpress operation.</td>
+                </tr>
+            <?php } ?>
 			</table>
 		</div>
 	</div>

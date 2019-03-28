@@ -93,7 +93,11 @@ class DUPX_DBInstall
         $this->drop_tbl_log   = 0;
         $this->rename_tbl_log = 0;
         $sql_file_size1       = DUPX_U::readableByteSize(@filesize("{$GLOBALS['DUPX_INIT']}/dup-database__{$GLOBALS['DUPX_AC']->package_hash}.sql"));
-        $sql_file_size2       = DUPX_U::readableByteSize(@filesize("{$this->root_path}/{$GLOBALS['SQL_FILE_NAME']}"));
+        if (file_exists("{$this->root_path}/{$GLOBALS['SQL_FILE_NAME']}")) {
+            $sql_file_size2       = DUPX_U::readableByteSize(@filesize("{$this->root_path}/{$GLOBALS['SQL_FILE_NAME']}"));
+        } else {
+            $sql_file_size2       = DUPX_U::readableByteSize(0);
+        }
         $collate_fb           = $this->dbcollatefb ? 'On' : 'Off';
 
         DUPX_Log::info("--------------------------------------");
@@ -255,7 +259,11 @@ class DUPX_DBInstall
             $json['progress']		 = $progress;
             $json['pos']             = $query_offset;
 
-            $seek_tell_log_line = filesize($this->sql_chunk_seek_tell_log) > 0 ? ',' : '';
+            $seek_tell_log_line = (
+                    file_exists($this->sql_chunk_seek_tell_log)
+                    &&
+                    filesize($this->sql_chunk_seek_tell_log) > 0
+                ) ? ',' : '';
             $seek_tell_log_line .= $this->post['pos'].'-'.$query_offset;
             file_put_contents($this->sql_chunk_seek_tell_log, $seek_tell_log_line, FILE_APPEND);
 
@@ -341,7 +349,7 @@ class DUPX_DBInstall
             return false;
         }
 
-        @mysqli_autocommit($dbh, false);
+        @mysqli_autocommit($this->dbh, false);
         $query = null;
         $delimiter = ';';
         while (($line = fgets($handle)) !== false) {
@@ -378,7 +386,10 @@ class DUPX_DBInstall
                         continue;
                     }
 
-                    @mysqli_free_result(@mysqli_query($this->dbh, $query));
+                    $tempRes = @mysqli_query($this->dbh, $query);
+                    if (!is_bool($tempRes)) {
+                        @mysqli_free_result($tempRes);
+                    }
                     $err = mysqli_error($this->dbh);
                     //Check to make sure the connection is alive
                     if (!empty($err)) {
@@ -424,7 +435,10 @@ class DUPX_DBInstall
             $query = $this->applyQueryProcUserFix($query);
             $query = trim($query);
          
-            @mysqli_free_result(@mysqli_query($this->dbh, $query));
+            $query_res = @mysqli_query($this->dbh, $query);
+            if (!is_bool($query_res)) {
+                @mysqli_free_result($query_res);
+            }
             $err = mysqli_error($this->dbh);
             //Check to make sure the connection is alive
             if (!empty($err)) {
@@ -445,9 +459,11 @@ class DUPX_DBInstall
 
                 //Buffer data to browser to keep connection open
             } else {
+                /*
                 if ($fcgi_buffer_count++ > $fcgi_buffer_pool) {
                     $fcgi_buffer_count = 0;
                 }
+                */
                 $this->dbquery_rows++;
             }
         }
@@ -469,9 +485,10 @@ class DUPX_DBInstall
 
         $this->dbdelete_count += (abs($dbdelete_count1) + abs($dbdelete_count2));
 
+        $opts_delete = json_decode($GLOBALS['DUPX_AC']->opts_delete);
         //Reset Duplicator Options
-        foreach ($GLOBALS['DUPX_AC']->opts_delete as $value) {
-            mysqli_query($this->dbh, "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` WHERE `option_name` = '".mysqli_real_escape_string($dbh, $value)."'");
+        foreach ($opts_delete as $value) {
+            mysqli_query($this->dbh, "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` WHERE `option_name` = '".mysqli_real_escape_string($this->dbh, $value)."'");
         }
 
 		DUPX_Log::info("Starting Cleanup Routine...");
@@ -558,7 +575,7 @@ class DUPX_DBInstall
             while ($row = mysqli_fetch_row($result)) {
                 $found[] = $row[1];
             }
-            if (count($found) > 0) {
+            if (!is_null($found) && count($found) > 0) {
                 foreach ($found as $proc_name) {
                     $sql    = "DROP PROCEDURE IF EXISTS `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $proc_name)."`";
                     if (!$result = mysqli_query($this->dbh, $sql)) {
@@ -577,7 +594,7 @@ class DUPX_DBInstall
             while ($row = mysqli_fetch_row($result)) {
                 $found_views[] = $row[0];
             }
-            if (count($found_views) > 0) {
+            if (!is_null($found_views) && count($found_views) > 0) {
                 foreach ($found_views as $view_name) {
                     $sql    = "DROP VIEW `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $view_name)."`";
                     if (!$result = mysqli_query($this->dbh, $sql)) {

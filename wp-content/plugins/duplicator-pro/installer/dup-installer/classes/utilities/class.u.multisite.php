@@ -431,7 +431,7 @@ class DUPX_MU
     // Purge all subsite tables other than the one indicated by $retained_subsite_id
     private static function purgeMultisiteTables($dbh, $base_prefix)
     {
-        $multisite_table_names = array('blogs', 'blog_versions', 'registration_log', 'signups', 'site', 'sitemeta');
+        $multisite_table_names = array('blogs', 'blog_versions', 'blogmeta', 'registration_log', 'signups', 'site', 'sitemeta');
 
         // Remove multisite specific tables
         foreach ($multisite_table_names as $multisite_table_name) {

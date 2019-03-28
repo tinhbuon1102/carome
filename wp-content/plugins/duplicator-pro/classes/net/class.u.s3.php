@@ -394,6 +394,22 @@ if (DUP_PRO_U::PHP53()) {
             }
 
             $client = DuplicatorPro\Aws\S3\S3Client::factory($args);
+
+            $global = DUP_PRO_Global_Entity::get_instance();
+            $opts = array();
+            // $client->setSslVerification($ssl_ca_cert, $verify_peer, $verify_host);
+
+            $opts[CURLOPT_SSL_VERIFYPEER] = $global->ssl_disableverify ? false : true;
+            $opts[CURLOPT_SSL_VERIFYHOST] = $global->ssl_disableverify ? 0 : 2; 
+            if (!$global->ssl_useservercerts) {
+                $opts[CURLOPT_CAINFO] = DUPLICATOR_PRO_CERT_PATH;
+                $opts[CURLOPT_CAPATH] = DUPLICATOR_PRO_CERT_PATH;
+                $opts['ssl.certificate_authority'] = DUPLICATOR_PRO_CERT_PATH;
+            }
+            if ($global->ipv4_only) $opts[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+
+            $client->setConfig($opts);
+
             return $client;
         }
     }

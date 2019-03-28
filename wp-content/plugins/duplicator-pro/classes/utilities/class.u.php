@@ -587,6 +587,16 @@ class DUP_PRO_U
      *
      * @return  bool    Returns true if the server PHP 5.3 or better
      */
+    public static function isCurlExists()
+    {
+        return function_exists('curl_version');
+    }
+
+    /**
+     * Is the server PHP 5.3 or better
+     *
+     * @return  bool    Returns true if the server PHP 5.3 or better
+     */
     public static function PHP53()
     {
         return version_compare(PHP_VERSION, '5.3.2', '>=');
@@ -1020,6 +1030,22 @@ class DUP_PRO_U
      */
     public static function isIniFunctionEnalbe($function_name) {
         return function_exists($function_name) && !in_array($function_name, self::getIniDisableFuncs());
+    }
+
+    /**
+     * Check to see if the URL is valid
+     *
+     * @param string $url - preferably a fully qualified URL
+     * @return boolean - true if it is out there somewhere
+     */
+    public static function urlExists($url) {
+        if (($url == '') || ($url == null)) { return false; }
+        $response = wp_remote_head($url, array('timeout' => 5));
+        $accepted_status_codes = array(200, 301, 302);
+        if (!is_wp_error($response) && in_array(wp_remote_retrieve_response_code($response), $accepted_status_codes)) {
+            return true;
+        }
+        return false;
     }
 }
 

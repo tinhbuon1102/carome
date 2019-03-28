@@ -242,7 +242,7 @@ $dbinstall = new DUPX_DBInstall($_POST, $ajax2_start);
 if ($_POST['dbaction'] != 'manual') {
     if(!isset($_POST['continue_chunking'])){
         $dbinstall->prepareDB();
-    } else if($_POST['first_chunk'] == 1) {
+    } else if(isset($_POST['first_chunk']) && $_POST['first_chunk'] == 1) {
 		$dbchunk_retry = intval($_POST['dbchunk_retry']);
 		if ($dbchunk_retry > 0) {
 			DUPX_Log::info("## >> Last DB Chunk installation was failed, so retrying from start point. Retrying count: ".$dbchunk_retry);

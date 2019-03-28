@@ -141,8 +141,9 @@ class WC_Checkout_Field_Editor {
 	}
 	
 	public static function get_fields($key){
-		$fields = array_filter(get_option('wc_fields_'. $key, array()));
-
+		$fields = get_option('wc_fields_'. $key, array());
+		$fields = is_array($fields) ? array_filter($fields) : array();
+		
 		if(empty($fields) || sizeof($fields) == 0){
 			if($key === 'billing' || $key === 'shipping'){
 				$fields = WC()->countries->get_address_fields(WC()->countries->get_base_country(), $key . '_');

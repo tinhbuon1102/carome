@@ -83,7 +83,7 @@ if (!class_exists('DUP_PRO_Web_Services')) {
             $this->add_class_action('wp_ajax_duplicator_pro_export_settings', 'export_settings');
 
             /* Flock second process */
-            $this->add_class_action('wp_ajax_nopriv_duplicator_pro_try_to_lock_test_file', 'try_to_lock_test_file');
+            $this->add_class_action('wp_ajax_nopriv_duplicator_pro_try_to_lock_test_sql', 'try_to_lock_test_file');
 
             $this->add_class_action('wp_ajax_duplicator_pro_brand_delete', 'duplicator_pro_brand_delete');
 
@@ -92,6 +92,9 @@ if (!class_exists('DUP_PRO_Web_Services')) {
 
             /* Tests */
             $this->add_class_action('wp_ajax_duplicator_pro_build_package_test', 'duplicator_pro_build_package_test');
+
+            /* Dir scan utils */
+            $this->add_class_action('wp_ajax_duplicator_pro_get_folder_children', 'duplicator_pro_get_folder_children');
         }
 
         function process_worker()
@@ -1022,7 +1025,17 @@ if (!class_exists('DUP_PRO_Web_Services')) {
                                 if ($rnd == (int) $dest_string) {
                                     DUP_PRO_LOG::trace("Files match!");
                                     if ($deleted_temp_file) {
-                                        $json['success'] = DUP_PRO_U::__('Successfully stored and retrieved file');
+                                        $raw = ftp_raw($ftp_client->ftp_connection_id, 'REST');
+                                        if (is_array($raw) && !empty($raw) && isset($raw[0])) {
+                                            $code = intval($raw[0]);
+                                            if (502 === $code) {
+                                                $json['error'] = DUP_PRO_U::__("FTP server doesn't support REST command. It will cause problem in chunk upload. Error: ").$raw[0];
+                                            } else {
+                                                $json['success'] = DUP_PRO_U::__('Successfully stored and retrieved file');
+                                            }
+                                        } else {
+                                            $json['success'] = DUP_PRO_U::__('Successfully stored and retrieved file');
+                                        }
                                     } else {
                                         $json['error'] = DUP_PRO_U::__("Successfully stored and retrieved file however couldn't delete the temp file on the server");
                                     }
@@ -1059,11 +1072,16 @@ if (!class_exists('DUP_PRO_Web_Services')) {
                 $errorMessage = $e->getMessage();
 
                 DUP_PRO_LOG::trace($errorMessage);
-                $json['error'] = "{$errorMessage}";
+                $json['error'] = "{$errorMessage} ".DUP_PRO_U::__('For additional help see the online '
+                . '<a href="https://snapcreek.com/duplicator/docs/faqs-tech/#faq-trouble-400-q" target="_blank">FTP troubleshooting steps</a>.');;
 
                 die(json_encode($json));
             }
 
+            if (!empty($json['error'])) {
+                $json['error'] .= " ".DUP_PRO_U::__('For additional help see the online '
+                . '<a href="https://snapcreek.com/duplicator/docs/faqs-tech/#faq-trouble-400-q" target="_blank">FTP troubleshooting steps</a>.');;
+            }
             die(json_encode($json));
         }
 
@@ -1269,76 +1287,78 @@ if (!class_exists('DUP_PRO_Web_Services')) {
 
             DUP_PRO_U::hasCapability('export');
 
-            try {
-                $source_handle = null;
-                $dest_handle   = null;
+            $json = array();
+            if (DUP_PRO_U::isCurlExists()) {
+                try {
+                    $source_handle = null;
+                    $dest_handle   = null;
 
-                $request = stripslashes_deep($_REQUEST);
+                    $request = stripslashes_deep($_REQUEST);
 
-                $storage_folder = sanitize_text_field($request['storage_folder']);
-                $bucket         = sanitize_text_field($request['bucket']);
-                $storage_class  = sanitize_text_field($request['storage_class']);
-                $region         = sanitize_text_field($request['region']);
-                $access_key     = sanitize_text_field($request['access_key']);
-                $secret_key     = sanitize_text_field($request['secret_key']);
-                $endpoint       = sanitize_text_field($request['endpoint']);
+                    $storage_folder = sanitize_text_field($request['storage_folder']);
+                    $bucket         = sanitize_text_field($request['bucket']);
+                    $storage_class  = sanitize_text_field($request['storage_class']);
+                    $region         = sanitize_text_field($request['region']);
+                    $access_key     = sanitize_text_field($request['access_key']);
+                    $secret_key     = sanitize_text_field($request['secret_key']);
+                    $endpoint       = sanitize_text_field($request['endpoint']);
 
-                $storage_folder = rtrim($storage_folder, '/');
+                    $storage_folder = rtrim($storage_folder, '/');
+                    $source_filepath = tempnam(sys_get_temp_dir(), 'DUP');
 
-                $json = array();
-
-                $source_filepath = tempnam(sys_get_temp_dir(), 'DUP');
-
-                if ($source_filepath === false) {
-                    throw new Exception(DUP_PRO_U::__("Couldn't create the temp file for the S3 send test"));
-                }
-
-                DUP_PRO_LOG::trace("Created temp file $source_filepath");
-                $source_handle = fopen($source_filepath, 'w');
-                $rnd           = rand();
-                fwrite($source_handle, "$rnd");
-                DUP_PRO_LOG::trace("Wrote $rnd to $source_filepath");
-                fclose($source_handle);
-                $source_handle = null;
-
-                /** -- Send the file --* */
-                $filename = basename($source_filepath);
-
-                $s3_client = DUP_PRO_S3_U::get_s3_client($region, $access_key, $secret_key, $endpoint);
-
-                DUP_PRO_LOG::trace("About to send $source_filepath to $storage_folder in bucket $bucket on S3");
-
-                if (DUP_PRO_S3_U::upload_file($s3_client, $bucket, $source_filepath, $storage_folder, $storage_class)) {
-                    $json['success'] = DUP_PRO_U::__('Successfully stored and retrieved file');
-
-                    $remote_filepath = "$storage_folder/$filename";
-
-                    if (DUP_PRO_S3_U::delete_file($s3_client, $bucket, $remote_filepath) == false) {
-                        DUP_PRO_LOG::trace("Error deleting temporary file generated on S3 File test - {$remote_filepath}");
+                    if ($source_filepath === false) {
+                        throw new Exception(DUP_PRO_U::__("Couldn't create the temp file for the S3 send test"));
                     }
-                } else {
-                    $json['error'] = DUP_PRO_U::__("Couldn't upload file to S3.");
-                }
 
-                DUP_PRO_LOG::trace("attempting to delete {$source_filepath}");
-                @unlink($source_filepath);
-            } catch (Exception $e) {
-                if ($source_handle != null) {
+                    DUP_PRO_LOG::trace("Created temp file $source_filepath");
+                    $source_handle = fopen($source_filepath, 'w');
+                    $rnd           = rand();
+                    fwrite($source_handle, "$rnd");
+                    DUP_PRO_LOG::trace("Wrote $rnd to $source_filepath");
                     fclose($source_handle);
+                    $source_handle = null;
+
+                    /** -- Send the file --* */
+                    $filename = basename($source_filepath);
+
+                    $s3_client = DUP_PRO_S3_U::get_s3_client($region, $access_key, $secret_key, $endpoint);
+
+                    DUP_PRO_LOG::trace("About to send $source_filepath to $storage_folder in bucket $bucket on S3");
+
+                    if (DUP_PRO_S3_U::upload_file($s3_client, $bucket, $source_filepath, $storage_folder, $storage_class)) {
+                        $json['success'] = DUP_PRO_U::__('Successfully stored and retrieved file');
+
+                        $remote_filepath = "$storage_folder/$filename";
+
+                        if (DUP_PRO_S3_U::delete_file($s3_client, $bucket, $remote_filepath) == false) {
+                            DUP_PRO_LOG::trace("Error deleting temporary file generated on S3 File test - {$remote_filepath}");
+                        }
+                    } else {
+                        $json['error'] = DUP_PRO_U::__('Test failed. Check configuration.');
+                    }
+
+                    DUP_PRO_LOG::trace("attempting to delete {$source_filepath}");
                     @unlink($source_filepath);
+                } catch (Exception $e) {
+                    if ($source_handle != null) {
+                        fclose($source_handle);
+                        @unlink($source_filepath);
+                    }
+
+                    if ($dest_handle != null) {
+                        fclose($dest_handle);
+                        @unlink($dest_filepath);
+                    }
+
+                    $errorMessage = esc_html($e->getMessage());
+
+                    DUP_PRO_LOG::trace($errorMessage);
+                    $json['error'] = "{$errorMessage}";
+
+                    die(json_encode($json));
                 }
-
-                if ($dest_handle != null) {
-                    fclose($dest_handle);
-                    @unlink($dest_filepath);
-                }
-
-                $errorMessage = esc_html($e->getMessage());
-
-                DUP_PRO_LOG::trace($errorMessage);
-                $json['error'] = "{$errorMessage}";
-
-                die(json_encode($json));
+            } else {
+                $json['error'] = DUP_PRO_U::esc_html__("Amazon S3  (or Compatible) requires PHP cURL extension. This server hasn't PHP cURL extension.");
             }
 
             die(json_encode($json));
@@ -1741,10 +1761,10 @@ if (!class_exists('DUP_PRO_Web_Services')) {
                 $result = array(
                     'running' => false,
                     'data' => array(
-                        run_ids => array(),
-                        cancel_ids => array(),
-                        error_ids => array(),
-                        complete_ids => array()
+                        'run_ids' => array(),
+                        'cancel_ids' => array(),
+                        'error_ids' => array(),
+                        'complete_ids' => array()
                     ),
                     'html' => '',
                     'message' => ''
@@ -2003,26 +2023,61 @@ if (!class_exists('DUP_PRO_Web_Services')) {
             $nonce = sanitize_text_field($_GET['nonce']);
             // This is not working, because it is called by the wp_remote_request and it is considered as separate request
             /*
-              if (!wp_verify_nonce($nonce, 'duplicator_pro_try_to_lock_test_file')) {
+              if (!wp_verify_nonce($nonce, 'duplicator_pro_try_to_lock_test_sql')) {
               error_log( print_r($_GET, true) );
-              DUP_PRO_LOG::trace('Security issue for the duplicator_pro_try_to_lock_test_file');
-              error_log('Security issue for the duplicator_pro_try_to_lock_test_file');
-              die('Security issue for the duplicator_pro_try_to_lock_test_file');
+              DUP_PRO_LOG::trace('Security issue for the duplicator_pro_try_to_lock_test_sql');
+              error_log('Security issue for the duplicator_pro_try_to_lock_test_sql');
+              die('Security issue for the duplicator_pro_try_to_lock_test_sql');
               }
              */
 
-            $test_file_path = DUPLICATOR_PRO_SSDIR_PATH_TMP.'/lock_test.txt';
-            $fp             = fopen($test_file_path, "w+");
 
-            if (!flock($fp, LOCK_EX | LOCK_NB, $eWouldBlock) || $eWouldBlock) {
-                echo DUP_PRO_File_Lock_Check::Flock_Fail;
+            if (!DUP_PRO_U::getSqlLock(DUPLICATOR_PRO_TEST_SQL_LOCK_NAME)) {
+                echo DUP_PRO_Sql_Lock_Check::Sql_Fail;
             } else {
-                echo DUP_PRO_File_Lock_Check::Flock_Success;
+                echo DUP_PRO_Sql_Lock_Check::Sql_Success;
+            }
+            die();
+        }
+
+        public function duplicator_pro_get_folder_children()
+        {
+            ob_start();
+            try {
+                $result = array();
+
+                $nonce = sanitize_text_field($_REQUEST['nonce']);
+                if (!wp_verify_nonce($nonce, 'duplicator_pro_get_folder_children')) {
+                    throw new Exception('Security issue');
+                }
+                $folder = isset($_REQUEST['folder']) ? sanitize_text_field($_REQUEST['folder']) : '';
+
+                if (!empty($folder) && is_dir($folder)) {
+
+                    try {
+                        $Package = DUP_PRO_Package::get_temporary_package();
+                    } catch (Exception $e) {
+                        $Package = null;
+                    }
+
+                    $treeObj = new DUP_PRO_Tree_files($folder);
+                    $treeObj->tree->addAllChilds();
+                    $treeObj->tree->uasort(array(DUP_PRO_Archive, 'sortTreeByFolderWarningName'));
+                    if (!is_null($Package)) {
+                        $treeObj->tree->treeTraverseCallback(array($Package->Archive, 'checkTreeNodesFolder'));
+                    }
+
+                    $jsTreeData = DUP_PRO_Archive::treeNodeTojstreeNode($treeObj->tree);
+                    $result = $jsTreeData['children'];
+                }
+            } catch (Exception $e) {
+                DUP_PRO_LOG::trace($e->getMessage());
+
+                $result[] = $e->getMessage();
             }
 
-            fclose($fp);
-
-            die();
+            ob_clean();
+            wp_send_json($result);
         }
     }
 }

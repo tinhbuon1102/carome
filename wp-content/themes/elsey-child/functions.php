@@ -31,7 +31,7 @@ add_action( 'wp_enqueue_scripts', 'elsey_enqueue_child_theme_styles', 11 );
 
 // google fonts
 function custom_add_google_fonts() {
-	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,400|Pathway+Gothic+One|Poppins:300,400,500,600', false );
+	wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Lato:300,300i,400,700|Pathway+Gothic+One|Poppins:300,400,500,600|Playfair+Display:400,400i,700i', false );
 }
 add_action( 'wp_enqueue_scripts', 'custom_add_google_fonts' );
 /*Add New CSS*/
@@ -70,6 +70,24 @@ function custom_scripts ()
 
 	wp_dequeue_script( 'sticky-header', ELSEY_SCRIPTS . '/sticky.min.js', array( 'jquery' ), '1.0.4', true );
 	wp_enqueue_script('sticky-header', get_stylesheet_directory_uri() . '/js/sticky.min.js', array( 'jquery' ),'', true);
+	
+	wp_register_style('aos-style', 'https://unpkg.com/aos@2.3.1/dist/aos.css', "", '');
+	wp_register_style('animate-style', 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css', array(), '');
+	wp_register_style('anim-style', get_stylesheet_directory_uri() . '/css/anim.css', array(), '');
+	wp_register_style('eyeliner-style', get_stylesheet_directory_uri() . '/css/eyeliner.css?201903270722', array(), '');
+	wp_register_script('picturefill-js', 'https://cdn.rawgit.com/scottjehl/picturefill/3.0.2/dist/picturefill.min.js', array(), '');
+	wp_register_script('objfit-js', 'https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js', array(), '');
+	wp_register_script('aos-js', 'https://unpkg.com/aos@2.3.1/dist/aos.js', array(), '', true);
+	wp_register_script('eyeliner_js', get_stylesheet_directory_uri() . '/js/eyeliner.js?v=' . time(), array( 'custom_js' ),'', true);
+	if ( is_page_template('page-eyeliner.php') ) {
+		wp_enqueue_style('eyeliner-style');
+		wp_enqueue_style('aos-style');
+		wp_enqueue_style('anim-style');
+		wp_enqueue_script('picturefill-js');
+		wp_enqueue_script('objfit-js');
+		wp_enqueue_script('aos-js');
+		wp_enqueue_script('eyeliner_js');
+	}
 	
 	wp_register_script('event_js', get_stylesheet_directory_uri() . '/js/event.js?v=' . time(), array( 'custom_js' ),'', true);
 	if ( is_page('enter') ) {
@@ -255,7 +273,15 @@ function add_page_slug_class_name( $classes ) {
 		if ( $parent_id ) {
 			$classes[] = get_post($parent_id)->post_name . '-child-template';
 		}
+		
 	}
+	return $classes;
+}
+add_filter('body_class', 'add_preload_class_names');
+function add_preload_class_names($classes) {
+	if ( is_page_template('page-eyeliner.php') ) {
+			$classes[] = 'preload';
+		}
 	return $classes;
 }
 //woo category sidebar widget

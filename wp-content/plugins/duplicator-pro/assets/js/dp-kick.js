@@ -24,22 +24,24 @@ jQuery(document).ready(function ()
 
             },
             success: function (respData) {
-                try {
-                    var data = DupPro.parseJSON(respData);
-                } catch(err) {
-                    console.error(err);
-                    console.error('JSON parse failed for response data: ' + respData);
-                    return false;
-                }
-                if (data['status'] == 0)
-                {
-                    //   DupPro.Schedule.SetUpdateInterval(1);
-                    //              alert("Process worker sent");
-                }
-                else
-                {
-                    //             alert("Process worker failed");
-                    console.log(data);
+                if ('ok' != respData) {
+                    try {
+                        var data = DupPro.parseJSON(respData);
+                    } catch(err) {
+                        console.error(err);
+                        console.error('JSON parse failed for response data: ' + respData);
+                        return false;
+                    }
+                    if (data['status'] == 0)
+                    {
+                        //   DupPro.Schedule.SetUpdateInterval(1);
+                        //              alert("Process worker sent");
+                    }
+                    else
+                    {
+                        //             alert("Process worker failed");
+                        console.log(data);
+                    }
                 }
             },
             error: function (data) {

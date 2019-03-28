@@ -8,6 +8,9 @@ $_REQUEST['lock_mode']     = isset($_REQUEST['lock_mode'])     ? $_REQUEST['lock
 $max_execution_time			= ini_get("max_execution_time");
 $max_execution_time			= empty($max_execution_time) ? 30 : $max_execution_time;
 $max_worker_cap_in_sec		= (int) (0.7 * (float) $max_execution_time);
+if ($max_worker_cap_in_sec > 180) {
+	$max_worker_cap_in_sec = 180;
+}
 
 //SAVE RESULTS
 if (isset($_POST['action']) && $_POST['action'] == 'save') {

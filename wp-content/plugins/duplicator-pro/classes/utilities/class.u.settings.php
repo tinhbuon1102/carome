@@ -35,24 +35,40 @@ class DUP_PRO_Settings_U
 		$export_data->settings				 = $global;
 		$export_data->secure_settings		 = $sglobal;
 		$export_data->secure_settings->lkp	 = '';
-		$json_file_data = json_encode($export_data);
+		$is_wp_json_encode = function_exists('wp_json_encode');
+		$json_file_data = $is_wp_json_encode
+								? wp_json_encode($export_data)
+								: json_encode($export_data);
 
 		if ($json_file_data === false) {
 
 			try {
 
 				//Isolate the problem area:
-				$test			 = json_encode($export_data->templates);
+				$test			 = $is_wp_json_encode
+										? wp_json_encode($export_data->templates)
+										: json_encode($export_data->templates);
 				$test_templates	 = ($test === null || $test === false) ? '*Fail' : 'Pass';
-				$test			 = json_encode($export_data->schedules);
+				$test			 = $is_wp_json_encode
+										? wp_json_encode($export_data->schedules)
+										: json_encode($export_data->schedules);
 				$test_schedules	 = ($test === null || $test === false) ? '*Fail' : 'Pass';
-				$test			 = json_encode($export_data->storages);
+				$test			 = $is_wp_json_encode
+										? wp_json_encode($export_data->storages)
+										: json_encode($export_data->storages);
 				$test_storages	 = ($test === null || $test === false) ? '*Fail' : 'Pass';
-				$test			 = json_encode($export_data->settings);
+				$test			 = $is_wp_json_encode
+										? wp_json_encode($export_data->settings)
+										: json_encode($export_data->settings);
 				$test_settings	 = ($test === null || $test === false) ? '*Fail' : 'Pass';
-				$test			 = json_encode($export_data->secure_settings);
+				$test			 = $is_wp_json_encode
+										? wp_json_encode($export_data->secure_settings)
+										: json_encode($export_data->secure_settings);
 				$test_ssettings	 = ($test === null || $test === false) ? '*Fail' : 'Pass';
-				DUP_PRO_JSON_U::encode($export_data);
+				
+				$is_wp_json_encode
+						? wp_json_encode($export_data)
+						: DUP_PRO_JSON_U::encode($export_data);
 
 			} catch (Exception $exc) {
 
@@ -66,7 +82,7 @@ Templates	= {$test_templates}
 Schedules	= {$test_schedules}
 Storage		= {$test_storages}
 Settings	= {$test_settings}
-Security	= {$test_ssettings}
+Security	= {$test_settings}
 
 RECOMMENDATION:
 Check the data in the failed areas above to make sure the data is correct.  If the data looks correct consider re-saving the data in

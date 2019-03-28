@@ -4,7 +4,7 @@ defined("ABSPATH") or die("");
 
 //Prevent directly browsing to the file
 if (function_exists('plugin_dir_url')) {
-    define('DUPLICATOR_PRO_VERSION', '3.8.0.2');
+    define('DUPLICATOR_PRO_VERSION', '3.8.1.3');
     define('DUPLICATOR_PRO_LIMIT_UPLOAD_VERSION', '3.3.0.0'); // Limit Drag & Drop`
     define('DUPLICATOR_PRO_GIFT_THIS_RELEASE', false); // Display Gift - should be true for new features OR if we want them to fill out survey
     define('DUPLICATOR_PRO_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -41,7 +41,8 @@ if (function_exists('plugin_dir_url')) {
 	define('DUPLICATOR_PRO_HTACCESS_ORIG_FILENAME', 'htaccess.orig');
 	define('DUPLICATOR_PRO_WPCONFIG_ARK_FILENAME', 'wp-config-arc.txt');
 	define("DUPLICATOR_PRO_ENHANCED_INSTALLER_DIRECTORY", DUPLICATOR_PRO_WPROOTPATH.'dup-installer');
-	define('DUPLICATOR_PRO_LIB_PATH', DUPLICATOR_PRO_PLUGIN_PATH.'/lib');
+    define('DUPLICATOR_PRO_LIB_PATH', DUPLICATOR_PRO_PLUGIN_PATH.'/lib');
+    define('DUPLICATOR_PRO_CERT_PATH', apply_filters('duplicator_pro_certificate_path', DUPLICATOR_PRO_LIB_PATH.'/certificates/cacert.pem'));
 
     //RESTRAINT CONSTANTS
     define("DUPLICATOR_PRO_PHP_MAX_MEMORY", '5000M');
@@ -60,6 +61,7 @@ if (function_exists('plugin_dir_url')) {
     define("DUPLICATOR_PRO_BUFFER_READ_WRITE_SIZE", 4377);
     define('DUPLICATOR_PRO_PHP_BULK_SIZE', 524288);
     define('DUPLICATOR_PRO_SQL_SCRIPT_PHP_CODE_MULTI_THREADED_MAX_RETRIES', 6);
+    define('DUPLICATOR_PRO_TEST_SQL_LOCK_NAME', 'duplicator_pro_test_lock');
 
     define("DUPLICATOR_PRO_SCAN_MIN_WP", "4.6.0");
 

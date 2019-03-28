@@ -221,9 +221,11 @@ if (isset($_REQUEST['action'])) {
     }
 }
 
-if (!empty($_GET['_wpnonce']) && !wp_verify_nonce($_GET['_wpnonce'], 'edit-storage')) {
+/*
+ Nonce proble with copy action from storages lists.
+if (!empty($_GET['_wpnonce']) && (!wp_verify_nonce($_GET['_wpnonce'], 'edit-storage'))  ) {
     die('Security issue');
-}
+}*/
 
 if ($storage->dropbox_authorization_state == DUP_PRO_Dropbox_Authorization_States::Authorized) {
     $dropbox = $storage->get_dropbox_client();
@@ -341,14 +343,14 @@ $txt_auth_note = DUP_PRO_U::__('Note: Clicking the button below will open a new 
 <?php
 if ($was_updated) {
     if ($gdrive_error_message != NULL) {
-        echo "<div id='message' class='notice notice-error is-dismissible'><p><i class='fa fa-exclamation-triangle'></i> $gdrive_error_message </p></div>";
+        echo "<div id='message' class='notice error is-dismissible'><p><i class='fa fa-exclamation-triangle'></i> $gdrive_error_message </p></div>";
     } else if ($local_folder_created) {
         $update_message = sprintf(DUP_PRO_U::__('Storage Provider Updated - Folder %1$s was created'), $storage->local_storage_folder);
         echo "<div class='notice notice-success is-dismissible dpro-wpnotice-box'><p>$update_message</p></div>";
     } else {
         if ($local_folder_creation_error) {
             $update_message = sprintf(DUP_PRO_U::__('Storage Provider Updated - Unable to create folder %1$s'), $storage->local_storage_folder);
-            echo "<div class='notice notice-success is-dismissible dpro-wpnotice-box'><p><i class='fa fa-exclamation-triangle'></i> ".esc_html($update_message)." </p></div>";
+            echo "<div class='notice error is-dismissible dpro-wpnotice-box'><p><i class='fa fa-exclamation-triangle'></i> ".esc_html($update_message)." </p></div>";
         } else {
             $update_message = DUP_PRO_U::__('Storage Provider Updated');
             echo "<div class='notice notice-success is-dismissible dpro-wpnotice-box'><p>".esc_html($update_message)."</p></div>";
@@ -373,7 +375,7 @@ if ($was_updated) {
             <th scope="row"><label><?php DUP_PRO_U::esc_html_e("Type"); ?></label></th>
             <td>
                 <select id="change-mode" name="storage_type" onchange="DupPro.Storage.ChangeMode()">
-<?php if (DUP_PRO_U::PHP53()) : ?>
+                    <?php if (DUP_PRO_U::PHP53() && DUP_PRO_U::isCurlExists()) : ?>
                         <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::S3); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::S3); ?>"><?php DUP_PRO_U::esc_html_e("Amazon S3 (or Compatible)"); ?></option>
                     <?php endif; ?>
                     <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::Dropbox); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::Dropbox); ?>"><?php DUP_PRO_U::esc_html_e("Dropbox"); ?></option>
@@ -392,7 +394,10 @@ if ($was_updated) {
                 <small class="dpro-store-type-notice">
                     <?php
                     if (DUP_PRO_U::PHP53() == false) {
-                        echo sprintf(DUP_PRO_U::esc_html__('Google Drive &amp; Amazon S3 requires PHP 5.3.2+. This server is running PHP (%s).'), PHP_VERSION) . '<br/>';
+                        echo sprintf(DUP_PRO_U::esc_html__('Google Drive &amp; Amazon S3 (or Compatible) requires PHP 5.3.2+. This server is running PHP (%s).'), PHP_VERSION) . '<br/>';
+                    }
+                    if (DUP_PRO_U::PHP53() && !DUP_PRO_U::isCurlExists()) {
+                        echo DUP_PRO_U::esc_html__("Amazon S3  (or Compatible) requires PHP cURL extension. This server hasn't PHP cURL extension.").'<br/>';
                     }
                     if (DUP_PRO_U::PHP55() == false) {
                         echo sprintf(DUP_PRO_U::esc_html__('SFTP requires PHP 5.5.2+. This server is running PHP (%s).'), PHP_VERSION) . '<br/>';
@@ -818,7 +823,12 @@ if ($was_updated) {
         <tr>
             <th scope="row"><label for="ftp_timeout_in_secs"><?php DUP_PRO_U::esc_html_e("Timeout"); ?></label></th>
             <td>
-                <input id="ftp_timeout" name="ftp_timeout_in_secs" data-parsley-errors-container="#ftp_timeout_error_container" type="text" value="<?php echo absint($storage->ftp_timeout_in_secs); ?>"> <label for="ftp_timeout_in_secs"><?php DUP_PRO_U::esc_html_e("seconds"); ?></label>
+
+                <label for="ftp_timeout_in_secs">
+                        <input id="ftp_timeout" name="ftp_timeout_in_secs" data-parsley-errors-container="#ftp_timeout_error_container" type="text" value="<?php echo absint($storage->ftp_timeout_in_secs); ?>"> <label for="ftp_timeout_in_secs"><?php DUP_PRO_U::esc_html_e("seconds"); ?></label>
+                        <br>
+                        <i><?php DUP_PRO_U::esc_html_e("Do not modify this setting unless you know the expected result or have talked to support."); ?></i>
+                </label>
                 <div id="ftp_timeout_error_container" class="duplicator-error-container"></div>
             </td>
         </tr>
@@ -939,7 +949,11 @@ if ($was_updated) {
             <tr>
                 <th scope="row"><label for="sftp_timeout_in_secs"><?php DUP_PRO_U::esc_html_e("Timeout"); ?></label></th>
                 <td>
-                    <input id="sftp_timeout" name="sftp_timeout_in_secs" data-parsley-errors-container="#sftp_timeout_error_container" type="text" value="<?php echo absint($storage->sftp_timeout_in_secs); ?>"> <label for="sftp_timeout_in_secs"><?php DUP_PRO_U::esc_html_e("seconds"); ?></label>
+                    <label for="sftp_timeout_in_secs">
+                        <input id="sftp_timeout" name="sftp_timeout_in_secs" data-parsley-errors-container="#sftp_timeout_error_container" type="text" value="<?php echo absint($storage->sftp_timeout_in_secs); ?>"> <label for="sftp_timeout_in_secs"><?php DUP_PRO_U::esc_html_e("seconds"); ?></label>
+                        <br>
+                        <i><?php DUP_PRO_U::esc_html_e("Do not modify this setting unless you know the expected result or have talked to support."); ?></i>
+                    </label>
                     <div id="sftp_timeout_error_container" class="duplicator-error-container"></div>
                 </td>
             </tr>
@@ -1782,6 +1796,7 @@ $alert17->initAlert();
 <?php $alert14->showAlert(); ?>
                         $("#<?php echo $alert14->getID(); ?>_message").html(data.success);
                     } else {
+                        $("#<?php echo $alert11->getID(); ?>_message").html(data.error);
 <?php $alert11->showAlert(); ?>
                         console.log(data);
                     }
@@ -1942,6 +1957,10 @@ $alert17->initAlert();
                     if (typeof (data.success) !== 'undefined') {
 <?php $alert16->showAlert(); ?>
                         $("#<?php echo $alert16->getID(); ?>_message").html(data.success);
+                    } else if (typeof (data.error) !== 'undefined') {
+                        $("#<?php echo $alert12->getID(); ?>_message").html(data.error);
+                        <?php $alert12->showAlert(); ?>
+                        console.log(data);
                     } else {
 <?php $alert12->showAlert(); ?>
                         console.log(data);

@@ -50,6 +50,13 @@ if ($is_dbonly) {
 }
 $notice['30'] = $fulldays <= 180 ? 'Good' : 'Warn';
 $notice['40'] = DUPX_Server::$php_version_53_plus	 ? 'Good' : 'Warn';
+
+$packagePHP = $GLOBALS['DUPX_AC']->version_php;
+$currentPHP = DUPX_Server::$php_version;
+$packagePHPMajor = intval($packagePHP);
+$currentPHPMajor = intval($currentPHP);
+$notice['45'] = ($packagePHPMajor === $currentPHPMajor || $GLOBALS['DUPX_AC']->exportOnlyDB) ? 'Good' : 'Warn';
+
 $notice['50'] = empty($openbase) ? 'Good' : 'Warn';
 $notice['60'] = !$max_time_warn ? 'Good' : 'Warn';
 $notice['70'] = !$parent_has_wordfence ? 'Good' : 'Warn';
@@ -360,7 +367,6 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 		<div class="title" data-type="toggle" data-target="#s1-notice40"><i class="fa fa-caret-right"></i> PHP Version 5.2</div>
 		<div class="info" id="s1-notice40">
 			<?php
-				$currentPHP = DUPX_Server::$php_version;
 				$cssStyle   = DUPX_Server::$php_version_53_plus	 ? 'color:green' : 'color:red';
 				echo "<b style='{$cssStyle}'>This server is currently running PHP version [{$currentPHP}]</b>.<br/>"
 				. "Duplicator Pro allows PHP 5.2 to be used during install but does not officially support it.  If you're using PHP 5.2 we strongly recommend NOT using it and having your "
@@ -373,6 +379,18 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
                 ?>
             </div>
 
+        <!-- NOTICE 45 -->
+		<div class="status <?php echo ($notice['45'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo $notice['45']; ?></div>
+		<div class="title" data-type="toggle" data-target="#s1-notice45"><i class="fa fa-caret-right"></i> PHP Version mismatch</div>
+		<div class="info" id="s1-notice45">
+			<?php
+                $cssStyle   = $notice['45'] == 'Good' ? 'color:green' : 'color:red';
+				echo "<b style='{$cssStyle}'>You are migrating site from PHP {$packagePHP} to PHP {$currentPHP}</b>.<br/>"
+                    ."If the PHP version of your website is different than the PHP version of your package 
+                    it MAY cause problems with the functioning of your website.<br/>";
+                ?>
+            </div>
+
 		<!-- NOTICE 50 -->
 		<div class="status <?php echo ($notice['50'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo $notice['50']; ?></div>
 		<div class="title" data-type="toggle" data-target="#s1-notice50"><i class="fa fa-caret-right"></i> PHP Open Base</div>
@@ -380,8 +398,8 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 			<b>Open BaseDir:</b> <i><?php echo $notice['50'] == 'Good' ? "<i class='dupx-pass'>Disabled</i>" : "<i class='dupx-fail'>Enabled</i>"; ?></i>
 			<br/><br/>
 
-                If <a href="http://www.php.net/manual/en/ini.core.php#ini.open-basedir" target="_blank">open_basedir</a> is enabled and your
-                having issues getting your site to install properly; please work with your host and follow these steps to prevent issues:
+                If <a href="http://php.net/manual/en/ini.core.php#ini.open-basedir" target="_blank">open_basedir</a> is enabled and you're
+                having issues getting your site to install properly please work with your host and follow these steps to prevent issues:
                 <ol style="margin:7px; line-height:19px">
                     <li>Disable the open_basedir setting in the php.ini file</li>
                     <li>If the host will not disable, then add the path below to the open_basedir setting in the php.ini<br/>
@@ -430,18 +448,18 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 		<div class="status <?php echo ($notice['80'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo DUPX_U::esc_html($notice['80']); ?></div>
 		<div class="title" data-type="toggle" data-target="#s1-notice80"><i class="fa fa-caret-right"></i> wp-config.php file location</div>
 		<div class="info" id="s1-notice80">
-			The wp-config.php file have moved up one level and out of the wordpress root folder in package creation site. 
+			When this item shows a warning, it indicates the wp-config.php file was detected in the directory above the WordPress root folder on the source site. 
 			<br/><br/>
-			Duplicator Installer will place this wp-config.php file in the wordpress setup root folder of this installation site. It will not break anything in your installation site. It is just for your information.
+			The Duplicator Installer will place the wp-config.php file in the root folder of the WordPress installation. This will not affect operation of the site.
 		</div>
 
 		<!-- NOTICE 90 -->
 		<div class="status <?php echo ($notice['90'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo DUPX_U::esc_html($notice['90']); ?></div>
 		<div class="title" data-type="toggle" data-target="#s1-notice90"><i class="fa fa-caret-right"></i> wp-content directory location</div>
 		<div class="info" id="s1-notice90">
-			The wp-content directory was out of the wordpress root folder in package creation site. 
+			When this item shows a warning, it indicates the wp-content directory was not in the WordPress root folder on the source site.
 			<br/><br/>
-			Duplicator Installer will place this wp-content directory in the wordpress setup root folder of this installation site. It will not break anything in your installation site. It is just for your information.
+			The Duplicator Installer will place the wp-content directory in the WordPress root folder of the WordPress installation. This will not affect operation of the site.
 		</div>
         </div>
     </div>
@@ -1454,7 +1472,7 @@ DUPX.onSafeModeSwitch = function ()
 $(document).ready(function ()
 {
 	DUPX.DAWS = new Object();
-	DUPX.DAWS.Url = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/lib/dup_archive/daws/daws.php';
+	DUPX.DAWS.Url = window.location.href + '?is_daws=1&daws_csrf_token=<?php echo DUPX_CSRF::generate('daws');?>';
 	DUPX.DAWS.StatusPeriodInMS = 10000;
 	DUPX.DAWS.PingWorkerTimeInSec = 9;
 	DUPX.DAWS.KickoffWorkerTimeInSec = 6; // Want the initial progress % to come back quicker
@@ -1470,8 +1488,17 @@ $(document).ready(function ()
 	$("*[data-type='toggle']").click(DUPX.toggleClick);
 	$("#tabs").tabs();
 	DUPX.acceptWarning();
-	$('#set_file_perms').trigger("click");
-	$('#set_dir_perms').trigger("click");
+
+    <?php
+    $isWindows = DUPX_U::isWindows();
+    if (!$isWindows) {
+    ?>
+        $('#set_file_perms').trigger("click");
+        $('#set_dir_perms').trigger("click");
+    <?php
+    }
+    ?>
+
 	DUPX.toggleSetupType();
 
 	<?php echo ($arcCheck == 'Fail') ? "$('#s1-area-archive-file-link').trigger('click');" : ""; ?>

@@ -1073,10 +1073,10 @@ class DUP_PRO_Package
 				$name_check = (count($this->Archive->FilterInfo->Files->Warning) + count($this->Archive->FilterInfo->Dirs->Warning)) ? 'Warn' : 'Good';
 			}
 
-			$report['ARC']['Dirs'] = $this->Archive->Dirs;
+			// $report['ARC']['Dirs'] = $this->Archive->Dirs;
 			$report['ARC']['RecursiveLinks'] = $this->Archive->RecursiveLinks;
 			$report['ARC']['UnreadableItems'] = array_merge($this->Archive->FilterInfo->Files->Unreadable,$this->Archive->FilterInfo->Dirs->Unreadable);
-			$report['ARC']['Files'] = $this->Archive->Files;
+			// $report['ARC']['Files'] = $this->Archive->Files;
 			$report['ARC']['Status']['Names'] = $name_check;
 			$report['ARC']['Status']['Big'] = count($this->Archive->FilterInfo->Files->Size) ? 'Warn' : 'Good';
 			$report['ARC']['Status']['AddonSites'] = count($this->Archive->FilterInfo->Dirs->AddonSites) ? 'Warn' : 'Good';
@@ -1195,7 +1195,11 @@ class DUP_PRO_Package
             $global->adjust_settings_for_system();
 
             $this->build_progress->set_build_mode();
-            $packageObj = json_encode($this);
+            if (function_exists('wp_json_encode')) { 
+                $packageObj = wp_json_encode($this);
+            } else {
+                $packageObj = json_encode($this);
+            }
 
             $results = $wpdb->insert($wpdb->base_prefix . "duplicator_pro_packages", array(
                 'name' => $this->Name,
@@ -1268,6 +1272,7 @@ class DUP_PRO_Package
             $php_max_time = ($php_max_time == 0) ? "(0) no time limit imposed" : "[{$php_max_time}] not allowed";
             $php_max_memory = ($php_max_memory === false) ? "Unable to set php memory_limit" : DUPLICATOR_PRO_PHP_MAX_MEMORY . " ({$php_max_memory} default)";
             $architecture = DUP_PRO_U::getArchitectureString();
+            $clientkickoffstate = $global->clientside_kickoff ? 'on' : 'off';
 
             $info = "********************************************************************************\n";
             $info .= "DUPLICATOR PRO PACKAGE-LOG: " . @date("Y-m-d H:i:s") . "\n";
@@ -1278,6 +1283,7 @@ class DUP_PRO_Package
             $info .= "PHP INFO:\t" . phpversion() . ' | ' . 'SAPI: ' . php_sapi_name() . "\n";
             $info .= "SERVER:\t\t{$_SERVER['SERVER_SOFTWARE']} \n";
             $info .= "ARCHITECTURE:\t{$architecture} \n";
+            $info .= "CLIENT KICKOFF: {$clientkickoffstate} \n";
             $info .= "PHP TIME LIMIT: {$php_max_time} \n";
             $info .= "PHP MAX MEMORY: {$php_max_memory} \n";
             $info .= "RUN TYPE: " . $this->get_type_string() . "\n";
@@ -1805,8 +1811,16 @@ class DUP_PRO_Package
     // Used when we already have a package object that we need to make active
     public function set_temporary_package()
     {
-        DUP_PRO_Log::trace("Package ".print_r($this,true));
-        $json_package = json_encode($this);
+        // If the trace is not enabled, We should not waste memory and time in executing print_r($this,true) 
+        if (DUP_PRO_Log::isTraceLogEnabled()) {
+            DUP_PRO_Log::trace("Package ".print_r($this,true));
+        }
+        if (function_exists('wp_json_encode')) {
+            $json_package = wp_json_encode($this);
+        } else {
+            $json_package = json_encode($this);
+        }
+        
         update_option(self::OPT_ACTIVE, $json_package);
     }
 

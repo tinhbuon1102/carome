@@ -274,7 +274,14 @@ DupPro.UI.Clock  = function()
 	};
 }();
 
+/* ============================================================================
+ *  Util functions
+ *  =========================================================================== */
+DupPro.Util = {};
 
+DupPro.Util.isEmpty = function (val) {
+    return (val === undefined || val == null || val.length <= 0) ? true : false;
+};
 
 jQuery(document).ready(function ($) 
 {

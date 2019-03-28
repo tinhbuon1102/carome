@@ -280,8 +280,7 @@ if (!class_exists('DUP_PRO_Package_Runner')) {
 
                             if($global->ajax_protocol == 'custom')
                             {
-                                if(!SnapLibURLU::urlExists($global->custom_ajax_url))
-                                {
+                                if(!DUP_PRO_U::urlExists($global->custom_ajax_url)) {
                                     $fix_text = DUP_PRO_U::__('The Plugin is configured for the wrong admin-ajax URL. Click button to fix this issue.');
                                     $system_global->add_recommended_quick_fix($error_text, $fix_text, 'special:{stuck_5percent_pending_fix:1}');
                                     $notification = false;
@@ -383,7 +382,7 @@ if (!class_exists('DUP_PRO_Package_Runner')) {
         public static function process()
         {
             if (!defined('WP_MAX_MEMORY_LIMIT')) {
-                define('WP_MAX_MEMORY_LIMIT', '256M');
+                define('WP_MAX_MEMORY_LIMIT', '512M');
             }
 
 			@ini_set('memory_limit', WP_MAX_MEMORY_LIMIT);
@@ -391,7 +390,7 @@ if (!class_exists('DUP_PRO_Package_Runner')) {
             @set_time_limit(7200);
 
             @ignore_user_abort(true);
-
+            @ini_set( 'pcre.backtrack_limit', PHP_INT_MAX );
             @ini_set('default_socket_timeout', 7200); // 2 Hours
 
             /* @var $global DUP_PRO_Global_Entity */

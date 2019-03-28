@@ -14,7 +14,7 @@ class WP_Optimization_orphandata extends WP_Optimization {
 	 * Do actions after optimize() function.
 	 */
 	public function after_optimize() {
-		$message = sprintf(_n('%s orphaned meta data deleted', '%s orphaned meta data deleted', $this->processed_count, 'wp-optimize'), number_format_i18n($this->processed_count));
+		$message = sprintf(_n('%s orphaned relationship data deleted', '%s orphaned relationship data deleted', $this->processed_count, 'wp-optimize'), number_format_i18n($this->processed_count));
 
 		if ($this->is_multisite_mode()) {
 			$message .= ' ' . sprintf(_n('across %s site', 'across %s sites', count($this->blogs_ids), 'wp-optimize'), count($this->blogs_ids));

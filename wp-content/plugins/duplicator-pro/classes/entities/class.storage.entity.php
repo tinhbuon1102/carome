@@ -1812,7 +1812,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 $dropbox = $this->get_dropbox_client();           
                 $dropBoxInfo = $dropbox->GetAccountInfo();
                
-                if ($dropBoxInfo->locale == 'en') {
+                if (!isset($dropBoxInfo->locale) || $dropBoxInfo->locale == 'en') {
                     return "https://dropbox.com/home/Apps/Duplicator%20Pro/$this->dropbox_storage_folder";
                 } else {
                     return "https://dropbox.com/home";
@@ -2093,6 +2093,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 } catch (Exception $e) {
                     $upload_info->failed = true;
                     $upload_info->increase_failure_count();
+                    error_log("Problems copying package $package->Name to $this->sftp_storage_folder. " + $e->getMessage());
                     DUP_PRO_LOG::traceError("Problems copying package $package->Name to $this->sftp_storage_folder. " + $e->getMessage());
                 }
             }else{
@@ -2162,7 +2163,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
             if ($this->local_max_files > 0) {
 
-                if ($this->purge_package_record) {
+                if (isset($this->purge_package_record) && $this->purge_package_record) {
                     global $wpdb;
                     $table = $wpdb->base_prefix . "duplicator_pro_packages";
                     $purge_name_hash_arr = array();   
@@ -2207,7 +2208,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                     $dirs_txt_filepath  = str_replace($suffix, '_dirs.txt', $archive_filepath);
 
                     
-                    if ($this->purge_package_record) {
+                    if (isset($this->purge_package_record) && $this->purge_package_record) {
                         $purge_name_hash_arr[] = $wpdb->prepare("%s", basename($archive_filepath, $suffix));
                     }
                                         
@@ -2222,7 +2223,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 }
                 
                 // Purge package record logic
-                if ($this->purge_package_record && !empty($purge_name_hash_arr)) {
+                if (isset($this->purge_package_record) && $this->purge_package_record && !empty($purge_name_hash_arr)) {
                     $max_created = $wpdb->get_var("SELECT max(created) FROM ".$table." WHERE concat_ws('_', name, hash) IN (".implode(', ', $purge_name_hash_arr).")");
                     $sql = $wpdb->prepare("DELETE FROM ".$table." WHERE created <= %s AND status = %d", $max_created, 100);
                     $wpdb->query($sql);

@@ -35,8 +35,14 @@ class DUPX_DB
                 $port = parse_url($host, PHP_URL_PORT);
                 $host = parse_url($host, PHP_URL_HOST);
             }
-
-            $dbh = @mysqli_connect($host, $username, $password, $dbname, $port);
+            if (isset($port)) {
+                $dbh = @mysqli_connect($host, $username, $password, $dbname, $port);
+            } else {
+                $dbh = @mysqli_connect($host, $username, $password, $dbname);
+            }            
+        }
+        if (method_exists($dbh, 'options')) {
+            $dbh->options(MYSQLI_OPT_LOCAL_INFILE, false);
         }
         return $dbh;
     }

@@ -63,11 +63,11 @@
 
     /*Adv Opts */
     table.dupx-opts {width:100%; border:0px;}
-	table.dupx-opts td{white-space:nowrap; padding:3px;}
+	table.dupx-opts td{padding:3px;}
 	table.dupx-opts td:first-child{width:125px; font-weight: bold}
 	table.dupx-advopts td:first-child{width:125px;}
 	table.dupx-advopts label.radio {width:50px; display:inline-block}
-	table.dupx-advopts label {cursor:pointer}
+	table.dupx-advopts label {white-space:nowrap; cursor:pointer}
 	table.dupx-advopts-space {line-height:24px}
 	table.dupx-advopts tr {vertical-align:top}
 

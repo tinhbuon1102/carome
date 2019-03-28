@@ -162,5 +162,6 @@ jQuery(document).ready(function(){
 <div class="woofc">
 	<?php echo checkGeoLocationNearStore();?>
 </div>
+<script defer src="<?php echo get_stylesheet_directory_uri() ?>/js/svgxuse.js"></script>
 </body>
 </html>

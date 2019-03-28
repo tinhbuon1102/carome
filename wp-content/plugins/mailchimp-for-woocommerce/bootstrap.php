@@ -88,10 +88,10 @@ function mailchimp_environment_variables() {
     return (object) array(
         'repo' => 'master',
         'environment' => 'production',
-        'version' => '2.1.12',
+        'version' => '2.1.14',
         'php_version' => phpversion(),
         'wp_version' => (empty($wp_version) ? 'Unknown' : $wp_version),
-        'wc_version' => class_exists('WC') ? WC()->version : null,
+        'wc_version' => function_exists('WC') ? WC()->version : null,
         'logging' => ($o && is_array($o) && isset($o['mailchimp_logging'])) ? $o['mailchimp_logging'] : 'standard',
     );
 }
@@ -196,7 +196,11 @@ function mailchimp_get_http_lock_expiration($max = 300) {
                 if (empty($lock_duration) || !is_numeric($lock_duration) || ($lock_duration >= $max)) {
                     $lock_duration = $max;
                 }
-                return new \DateTime(((int) $parts[1] + $lock_duration));
+                // craft a new date time object
+                $date = new \DateTime();
+                // set the timestamp with the lock duration
+                $date->setTimestamp(((int) $parts[1] + $lock_duration));
+                return $date;
             }
         }
     } catch (\Exception $e) {}
@@ -540,7 +544,7 @@ function mailchimp_error($action, $message, $data = array()) {
  * @return string
  */
 function mailchimp_error_trace(\Exception $e, $wrap = "") {
-    $error = "{$e->getMessage()} on {$e->getLine()} in {$e->getFile()}";
+    $error = "Error Code {$e->getCode()} :: {$e->getMessage()} on {$e->getLine()} in {$e->getFile()}";
     if (empty($wrap)) return $error;
     return "{$wrap} :: {$error}";
 }
@@ -811,17 +815,45 @@ function mailchimp_call_http_worker_manually($block = false) {
 }
 
 /**
+ * @return array|WP_Error
+ */
+function mailchimp_call_admin_ajax_test() {
+    $action = 'http_worker_test';
+    $query_args = apply_filters('http_worker_query_args', array(
+        'action' => $action,
+        'nonce'  => wp_create_nonce($action),
+    ));
+    $query_url = apply_filters('http_worker_query_url', admin_url('admin-ajax.php'));
+    $post_args = apply_filters('http_worker_post_args', array(
+        'timeout'   => 5,
+        'blocking'  => true,
+        'cookies'   => $_COOKIE,
+        'sslverify' => apply_filters('https_local_ssl_verify', false),
+    ));
+    $url = add_query_arg($query_args, $query_url);
+    return wp_remote_post(esc_url_raw($url), $post_args);
+}
+
+/**
  * @return bool|string
  */
 function mailchimp_woocommerce_check_if_http_worker_fails() {
+
+    // if the user has defined that they are going to use the queue from the console, we can just return false here.
+    // this means they've agreed to run the queue from a CLI version instead.
+    if (mailchimp_running_in_console()) {
+        return false;
+    }
+
     // if the function doesn't exist we can't do anything.
     if (!function_exists('wp_remote_post')) {
         mailchimp_set_data('test.can.remote_post', false);
         mailchimp_set_data('test.can.remote_post.error', 'function "wp_remote_post" does not exist');
         return 'function "wp_remote_post" does not exist';
     }
+
     // apply a blocking call to make sure we get the response back
-    $response = mailchimp_call_http_worker_manually(true);
+    $response = mailchimp_call_admin_ajax_test();
 
     if (is_wp_error($response)) {
         // nope, we have problems
@@ -838,6 +870,13 @@ function mailchimp_woocommerce_check_if_http_worker_fails() {
     mailchimp_set_data('test.can.remote_post', true);
     mailchimp_set_data('test.can.remote_post.error', false);
     return false;
+}
+
+/**
+ * @return string
+ */
+function mailchimp_test_http_worker_ajax() {
+    wp_send_json(array('success' => true), 200);
 }
 
 /**

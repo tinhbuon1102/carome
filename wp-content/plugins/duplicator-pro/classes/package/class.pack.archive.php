@@ -361,6 +361,18 @@ class DUP_PRO_Archive
             }
         }
 
+        // Prevent adding double wp-content dir conflicts
+        if ($this->isOuterWPContentDir()) {
+            $default_wp_content_dir_path = DUP_PRO_U::safePath(ABSPATH.'wp-content');
+            if (file_exists($default_wp_content_dir_path)) {
+                if (is_dir($default_wp_content_dir_path)) {
+                    $this->FilterInfo->Dirs->Core[] = $default_wp_content_dir_path;
+                } else {
+                    $this->FilterInfo->Files->Core[] = $default_wp_content_dir_path;
+                }
+            }
+        }
+        
         $this->FilterDirsAll  = array_merge($this->FilterInfo->Dirs->Instance, $this->FilterInfo->Dirs->Global, $this->FilterInfo->Dirs->Core, $this->Package->Multisite->getDirsToFilter());
         $this->FilterExtsAll  = array_merge($this->FilterInfo->Exts->Instance, $this->FilterInfo->Exts->Global, $this->FilterInfo->Exts->Core);
         $this->FilterFilesAll = array_merge($this->FilterInfo->Files->Instance, $this->FilterInfo->Files->Global, $this->FilterInfo->Files->Core);
@@ -587,10 +599,8 @@ class DUP_PRO_Archive
      *
      * @return array	Returns an array of directories to include in the archive
      */
-    private function getFileLists($path)
-    {
+    private function getFileLists($path) {
         $handle = @opendir($path);
-
         if ($handle) {
             while (($file = readdir($handle)) !== false) {
 
@@ -598,80 +608,58 @@ class DUP_PRO_Archive
                     continue;
                 }
 
-                $fullPath      = str_replace("\\", '/', "{$path}/{$file}");
-                $relative_path = $fullPath;
+                $fullPath = str_replace("\\", '/', "{$path}/{$file}");
 
-                if (is_link($relative_path)) {
-                    $is_link = true;
-
-                    //Convert relative path of link to absolute path
-                    chdir($relative_path);
-                    $real_path = realpath(readlink($relative_path));
-                    $real_path = str_replace("\\", '/', $real_path);
-                    chdir(dirname(__FILE__));
-                    $link_pos = strpos($fullPath, $real_path);
-                    if($link_pos === 0 && (strlen($real_path) <  strlen($fullPath))){
-                        // $exclude = true;
-                        $this->RecursiveLinks[] = $fullPath;
-                        $this->FilterDirsAll[] = $fullPath;
-                        continue;
-                    }
-                } else {
-                    $is_link   = false;
-                    $real_path = realpath($relative_path);
-                }
-
-                $exclude_check = array_unique(array($real_path, $relative_path));
-
-                if (is_dir($real_path)) {
-                    $exclude = false;
-
-                    foreach ($this->tmpFilterDirsAll as $key => $val) {
-                        $trimmedFilterDir = rtrim($val, '/');
-                        foreach ($exclude_check as $c_check) {
-                            if ($c_check == $trimmedFilterDir || strpos($c_check, $trimmedFilterDir.'/') !== false) {
-                                $exclude = true;
+                if (is_dir($fullPath)) {
+                    $add = true;
+                    if (!is_link($fullPath)) {
+                        foreach ($this->tmpFilterDirsAll as $key => $val) {
+                            $trimmedFilterDir = rtrim($val, '/');
+                            if ($fullPath == $trimmedFilterDir || strpos($fullPath, $trimmedFilterDir . '/') !== false) {
+                                $add = false;
                                 unset($this->tmpFilterDirsAll[$key]);
-                                break 2;
-                            }
-                        }
-                    }
-
-                    if (!$exclude) {
-                        // if ($is_link) {
-                            // $this->RecursiveLinks[] = $relative_path;
-                            /* $this->FilterDirsAll[]  = $relative_path; */
-                        // }
-                        
-                        if ($is_link) {
-                            $this->getFileLists($relative_path);
-                            $this->addToList($relative_path, 'dir');
-                        } else {
-                            $this->getFileLists($relative_path);
-                            $this->addToList($relative_path, 'dir');
-                        }
-                        
-                    }
-                } else {
-                    $exclude = false;
-                    if (in_array(pathinfo($file, PATHINFO_EXTENSION), $this->FilterExtsAll) || in_array($file, $this->FilterFilesAll)) {
-                        $exclude = true;
-                    } else {
-                        foreach ($exclude_check as $c_check) {
-                            if (in_array($c_check, $this->FilterFilesAll)) {
-                                $exclude = true;
                                 break;
                             }
                         }
+                    } else {
+                        //Convert relative path of link to absolute paths
+                        chdir($fullPath);
+                        $link_path = str_replace("\\", '/', realpath(readlink($fullPath)));
+                        chdir(dirname(__FILE__));
+
+                        $link_pos = strpos($fullPath, $link_path);
+                        if($link_pos === 0 && (strlen($link_path) <  strlen($fullPath))){
+                            $add = false;
+                            $this->RecursiveLinks[] = $fullPath;
+                            $this->FilterDirsAll[] = $fullPath;
+                        } else { // For link filter
+                            foreach ($this->tmpFilterDirsAll as $key => $val) {
+                                $trimmedFilterDir = rtrim($val, '/');
+                                if ($fullPath == $trimmedFilterDir || strpos($fullPath, $trimmedFilterDir . '/') !== false) {
+                                    $add = false;
+                                    unset($this->tmpFilterDirsAll[$key]);
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    if (!$exclude) {
-                        $this->addToList($relative_path,'file');
+
+                    if ($add) {
+                        $this->getFileLists($fullPath);
+                        $this->addToList($fullPath,'dir');
+
+                    }
+                } else {
+                    // Note: The last clause is present to perform just a filename check
+                    if ( ! (in_array(pathinfo($file, PATHINFO_EXTENSION) , $this->FilterExtsAll)
+                        || in_array($fullPath, $this->FilterFilesAll)
+                        || in_array($file, $this->FilterFilesAll))) {
+                            $this->addToList($fullPath,'file');
                     }
                 }
             }
             closedir($handle);
         }
-        return $this->Dirs;
     }
 
     /**
@@ -817,106 +805,223 @@ class DUP_PRO_Archive
         //-------------------------
         //SIZE TREE
         //BUILD: File Size tree
-        $dir_group = SnapLibUtil::arrayGroupBy($this->FilterInfo->Files->Size, "dir" );
-        ksort($dir_group);
-        foreach ($dir_group as $dir => $files) {
-            $sum = 0;
-            foreach ($files as $key => $value) {
-                $sum += $value['ubytes'];
-            }
+        $treeObj = new DUP_PRO_Tree_files(ABSPATH);
 
-            //Locate core paths, wp-admin, wp-includes, etc.
-            $iscore = 0;
-            foreach ($this->wpCorePaths as $core_dir) {
-                if (strpos(DUP_PRO_U::safePath($dir), DUP_PRO_U::safePath($core_dir)) !== false) {
-                    $iscore = 1;
-                    break;
-                }
-            }
-            // Check root and content exact dir
-			if (!$iscore) {
-				if (in_array($dir, $this->wpCoreExactPaths)) {
-					$iscore = 1;
-				}
-			}
+        foreach ($this->FilterInfo->Files->Size as $fileData) {
 
-            $this->FilterInfo->TreeSize[] = array(
-                'size' => DUP_PRO_U::byteSize($sum, 0),
-                'dir' => $dir,
-                'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '/', $dir),
-                'iscore' => $iscore,
-                'files' => $files
+            $data = array(
+                'is_warning' => true,
+                'size' => $fileData['bytes'],
+                'ubytes' => $fileData['ubytes'],
             );
+
+            try {
+                $treeObj->addElement($fileData['path'], $data);
+            } catch (Exception $e) {
+                DUP_PRO_Log::trace('Add filter file size error MSG: '.$e->getMessage());
+            }
         }
+
+        $treeObj->tree->uasort(array(__CLASS__, 'sortTreeByFolderWarningName'));
+        $treeObj->tree->treeTraverseCallback(array($this, 'checkTreeNodesFolder'));
+
+        $this->FilterInfo->TreeSize = self::treeNodeTojstreeNode($treeObj->tree, true, DUP_PRO_U::esc_html__('No large files found during this scan.'));
 
         //-------------------------
         //NAME TREE
         //BUILD: Warning tree for file names
-        $dir_group = SnapLibUtil::arrayGroupBy($this->FilterInfo->Files->Warning, "dir" );
-        ksort($dir_group);
-        foreach ($dir_group as $dir => $files) {
+        $treeObj = new DUP_PRO_Tree_files(ABSPATH);
 
-            //Locate core paths, wp-admin, wp-includes, etc.
-            $iscore = 0;
-            foreach ($this->wpCorePaths as $core_dir) {
-                if (strpos($dir, $core_dir) !== false) {
-                    $iscore = 1;
-                    break;
-                }
-            }
-            // Check root and content exact dir
-			if (!$iscore) {
-				if (in_array($dir, $this->wpCoreExactPaths)) {
-					$iscore = 1;
-				}
-			}
-
-            $this->FilterInfo->TreeWarning[] = array(
-                'dir' => $dir,
-                'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '/', $dir),
-                'iscore' => $iscore,
-                'count' => count($files),
-                'files' => $files);
-        }
-
-        //BUILD: Warning tree for dir names
         foreach ($this->FilterInfo->Dirs->Warning as $dir) {
-            $add_dir = true;
-            foreach ($this->FilterInfo->TreeWarning as $key => $value) {
-                if ($value['dir'] == $dir) {
-                    $add_dir = false;
-                    break;
-                }
-            }
-            if ($add_dir) {
+            $nodeData = array(
+                'is_warning' => true,
+            );
 
-                //Locate core paths, wp-admin, wp-includes, etc.
-                $iscore = 0;
-                foreach ($this->wpCorePaths as $core_dir) {
-                    if (strpos(DUP_PRO_U::safePath($dir), DUP_PRO_U::safePath($core_dir)) !== false) {
-                        $iscore = 1;
-                        break;
-                    }
-                }
-                // Check root and content exact dir
-                if (!$iscore) {
-                    if (in_array($dir, $this->wpCoreExactPaths)) {
-                        $iscore = 1;
-                    }
-                }
-
-                $this->FilterInfo->TreeWarning[] = array(
-                    'dir' => $dir,
-                    'sdir' => str_replace(DUPLICATOR_PRO_WPROOTPATH, '/', $dir),
-                    'iscore' => $iscore,
-                    'count' => 0);
+            try {
+                $treeObj->addElement($dir, $nodeData);
+            } catch (Exception $e) {
+                DUP_PRO_Log::trace('Add filter dir utf8 error MSG: '.$e->getMessage());
             }
         }
 
-        function _sortDir($a, $b){
-            return strcmp($a["dir"], $b["dir"]);
+        foreach ($this->FilterInfo->Files->Warning as $fileData) {
+            $nodeData = array(
+                'is_warning' => true
+            );
+            try {
+                $treeObj->addElement($fileData['path'], $nodeData);
+            } catch (Exception $e) {
+                DUP_PRO_Log::trace('Add filter file utf8 error MSG: '.$e->getMessage());
+            }
         }
-        usort($this->FilterInfo->TreeWarning, "_sortDir");
+
+        $treeObj->tree->uasort(array(__CLASS__, 'sortTreeByFolderWarningName'));
+        $treeObj->tree->treeTraverseCallback(array($this, 'checkTreeNodesFolder'));
+
+        $this->FilterInfo->TreeWarning = self::treeNodeTojstreeNode($treeObj->tree, true, DUP_PRO_U::esc_html__('No file/directory name warnings found.'));
+        return;
+    }
+
+    /**
+     *
+     * @param DUP_PRO_Tree_files_node $a
+     * @param DUP_PRO_Tree_files_node $b
+     */
+    public static function sortTreeByFolderWarningName($a, $b)
+    {
+        // check sort by path type
+        if ($a->isDir && !$b->isDir) {
+            return -1;
+        } else if (!$a->isDir && $b->isDir) {
+            return 1;
+        } else {
+            // sort by warning
+            if (
+                (isset($a->data['is_warning']) && $a->data['is_warning'] == true) &&
+                (!isset($b->data['is_warning']) || $b->data['is_warning'] == false)
+            ) {
+                return -1;
+            } else if (
+                (!isset($a->data['is_warning']) || $a->data['is_warning'] == false) &&
+                (isset($b->data['is_warning']) && $b->data['is_warning'] == true)
+            ) {
+                return 1;
+            } else {
+                // sort by name
+                return strcmp($a->name, $b->name);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param DUP_PRO_Tree_files_node $node
+     */
+    public function checkTreeNodesFolder($node) {
+        $node->data['is_core'] = 0;
+        $node->data['is_filtered'] = 0;
+
+        if ($node->isDir) {
+            $node->data['is_core'] = (int) DUP_PRO_WP_U::isWpCore($node->fullPath , DUP_PRO_WP_U::PATH_FULL);
+/*
+            // Check root and content exact dir
+            if (in_array($node->fullPath , $this->wpCoreExactPaths)) {
+                $node->data['is_core'] = 1;
+            }
+            else {
+               //Locate core paths, wp-admin, wp-includes, etc.
+               foreach ($this->wpCorePaths as $core_dir) {
+                   if (strpos($node->fullPath , $core_dir) !== false) {
+                       $node->data['is_core'] = 1;
+                       break;
+                   }
+               }
+           }*/
+           
+           if (in_array($node->fullPath , $this->FilterDirsAll)) {
+               $node->data['is_filtered'] = 1;
+           }
+        } else {
+            $ext = pathinfo($node->fullPath, PATHINFO_EXTENSION);
+
+            if (in_array($ext , $this->FilterExtsAll)) {
+                $node->data['is_filtered'] = 1;
+            } else if (in_array($node->fullPath , $this->FilterFilesAll)) {
+                $node->data['is_filtered'] = 1;
+            }
+
+            /*
+             * provision to disable the core files to be excluded.
+             * 
+             * $node->data['is_core'] = (int) DUP_PRO_WP_U::isWpCore($node->fullPath , DUP_PRO_WP_U::PATH_FULL);
+             */
+        }
+    }
+
+    /**
+     * @param DUP_PRO_Tree_files_node $node
+     * 
+     * @return array
+     */
+    public static function treeNodeTojstreeNode($node , $root = false, $notFoundText = '') {
+        $name = $root ? $node->fullPath : $node->name;
+
+        if (isset($node->data['size'])) {
+            $name .= ' <b style="color: black;">['.$node->data['size'].']</b>';
+        }
+
+        $li_classes = '';
+        $a_attr = array();
+
+        if ($root) {
+            $li_classes .= ' root-node';
+        }
+
+        if ($node->data['is_warning']) {
+            $li_classes .= ' warning-node';
+        }
+
+        if ($node->data['is_core']) {
+            $li_classes .= ' core-node';
+            $a_attr['title'] = DUP_PRO_U::esc_attr__('Core WordPress directories should not be filtered. Use caution when excluding files.');
+        }
+
+        if ($node->data['is_filtered']) {
+            $li_classes .= ' filtered-node';
+            if ($node->isDir) {
+                $a_attr['title'] = DUP_PRO_U::esc_attr__('This dir is filtered.');
+            } else {
+                $a_attr['title'] = DUP_PRO_U::esc_attr__('This file is filtered.');
+            }
+        }
+
+        $result = array(
+            //'id'          => $node->id, // will be autogenerated if omitted
+            'text'        => $name, // node text
+            'fullPath'    => $node->fullPath,
+            'type'        => $node->isDir ? 'folder' : 'file',
+            'state'       => array(
+                'opened'    => true,  // is the node open
+                'disabled'  => false,  // is the node disabled
+                'selected'  => false,  // is the node selected,
+                'checked'   => false,
+                'checkbox_disabled' => ($node->data['is_core'] && !$node->data['is_warning']) || $node->data['is_filtered']
+            ),
+            'children'    => array(),  // array of strings or objects
+            'li_attr'     => array(
+                'class' => $li_classes
+            ),  // attributes for the generated LI node
+            'a_attr'      => $a_attr  // attributes for the generated A node
+        );
+
+        if (count($node->childs) == 0) {
+            if ($root) {
+                $result['state']['disabled'] = true;
+                $result['state']['opened'] = true;
+                $result['li_attr']['class'] .= ' no-warnings';
+                $result['children'][] = array(
+                        //'id'          => 'no_child_founds',
+                        'text'        => $notFoundText, // node text
+                        'type'        => 'info-text',
+                        'state'       => array(
+                            'opened'    => false,  // is the node open
+                            'disabled'  => true,  // is the node disabled
+                            'selected'  => false,  // is the node selected,
+                            'checked'   => false,
+                            'checkbox_disabled' => true
+                        )
+                    );
+            } else {
+                $result['children'] = $node->haveChildren;
+                $result['state']['opened'] = false;
+            }
+        } else {
+            foreach ($node->childs as $child) {
+                $result['children'][] = self::treeNodeTojstreeNode($child);
+            }
+        }
+       
+        return $result;
     }
 
     public function getWPConfigFilePath() { 

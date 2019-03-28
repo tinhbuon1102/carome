@@ -450,6 +450,7 @@ class DUPX_U
 	{
 		$val	 = trim($val);
 		$last	 = strtolower($val[strlen($val) - 1]);
+		$val	 = intval($val);
 		switch ($last) {
 			// The 'G' modifier is available since PHP 5.1.0
 			case 'g':
@@ -1092,9 +1093,9 @@ class DUPX_U
 		$string = str_replace('&', '&amp;', $string);
 
 		// Change back the allowed entities in our entity whitelist
-		$string = preg_replace_callback('/&amp;([A-Za-z]{2,8}[0-9]{0,2});/', 'self::wp_kses_named_entities', $string);
-		$string = preg_replace_callback('/&amp;#(0*[0-9]{1,7});/', 'self::wp_kses_normalize_entities2', $string);
-		$string = preg_replace_callback('/&amp;#[Xx](0*[0-9A-Fa-f]{1,6});/', 'self::wp_kses_normalize_entities3', $string);
+		$string = preg_replace_callback('/&amp;([A-Za-z]{2,8}[0-9]{0,2});/', 'DUPX_U::wp_kses_named_entities', $string);
+		$string = preg_replace_callback('/&amp;#(0*[0-9]{1,7});/', 'DUPX_U::wp_kses_normalize_entities2', $string);
+		$string = preg_replace_callback('/&amp;#[Xx](0*[0-9A-Fa-f]{1,6});/', 'DUPX_U::wp_kses_normalize_entities3', $string);
 
 		return $string;
 	}
