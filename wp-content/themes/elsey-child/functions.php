@@ -1812,6 +1812,7 @@ function elsey_woe_order_exported($order_id){
 	if (class_exists('WC_Order_Export_Manage'))
 	{
 		$order = new WC_Order( $order_id );
+		$order->update_status($new_status);
 		$settings = WC_Order_Export_Manage::make_new_settings( $_POST );
 		if ( $settings[ 'mark_exported_orders' ] && $order->status == 'processing') {
 			// Set new status
@@ -4398,3 +4399,42 @@ function elsey_woocommerce_after_checkout_validation($data, $errors) {
 }
 add_action('woocommerce_after_checkout_validation', 'elsey_woocommerce_after_checkout_validation',10,2);
 
+add_action( 'woocommerce_order_status_changed', 'elsey_woocommerce_order_status_changed_remove_specific_product', 1000, 4 );
+function elsey_woocommerce_order_status_changed_remove_specific_product($order_id, $from_status, $to_status, $order)
+{
+	if ($to_status == 'cancelled')
+	{
+		$user_email = $order->get_billing_email();
+		$user_phone = $order->get_billing_phone();
+		$user_id	= $order->get_customer_id();;
+		$old_purchased_products = null;
+		
+		if ($user_id)
+		{
+			$old_purchased_products = get_option('specific_user_' . $user_id);
+		}
+		$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_email);
+		$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_phone);
+		if (!empty($old_purchased_products))
+		{
+			$items = $order ->get_items();
+			foreach ( $items as $item ) {
+				if (isset($old_purchased_products[$item['product_id']]))
+				{
+					unset($old_purchased_products[$item['product_id']]);
+				}
+				if (isset($old_purchased_products[$item['variation_id']]))
+				{
+					unset($old_purchased_products[$item['variation_id']]);
+				}
+			}
+			
+			if ($user_id)
+			{
+				update_option('specific_user_' . $user_id, $old_purchased_products);
+			}
+			update_option('specific_user_' . $user_email, $old_purchased_products);
+			update_option('specific_user_' . $user_phone, $old_purchased_products);
+		}
+	}
+}
