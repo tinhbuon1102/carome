@@ -3745,43 +3745,46 @@ function elsey_woocommerce_checkout_update_order_meta( $order_id )
 	}
 	
 	// Add specific option by customer
-	$items = $order ->get_items();
-	$purchased_products = array();
-	foreach ( $items as $item ) {
-		if (elsey_is_specific_product($item['product_id']))
-		{
-			if (isset($item [ 'variation_id' ]) && $item [ 'variation_id' ])
-			{
-				$purchased_products[$item [ 'variation_id' ]]['id'] = $item [ 'variation_id' ];
-				$purchased_products[$item [ 'variation_id' ]]['is_variation'] = true;
-			}
-			else {
-				$purchased_products[$item [ 'product_id' ]]['id'] = $item [ 'product_id' ];
-				$purchased_products[$item [ 'product_id' ]]['is_variation'] = false;
-			}
-		}
-	}
-	if (!empty($purchased_products))
+	if ($order->get_status() != 'cancelled')
 	{
-		$user_id = get_current_user_id();
-		$user_email = $order->get_billing_email();
-		$user_phone = $order->get_billing_phone();
-		
-		$old_purchased_products = get_option('specific_user_' . $user_id);
-		$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_email);
-		$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_phone);
-		
-		if ($old_purchased_products)
-		{
-			$purchased_products = $purchased_products + $old_purchased_products;
+		$items = $order->get_items();
+		$purchased_products = array();
+		foreach ( $items as $item ) {
+			if (elsey_is_specific_product($item['product_id']))
+			{
+				if (isset($item [ 'variation_id' ]) && $item [ 'variation_id' ])
+				{
+					$purchased_products[$item [ 'variation_id' ]]['id'] = $item [ 'variation_id' ];
+					$purchased_products[$item [ 'variation_id' ]]['is_variation'] = true;
+				}
+				else {
+					$purchased_products[$item [ 'product_id' ]]['id'] = $item [ 'product_id' ];
+					$purchased_products[$item [ 'product_id' ]]['is_variation'] = false;
+				}
+			}
 		}
-		
-		if ($user_id)
+		if (!empty($purchased_products))
 		{
-			update_option('specific_user_' . $user_id, $purchased_products);
+			$user_id = get_current_user_id();
+			$user_email = $order->get_billing_email();
+			$user_phone = $order->get_billing_phone();
+			
+			$old_purchased_products = get_option('specific_user_' . $user_id);
+			$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_email);
+			$old_purchased_products = $old_purchased_products ? $old_purchased_products : get_option('specific_user_' . $user_phone);
+			
+			if ($old_purchased_products)
+			{
+				$purchased_products = $purchased_products + $old_purchased_products;
+			}
+			
+			if ($user_id)
+			{
+				update_option('specific_user_' . $user_id, $purchased_products);
+			}
+			update_option('specific_user_' . $user_email, $purchased_products);
+			update_option('specific_user_' . $user_phone, $purchased_products);
 		}
-		update_option('specific_user_' . $user_email, $purchased_products);
-		update_option('specific_user_' . $user_phone, $purchased_products);
 	}
 }
 
@@ -4435,6 +4438,7 @@ function elsey_woocommerce_order_status_changed_remove_specific_product($order_i
 			}
 			update_option('specific_user_' . $user_email, $old_purchased_products);
 			update_option('specific_user_' . $user_phone, $old_purchased_products);
+// 			pr($old_purchased_products);die;
 		}
 	}
 }
