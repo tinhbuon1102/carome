@@ -152,8 +152,19 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 							<div class="u-global-p">
 								<?php echo apply_filters( 'woocommerce_short_description', $post->post_excerpt ); ?>
 								<!--素材-->
-								<?php $material = get_field('product_material'); if( $material ): ?>
-								<p><strong><?php esc_html_e( 'Material', 'elsey' ); ?></strong><br/><?php echo $material; ?></p>
+								<?php $material = get_field('product_material'); if( $material ): 
+								$terms = get_the_terms( $post->ID, 'product_cat' );
+								$material_label = __( 'Material', 'elsey' );
+								foreach ($terms as $term) {
+									if ($term->slug == 'cosmetic')
+									{
+										$material_label = __( 'Ingredient', 'elsey' );
+									}
+									break;
+								}
+								
+								?>
+								<p><strong><?php echo $material_label; ?></strong><br/><?php echo $material; ?></p>
 								<?php endif; ?>
 								
 								<p><strong><?php esc_html_e( 'Notice', 'elsey' ); ?></strong><br/>
