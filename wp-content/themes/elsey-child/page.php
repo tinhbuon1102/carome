@@ -90,6 +90,19 @@ if ($elsey_page_layout_options) {
 get_header(); ?>
 <!-- Container Start -->
 <div class="els-container-wrap <?php echo esc_attr($elsey_parent_class.' '.$elsey_content_padding); ?>" style="<?php echo esc_attr($elsey_custom_padding);?>">
+	<?php if(is_page('contact')) { ?>
+	<div class="temp_contact">
+		<div class="temp_inner">
+			<strong>■CAROME.ECサイトに掲載するアイライナーの商品に関する問い合わせ先</strong>
+			<p>アイライナー商品に関するお問い合わせに関しましては、<span class="bold_font red">問い合わせフォームにての連絡は承っておりません</span>ので、以下の連絡先にてお問い合わせをお願い致します。<br/></p>
+			<p>I-neカスタマーセンター<br/>
+電話番号 <a href="tel:0120-333-476" class="tel_link">0120-333-476</a><br/>
+受付時間 9:00-18:00<br/>
+休日 土日祝（年末年始・夏季休暇）</p>
+		</div>
+	</div>
+	<?php } ?>
+	
 	<?php if ($elsey_page_show_sidebar == false) { ?>
 	<?php if( ! ( end($request) == 'my-account' && is_account_page() ) ){ ?>
 	<?php

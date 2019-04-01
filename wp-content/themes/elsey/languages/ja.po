@@ -3,19 +3,19 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Project-Id-Version: Elsey\n"
 "POT-Creation-Date: 2018-01-04 17:56+0530\n"
-"PO-Revision-Date: 2018-12-20 20:22+0700\n"
+"PO-Revision-Date: 2019-04-01 07:56+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.2.1\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: style.css\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;"
-"esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;"
+"esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
 "Language: ja\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
@@ -230,9 +230,8 @@ msgstr ""
 msgid "Menu Image "
 msgstr ""
 
-#: inc/core/vt-mmenu/mega-menu-api.php:106 inc/plugins/woocommerce/woo-config.php:597
-#: inc/plugins/woocommerce/woo-config.php:637 inc/theme-options/cs-framework/fields/image/image.php:22
-#: inc/theme-options/theme-metabox.php:120
+#: inc/core/vt-mmenu/mega-menu-api.php:106 inc/plugins/woocommerce/woo-config.php:597 inc/plugins/woocommerce/woo-config.php:637
+#: inc/theme-options/cs-framework/fields/image/image.php:22 inc/theme-options/theme-metabox.php:120
 msgid "Add Image"
 msgstr ""
 
@@ -315,8 +314,7 @@ msgstr ""
 msgid "Newer Products"
 msgstr ""
 
-#: inc/frontend-functions.php:456 inc/theme-options/theme-metabox.php:268 inc/theme-options/theme-options.php:369
-#: searchform.php:3
+#: inc/frontend-functions.php:456 inc/theme-options/theme-metabox.php:268 inc/theme-options/theme-options.php:369 searchform.php:3
 msgid "Search"
 msgstr ""
 
@@ -434,12 +432,9 @@ msgstr[0] ""
 #. translators: 1: plugin name(s).
 #: inc/plugins/notify/class-tgm-plugin-activation.php:355
 #, php-format
-msgid ""
-"The following plugin needs to be updated to its latest version to ensure maximum compatibility with this theme: "
-"%1$s."
+msgid "The following plugin needs to be updated to its latest version to ensure maximum compatibility with this theme: %1$s."
 msgid_plural ""
-"The following plugins need to be updated to their latest version to ensure maximum compatibility with this theme: "
-"%1$s."
+"The following plugins need to be updated to their latest version to ensure maximum compatibility with this theme: %1$s."
 msgstr[0] ""
 
 #. translators: 1: plugin name(s).
@@ -539,8 +534,7 @@ msgid "The remote plugin package does not contain a folder with the desired slug
 msgstr ""
 
 #: inc/plugins/notify/class-tgm-plugin-activation.php:1019 inc/plugins/notify/class-tgm-plugin-activation.php:1022
-msgid ""
-"Please contact the plugin provider and ask them to package their plugin according to the WordPress guidelines."
+msgid "Please contact the plugin provider and ask them to package their plugin according to the WordPress guidelines."
 msgstr ""
 
 #: inc/plugins/notify/class-tgm-plugin-activation.php:1022
@@ -760,9 +754,7 @@ msgid "The installation of %1$s failed."
 msgstr ""
 
 #: inc/plugins/notify/class-tgm-plugin-activation.php:3591
-msgid ""
-"The installation and activation process is starting. This process may take a while on some hosts, so please be "
-"patient."
+msgid "The installation and activation process is starting. This process may take a while on some hosts, so please be patient."
 msgstr ""
 
 #. translators: 1: plugin name.
@@ -809,8 +801,7 @@ msgstr ""
 msgid "Installing Plugin %1$s (%2$d/%3$d)"
 msgstr ""
 
-#: inc/plugins/theme-updater/class-envato-protected-api.php:69
-#: inc/plugins/theme-updater/class-envato-protected-api.php:106
+#: inc/plugins/theme-updater/class-envato-protected-api.php:69 inc/plugins/theme-updater/class-envato-protected-api.php:106
 #: inc/plugins/theme-updater/class-envato-protected-api.php:160
 msgid "Please enter your Envato Marketplace Username."
 msgstr ""
@@ -837,8 +828,7 @@ msgid "Sale!"
 msgstr ""
 
 #. translators: 1: price
-#: inc/plugins/woocommerce/woo-config.php:347 inc/plugins/woocommerce/woo-config.php:352
-#: inc/plugins/woocommerce/woo-config.php:386
+#: inc/plugins/woocommerce/woo-config.php:347 inc/plugins/woocommerce/woo-config.php:352 inc/plugins/woocommerce/woo-config.php:386
 #, php-format
 msgid "<i class=\"fa fa-tags\" aria-hidden=\"true\"></i> %1$s"
 msgstr ""
@@ -879,13 +869,12 @@ msgstr ""
 msgid "Masonry Layout Image"
 msgstr ""
 
-#: inc/plugins/woocommerce/woo-config.php:603 inc/plugins/woocommerce/woo-config.php:644
-#: inc/plugins/woocommerce/woo-config.php:711
+#: inc/plugins/woocommerce/woo-config.php:603 inc/plugins/woocommerce/woo-config.php:644 inc/plugins/woocommerce/woo-config.php:711
 msgid "Grid Size"
 msgstr ""
 
-#: inc/plugins/woocommerce/woo-config.php:606 inc/plugins/woocommerce/woo-config.php:648
-#: inc/theme-options/theme-metabox.php:720 inc/theme-options/theme-options.php:1595
+#: inc/plugins/woocommerce/woo-config.php:606 inc/plugins/woocommerce/woo-config.php:648 inc/theme-options/theme-metabox.php:720
+#: inc/theme-options/theme-options.php:1595
 msgid "Default"
 msgstr ""
 
@@ -909,49 +898,41 @@ msgstr ""
 msgid "Add large image URL"
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:177
-#: inc/theme-options/theme-extend/classes/framework.class.php:183
+#: inc/theme-options/cs-framework/classes/framework.class.php:177 inc/theme-options/theme-extend/classes/framework.class.php:183
 msgid "Success. Imported backup options."
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:182
-#: inc/theme-options/theme-extend/classes/framework.class.php:188
+#: inc/theme-options/cs-framework/classes/framework.class.php:182 inc/theme-options/theme-extend/classes/framework.class.php:188
 msgid "Default options restored."
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:201
-#: inc/theme-options/theme-extend/classes/framework.class.php:207
+#: inc/theme-options/cs-framework/classes/framework.class.php:201 inc/theme-options/theme-extend/classes/framework.class.php:207
 msgid "Default options restored for only this section."
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:367
-#: inc/theme-options/theme-extend/classes/framework.class.php:373
+#: inc/theme-options/cs-framework/classes/framework.class.php:367 inc/theme-options/theme-extend/classes/framework.class.php:373
 msgid "Settings saved."
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:369
-#: inc/theme-options/theme-extend/classes/framework.class.php:375 woocommerce/wishlist-view.php:45
+#: inc/theme-options/cs-framework/classes/framework.class.php:369 inc/theme-options/theme-extend/classes/framework.class.php:375
+#: woocommerce/wishlist-view.php:45
 msgid "Save"
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:369
-#: inc/theme-options/theme-extend/classes/framework.class.php:375
+#: inc/theme-options/cs-framework/classes/framework.class.php:369 inc/theme-options/theme-extend/classes/framework.class.php:375
 msgid "Saving..."
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:370
-#: inc/theme-options/theme-extend/classes/framework.class.php:376
+#: inc/theme-options/cs-framework/classes/framework.class.php:370 inc/theme-options/theme-extend/classes/framework.class.php:376
 msgid "Restore"
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:373
-#: inc/theme-options/cs-framework/fields/backup/backup.php:32
+#: inc/theme-options/cs-framework/classes/framework.class.php:373 inc/theme-options/cs-framework/fields/backup/backup.php:32
 #: inc/theme-options/theme-extend/classes/framework.class.php:379
 msgid "Reset All Options"
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/framework.class.php:377
-#: inc/theme-options/theme-extend/classes/framework.class.php:383
+#: inc/theme-options/cs-framework/classes/framework.class.php:377 inc/theme-options/theme-extend/classes/framework.class.php:383
 msgid "show all options"
 msgstr ""
 
@@ -959,8 +940,7 @@ msgstr ""
 msgid "CONFIG"
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/options.class.php:131
-#: inc/theme-options/cs-framework/classes/options.class.php:151
+#: inc/theme-options/cs-framework/classes/options.class.php:131 inc/theme-options/cs-framework/classes/options.class.php:151
 msgid "USAGE"
 msgstr ""
 
@@ -977,8 +957,7 @@ msgstr ""
 msgid "You are editing language: ( <strong>%s</strong> )"
 msgstr ""
 
-#: inc/theme-options/cs-framework/classes/shortcode.class.php:82
-#: inc/theme-options/cs-framework/classes/shortcode.class.php:90
+#: inc/theme-options/cs-framework/classes/shortcode.class.php:82 inc/theme-options/cs-framework/classes/shortcode.class.php:90
 #: inc/theme-options/cs-framework/fields/textarea/textarea.php:27
 msgid "Add Shortcode"
 msgstr ""
@@ -992,14 +971,12 @@ msgid "Insert Shortcode"
 msgstr ""
 
 #: inc/theme-options/cs-framework/fields/background/background.php:34
-#: inc/theme-options/cs-framework/fields/background/background.php:35
-#: inc/theme-options/cs-framework/fields/upload/upload.php:23
+#: inc/theme-options/cs-framework/fields/background/background.php:35 inc/theme-options/cs-framework/fields/upload/upload.php:23
 #: inc/theme-options/cs-framework/fields/upload/upload.php:24
 msgid "Upload"
 msgstr ""
 
-#: inc/theme-options/cs-framework/fields/background/background.php:36
-#: inc/theme-options/cs-framework/fields/upload/upload.php:25
+#: inc/theme-options/cs-framework/fields/background/background.php:36 inc/theme-options/cs-framework/fields/upload/upload.php:25
 msgid "Use Image"
 msgstr ""
 
@@ -1071,8 +1048,7 @@ msgstr ""
 msgid "Google Fonts"
 msgstr ""
 
-#: inc/theme-options/cs-framework/fields/typography/typography.php:107
-#: inc/theme-options/cs-framework/functions/actions.php:32
+#: inc/theme-options/cs-framework/fields/typography/typography.php:107 inc/theme-options/cs-framework/functions/actions.php:32
 msgid "Error! Can not load json file."
 msgstr ""
 
@@ -1109,8 +1085,7 @@ msgid "Elements Color"
 msgstr ""
 
 #: inc/theme-options/theme-customizer.php:26
-msgid ""
-"This is theme primary color, means it'll affect all elements that have default color of our theme primary color."
+msgid "This is theme primary color, means it'll affect all elements that have default color of our theme primary color."
 msgstr ""
 
 #: inc/theme-options/theme-customizer.php:37
@@ -1133,11 +1108,9 @@ msgstr ""
 msgid "Top Bar Color"
 msgstr ""
 
-#: inc/theme-options/theme-customizer.php:81 inc/theme-options/theme-customizer.php:155
-#: inc/theme-options/theme-customizer.php:200 inc/theme-options/theme-customizer.php:272
-#: inc/theme-options/theme-customizer.php:330 inc/theme-options/theme-customizer.php:512
-#: inc/theme-options/theme-metabox.php:211 inc/theme-options/theme-metabox.php:345
-#: inc/theme-options/theme-metabox.php:750
+#: inc/theme-options/theme-customizer.php:81 inc/theme-options/theme-customizer.php:155 inc/theme-options/theme-customizer.php:200
+#: inc/theme-options/theme-customizer.php:272 inc/theme-options/theme-customizer.php:330 inc/theme-options/theme-customizer.php:512
+#: inc/theme-options/theme-metabox.php:211 inc/theme-options/theme-metabox.php:345 inc/theme-options/theme-metabox.php:750
 msgid "Background Color"
 msgstr ""
 
@@ -1153,15 +1126,13 @@ msgstr ""
 msgid "Text Color"
 msgstr ""
 
-#: inc/theme-options/theme-customizer.php:113 inc/theme-options/theme-customizer.php:173
-#: inc/theme-options/theme-customizer.php:207 inc/theme-options/theme-customizer.php:245
-#: inc/theme-options/theme-customizer.php:279 inc/theme-options/theme-customizer.php:526
+#: inc/theme-options/theme-customizer.php:113 inc/theme-options/theme-customizer.php:173 inc/theme-options/theme-customizer.php:207
+#: inc/theme-options/theme-customizer.php:245 inc/theme-options/theme-customizer.php:279 inc/theme-options/theme-customizer.php:526
 msgid "Link Color"
 msgstr ""
 
-#: inc/theme-options/theme-customizer.php:120 inc/theme-options/theme-customizer.php:180
-#: inc/theme-options/theme-customizer.php:214 inc/theme-options/theme-customizer.php:252
-#: inc/theme-options/theme-customizer.php:286 inc/theme-options/theme-customizer.php:533
+#: inc/theme-options/theme-customizer.php:120 inc/theme-options/theme-customizer.php:180 inc/theme-options/theme-customizer.php:214
+#: inc/theme-options/theme-customizer.php:252 inc/theme-options/theme-customizer.php:286 inc/theme-options/theme-customizer.php:533
 msgid "Link Hover Color"
 msgstr ""
 
@@ -1195,8 +1166,8 @@ msgstr ""
 
 #: inc/theme-options/theme-customizer.php:311
 msgid ""
-"This is common settings, if this settings not affect in your page. Please check your page metabox. You may set "
-"default settings there."
+"This is common settings, if this settings not affect in your page. Please check your page metabox. You may set default settings "
+"there."
 msgstr ""
 
 #: inc/theme-options/theme-customizer.php:322
@@ -1261,8 +1232,8 @@ msgstr ""
 
 #: inc/theme-options/theme-customizer.php:437
 msgid ""
-"This is all about footer settings. Make sure you've enabled your needed section at : <strong>Elsey > Theme "
-"Options > Footer</strong> "
+"This is all about footer settings. Make sure you've enabled your needed section at : <strong>Elsey > Theme Options > Footer</"
+"strong> "
 msgstr ""
 
 #: inc/theme-options/theme-customizer.php:443 inc/theme-options/theme-options.php:545
@@ -1291,12 +1262,11 @@ msgstr ""
 
 #: inc/theme-options/theme-customizer.php:504
 msgid ""
-"Make sure you've enabled copyright block in : <br /> <strong>Elsey > Theme Options > Footer > Copyright Bar : "
-"Enable Copyright Block</strong>"
+"Make sure you've enabled copyright block in : <br /> <strong>Elsey > Theme Options > Footer > Copyright Bar : Enable Copyright "
+"Block</strong>"
 msgstr ""
 
-#: inc/theme-options/theme-extend/classes/framework.class.php:454
-#: inc/theme-options/theme-extend/classes/metabox.class.php:135
+#: inc/theme-options/theme-extend/classes/framework.class.php:454 inc/theme-options/theme-extend/classes/metabox.class.php:135
 msgid "How to?"
 msgstr ""
 
@@ -1380,8 +1350,7 @@ msgstr ""
 msgid "Page Custom Options"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:143 inc/theme-options/theme-metabox.php:150
-#: inc/theme-options/theme-options.php:239
+#: inc/theme-options/theme-metabox.php:143 inc/theme-options/theme-metabox.php:150 inc/theme-options/theme-options.php:239
 msgid "Top Bar"
 msgstr ""
 
@@ -1395,8 +1364,8 @@ msgstr ""
 
 #: inc/theme-options/theme-metabox.php:174
 msgid ""
-"Turn Off if you don't want to show <strong>login/register</strong> in top bar right position. Make sure about "
-"installation/activation of WooCommerce plugin."
+"Turn Off if you don't want to show <strong>login/register</strong> in top bar right position. Make sure about installation/"
+"activation of WooCommerce plugin."
 msgstr ""
 
 #: inc/theme-options/theme-metabox.php:180 inc/theme-options/theme-options.php:288
@@ -1421,16 +1390,15 @@ msgstr ""
 
 #: inc/theme-options/theme-metabox.php:204
 msgid ""
-"Turn Off if you don't want to show <strong>currency selector</strong> in top bar right position. Make sure about "
-"installation/activation of WooCommerce plugin."
+"Turn Off if you don't want to show <strong>currency selector</strong> in top bar right position. Make sure about installation/"
+"activation of WooCommerce plugin."
 msgstr ""
 
 #: inc/theme-options/theme-metabox.php:212
 msgid "Pick your top bar background color."
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:223 inc/theme-options/theme-metabox.php:230
-#: inc/theme-options/theme-options.php:322
+#: inc/theme-options/theme-metabox.php:223 inc/theme-options/theme-metabox.php:230 inc/theme-options/theme-options.php:322
 msgid "Menu Bar"
 msgstr ""
 
@@ -1454,15 +1422,13 @@ msgstr ""
 msgid "Center"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:257 inc/theme-options/theme-options.php:352
-#: inc/theme-options/theme-options.php:1128 inc/theme-options/theme-options.php:1266
-#: inc/theme-options/theme-options.php:1398
+#: inc/theme-options/theme-metabox.php:257 inc/theme-options/theme-options.php:352 inc/theme-options/theme-options.php:1128
+#: inc/theme-options/theme-options.php:1266 inc/theme-options/theme-options.php:1398
 msgid "Left"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:258 inc/theme-options/theme-options.php:353
-#: inc/theme-options/theme-options.php:1127 inc/theme-options/theme-options.php:1265
-#: inc/theme-options/theme-options.php:1397
+#: inc/theme-options/theme-metabox.php:258 inc/theme-options/theme-options.php:353 inc/theme-options/theme-options.php:1127
+#: inc/theme-options/theme-options.php:1265 inc/theme-options/theme-options.php:1397
 msgid "Right"
 msgstr ""
 
@@ -1471,9 +1437,7 @@ msgid "Choose your custom menu position for this page."
 msgstr ""
 
 #: inc/theme-options/theme-metabox.php:269 inc/theme-options/theme-options.php:370
-msgid ""
-"Turn Off if you don't want to show search in menu bar. Make sure about installation/activation of WooCommerce "
-"plugin."
+msgid "Turn Off if you don't want to show search in menu bar. Make sure about installation/activation of WooCommerce plugin."
 msgstr ""
 
 #: inc/theme-options/theme-metabox.php:276 inc/theme-options/theme-options.php:377
@@ -1481,9 +1445,7 @@ msgid "Wishlist"
 msgstr "お気に入りリスト"
 
 #: inc/theme-options/theme-metabox.php:277 inc/theme-options/theme-options.php:378
-msgid ""
-"Turn Off if you don't want to show wishlist in menu bar. Make sure about installation/activation of WooCommerce "
-"plugin."
+msgid "Turn Off if you don't want to show wishlist in menu bar. Make sure about installation/activation of WooCommerce plugin."
 msgstr ""
 
 #: inc/theme-options/theme-metabox.php:284 inc/theme-options/theme-options.php:385
@@ -1491,9 +1453,7 @@ msgid "Cart Widget"
 msgstr ""
 
 #: inc/theme-options/theme-metabox.php:285 inc/theme-options/theme-options.php:386
-msgid ""
-"Turn Off if you don't want to show cart widget in menu bar. Make sure about installation/activation of "
-"WooCommerce plugin."
+msgid "Turn Off if you don't want to show cart widget in menu bar. Make sure about installation/activation of WooCommerce plugin."
 msgstr ""
 
 #: inc/theme-options/theme-metabox.php:292 inc/theme-options/theme-options.php:393
@@ -1560,14 +1520,13 @@ msgstr ""
 msgid "Bottom Border Color"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:362 inc/theme-options/theme-metabox.php:369
-#: inc/theme-options/theme-options.php:411 inc/theme-options/theme-options.php:425
+#: inc/theme-options/theme-metabox.php:362 inc/theme-options/theme-metabox.php:369 inc/theme-options/theme-options.php:411
+#: inc/theme-options/theme-options.php:425
 msgid "Title Bar"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:384 inc/theme-options/theme-options.php:137
-#: inc/theme-options/theme-options.php:343 inc/theme-options/theme-options.php:431
-#: inc/theme-options/theme-options.php:437 inc/theme-options/theme-options.php:1080
+#: inc/theme-options/theme-metabox.php:384 inc/theme-options/theme-options.php:137 inc/theme-options/theme-options.php:343
+#: inc/theme-options/theme-options.php:431 inc/theme-options/theme-options.php:437 inc/theme-options/theme-options.php:1080
 #: inc/theme-options/theme-options.php:1244 inc/theme-options/theme-options.php:1361
 msgid "Layout"
 msgstr ""
@@ -1608,43 +1567,41 @@ msgstr ""
 msgid "Enter your custom title..."
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:418 inc/theme-options/theme-options.php:449
-#: inc/theme-options/theme-options.php:1022
+#: inc/theme-options/theme-metabox.php:418 inc/theme-options/theme-options.php:449 inc/theme-options/theme-options.php:1022
 msgid "Spacings"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:420 inc/theme-options/theme-options.php:451
-#: inc/theme-options/theme-options.php:1024
+#: inc/theme-options/theme-metabox.php:420 inc/theme-options/theme-options.php:451 inc/theme-options/theme-options.php:1024
 msgid "Default Spacing"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:421 inc/theme-options/theme-metabox.php:495
-#: inc/theme-options/theme-options.php:452 inc/theme-options/theme-options.php:1026
+#: inc/theme-options/theme-metabox.php:421 inc/theme-options/theme-metabox.php:495 inc/theme-options/theme-options.php:452
+#: inc/theme-options/theme-options.php:1026
 msgid "Extra Small Padding"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:422 inc/theme-options/theme-metabox.php:496
-#: inc/theme-options/theme-options.php:453 inc/theme-options/theme-options.php:1027
+#: inc/theme-options/theme-metabox.php:422 inc/theme-options/theme-metabox.php:496 inc/theme-options/theme-options.php:453
+#: inc/theme-options/theme-options.php:1027
 msgid "Small Padding"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:423 inc/theme-options/theme-metabox.php:497
-#: inc/theme-options/theme-options.php:454 inc/theme-options/theme-options.php:1028
+#: inc/theme-options/theme-metabox.php:423 inc/theme-options/theme-metabox.php:497 inc/theme-options/theme-options.php:454
+#: inc/theme-options/theme-options.php:1028
 msgid "Medium Padding"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:424 inc/theme-options/theme-metabox.php:498
-#: inc/theme-options/theme-options.php:455 inc/theme-options/theme-options.php:1029
+#: inc/theme-options/theme-metabox.php:424 inc/theme-options/theme-metabox.php:498 inc/theme-options/theme-options.php:455
+#: inc/theme-options/theme-options.php:1029
 msgid "Large Padding"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:425 inc/theme-options/theme-metabox.php:499
-#: inc/theme-options/theme-options.php:456 inc/theme-options/theme-options.php:1030
+#: inc/theme-options/theme-metabox.php:425 inc/theme-options/theme-metabox.php:499 inc/theme-options/theme-options.php:456
+#: inc/theme-options/theme-options.php:1030
 msgid "Extra Large Padding"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:426 inc/theme-options/theme-metabox.php:500
-#: inc/theme-options/theme-options.php:457 inc/theme-options/theme-options.php:1031
+#: inc/theme-options/theme-metabox.php:426 inc/theme-options/theme-metabox.php:500 inc/theme-options/theme-options.php:457
+#: inc/theme-options/theme-options.php:1031
 msgid "Custom Padding"
 msgstr ""
 
@@ -1652,13 +1609,13 @@ msgstr ""
 msgid "Select title bar top and bottom spacings."
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:434 inc/theme-options/theme-metabox.php:507
-#: inc/theme-options/theme-options.php:465 inc/theme-options/theme-options.php:1038
+#: inc/theme-options/theme-metabox.php:434 inc/theme-options/theme-metabox.php:507 inc/theme-options/theme-options.php:465
+#: inc/theme-options/theme-options.php:1038
 msgid "Top Spacing"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:441 inc/theme-options/theme-metabox.php:514
-#: inc/theme-options/theme-options.php:474 inc/theme-options/theme-options.php:1048
+#: inc/theme-options/theme-metabox.php:441 inc/theme-options/theme-metabox.php:514 inc/theme-options/theme-options.php:474
+#: inc/theme-options/theme-options.php:1048
 msgid "Bottom Spacing"
 msgstr ""
 
@@ -1670,8 +1627,7 @@ msgstr ""
 msgid "Pick your title bar background image or color."
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:457 inc/theme-options/theme-options.php:219
-#: inc/theme-options/theme-options.php:492
+#: inc/theme-options/theme-metabox.php:457 inc/theme-options/theme-options.php:219 inc/theme-options/theme-options.php:492
 msgid "Overlay Color"
 msgstr ""
 
@@ -1747,9 +1703,8 @@ msgstr ""
 msgid "Hide Footer"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:568 inc/theme-options/theme-metabox.php:636
-#: inc/theme-options/theme-options.php:1008 inc/theme-options/theme-options.php:1085
-#: inc/theme-options/theme-options.php:1249 inc/theme-options/theme-options.php:1375
+#: inc/theme-options/theme-metabox.php:568 inc/theme-options/theme-metabox.php:636 inc/theme-options/theme-options.php:1008
+#: inc/theme-options/theme-options.php:1085 inc/theme-options/theme-options.php:1249 inc/theme-options/theme-options.php:1375
 msgid "Page Layout"
 msgstr ""
 
@@ -1757,14 +1712,12 @@ msgstr ""
 msgid "Show Sidebar"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:619 inc/theme-options/theme-metabox.php:687
-#: inc/theme-options/theme-options.php:1138 inc/theme-options/theme-options.php:1275
-#: inc/theme-options/theme-options.php:1409
+#: inc/theme-options/theme-metabox.php:619 inc/theme-options/theme-metabox.php:687 inc/theme-options/theme-options.php:1138
+#: inc/theme-options/theme-options.php:1275 inc/theme-options/theme-options.php:1409
 msgid "Sidebar Widget"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:621 inc/theme-options/theme-metabox.php:689
-#: inc/theme-options/theme-options.php:1410
+#: inc/theme-options/theme-metabox.php:621 inc/theme-options/theme-metabox.php:689 inc/theme-options/theme-options.php:1410
 msgid "Select widget"
 msgstr ""
 
@@ -1780,13 +1733,11 @@ msgstr ""
 msgid "Double Width & Height"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:723 inc/theme-options/theme-metabox.php:730
-#: inc/theme-options/theme-metabox.php:737
+#: inc/theme-options/theme-metabox.php:723 inc/theme-options/theme-metabox.php:730 inc/theme-options/theme-metabox.php:737
 msgid "This style will apply for this product on masonry product catalog sortcodes and pages."
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:729 inc/theme-options/theme-metabox.php:736
-#: inc/theme-options/theme-metabox.php:743
+#: inc/theme-options/theme-metabox.php:729 inc/theme-options/theme-metabox.php:736 inc/theme-options/theme-metabox.php:743
 msgid "Upload/Add Image"
 msgstr ""
 
@@ -1862,8 +1813,8 @@ msgstr ""
 msgid "Custom Link"
 msgstr ""
 
-#: inc/theme-options/theme-metabox.php:847 inc/theme-options/theme-metabox.php:856
-#: inc/theme-options/theme-metabox.php:865 inc/theme-options/theme-metabox.php:874
+#: inc/theme-options/theme-metabox.php:847 inc/theme-options/theme-metabox.php:856 inc/theme-options/theme-metabox.php:865
+#: inc/theme-options/theme-metabox.php:874
 msgid "http://"
 msgstr ""
 
@@ -1968,8 +1919,7 @@ msgid "Transparent Retina Logo"
 msgstr ""
 
 #: inc/theme-options/theme-options.php:94
-msgid ""
-"Upload your transparent header retina logo here. This logo is used in transparent header by enabled in each pages."
+msgid "Upload your transparent header retina logo here. This logo is used in transparent header by enabled in each pages."
 msgstr ""
 
 #: inc/theme-options/theme-options.php:95
@@ -2190,14 +2140,14 @@ msgstr ""
 
 #: inc/theme-options/theme-options.php:281
 msgid ""
-"Turn Off if you don't want to show login/register in top bar right position. Make sure about installation/"
-"activation of WooCommerce plugin."
+"Turn Off if you don't want to show login/register in top bar right position. Make sure about installation/activation of "
+"WooCommerce plugin."
 msgstr ""
 
 #: inc/theme-options/theme-options.php:311
 msgid ""
-"Turn Off if you don't want to show currency selector in top bar right position. Make sure about installation/"
-"activation of WooCommerce plugin."
+"Turn Off if you don't want to show currency selector in top bar right position. Make sure about installation/activation of "
+"WooCommerce plugin."
 msgstr ""
 
 #: inc/theme-options/theme-options.php:329
@@ -2250,8 +2200,8 @@ msgstr ""
 
 #: inc/theme-options/theme-options.php:552
 msgid ""
-"If you turn this ON, then Goto : Appearance > Widgets. There you can see <strong>Footer Widget 1,2,3 or 4</"
-"strong> Widget Area, add your widgets there."
+"If you turn this ON, then Goto : Appearance > Widgets. There you can see <strong>Footer Widget 1,2,3 or 4</strong> Widget Area, "
+"add your widgets there."
 msgstr ""
 
 #: inc/theme-options/theme-options.php:557
@@ -2308,8 +2258,8 @@ msgstr ""
 
 #: inc/theme-options/theme-options.php:662
 msgid ""
-"All color options are available in our theme customizer. The reason of we used customizer options for color "
-"section is because, you can choose each part of color from there and see the changes instantly using customizer.\n"
+"All color options are available in our theme customizer. The reason of we used customizer options for color section is because, "
+"you can choose each part of color from there and see the changes instantly using customizer.\n"
 "          <br /><br />Highly customizable colors are in <strong>Appearance > Customize</strong>"
 msgstr ""
 
@@ -2443,8 +2393,8 @@ msgstr ""
 
 #: inc/theme-options/theme-options.php:1095 inc/theme-options/theme-options.php:1107
 msgid ""
-"This style will apply, default blog pages - Like : Archive, Category, Tags, Search & Author. If this settings "
-"will not apply your blog page, please set that page as a post page in Settings > Readings."
+"This style will apply, default blog pages - Like : Archive, Category, Tags, Search & Author. If this settings will not apply your "
+"blog page, please set that page as a post page in Settings > Readings."
 msgstr ""
 
 #: inc/theme-options/theme-options.php:1100
@@ -2479,8 +2429,8 @@ msgstr ""
 msgid "Column Three"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1119 inc/theme-options/theme-options.php:1132
-#: inc/theme-options/theme-options.php:1142 inc/theme-options/theme-options.php:1155
+#: inc/theme-options/theme-options.php:1119 inc/theme-options/theme-options.php:1132 inc/theme-options/theme-options.php:1142
+#: inc/theme-options/theme-options.php:1155
 msgid "This style will apply, default blog pages - Like : Archive, Category, Tags, Search & Author."
 msgstr ""
 
@@ -2488,18 +2438,15 @@ msgstr ""
 msgid "Default option : Column One"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1125 inc/theme-options/theme-options.php:1263
-#: inc/theme-options/theme-options.php:1395
+#: inc/theme-options/theme-options.php:1125 inc/theme-options/theme-options.php:1263 inc/theme-options/theme-options.php:1395
 msgid "Sidebar Position"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1129 inc/theme-options/theme-options.php:1267
-#: inc/theme-options/theme-options.php:1399
+#: inc/theme-options/theme-options.php:1129 inc/theme-options/theme-options.php:1267 inc/theme-options/theme-options.php:1399
 msgid "Hide"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1133 inc/theme-options/theme-options.php:1270
-#: inc/theme-options/theme-options.php:1402
+#: inc/theme-options/theme-options.php:1133 inc/theme-options/theme-options.php:1270 inc/theme-options/theme-options.php:1402
 msgid "Default option : Right"
 msgstr ""
 
@@ -2527,8 +2474,8 @@ msgstr ""
 msgid "Default option : Page Numbers"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1164 inc/theme-options/theme-options.php:1287
-#: inc/theme-options/theme-options.php:1444 inc/theme-options/theme-options.php:1500
+#: inc/theme-options/theme-options.php:1164 inc/theme-options/theme-options.php:1287 inc/theme-options/theme-options.php:1444
+#: inc/theme-options/theme-options.php:1500
 msgid "Enable / Disable"
 msgstr ""
 
@@ -2652,9 +2599,8 @@ msgstr ""
 msgid "Shop"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1376 inc/theme-options/theme-options.php:1390
-#: inc/theme-options/theme-options.php:1403 inc/theme-options/theme-options.php:1412
-#: inc/theme-options/theme-options.php:1426
+#: inc/theme-options/theme-options.php:1376 inc/theme-options/theme-options.php:1390 inc/theme-options/theme-options.php:1403
+#: inc/theme-options/theme-options.php:1412 inc/theme-options/theme-options.php:1426
 msgid "This style will apply, default woocommerce listings pages. Like, shop and archive pages."
 msgstr ""
 
@@ -2662,33 +2608,27 @@ msgstr ""
 msgid "Product Column"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1383 inc/theme-options/theme-options.php:1562
-#: inc/theme-options/theme-options.php:1607
+#: inc/theme-options/theme-options.php:1383 inc/theme-options/theme-options.php:1562 inc/theme-options/theme-options.php:1607
 msgid "Three Column"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1384 inc/theme-options/theme-options.php:1563
-#: inc/theme-options/theme-options.php:1608
+#: inc/theme-options/theme-options.php:1384 inc/theme-options/theme-options.php:1563 inc/theme-options/theme-options.php:1608
 msgid "Four Column"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1385 inc/theme-options/theme-options.php:1564
-#: inc/theme-options/theme-options.php:1609
+#: inc/theme-options/theme-options.php:1385 inc/theme-options/theme-options.php:1564 inc/theme-options/theme-options.php:1609
 msgid "Five Column"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1386 inc/theme-options/theme-options.php:1565
-#: inc/theme-options/theme-options.php:1610
+#: inc/theme-options/theme-options.php:1386 inc/theme-options/theme-options.php:1565 inc/theme-options/theme-options.php:1610
 msgid "Six Column"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1388 inc/theme-options/theme-options.php:1568
-#: inc/theme-options/theme-options.php:1613
+#: inc/theme-options/theme-options.php:1388 inc/theme-options/theme-options.php:1568 inc/theme-options/theme-options.php:1613
 msgid "Select product columns"
 msgstr ""
 
-#: inc/theme-options/theme-options.php:1389 inc/theme-options/theme-options.php:1567
-#: inc/theme-options/theme-options.php:1612
+#: inc/theme-options/theme-options.php:1389 inc/theme-options/theme-options.php:1567 inc/theme-options/theme-options.php:1612
 msgid "Default option : Four Column"
 msgstr ""
 
@@ -3168,8 +3108,8 @@ msgstr ""
 
 #: inc/theme-options/theme-options.php:2046
 msgid ""
-"<p>This is not a password field. Enter your Envato API key, which is located in : <strong>http://themeforest.net/"
-"user/[YOUR-USER-NAME]/api_keys/edit</strong></p>"
+"<p>This is not a password field. Enter your Envato API key, which is located in : <strong>http://themeforest.net/user/[YOUR-USER-"
+"NAME]/api_keys/edit</strong></p>"
 msgstr ""
 
 #: inc/theme-support.php:13
@@ -3260,10 +3200,9 @@ msgstr "送料"
 
 #: woocommerce/cart/cart-shipping.php:55
 msgid ""
-"There are no shipping methods available. Please ensure that your address has been entered correctly, or contact "
-"us if you need any help."
-msgstr ""
-"利用できる配送方法がありません。住所が正しく入力されているか確認してください。もしくはお問い合わせください。"
+"There are no shipping methods available. Please ensure that your address has been entered correctly, or contact us if you need any "
+"help."
+msgstr "利用できる配送方法がありません。住所が正しく入力されているか確認してください。もしくはお問い合わせください。"
 
 #: woocommerce/cart/cart-shipping.php:57
 msgid "Enter your full address to see shipping costs."
@@ -3366,11 +3305,9 @@ msgstr "お支払い方法"
 
 #: woocommerce/checkout/payment.php:43
 msgid ""
-"Sorry, it seems that there are no available payment methods for your state. Please contact us if you require "
-"assistance or wish to make alternate arrangements."
-msgstr ""
-"現在の状況で利用可能な支払方法がありません。お手伝いを必要とするか、または別の方法をご希望の場合はお問い合わせくだ"
-"さい。"
+"Sorry, it seems that there are no available payment methods for your state. Please contact us if you require assistance or wish to "
+"make alternate arrangements."
+msgstr "現在の状況で利用可能な支払方法がありません。お手伝いを必要とするか、または別の方法をご希望の場合はお問い合わせください。"
 
 #: woocommerce/checkout/payment.php:43
 msgid "Please fill in your details above to see available payment methods."
@@ -3378,12 +3315,11 @@ msgstr "利用可能な支払い方法を確認し、上記に詳細を記入し
 
 #: woocommerce/checkout/payment.php:52
 msgid ""
-"Since your browser does not support JavaScript, or it is disabled, please ensure you click the <em>Update Totals</"
-"em> button before placing your order. You may be charged more than the amount stated above if you fail to do so."
+"Since your browser does not support JavaScript, or it is disabled, please ensure you click the <em>Update Totals</em> button "
+"before placing your order. You may be charged more than the amount stated above if you fail to do so."
 msgstr ""
-"お使いのブラウザはJavaScriptをサポートしていないか、無効になっています。注文の前に<em>金額を更新</em>ボタンで合計"
-"できることを確認してください。もし更新に失敗するようであれば、上記表示金額とは異なった金額が請求される可能性があり"
-"ます。"
+"お使いのブラウザはJavaScriptをサポートしていないか、無効になっています。注文の前に<em>金額を更新</em>ボタンで合計できることを確認し"
+"てください。もし更新に失敗するようであれば、上記表示金額とは異なった金額が請求される可能性があります。"
 
 #: woocommerce/checkout/payment.php:53
 msgid "Update totals"
@@ -3397,13 +3333,11 @@ msgstr "注文合計"
 msgid "Username or email"
 msgstr "ユーザ名またはメールアドレス"
 
-#: woocommerce/global/form-login.php:44 woocommerce/myaccount/form-login.php:52
-#: woocommerce/myaccount/form-login.php:105
+#: woocommerce/global/form-login.php:44 woocommerce/myaccount/form-login.php:52 woocommerce/myaccount/form-login.php:105
 msgid "Password"
 msgstr "パスワード"
 
-#: woocommerce/global/form-login.php:55 woocommerce/myaccount/form-login.php:41
-#: woocommerce/myaccount/form-login.php:61
+#: woocommerce/global/form-login.php:55 woocommerce/myaccount/form-login.php:41 woocommerce/myaccount/form-login.php:61
 msgid "Login"
 msgstr "ログイン"
 
@@ -3440,11 +3374,11 @@ msgstr "アンチスパム"
 
 #: woocommerce/order/form-tracking.php:33
 msgid ""
-"To track your order please enter your Order ID in the box below and press the \"Track\" button. This was given to "
-"you on your receipt and in the confirmation email you should have received."
+"To track your order please enter your Order ID in the box below and press the \"Track\" button. This was given to you on your "
+"receipt and in the confirmation email you should have received."
 msgstr ""
-"ご注文の注文状況を確認するには、以下の入力フォームに注文番号とご登録のメールアドレスを入力し、「注文状況を確認」の"
-"ボタンをクリックしてください。注文番号は注文完了メールに記載されていますので、ご確認ください。"
+"ご注文の注文状況を確認するには、以下の入力フォームに注文番号とご登録のメールアドレスを入力し、「注文状況を確認」のボタンをクリック"
+"してください。注文番号は注文完了メールに記載されていますので、ご確認ください。"
 
 #: woocommerce/order/form-tracking.php:38
 msgid "Order ID"
@@ -3580,8 +3514,7 @@ msgstr ""
 msgid "Only logged in customers who have purchased this product may leave a review."
 msgstr ""
 
-#: woocommerce/single-product/product-image.php:62 woocommerce/single-product/product-image.php:138
-#: woocommerce/wishlist-view.php:160
+#: woocommerce/single-product/product-image.php:62 woocommerce/single-product/product-image.php:138 woocommerce/wishlist-view.php:160
 msgid "Out of Stock"
 msgstr "SOLD OUT"
 
@@ -3867,8 +3800,7 @@ msgstr "注文商品がありません"
 
 msgid "This order will be separated as 2 orders for normal and pre-order. But payment will be total of both orders."
 msgstr ""
-"この注文は通常商品と予約商品が含まれているため、注文完了後、2つの注文にわかれますが、お支払い金額はまとめてのお支"
-"払いとなります。"
+"この注文は通常商品と予約商品が含まれているため、注文完了後、2つの注文にわかれますが、お支払い金額はまとめてのお支払いとなります。"
 
 msgid "This shipping fee is for 2 orders of normal order and pre-order"
 msgstr "この送料は予約注文と通常注文、2つ分の送料です。*予約商品と通常商品の同包発送は不可。"
@@ -3887,5 +3819,20 @@ msgstr "あなたのユーザーIDは%sです。"
 
 msgid "custom_field_msg_threshold_notice"
 msgstr ""
-"※日本国内のみの販売となります。<br />※商品画像はサンプルのため、色味やサイズ等の仕様に変更がある場合がございますの"
-"で、予めご了承ください。"
+"※日本国内のみの販売となります。<br />※商品画像はサンプルのため、色味やサイズ等の仕様に変更がある場合がございますので、予めご了承く"
+"ださい。"
+
+msgid "Ingredient"
+msgstr "成分"
+
+msgid "Sorry, You already ordered this product before."
+msgstr "この商品は既にご注文されているため、カートに追加できません。"
+
+msgid "This product cannot be added to your cart because it already contains a specific product, which must be purchased separately."
+msgstr "現在のカートに含まれている商品は、この商品と合わせてのご注文はできません。"
+
+msgid "This product cannot be added because this product is specific product, which must be purchased separately."
+msgstr "現在のカートに含まれている商品は、この商品と合わせてのご注文はできません。"
+
+msgid "This product cannot be added to your cart because it already added in cart"
+msgstr "現在のカートにこの商品は既に追加されているため、追加できません。"

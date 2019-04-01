@@ -1,5 +1,27 @@
 jQuery(document).ready(function($) {
 	AOS.init();
+	$('.flw_slider').slick({
+		arrows: false,
+		dots: false,
+		infinite: true,
+		autoplay: true,
+		speed: 300,
+		slidesToShow: 1
+	});
+	$('a.disable_link').click(function(){
+    return false;
+	});
+	$(window).on("load resize scroll",function(e){
+		var $win = $(window),
+			//$winH = $win.height(),
+			winpos = $win.scrollTop(),
+			$objH = $('.buy_now_flw').height();
+			if($objH > winpos) {
+				$('.buy_now_flw').css('bottom', '-' + $objH + 'px');
+			} else {
+				$('.buy_now_flw').css('bottom', '0px');
+			}
+	});
 	$(window).load(function() {
 		$("body").removeClass("preload");
 		$('.loader-bg').addClass('loaded');

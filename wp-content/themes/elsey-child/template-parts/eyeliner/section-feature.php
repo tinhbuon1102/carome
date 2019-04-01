@@ -22,12 +22,12 @@
 								<div class="col-md-6 col-xs-12 point_desc">
 									<img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/features/ex_point01.png" />
 									<p class="point_desc_title">汗・水・涙に強い</p>
-									<p>まぶたの上で、硬いフィルムを形成し美しさをキープ</p>
+									<p>まぶたの上で、強固なフィルムを形成し美しさをキープ</p>
 								</div>
 								<div class="col-md-6 col-xs-12 point_desc">
 									<img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/features/ex_point02.png" />
 									<p class="point_desc_title">こすれ・ヨレに強い</p>
-									<p>表情の動きにもフィットしてヨレずにキープ</p>
+									<p>どんな表情にもフィットしてヨレずにキープ</p>
 								</div>
 							</div>
 						</div></div>
@@ -64,7 +64,7 @@
 					<div class="point_extra" data-aos="fade-down" data-aos-delay="300" data-aos-duration="600">
 						<div class="point_extra_wrap"><div class="point_extra_inner">
 							<h5 class="point_title">Point</h5>
-							<div class="point_catch">美容成分</div>
+							<div class="point_catch">美容液成分</div>
 							<div class="row row_align_center">
 								<div class="point_desc">
 									<div class="point_desc_img round_img"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/features/feature_image03_point01.jpg" /></div>
@@ -79,6 +79,7 @@
 									<p class="point_desc_title">サクシノイルアテロ<br/>コラーゲン</p>
 								</div>
 							</div>
+							<p class="small">※すべて保湿成分</p>
 						</div></div>
 					</div><!--/point_extra-->
 						

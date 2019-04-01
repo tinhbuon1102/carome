@@ -266,7 +266,7 @@ $get_terms_to_exclude =  get_terms(
         'fields'  => 'ids',
         'slug'    => array( 
             'twoset_price_jwl', 
-        	'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', '2days-limited-acc-ev1811', 'uncategorized', '%e6%9c%aa%e5%88%86%e9%a1%9e' ),
+        	'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', '2days-limited-acc-ev1811', 'uncategorized', '%e6%9c%aa%e5%88%86%e9%a1%9e', 'cosmetic' ),
         'taxonomy' => $taxonomy,
     	'hide_empty' => false,
     )
@@ -340,7 +340,7 @@ $get_terms_to_exclude =  get_terms(
 	  <?php if (isCustomerInPrivateEvent()) { ?> 
 	  <?php } elseif(is_product_category()||is_shop()){ ?> 
 	  <?php if ( date_i18n('YmdHi') >= "201901051200" ) { ?>
-	  <div class="sub_banner xs-hide">
+	  <div class="sub_banner xs-hide chien2">
 <a href="<?php echo home_url('/product-category/winter18-sale/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair20190105-Desktop.jpg" alt="Winter Sale" /></a>
 </div>
 	  <div class="sub_banner xs-show">

@@ -1,3 +1,24 @@
+<?php
+$sku = 'CSMEL01'; // SKU example to be replaced by the real SKU of the product
+$product_id = wc_get_product_id_by_sku( $sku );
+$link = get_permalink( $product_id );
+$tickets = new WC_Product_Variable( $product_id);
+$variables = $tickets->get_available_variations();
+$black_stock = '';
+$brown_stock = '';
+$burgundy_stock = '';
+foreach ($variables as $variation)  {
+    if($variation['attributes']['attribute_pa_color']=='black'){
+    	$black_stock = $variation['max_qty'];
+    }
+    if($variation['attributes']['attribute_pa_color']=='brown'){
+    	$brown_stock = $variation['max_qty'];
+    }
+    if($variation['attributes']['attribute_pa_color']=='burgundy'){
+    	$burgundy_stock = $variation['max_qty'];
+    }
+}
+?>
 <section class="eyeproducts bg_black">
 	<div class="eye_container full_eye_container">
 		<div class="row eye-item-row">
@@ -25,7 +46,7 @@
 								</div>
 							</div>
 							<div class="col-buy">
-								<a href="#" class="eye-buy-button"><span class="buy-btn-center">Buy<br/>Now</span></a>
+								<a href="<?php echo $link ?>" class="eye-buy-button <?php if($black_stock>0){ ?>active_link<?php } else { ?>disable_link<?php } ?>"><span class="buy-btn-center"><?php if($black_stock>0){ ?>Buy<br/>Now<?php } else { ?>Sold<br/>Out<?php } ?></span></a>
 							</div>
 						</div>
 					</div>
@@ -55,7 +76,7 @@
 								</div>
 							</div>
 							<div class="col-buy">
-								<a href="#" class="eye-buy-button"><span class="buy-btn-center">Buy<br/>Now</span></a>
+								<a href="<?php echo $link ?>" class="eye-buy-button <?php if($brown_stock>0){ ?>active_link<?php } else { ?>disable_link<?php } ?>"><span class="buy-btn-center"><?php if($brown_stock>0){ ?>Buy<br/>Now<?php } else { ?>Sold<br/>Out<?php } ?></span></a>
 							</div>
 						</div>
 					</div>
@@ -85,7 +106,7 @@
 								</div>
 							</div>
 							<div class="col-buy">
-								<a href="#" class="eye-buy-button"><span class="buy-btn-center">Buy<br/>Now</span></a>
+								<a href="<?php echo $link ?>" class="eye-buy-button <?php if($burgundy_stock>0){ ?>active_link<?php } else { ?>disable_link<?php } ?>"><span class="buy-btn-center"><?php if($burgundy_stock>0){ ?>Buy<br/>Now<?php } else { ?>Sold<br/>Out<?php } ?></span></a>
 							</div>
 						</div>
 					</div>

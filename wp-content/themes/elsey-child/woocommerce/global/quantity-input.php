@@ -24,7 +24,22 @@ if ( $max_value && $min_value === $max_value ) {
 	<?php
 } else {
 	?>
-<?php if (is_product()) { ?><div class="pdp__attribute inventory"><?php } ?>
+<?php
+	
+	$terms = get_the_terms( $post->ID, 'product_cat' );
+	foreach ($terms as $term) {
+		if ($term->slug == 'cosmetic')
+		{
+			$ivClass = 'hidden';
+		} else {
+			$ivClass = 'enable';
+		}
+		break;
+	}
+?>
+<?php if( current_user_can('administrator') ) {  ?>
+<?php } ?>
+<?php if (is_product()) { ?><div class="pdp__attribute inventory <?php echo $ivClass ?>"><?php } ?>
     <?php if (is_product()) { ?><div class="pdp__attribute__label"><?php esc_html_e( 'Quantity', 'elsey' ); ?></div><?php } ?>
 	<div class="qty-input quantity">
 		<input class="button qty-input__ctrl minus" type="button" value="-">

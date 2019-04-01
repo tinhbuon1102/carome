@@ -154,13 +154,18 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 								<!--素材-->
 								<?php $material = get_field('product_material'); if( $material ): 
 								$terms = get_the_terms( $post->ID, 'product_cat' );
-								$material_label = __( 'Material', 'elsey' );
-								foreach ($terms as $term) {
+								
+								/*foreach ($terms as $term) {
 									if ($term->slug == 'cosmetic')
 									{
 										$material_label = __( 'Ingredient', 'elsey' );
 									}
 									break;
+								}*/
+								if ( has_term( 'cosmetic', 'product_cat' ) ) {
+									$material_label = __( 'Ingredient', 'elsey' );
+								} else {
+									$material_label = __( 'Material', 'elsey' );
 								}
 								
 								?>

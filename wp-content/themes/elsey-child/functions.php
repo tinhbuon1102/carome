@@ -74,10 +74,11 @@ function custom_scripts ()
 	wp_register_style('aos-style', 'https://unpkg.com/aos@2.3.1/dist/aos.css', "", '');
 	wp_register_style('animate-style', 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css', array(), '');
 	wp_register_style('anim-style', get_stylesheet_directory_uri() . '/css/anim.css', array(), '');
-	wp_register_style('eyeliner-style', get_stylesheet_directory_uri() . '/css/eyeliner.css?201903270722', array(), '');
+	wp_register_style('eyeliner-style', get_stylesheet_directory_uri() . '/css/eyeliner.css?201904010816', array(), '');
 	wp_register_script('picturefill-js', 'https://cdn.rawgit.com/scottjehl/picturefill/3.0.2/dist/picturefill.min.js', array(), '');
 	wp_register_script('objfit-js', 'https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js', array(), '');
 	wp_register_script('aos-js', 'https://unpkg.com/aos@2.3.1/dist/aos.js', array(), '', true);
+	wp_register_script('floslider_js', get_stylesheet_directory_uri() . '/js/floslider.js', array(), '', true);
 	wp_register_script('eyeliner_js', get_stylesheet_directory_uri() . '/js/eyeliner.js?v=' . time(), array( 'custom_js' ),'', true);
 	if ( is_page_template('page-eyeliner.php') ) {
 		wp_enqueue_style('eyeliner-style');
@@ -86,6 +87,7 @@ function custom_scripts ()
 		wp_enqueue_script('picturefill-js');
 		wp_enqueue_script('objfit-js');
 		wp_enqueue_script('aos-js');
+		//wp_enqueue_script('floslider_js');
 		wp_enqueue_script('eyeliner_js');
 	}
 	
@@ -1938,6 +1940,15 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
       // other methods (ie credit card)
       echo '';
     }
+    
+    //Process Tracking for Necospos Shipping
+    if($order->status == 'completed'&&$order->get_shipping_method()=='Necospos Shipping'){
+        if(get_field('tracking_url',$order->get_id())!=''){
+            echo '<p>Tracking Url:</p>';
+            echo '<p><a target="_blank" href="http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'">http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'</a></p>';
+        }
+    }
+    //end
     
     $products = $order->get_items();
     

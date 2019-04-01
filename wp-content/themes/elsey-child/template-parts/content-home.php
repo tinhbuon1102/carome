@@ -5,23 +5,49 @@
 	endwhile;
 	?>
 </div>
-<?php if ( date_i18n('YmdHi') >= "201901051200" ) { ?>
+<?php
+function get_product_by_sku( $sku ) {
+  global $wpdb;
+  $product_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1", $sku ) );
+  if ( $product_id ) return new WC_Product( $product_id );
+  return null;
+}
+?>
+<?php
+$product= get_product_by_sku('CSMEL01');
+if ( date_i18n('YmdHi') >= "201904011200" && date_i18n('YmdHi') <= "201904011600" && isset($product) && !$product->is_in_stock() ) {
+    //if(isset($product) && !$product->is_in_stock())
+        ?>
 <div class="sub_banner xs-hide">
-<a href="<?php echo home_url('/product-category/winter18-sale/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair20190105-Desktop.jpg" alt="Winter Sale" /></a>
+<a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_sold01.jpg" alt="Waterproof Eyeliner" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/product-category/winter18-sale/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair20190105-mobile.jpg" alt="Winter Sale" /></a>
+		  <a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_sold01.jpg" alt="Waterproof Eyeliner" /></a>
 	  </div>
-
-	  <?php } else { ?><!--time set end-->
+<?php } elseif ( date_i18n('YmdHi') >= "201904011600" && isset($product) && !$product->is_in_stock() ) { ?>
 <div class="sub_banner xs-hide">
-<a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Desktop.jpg" alt="Set Discount" /></a>
+<a href="#" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_sold02.jpg" alt="Waterproof Eyeliner" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/get-10-off-buy-3-jewelries'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/banner_fair180906-Mobile.jpg" alt="Set Discount" /></a>
+		  <a href="#" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_sold02.jpg" alt="Waterproof Eyeliner" /></a>
 	  </div>
-
-<?php } ?>
+<?php } elseif ( date_i18n('YmdHi') >= "201904010715" && isset($product) ) { ?>
+<div class="sub_banner xs-hide">
+<a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_onsale.jpg" alt="Waterproof Eyeliner" /></a>
+</div>
+	  <div class="sub_banner xs-show">
+		  <a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_onsale.jpg" alt="Waterproof Eyeliner" /></a>
+	  </div>
+<?php
+    }else{
+    ?>
+<div class="sub_banner xs-hide">
+<a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_onsale.jpg" alt="Waterproof Eyeliner" /></a>
+</div>
+	  <div class="sub_banner xs-show">
+		  <a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_onsale.jpg" alt="Waterproof Eyeliner" /></a>
+	  </div>
+<?php } ?><!--time set end-->
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">
 		<h3 class="heading heading--main upper">Just Arrived</h3>
@@ -43,7 +69,7 @@
         'fields'  => 'ids',
         'slug'    => array( 
             'twoset_price_jwl', 
-            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle', '2days-limited-acc-ev1811', 'uncategorized', '%e6%9c%aa%e5%88%86%e9%a1%9e' ),
+            'threeset10poff', 'finalsummersale', 'springfair2018mayacc', 'springfair2018may', 'springfair2018mayone', 'thespringsale18', 'womens', 'lifestyle', '2days-limited-acc-ev1811', 'uncategorized', '%e6%9c%aa%e5%88%86%e9%a1%9e', 'cosmetic' ),
         'taxonomy' => $taxonomy,
 		'hide_empty' => false,
     )
