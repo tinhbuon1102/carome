@@ -5,7 +5,7 @@
 			<div class="round_info_inner">
 				<div class="info_txt">
 					<span class="bycle_font">CAROME.<br/>ONLINE STORE</span><br/>
-					にて<strong>限定発売</strong><br/><strong>1名様1点のみ</strong>に<br/>発売決定
+					にて<strong>限定発売</strong><br/><strong>1名様各色1本のみ</strong><br/>発売決定
 				</div>
 			</div>
 		</div><!--/round_info-->

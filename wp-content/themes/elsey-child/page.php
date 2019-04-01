@@ -90,6 +90,8 @@ if ($elsey_page_layout_options) {
 get_header(); ?>
 <!-- Container Start -->
 <div class="els-container-wrap <?php echo esc_attr($elsey_parent_class.' '.$elsey_content_padding); ?>" style="<?php echo esc_attr($elsey_custom_padding);?>">
+	<?php 
+	if (current_time('mysql') >= "2019-04-01 12:00") { ?>
 	<?php if(is_page('contact')) { ?>
 	<div class="temp_contact">
 		<div class="temp_inner">
@@ -102,6 +104,10 @@ get_header(); ?>
 		</div>
 	</div>
 	<?php } ?>
+<?php } else { ?>
+	
+<?php } ?>
+	
 	
 	<?php if ($elsey_page_show_sidebar == false) { ?>
 	<?php if( ! ( end($request) == 'my-account' && is_account_page() ) ){ ?>

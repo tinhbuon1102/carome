@@ -217,6 +217,34 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 										<th class="c-thead__th"><?php esc_html_e( 'Cost', 'elsey' ); ?></th>
 									</tr>
 								</thead>
+								<?php 
+								$sku = $product->get_sku();
+								if ($sku == 'CSMEL01') {
+								?>
+								<tbody>
+								<?php 
+									$settings = get_option( 'woocommerce_woocommerce_flatrate_percountry_settings', null );
+									$count=(isset($settings['per_state_count']) ? intval($settings['per_state_count']) : 0);
+									
+									?>
+									<tr class="c-table__tr">
+										<td class="c-table__td"><?php echo $settings['world_rulename']?></td>
+										<td class="c-table__td">2~3営業日</td>
+										<td class="c-table__td">100円</td>
+									</tr>
+									<?php 
+									for($counter = 1; $count >= $counter; $counter++) {
+									?>
+									<!--repeat shipping method-->
+									<tr class="c-table__tr">
+										<td class="c-table__td"><?php echo $settings['per_state_'.$counter.'_txt']?></td>
+										<td class="c-table__td">2~3営業日</td>
+										<td class="c-table__td">100円</td>
+									</tr>
+									<!--/repeat shipping method-->
+									<?php }?>
+								</tbody>
+								<?php } else { ?>
 								<tbody>
 								<?php 
 									$settings = get_option( 'woocommerce_woocommerce_flatrate_percountry_settings', null );
@@ -240,6 +268,7 @@ $tabs = apply_filters( 'woocommerce_product_tabs', array() );
 									<!--/repeat shipping method-->
 									<?php }?>
 								</tbody>
+								<?php } ?><!--SKU else-->
 							</table>
 						</div>
 					</div>

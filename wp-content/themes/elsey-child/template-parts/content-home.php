@@ -14,8 +14,11 @@ function get_product_by_sku( $sku ) {
 }
 ?>
 <?php
+date_default_timezone_set('Asia/Tokyo');
+$from = "2019-04-01 11:11:00";
+$to = "2019-04-01 16:00:00";
 $product= get_product_by_sku('CSMEL01');
-if ( date_i18n('YmdHi') >= "201904011200" && date_i18n('YmdHi') <= "201904011600" && isset($product) && !$product->is_in_stock() ) {
+if (time() >= strtotime($from) && time() <= strtotime($to) && isset($product) && !$product->is_in_stock() ) {
     //if(isset($product) && !$product->is_in_stock())
         ?>
 <div class="sub_banner xs-hide">
@@ -24,14 +27,14 @@ if ( date_i18n('YmdHi') >= "201904011200" && date_i18n('YmdHi') <= "201904011600
 	  <div class="sub_banner xs-show">
 		  <a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_sold01.jpg" alt="Waterproof Eyeliner" /></a>
 	  </div>
-<?php } elseif ( date_i18n('YmdHi') >= "201904011600" && isset($product) && !$product->is_in_stock() ) { ?>
+<?php } elseif (time() >= strtotime($to) && isset($product) && !$product->is_in_stock() ) { ?>
 <div class="sub_banner xs-hide">
-<a href="#" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_sold02.jpg" alt="Waterproof Eyeliner" /></a>
+<a href="https://lp.andhabit.com/carome/lp/crm001/index.html" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_sold02.jpg" alt="Waterproof Eyeliner" /></a>
 </div>
 	  <div class="sub_banner xs-show">
-		  <a href="#" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_sold02.jpg" alt="Waterproof Eyeliner" /></a>
+		  <a href="https://lp.andhabit.com/carome/lp/crm001/index.html" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_sold02.jpg" alt="Waterproof Eyeliner" /></a>
 	  </div>
-<?php } elseif ( date_i18n('YmdHi') >= "201904010715" && isset($product) ) { ?>
+<?php } elseif (time() >= strtotime($from) && isset($product) && $product->is_in_stock() ) { ?>
 <div class="sub_banner xs-hide">
 <a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_onsale.jpg" alt="Waterproof Eyeliner" /></a>
 </div>
@@ -41,12 +44,6 @@ if ( date_i18n('YmdHi') >= "201904011200" && date_i18n('YmdHi') <= "201904011600
 <?php
     }else{
     ?>
-<div class="sub_banner xs-hide">
-<a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_onsale.jpg" alt="Waterproof Eyeliner" /></a>
-</div>
-	  <div class="sub_banner xs-show">
-		  <a href="<?php echo home_url('/water-proof-eyeliner/'); ?>"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_onsale.jpg" alt="Waterproof Eyeliner" /></a>
-	  </div>
 <?php } ?><!--time set end-->
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">

@@ -35,7 +35,7 @@ foreach ($variables as $variation)  {
 				</div>
 				<div class="grid-row eye-detail-row">
 					<div class="col-view-img">
-						<div class="fit-image"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/eyeview_black.jpg" class="obj-fit-image" /></div>
+						<div class="fit-image"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/eyeview_black_new.jpg" class="obj-fit-image" /></div>
 					</div>
 					<div class="col-price-buy">
 						<div class="grid-row price-buy-row no-pad-row">
@@ -65,7 +65,7 @@ foreach ($variables as $variation)  {
 				</div>
 				<div class="grid-row eye-detail-row">
 					<div class="col-view-img">
-						<div class="fit-image"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/eyeview_brown.jpg" class="obj-fit-image" /></div>
+						<div class="fit-image"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/eyeview_brown_new.jpg" class="obj-fit-image" /></div>
 					</div>
 					<div class="col-price-buy">
 						<div class="grid-row price-buy-row no-pad-row">
@@ -95,7 +95,7 @@ foreach ($variables as $variation)  {
 				</div>
 				<div class="grid-row eye-detail-row">
 					<div class="col-view-img">
-						<div class="fit-image"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/eyeview_burgundy.jpg" class="obj-fit-image" /></div>
+						<div class="fit-image"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/eyeliner/eyeview_burgundy_new.jpg" class="obj-fit-image" /></div>
 					</div>
 					<div class="col-price-buy">
 						<div class="grid-row price-buy-row no-pad-row">

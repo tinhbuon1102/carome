@@ -21,12 +21,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 global $post, $main_product_id;
 $main_product_id = $post->ID;
+$product = get_product($post->ID);
 $current_user = wp_get_current_user();
 ?>
 <?php if( current_user_can('administrator') ) {  ?>
 <?php
 	$sku = $product->get_sku();
-if ($sku = 'CSMEL01') {
+if ($sku == 'CSMEL01') {
 	echo '<p class="onlyone">1人各色1点ずつまで！</p>';
 }
 ?>
