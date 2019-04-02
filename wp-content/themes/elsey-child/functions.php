@@ -1814,7 +1814,6 @@ function elsey_woe_order_exported($order_id){
 	if (class_exists('WC_Order_Export_Manage'))
 	{
 		$order = new WC_Order( $order_id );
-		$order->update_status($new_status);
 		$settings = WC_Order_Export_Manage::make_new_settings( $_POST );
 		if ( $settings[ 'mark_exported_orders' ] && $order->status == 'processing') {
 			// Set new status
@@ -1942,9 +1941,9 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
     }
     
     //Process Tracking for Necospos Shipping
-    if($order->status == 'completed'&&$order->get_shipping_method()=='Necospos Shipping'){
+    if($order->status == 'completed'&&$order->get_shipping_method()=='ネコポス'){
         if(get_field('tracking_url',$order->get_id())!=''){
-            echo '<p>Tracking Url:</p>';
+            echo '<p>'.__('Tracking Url', 'elsey').':</p>';
             echo '<p><a target="_blank" href="http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'">http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'</a></p>';
         }
     }
@@ -2536,7 +2535,7 @@ add_action( 'wp_loaded', 'elsey_schedule_cancelled_not_paid' );
 function elsey_schedule_cancelled_not_paid() {
 	if (isset($_GET['cancelled_not_paid']) && $_GET['cancelled_not_paid'])
 	{
-		$held_duration = get_option( 'woocommerce_hold_stock_minutes' ); 
+		$held_duration = 5; 
 
 	    if ( $held_duration < 1 || 'yes' !== get_option( 'woocommerce_manage_stock' ) ) { 
 	        return; 
@@ -2577,11 +2576,6 @@ function elsey_schedule_cancelled_not_paid() {
 	            }
 	        } 
 	    } 
-	    wp_clear_scheduled_hook( 'woocommerce_cancel_unpaid_orders' ); 
-	    wp_schedule_single_event( time() + ( absint( $held_duration ) * 60 ), 'woocommerce_cancel_unpaid_orders' ); 
-	    
-	
-		do_action( 'woocommerce_cancel_unpaid_orders');
 		die('done');
 	}
 }

@@ -25,8 +25,9 @@ if ( $max_value && $min_value === $max_value ) {
 } else {
 	?>
 <?php
-	
-	$terms = get_the_terms( $post->ID, 'product_cat' );
+global $product;
+	$product_id = $product->get_parent_id() ? $product->get_parent_id() : $product->get_id();
+	$terms = get_the_terms( $product_id, 'product_cat' );
 	foreach ($terms as $term) {
 		if ($term->slug == 'cosmetic')
 		{
