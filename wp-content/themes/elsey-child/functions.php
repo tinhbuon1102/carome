@@ -1940,15 +1940,6 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
       echo '';
     }
     
-    //Process Tracking for Necospos Shipping
-    if($order->status == 'completed'&&$order->get_shipping_method()=='ネコポス'){
-        if(get_field('tracking_url',$order->get_id())!=''){
-            echo '<p>'.__('Tracking Url', 'elsey').':</p>';
-            echo '<p><a target="_blank" href="http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'">http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'</a></p>';
-        }
-    }
-    //end
-    
     $products = $order->get_items();
     
     $pre_order_notice = '';
@@ -1964,6 +1955,16 @@ function add_order_email_instructions( $order, $sent_to_admin ) {
     	echo '<p>お届け日が異なる商品がこの注文にあるため、それぞれの商品は別日に発送されます。</p>';
     }
   }
+  
+      
+    //Process Tracking for Necospos Shipping
+    if($order->status == 'completed'&&$order->get_shipping_method()=='ネコポス'){
+        if(get_field('tracking_url',$order->get_id())!=''){
+            echo '<p>'.__('Tracking Url', 'elsey').':</p>';
+            echo '<p><a target="_blank" href="http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'">http://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id='.get_field('tracking_url',$order->get_id()).'</a></p>';
+        }
+    }
+    //end
   
   $order_subtotal = $order->get_subtotal();
   echo '<div style="margin-top: 20px; margin-bottom: 30px;" class="gift_message">' . do_shortcode('[wc_free_gift_message amount="'. $order_subtotal .'"]') . '</div>';
