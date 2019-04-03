@@ -3039,6 +3039,19 @@ function else_add_schedule_for_admin( $input ) {
 	return $input;
 }
 
+add_filter( 'woocommerce_shortcode_products_query', 'else_woocommerce_shortcode_products_query', 10, 3 );
+function else_woocommerce_shortcode_products_query ($query_args, $attributes, $type)
+{
+	$user = wp_get_current_user();
+	$allowed_roles = array('administrator', 'shop_manager');
+	$is_admin_page = is_admin() && !defined( 'DOING_AJAX' );
+	// Check if on frontend and main query is modified
+	if( array_intersect($allowed_roles, $user->roles ) && !$is_admin_page) {
+		$query_args['post_status'] = array('publish', 'future');
+	}
+	return $query_args;
+}
+
 add_filter( 'woocommerce_ajax_get_customer_details', 'zoa_woocommerce_ajax_get_customer_details', 1000, 3 );
 function zoa_woocommerce_ajax_get_customer_details($data, $customer, $user_id)
 {
