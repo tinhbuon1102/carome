@@ -14,11 +14,12 @@ function get_product_by_sku( $sku ) {
 }
 ?>
 <div class="sub_banner xs-hide">
-<a href="https://lp.andhabit.com/carome/lp/crm001/index.html" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-Desktop_sold02.jpg" alt="Waterproof Eyeliner" /></a>
+	<?php echo do_shortcode('[metaslider id="23376"]'); ?>
 </div>
-	  <div class="sub_banner xs-show">
-		  <a href="https://lp.andhabit.com/carome/lp/crm001/index.html" target="_blank"><img src="<?php echo get_stylesheet_directory_uri() ?>/images/banner/eye/banner_eyeliner-mobile_sold2.jpg" alt="Waterproof Eyeliner" /></a>
-	  </div><!--time set end-->
+<div class="sub_banner xs-show">
+	<?php echo do_shortcode('[metaslider id="23355"]'); ?>
+</div><!--time set end-->
+
 <div class="max-width--site gutter-padding--full">
 	<section id="justarrived" class="vc_section section_home_first">
 		<h3 class="heading heading--main upper">Just Arrived</h3>

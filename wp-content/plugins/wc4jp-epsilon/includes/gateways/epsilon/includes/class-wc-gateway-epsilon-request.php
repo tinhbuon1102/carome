@@ -62,7 +62,7 @@ class WC_Gateway_Epsilon_Request {
 	 * @param WC_Order $order
 	 * @return array
 	 */
-	public function get_order_to_epsilon( $order ,$contract_code, $st_code, $testmode, $gateway_id, $conveni_code) {
+	public function get_order_to_epsilon( $order ,$contract_code, $st_code, $testmode, $gateway_id, $conveni_code = 0) {
 		if ($_SERVER['REMOTE_ADDR'] == '14.248.158.112')
 		{
 // 			$testmode='yes';
