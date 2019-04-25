@@ -100,6 +100,8 @@ class WC_Admin_Report {
 		}
 
 		$order_status = apply_filters( 'woocommerce_reports_order_statuses', $order_status );
+        
+        //echo "<br>asdf:<br>"; print_r($order_status);
 
 		$query  = array();
 		$select = array();

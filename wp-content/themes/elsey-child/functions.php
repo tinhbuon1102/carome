@@ -4524,7 +4524,7 @@ function ch_run_products_scheduled() {
 
 ////////////////////////////////// Serhii Kniaziuk Changes 20190423 ////////////////////////////////////////////////
 
-add_filter( 'woocommerce_reports_order_statuses', 'tcstope_order_status_for_reports_on_hold_remove', 10000, 1 ); // comment this if you'd like to return "On-Hold" orders
+add_filter( 'woocommerce_reports_order_statuses', 'tcstope_order_status_for_reports_on_hold_remove', 10000, 1 ); 
 
 function tcstope_order_status_for_reports_on_hold_remove($order_statuses){
     
@@ -4536,11 +4536,27 @@ function tcstope_order_status_for_reports_on_hold_remove($order_statuses){
         
         if ( is_array($order_statuses) ){
         
-            if ( in_array("on-hold", $order_statuses) ){
+            if ( in_array("on-hold", $order_statuses) || in_array("auto-cancel", $order_statuses) || in_array("test-orders", $order_statuses) || in_array("sp-onhold", $order_statuses) || in_array("refunded", $order_statuses) ){
                 
                 foreach ($order_statuses as $order_status_key => $order_status){
                     
                     if ( $order_status == "on-hold" ){
+                        unset( $order_statuses[$order_status_key] );
+                    }
+                    
+                    if ( $order_status == "auto-cancel" ){
+                        unset( $order_statuses[$order_status_key] );
+                    }
+                    
+                    if ( $order_status == "test-orders" ){
+                        unset( $order_statuses[$order_status_key] );
+                    }
+                    
+                    if ( $order_status == "sp-onhold" ){
+                        unset( $order_statuses[$order_status_key] );
+                    }
+                    
+                    if ( $order_status == "refunded" ){
                         unset( $order_statuses[$order_status_key] );
                     }
                     
@@ -4551,14 +4567,12 @@ function tcstope_order_status_for_reports_on_hold_remove($order_statuses){
         }
         
     }
-    
-    //echo "asdf2: "; print_r($order_statuses);
 
     return $order_statuses;
 }
 
 
-add_filter( 'woocommerce_reports_order_statuses', 'tcstope_order_status_for_reports_check_pre_ordered', 10000, 1 ); // comment this line if you'd like to disable a check if "Pre-Ordered" orders are included
+add_filter( 'woocommerce_reports_order_statuses', 'tcstope_order_status_for_reports_check_pre_ordered', 10000, 1 ); 
 
 function tcstope_order_status_for_reports_check_pre_ordered($order_statuses){
     
@@ -4574,11 +4588,21 @@ function tcstope_order_status_for_reports_check_pre_ordered($order_statuses){
             
             }
             
+            if ( !in_array("completed", $order_statuses) ){
+                
+                $order_statuses[] = "completed";
+            
+            }
+            
+            if ( !in_array("processing", $order_statuses) ){
+                
+                $order_statuses[] = "processing";
+            
+            }
+            
         }
         
     }
-    
-    //print_r($order_statuses);
 
     return $order_statuses;
 }
