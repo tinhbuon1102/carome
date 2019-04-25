@@ -287,7 +287,7 @@ $get_terms_to_exclude =  get_terms(
          'hide_empty'   => $empty
   );
  $all_categories = get_categories( $args );
-	$current_term = is_tax ? get_queried_object() : null;
+	$current_term = is_tax() ? get_queried_object() : null;
  foreach ($all_categories as $cat) {
     if($cat->category_parent == 0) {
         $category_id = $cat->term_id;  

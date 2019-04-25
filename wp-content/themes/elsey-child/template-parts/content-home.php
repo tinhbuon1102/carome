@@ -131,7 +131,7 @@ function get_product_by_sku( $sku ) {
 </div>
 <div class="col-lg-8 mag-media">
 <div class="magazine-article__media creditable-content">
-<img src="<?php echo get_stylesheet_directory_uri(); ?>/images/mag/mag18aw.jpg" />
+<img src="<?php echo get_stylesheet_directory_uri(); ?>/images/features/mag19ss.jpg" />
 </div>
 </div>
 </div>
@@ -144,10 +144,10 @@ function get_product_by_sku( $sku ) {
 							<?php
 							global $wpdb;
 							$filter_titles = array(
-								'ベロアフレアースリーブハイネックトップス',
-								'畦Vネックニットトップス',
-								'ハイウエストツイードショートパンツ',
-								'袖ファー付きニットガウン'
+								'花柄プリーツタイトスカート',
+								'フレアースリーブ花柄ワンピース',
+								'スリットスリーブニットトップス',
+								'花柄ティアードスカートワンピース'
 							);
 							$sql = $wpdb->prepare("
 								SELECT ID

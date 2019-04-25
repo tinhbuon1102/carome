@@ -19,12 +19,23 @@ function elsey_change_cssjs_ver( $src ) {
 }
 add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
 add_filter( 'script_loader_src', 'elsey_change_cssjs_ver', 1000 );
-
+/**
+ * Dequence plugins file
+ */
+function dp_deregister_styles() {
+  // 'contact' という投稿スラッグの固定ページでない場合
+  if ( !is_page( 'contact' ) ) {
+    // ハンドル名 'contact-form-7' のCSSの出力を無効化
+    wp_dequeue_style( 'contact-form-7' );
+  }
+}
+// アクションフック
+add_action( 'wp_print_styles', 'dp_deregister_styles', 100 );
 /**
  * Enqueues child theme stylesheet, loading first the parent theme stylesheet.
  */
 function elsey_enqueue_child_theme_styles() {
-	wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri().'?2018111100929', array(), null );
+	wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri().'', array(), null );
 	//wp_enqueue_style( 'elsey-child-style', get_stylesheet_uri(), array(), filemtime( get_stylesheet_directory() . '/style.css' ) );
 }
 add_action( 'wp_enqueue_scripts', 'elsey_enqueue_child_theme_styles', 11 );
@@ -3004,7 +3015,7 @@ function elsey_woocommerce_reports_get_order_report_data_args_add_pre_order($arg
 	return $args;
 }
 
-add_filter( 'woocommerce_reports_order_statuses', 'elsey_woocommerce_reports_order_statuses_add_pre_order', 1000, 1);
+//add_filter( 'woocommerce_reports_order_statuses', 'elsey_woocommerce_reports_order_statuses_add_pre_order', 1000, 1);
 function elsey_woocommerce_reports_order_statuses_add_pre_order($statuses)
 {
 	if($_REQUEST['page'] == 'wc-reports' && is_array($statuses) && in_array('processing', $statuses) && !in_array('pre-ordered', $statuses))
@@ -4461,3 +4472,115 @@ function elsey_woocommerce_order_status_changed_remove_specific_product($order_i
 		}
 	}
 }
+
+
+
+//For set cron job on server
+//Url to set cron job
+//domain/wp-admin/admin-ajax.php?action=ch_run_products_scheduled&key=538e0A01f737g1Ae518331D2d920Fbd1
+add_action('wp_ajax_ch_run_products_scheduled', 'ch_run_products_scheduled');
+add_action('wp_ajax_nopriv_ch_run_products_scheduled', 'ch_run_products_scheduled');
+
+function ch_run_products_scheduled() {
+    if (isset($_REQUEST['key']) && $_REQUEST['key'] == '538e0A01f737g1Ae518331D2d920Fbd1') {
+        $args = array(
+            'post_type' => 'product',
+            'post_status' => 'future',
+        );
+        $query = new WP_Query($args);
+        if ($query->have_posts()) {
+            $post_id = '';
+            date_default_timezone_set('Asia/Tokyo');
+            while ($query->have_posts()) {
+                $query->the_post();
+                $post = get_post(get_the_ID());
+                $date = date_create($post->post_date);
+                $post_date = date_format($date, "Y-m-d H:i");
+                if (time() >= strtotime($post_date)) {
+                    wp_publish_post(get_the_ID());
+                    $post_id .= get_the_ID() . ",";
+                }
+            }
+            if (!empty($post_id)) {
+                //for check log
+                mail("chien.lexuan@gmail.com", 'Published product id: ' . $post_id, 'Published product id: ' . $post_id);
+                mail("kyoko@heart-hunger.com", 'Published product id: ' . $post_id, 'Published product id: ' . $post_id);
+                //end
+                echo 'Published product id: ' . $post_id;
+            } else {
+                echo 'Not found products to publish';
+            }
+        } else {
+            echo 'Not found products to publish';
+        }
+    } else {
+        echo 'No permission';
+    }
+    exit();
+}
+
+//End
+
+
+////////////////////////////////// Serhii Kniaziuk Changes 20190423 ////////////////////////////////////////////////
+
+add_filter( 'woocommerce_reports_order_statuses', 'tcstope_order_status_for_reports_on_hold_remove', 10000, 1 ); // comment this if you'd like to return "On-Hold" orders
+
+function tcstope_order_status_for_reports_on_hold_remove($order_statuses){
+    
+    $current_screen_obj = get_current_screen();
+    
+    //echo "asdf1: "; print_r($order_statuses);
+    
+    if ( $current_screen_obj->base == 'woocommerce_page_wc-reports' || is_admin() ){
+        
+        if ( is_array($order_statuses) ){
+        
+            if ( in_array("on-hold", $order_statuses) ){
+                
+                foreach ($order_statuses as $order_status_key => $order_status){
+                    
+                    if ( $order_status == "on-hold" ){
+                        unset( $order_statuses[$order_status_key] );
+                    }
+                    
+                }
+            
+            }
+            
+        }
+        
+    }
+    
+    //echo "asdf2: "; print_r($order_statuses);
+
+    return $order_statuses;
+}
+
+
+add_filter( 'woocommerce_reports_order_statuses', 'tcstope_order_status_for_reports_check_pre_ordered', 10000, 1 ); // comment this line if you'd like to disable a check if "Pre-Ordered" orders are included
+
+function tcstope_order_status_for_reports_check_pre_ordered($order_statuses){
+    
+    $current_screen_obj = get_current_screen();
+    
+    if ( is_admin() || $current_screen_obj->base == 'woocommerce_page_wc-reports' ){
+        
+        if ( is_array($order_statuses) && !empty($order_statuses) ){
+        
+            if ( !in_array("pre-ordered", $order_statuses) ){
+                
+                $order_statuses[] = "pre-ordered";
+            
+            }
+            
+        }
+        
+    }
+    
+    //print_r($order_statuses);
+
+    return $order_statuses;
+}
+
+////////////////////////////////// END Serhii Kniaziuk Changes 20190423 ////////////////////////////////////////////////
