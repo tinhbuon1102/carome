@@ -16,6 +16,21 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Check if WooCommerce is active
  **/
+
+function flat_rate_get_final_rate ($final_rate){
+	$is_allow_free = true;
+	foreach ( WC()->cart->get_cart() as $cart_item ) {
+		if (elsey_is_specific_product($cart_item['product_id']))
+		{
+			$is_allow_free = false;
+		}
+	}
+	if ($is_allow_free)
+	{
+		$final_rate=0; //Free
+	}
+	return $final_rate;
+}
 // Get active network plugins - "Stolen" from Novalnet Payment Gateway
 function frpc_active_nw_plugins() {
 	if (!is_multisite())
@@ -977,7 +992,7 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 											//Free based on price?
 											if (isset($this->settings['per_state_'.$i.'_fr']) && ! empty($this->settings['per_state_'.$i.'_fr'])) {
 												if (intval($this->settings['per_state_'.$i.'_fr'])>0) {
-													if ($order_total>=intval($this->settings['per_state_'.$i.'_fr'])) $final_rate=0; //Free
+													if ($order_total>=intval($this->settings['per_state_'.$i.'_fr'])) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 												}
 											}
 											//Free based on shipping class?
@@ -996,14 +1011,14 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 																	$final_rate_free=false; //Not free
 																}
 															}
-															if ($final_rate_free) $final_rate=0; //Free
+															if ($final_rate_free) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 															break;
 														//case 'one':
 														default:
 															foreach ($this->find_shipping_classes($package) as $shipping_class => $items) {
 																if (trim($shipping_class)!='') {
 																	if (in_array($shipping_class, $this->settings['per_country_'.$i.'_fr_class'])) {
-																		$final_rate=0; //Free
+																		$final_rate=flat_rate_get_final_rate($final_rate); //Free
 																		break;
 																	}
 																}
@@ -1046,7 +1061,7 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 										//Free based on price?
 										if (isset($this->settings['per_country_'.$i.'_fr']) && ! empty($this->settings['per_country_'.$i.'_fr'])) {
 											if (intval($this->settings['per_country_'.$i.'_fr'])>0) {
-												if ($order_total>=intval($this->settings['per_country_'.$i.'_fr'])) $final_rate=0; //Free
+												if ($order_total>=intval($this->settings['per_country_'.$i.'_fr'])) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 											}
 										}
 										//Free based on shipping class?
@@ -1065,14 +1080,14 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 																$final_rate_free=false; //Not free
 															}
 														}
-														if ($final_rate_free) $final_rate=0; //Free
+														if ($final_rate_free) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 														break;
 													//case 'one':
 													default:
 														foreach ($this->find_shipping_classes($package) as $shipping_class => $items) {
 															if (trim($shipping_class)!='') {
 																if (in_array($shipping_class, $this->settings['per_country_'.$i.'_fr_class'])) {
-																	$final_rate=0; //Free
+																	$final_rate=flat_rate_get_final_rate($final_rate); //Free
 																	break;
 																}
 															}
@@ -1115,7 +1130,7 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 											//Free based on price?
 											if (isset($this->settings['per_region_'.$i.'_fr']) && ! empty($this->settings['per_region_'.$i.'_fr'])) {
 												if (intval($this->settings['per_region_'.$i.'_fr'])>0) {
-													if ($order_total>=intval($this->settings['per_region_'.$i.'_fr'])) $final_rate=0; //Free
+													if ($order_total>=intval($this->settings['per_region_'.$i.'_fr'])) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 												}
 											}
 											//Free based on shipping class?
@@ -1134,14 +1149,14 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 																	$final_rate_free=false; //Not free
 																}
 															}
-															if ($final_rate_free) $final_rate=0; //Free
+															if ($final_rate_free) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 															break;
 														//case 'one':
 														default:
 															foreach ($this->find_shipping_classes($package) as $shipping_class => $items) {
 																if (trim($shipping_class)!='') {
 																	if (in_array($shipping_class, $this->settings['per_region_'.$i.'_fr_class'])) {
-																		$final_rate=0; //Free
+																		$final_rate=flat_rate_get_final_rate($final_rate); //Free
 																		break;
 																	}
 																}
@@ -1182,20 +1197,7 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 							//Free based on price?
 							if (isset($this->settings['world_free_above']) && ! empty($this->settings['world_free_above'])) {
 								if (intval($this->settings['world_free_above'])>0) {
-									if ($order_total>=intval($this->settings['world_free_above'])) 
-									{
-										$is_allow_free = true;
-										foreach ( WC()->cart->get_cart() as $cart_item ) {
-											if (elsey_is_specific_product($cart_item['product_id']))
-											{
-												$is_allow_free = false;
-											}
-										}
-										if ($is_allow_free)
-										{
-											$final_rate=0; //Free
-										}
-									}
+									if ($order_total>=intval($this->settings['world_free_above'])) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 								}
 							}
 							//Free based on shipping class?
@@ -1214,14 +1216,14 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 													$final_rate_free=false; //Not free
 												}
 											}
-											if ($final_rate_free) $final_rate=0; //Free
+											if ($final_rate_free) $final_rate=flat_rate_get_final_rate($final_rate); //Free
 											break;
 										//case 'one':
 										default:
 											foreach ($this->find_shipping_classes($package) as $shipping_class => $items) {
 												if (trim($shipping_class)!='') {
 													if (in_array($shipping_class, $this->settings['world_free_class'])) {
-														$final_rate=0; //Free
+														$final_rate=flat_rate_get_final_rate($final_rate); //Free
 														break;
 													}
 												}
