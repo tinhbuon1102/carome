@@ -76,7 +76,7 @@ function show_necospos_in_cart_base_on_specific_product($available_shipping_meth
 		}
 	}
 	
-	if ($has_specific_product)
+	if ($has_specific_product && !elsey_is_no_free_shipping_product($cart_item['product_id']))
 	{
 		$specific_method = array();
 		$specific_method['necospos_method'] = $available_shipping_methods['necospos_method'];

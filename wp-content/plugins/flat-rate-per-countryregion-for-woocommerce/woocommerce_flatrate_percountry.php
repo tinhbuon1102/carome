@@ -1182,7 +1182,20 @@ if (in_array('woocommerce/woocommerce.php', (array) get_option('active_plugins')
 							//Free based on price?
 							if (isset($this->settings['world_free_above']) && ! empty($this->settings['world_free_above'])) {
 								if (intval($this->settings['world_free_above'])>0) {
-									if ($order_total>=intval($this->settings['world_free_above'])) $final_rate=0; //Free
+									if ($order_total>=intval($this->settings['world_free_above'])) 
+									{
+										$is_allow_free = true;
+										foreach ( WC()->cart->get_cart() as $cart_item ) {
+											if (elsey_is_specific_product($cart_item['product_id']))
+											{
+												$is_allow_free = false;
+											}
+										}
+										if ($is_allow_free)
+										{
+											$final_rate=0; //Free
+										}
+									}
 								}
 							}
 							//Free based on shipping class?

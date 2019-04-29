@@ -768,6 +768,18 @@ function woocommerce_product_custom_fields()
 		)
 	);
 	echo '</div>';
+	
+	echo '<div class="product_custom_field">';
+	// Custom Product Text Field
+	woocommerce_wp_checkbox(
+		array(
+		'id' => '_is_no_free_shipping_item',
+		'label' => __('Use default shipping method?', 'elsey'),
+		'description' => __('Use default shipping method and no free shipping', 'elsey'),
+		'desc_tip' => 'true'
+		)
+	);
+	echo '</div>';
 	/*
 
 	echo '<div class="product_custom_field">';
@@ -803,6 +815,15 @@ function woocommerce_product_custom_fields_save($post_id)
 	else
 	{
 		update_post_meta($post_id, '_is_specific_cart_item', '');
+	}
+	
+	if ( isset($_POST['_is_no_free_shipping_item']) )
+	{
+		update_post_meta($post_id, '_is_no_free_shipping_item', esc_attr($_POST['_is_no_free_shipping_item']));
+	}
+	else
+	{
+		update_post_meta($post_id, '_is_no_free_shipping_item', '');
 	}
 		/*
 
@@ -4324,6 +4345,13 @@ function elsey_is_specific_product($product_id)
 	$is_specific_product = get_post_meta( $product_id, '_is_specific_cart_item', true );
 	return 'yes' === $is_specific_product ? true : false;
 }
+
+function elsey_is_no_free_shipping_product($product_id)
+{
+	$_is_no_free_shipping_item = get_post_meta( $product_id, '_is_no_free_shipping_item', true );
+	return 'yes' === $_is_no_free_shipping_item ? true : false;
+}
+
 add_filter('woocommerce_add_to_cart_validation', 'elsey_validate_specific_product_in_cart', 1, 5);
 function elsey_validate_specific_product_in_cart ( $valid, $product_id, $quantity = 0, $variation_id = 0, $variations = null )
 {
