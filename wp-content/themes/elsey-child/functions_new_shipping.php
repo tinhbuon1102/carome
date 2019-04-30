@@ -69,14 +69,21 @@ function register_necospos_method( $methods ) {
 add_filter('woocommerce_package_rates',     'show_necospos_in_cart_base_on_specific_product', 10, 2);
 function show_necospos_in_cart_base_on_specific_product($available_shipping_methods, $package){
 	$has_specific_product = false;
+	$allow_free_shipping_product = true;
+	
 	foreach ( WC()->cart->get_cart() as $cart_item ) {
 		if (elsey_is_specific_product($cart_item['product_id']))
 		{
 			$has_specific_product = true;
 		}
+		
+		if (elsey_is_no_free_shipping_product($cart_item['product_id']))
+		{
+			$allow_free_shipping_product = false;
+		}
 	}
 	
-	if ($has_specific_product && !elsey_is_no_free_shipping_product($cart_item['product_id']))
+	if ($has_specific_product && $allow_free_shipping_product)
 	{
 		$specific_method = array();
 		$specific_method['necospos_method'] = $available_shipping_methods['necospos_method'];
