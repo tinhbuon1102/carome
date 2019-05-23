@@ -7,9 +7,6 @@ define('CONTACT_EMAIL_ADMIN_WITH_FILE', 'return@carome.net');
 if (strpos($_SERVER['SERVER_NAME'], 'carome.net') !== false){
 	define('BOOKING_FORM_ID', 19672);
 }
-else{
-	define('BOOKING_FORM_ID', 19579);
-}
 
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
