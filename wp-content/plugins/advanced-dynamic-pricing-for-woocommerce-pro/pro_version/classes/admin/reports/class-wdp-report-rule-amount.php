@@ -1,0 +1,94 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
+class WDP_Admin_Report_Rule_Amount implements WDP_Report {
+	public function get_title() {
+		return __( 'Rule amount data without cart adjustments', 'advanced-dynamic-pricing-for-woocommerce' );
+	}
+
+	public function get_subtitle() {
+		return __( 'TOP 5', 'advanced-dynamic-pricing-for-woocommerce' );
+	}
+
+	public function get_type() {
+		return 'line';
+	}
+
+	public function get_data( $params ) {
+		$params = $this->prepare_params( $params );
+
+		$rule_amount_stats = $this->load_raw_data( $params );
+
+		$rules   = array_unique( array_column( $rule_amount_stats, 'title' ) );
+		$columns = array_merge( array( __( 'Date', 'advanced-dynamic-pricing-for-woocommerce' ) ), $rules );
+
+		$rows  = array();
+		$dates = $this->get_dates( $params['from'], $params['to'] );
+		foreach ( $dates as $date ) {
+			$rows[ $date ]    = array_fill( 0, count( $columns ), 0.0 );
+			$rows[ $date ][0] = $date;
+
+		}
+		foreach ( $rule_amount_stats as $rule_amount_item ) {
+			$date = date( 'Y-m-d', strtotime( $rule_amount_item->date_rep ) );
+			if ( ! isset( $rows[ $date ] ) ) {
+				continue;
+			}
+
+			$column_key = array_search( $rule_amount_item->title, $columns );
+			if ( false === $column_key ) {
+				continue;
+			}
+
+			$rows[ $date ][ $column_key ] = (float) $rule_amount_item->value;
+		}
+
+		$ret = $this->prepare_data( $columns, $rows );
+
+		return $ret;
+	}
+
+	protected function prepare_data( $columns, $rows ) {
+		$ret = array(
+			'title'    => $this->get_title(),
+			'subtitle' => $this->get_subtitle(),
+			'type'     => $this->get_type(),
+			'columns'  => $columns,
+			'rows'     => $rows,
+		);
+
+		return $ret;
+	}
+
+	protected function load_raw_data( $params ) {
+		$rule_amount_stats = WDP_Statistics_Db_Helper::get_rules_rows_summary( $params );
+		if ( empty( $rule_amount_stats ) ) {
+			$rule_amount_stats = array();
+		}
+
+		return $rule_amount_stats;
+	}
+
+	protected function prepare_params( $params ) {
+		return array(
+			'from'                  => $params['from'],
+			'to'                    => $params['to'],
+			'limit'                 => 5,
+			'include_amount'        => true,
+			'include_gifted_amount' => true,
+		);
+	}
+
+	protected function get_dates( $from, $to ) {
+		$ret = array();
+
+		$to = strtotime( $to );
+		for ( $current = strtotime( $from ); $current <= $to; $current += 60 * 60 * 24 ) {
+			$ret[] = date( 'Y-m-d', $current );
+		}
+
+		return $ret;
+	}
+}

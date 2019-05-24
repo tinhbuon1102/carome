@@ -1,0 +1,11 @@
+.license_paragraph {
+    margin : 15px 0 15px 0;
+}
+
+#license_help_text {
+    background-color: white;
+    border: 1px #b2b2b2 solid;
+    border-radius: 5px;
+    padding:10px;
+    margin: 15px 0 15px 0;
+}

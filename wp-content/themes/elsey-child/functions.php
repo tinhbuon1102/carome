@@ -4001,71 +4001,60 @@ function get_current_user_role() {
 	}
 	
 }
+
 //woocommerce all discount plugin
 add_action('woocommerce_before_notices', 'my_custom_message');
 function my_custom_message() {
-  //plugin.phpを読み込む
-include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-if(is_plugin_active( 'woocommerce-all-discounts/wad.php' )){
- //プラグインが有効の場合
-	//if( function_exists('get_discount_rules_callback') ) {
-		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return;
-		//to display notice only on cart page
-		if ( ! is_cart() && !is_checkout()) {
-			return;
-		}
-		global $woocommerce;
-	    global $wad_discounts;
-		$items = $woocommerce->cart->get_cart();
-	    
-	
-		if ( $wad_discounts && ! empty($wad_discounts["product"]) ) {
-			$count_twoset_price_jwl_cart = 0;
-			foreach($items as $item => $values) {
-				$_product =  wc_get_product( $values['data']->get_id());
-				if (has_term( 'twoset_price_jwl', 'product_cat', $values['product_id'] ) )
-				{
-					$count_twoset_price_jwl_cart += $values['quantity'];
-				}
-			}
-			//get current user role
-	    $current_user = wp_get_current_user();
-	    $roles = $current_user->roles;
+    include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+    if (is_plugin_active('advanced-dynamic-pricing-for-woocommerce-pro/advanced-dynamic-pricing-for-woocommerce-pro.php')) {
+        //プラグインが有効の場合
+        if (is_admin() && !defined('DOING_AJAX'))
+            return;
+        //to display notice only on cart page
+        if (!is_cart() && !is_checkout()) {
+            return;
+        }
+        global $woocommerce;
+        $items = $woocommerce->cart->get_cart();
+        $customer_discount_rule = '';
+        $rules = WDP_Database::get_rules();
+        if (!empty($rules)) {
+            foreach ($rules as $key => $value) {
+                if ($value['title'] == '2 sets jewelry discount' && $value['enabled'] == 'on') {
+                    $customer_discount_rule = $value['title'];
+                    break;
+                }
+            }
+
+            if ($customer_discount_rule != '') {
+                $count_twoset_price_jwl_cart = 0;
+                foreach ($items as $item => $values) {
+                    if (has_term('twoset_price_jwl', 'product_cat', $values['product_id'])) {
+                        $count_twoset_price_jwl_cart += $values['quantity'];
+                    }
+                }
+                //get current user role
+                $current_user = wp_get_current_user();
+                $roles = $current_user->roles;
 //check current role slug
-	if( is_user_logged_in() ) {
-		$role = array_shift($roles);
-	} else {
-		$role = 'not-logged-in';
-	}
-	//check discount rule user role
-	$customer_discount_rule = '';
-	$first_condition = array_shift($wad_discounts['product']);
-	if (isset($first_condition->settings['rules'][0]))
-	{
-		foreach( $first_condition->settings['rules'][0] as $rule)
-		{
-			if ($rule['condition'] == 'customer-role')
-			{
-				$customer_discount_rule = $rule['value'][0];
-			}
-		}
-	}
-			if($role == $customer_discount_rule && $first_condition->title == '2点セット価格') {
-				if($count_twoset_price_jwl_cart == 1 ){
-				wc_clear_notices();
-				wc_add_notice( __("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
-			}elseif($count_twoset_price_jwl_cart == 3 ){
-				wc_add_notice( __("2点セットプライス対象アクセサリーのセット価格は2点、4点、6点のご注文のみに適用されます"), 'notice');
-			}elseif($count_twoset_price_jwl_cart == 5 ){
-				wc_add_notice( __("2点セットプライス対象アクセサリーのセット価格は2点、4点、6点のご注文のみに適用されます"), 'notice');
-			}elseif($count_twoset_price_jwl_cart > 6 ) {
-				wc_add_notice( __("2点セットプライス対象アクセサリーのセット価格は6点までのみのご注文に適用されます"), 'notice');
-			}
-			//}//function_exists('get_discount_rules_callback')
-			}
-			
-		}
-}
+                if (is_user_logged_in()) {
+                    $role = array_shift($roles);
+                } else {
+                    $role = 'not-logged-in';
+                }
+                if ($count_twoset_price_jwl_cart == 1) {
+                    wc_clear_notices();
+                    wc_add_notice(__("2点セットプライス対象アクセサリーをもう1点ご購入で5,000円のセットプライスになります"), 'notice');
+                } elseif ($count_twoset_price_jwl_cart == 3) {
+                    wc_add_notice(__("2点セットプライス対象アクセサリーのセット価格は2点、4点、6点のご注文のみに適用されます"), 'notice');
+                } elseif ($count_twoset_price_jwl_cart == 5) {
+                    wc_add_notice(__("2点セットプライス対象アクセサリーのセット価格は2点、4点、6点のご注文のみに適用されます"), 'notice');
+                } elseif ($count_twoset_price_jwl_cart == 7) {
+                    wc_add_notice(__("2点セットプライス対象アクセサリーのセット価格は6点までのみのご注文に適用されます"), 'notice');
+                }
+            }
+        }
+    }
 }
 
 function showDiscountLabel($product)
