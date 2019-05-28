@@ -1318,6 +1318,13 @@ function elsey_woe_fetch_order_row ($row, $order_id)
 			$row[$key] = $states[$field] ? $states[$field] : $row[$key];
 		}
 	}
+	
+	if (isset($row['USER_billing_birth_year']) && $row['USER_billing_birth_year'])
+	{
+		$current_year = current_time('Y');
+		$row['USER_billing_birth_year'] = $current_year - $row['USER_billing_birth_year'];
+	}
+	
 	return $row;
 }
 

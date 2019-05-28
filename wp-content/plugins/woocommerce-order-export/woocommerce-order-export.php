@@ -5,7 +5,7 @@
  * Description: Export orders from WooCommerce with ease (Excel/CSV/XML/JSON supported)
  * Author: AlgolPlus
  * Author URI: https://algolplus.com/
- * Version: 1.5.2
+ * Version: 1111111.5.2
  * Text Domain: woocommerce-order-export
  * Domain Path: /i18n/languages/
  * WC requires at least: 2.6.0
