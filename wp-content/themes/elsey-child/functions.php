@@ -4030,7 +4030,10 @@ function my_custom_message() {
                 $count_twoset_price_jwl_cart = 0;
                 foreach ($items as $item => $values) {
                     if (has_term('twoset_price_jwl', 'product_cat', $values['product_id'])) {
-                        $count_twoset_price_jwl_cart += $values['quantity'];
+                        $res=WDP_Frontend::get_active_rules_for_product($values['product_id']);
+                        if(!empty($res)){
+                            $count_twoset_price_jwl_cart += $values['quantity'];
+                        }
                     }
                 }
                 //get current user role
@@ -4153,7 +4156,7 @@ function ch_custom_price_message($price, $product = null) {
 	
 	$product_cat_id = $product_cat->term_id;
     $product_cats_ids = wc_get_product_term_ids($product->get_id(), 'product_cat');
-	date_default_timezone_set('Asia/Tokyo');
+	//date_default_timezone_set('Asia/Tokyo');
     $from = "2019-01-08 12:00:00";
     $to = "2019-01-14 23:59:00";
     
@@ -4504,7 +4507,7 @@ function ch_run_products_scheduled() {
         $query = new WP_Query($args);
         if ($query->have_posts()) {
             $post_id = '';
-            date_default_timezone_set('Asia/Tokyo');
+			//date_default_timezone_set('Asia/Tokyo');
             while ($query->have_posts()) {
                 $query->the_post();
                 $post = get_post(get_the_ID());

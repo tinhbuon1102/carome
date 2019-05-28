@@ -1042,6 +1042,9 @@ class WDP_Frontend {
 					$old_price,
 					$new_price
 				);
+                                if ( wc_tax_enabled() && 'incl' === WC()->cart->tax_display_cart ) {
+                                     $price_html.='<small class="tax_label">'.__( '(Incl. tax)', 'elsey' ).'</small>';
+                                }
 			} else {
 				$price_html = $new_price_html;
 			}
