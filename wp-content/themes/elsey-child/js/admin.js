@@ -52,7 +52,7 @@ jQuery(function($){
 		        dataType : "json",
 		        scriptCharset: 'utf-8'
 		    }).done(function(data){
-		    	if (!offset) $('#load_member_age_content').html('');
+		    	if (!offset) $('.load_member_age_content').html('');
 		    	
 		    	if (data.end) {
 		    		var current_btn = $('.load_member_age_btn.clicked');
@@ -77,7 +77,7 @@ jQuery(function($){
 			$('.load_member_age_btn').removeClass('clicked');
 			$(this).addClass('clicked');
 			var clicked_year = $(this).attr('attr-date');
-			current_load_age_btn = $(this).index();
+			current_load_age_btn = $(this).attr('attr-index');
 			$('#user_age_report_dashboard_widget').LoadingOverlay('show');
 			load_member_age_by_order(0, 0, clicked_year)
 		});
