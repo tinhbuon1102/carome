@@ -2098,7 +2098,7 @@ function elsey_wp_ajax_load_member_age_by_order()
 							SELECT mt.meta_value FROM wp_postmeta mt INNER JOIN  wp_postmeta mt1 ON mt.post_id = mt1.post_id
 							WHERE mt.meta_key = '_customer_user'
 								AND mt.meta_value > 0 
-								AND mt1.meta_key ='_date_paid'
+								AND mt1.meta_key ='_paid_date'
 								AND mt1.meta_value IS NOT NULL AND mt1.meta_value <> ''
 								AND YEAR(mt1.meta_value) = '$selected_year'
 
