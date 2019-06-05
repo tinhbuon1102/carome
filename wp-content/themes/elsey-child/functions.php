@@ -2082,6 +2082,8 @@ function elsey_wp_ajax_load_member_age_by_order()
 {
 	global $wpdb;
 	$offset = isset($_POST['offset']) ? $_POST['offset'] : 0;
+	$selected_year = $_POST['year'];
+	$selected_year = 2019;
 	$limit = 3000;
 	$final = isset($_POST['final']) ? $_POST['final'] : 0;
 	$response = array();
@@ -2093,9 +2095,14 @@ function elsey_wp_ajax_load_member_age_by_order()
 	
 	$sub_query = " AND user_id IN (
 						SELECT * FROM (
-							SELECT meta_value FROM wp_postmeta
-							WHERE meta_key = '_customer_user'
-								AND meta_value > 0 GROUP BY meta_value
+							SELECT mt.meta_value FROM wp_postmeta mt INNER JOIN  wp_postmeta mt1 ON mt.post_id = mt1.post_id
+							WHERE mt.meta_key = '_customer_user'
+								AND mt.meta_value > 0 
+								AND mt1.meta_key ='_date_paid'
+								AND mt1.meta_value IS NOT NULL AND mt1.meta_value <> ''
+								AND YEAR(mt1.meta_value) = '$selected_year'
+
+								GROUP BY mt.meta_value
 						) as t
 					)";
 	if (!$final)
