@@ -4237,7 +4237,7 @@ function ch_custom_price_message($price, $product = null) {
     $from = "2019-01-08 12:00:00";
     $to = "2019-01-14 23:59:00";
     
-    if (in_array($product_cat_id, $product_cats_ids) && (time() >= strtotime($from) && time() <= strtotime($to))) {
+    if (in_array($product_cat_id, $product_cats_ids) && (current_time('timestamp') >= strtotime($from) && current_time('timestamp') <= strtotime($to))) {
     	return $price . '<span class="discount_title">2点セット価格</span>';
     } else {
         return $price;
@@ -4584,28 +4584,27 @@ function ch_run_products_scheduled() {
         $query = new WP_Query($args);
         if ($query->have_posts()) {
             $post_id = '';
-			//date_default_timezone_set('Asia/Tokyo');
             while ($query->have_posts()) {
                 $query->the_post();
                 $post = get_post(get_the_ID());
                 $date = date_create($post->post_date);
                 $post_date = date_format($date, "Y-m-d H:i");
-                if (time() >= strtotime($post_date)) {
+                if (current_time('timestamp') >= strtotime($post_date)) {
                     wp_publish_post(get_the_ID());
                     $post_id .= get_the_ID() . ",";
                 }
             }
             if (!empty($post_id)) {
                 //for check log
-                mail("chien.lexuan@gmail.com", 'Published product id: ' . $post_id, 'Published product id: ' . $post_id);
-                mail("kyoko@heart-hunger.com", 'Published product id: ' . $post_id, 'Published product id: ' . $post_id);
+                wp_mail("chien.lexuan@gmail.com", get_home_url().' .Published product id: ' . $post_id, 'Published product id: ' . $post_id);
+                wp_mail("kyoko@heart-hunger.com", get_home_url().' .Published product id: ' . $post_id, 'Published product id: ' . $post_id);
                 //end
-                echo 'Published product id: ' . $post_id;
+                echo get_home_url().' .Not found products to publish';
             } else {
-                echo 'Not found products to publish';
+                echo get_home_url().' .Not found products to publish';
             }
         } else {
-            echo 'Not found products to publish';
+            echo get_home_url().' .Not found products to publish';
         }
     } else {
         echo 'No permission';
