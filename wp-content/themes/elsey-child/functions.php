@@ -2189,7 +2189,7 @@ function elsey_user_age_report_dashboard_widget_function() {
 	{
 		echo '<br/><div id="member_age_date">'. sprintf(__('The age list calculated at %1$s', 'elsey'), $dashboard_age_member_date) .'</div>';
 	}
-	echo '<br/><div id="load_member_age_btn">'. __('Click here to re-calculate members age', 'elsey') .'</div>';
+	echo '<br/><div id="load_member_age_btn">'. __('Click here to re-calculate', 'elsey') .'</div>';
 	echo '<div style="display:none" attr-index="0" class="load_member_age_btn" attr-trigger="#load_member_age_content_last_year" attr-date="'. $last_year .'">'. __('Click to re-calculate Last Year members age', 'elsey') .'</div>';
 	echo '<div style="display:none" attr-index="1" class="load_member_age_btn" attr-trigger="#load_member_age_content_current_year" attr-date="'. $current_year .'">'. __('Click to re-calculate Current Year members age', 'elsey') .'</div>';
 	return '';
