@@ -37,6 +37,7 @@ jQuery(function($){
 	
 	if ($('#load_member_age_btn').length)
 	{
+		var current_load_age_btn = '';
 		function load_member_age_by_order(offset, final)
 		{
 			var protocol = location.protocol;
@@ -54,9 +55,15 @@ jQuery(function($){
 		    	if (!offset) $('#load_member_age_content').html('');
 		    	
 		    	if (data.end) {
-		    		$('#load_member_age_content').append(data.content)
+		    		var current_btn = $('.load_member_age_btn.clicked');
+		    		$(current_btn.attr('attr-trigger')).append(data.content)
 		    		$('#member_age_date').html(data.date)
 		    		$('#user_age_report_dashboard_widget').LoadingOverlay('hide');
+		    		
+		    		if ($('.load_member_age_btn:eq('+ (current_load_age_btn + 1) +')').length)
+		    		{
+		    			$('.load_member_age_btn:eq('+ (current_load_age_btn + 1) +')').trigger('click');
+		    		}
 		    	}
 		    	else if (data.final) {
 		    		load_member_age_by_order(data.offset, data.final)
@@ -66,9 +73,17 @@ jQuery(function($){
 		    	}
 		    });
 		}
-		$('body').on('click', '#load_member_age_btn', function(){
+		$('body').on('click', '.load_member_age_btn', function(){
+			$('.load_member_age_btn').removeClass('clicked');
+			$(this).addClass('clicked');
+			
+			current_load_age_btn = $(this).index();
 			$('#user_age_report_dashboard_widget').LoadingOverlay('show');
 			load_member_age_by_order(0)
+		});
+		
+		$('body').on('click', '#load_member_age_btn', function(){
+			$('.load_member_age_btn:eq(0)').trigger('click');
 		});
 	}
 });

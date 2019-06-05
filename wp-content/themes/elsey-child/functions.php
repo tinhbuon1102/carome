@@ -11,7 +11,7 @@ if (strpos($_SERVER['SERVER_NAME'], 'carome.net') !== false){
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
-		$src = add_query_arg( array('ver' => '2.003'), $src );
+		$src = add_query_arg( array('ver' => '2.005'), $src );
 		return $src;
 }
 add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
@@ -2169,7 +2169,7 @@ function elsey_wp_ajax_load_member_age_by_order()
 		}
 		$response['counting'] = array('allCount' => $allCount, 'rangeCount' => $allRangeCount);
 		$response['date'] = sprintf(__('The age list calculated at %1$s', 'elsey'), current_time('mysql'));
-		update_option('dashboard_age_member_html', $response['content']);
+		update_option('dashboard_age_member_html_' . $selected_year, $response['content']);
 		update_option('dashboard_age_member_date', current_time('mysql'));
 		$response['end'] = 1;
 	}
@@ -2177,15 +2177,22 @@ function elsey_wp_ajax_load_member_age_by_order()
 	print_r(json_encode($response));die;
 }
 function elsey_user_age_report_dashboard_widget_function() {
-	$dashboard_age_member_html = get_option('dashboard_age_member_html');
+	$current_year = current_time('Y');
+	$last_year = $current_year - 1;
+	
+	$dashboard_age_member_html_current_year = get_option('dashboard_age_member_html_' . $current_year);
+	$dashboard_age_member_html_last_year = get_option('dashboard_age_member_html_' . $last_year);
 	$dashboard_age_member_date = get_option('dashboard_age_member_date');
 	
-	echo '<div id="load_member_age_content">'. $dashboard_age_member_html .'</div>';
+	echo '<div id="load_member_age_content_current_year">'. $dashboard_age_member_html_current_year .'</div>';
+	echo '<div id="load_member_age_content_last_year">'. $dashboard_age_member_html_last_year .'</div>';
 	if ($dashboard_age_member_date)
 	{
 		echo '<br/><div id="member_age_date">'. sprintf(__('The age list calculated at %1$s', 'elsey'), $dashboard_age_member_date) .'</div>';
 	}
 	echo '<br/><div id="load_member_age_btn">'. __('Click here to re-calculate members age', 'elsey') .'</div>';
+	echo '<div style="display:none" class="load_member_age_btn" attr-trigger="#load_member_age_content_last_year" attr-date="'. $last_year .'">'. __('Click to re-calculate Last Year members age', 'elsey') .'</div>';
+	echo '<div style="display:none" class="load_member_age_btn" attr-trigger="#load_member_age_content_current_year" attr-date="'. $current_year .'">'. __('Click to re-calculate Current Year members age', 'elsey') .'</div>';
 	return '';
 }
 /**
