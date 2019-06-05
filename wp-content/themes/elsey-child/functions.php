@@ -2091,16 +2091,15 @@ function elsey_wp_ajax_load_member_age_by_order()
 		$_SESSION['aRangesCount'] = array();
 	}
 	
-	if (!$final)
-	{
-		$sub_query = " AND user_id IN (
+	$sub_query = " AND user_id IN (
 						SELECT * FROM (
 							SELECT meta_value FROM wp_postmeta
 							WHERE meta_key = '_customer_user'
 								AND meta_value > 0 GROUP BY meta_value
 						) as t
 					)";
-		
+	if (!$final)
+	{
 		$sqlAllAge = "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = 'birth_year'" . $sub_query . " LIMIT $offset, $limit ";
 		$results = $wpdb->get_results($sqlAllAge);
 		$allCount = $results ? count($results): 0;
