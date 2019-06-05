@@ -38,7 +38,7 @@ jQuery(function($){
 	if ($('#load_member_age_btn').length)
 	{
 		var current_load_age_btn = '';
-		function load_member_age_by_order(offset, final)
+		function load_member_age_by_order(offset, final, clicked_year)
 		{
 			var protocol = location.protocol;
 			var slashes = protocol.concat("//");
@@ -47,7 +47,7 @@ jQuery(function($){
 			$.ajax({
 		        type: "post",
 		        url: gl_siteUrl,
-		        data: {action: 'load_member_age_by_order', offset: offset, final: final},
+		        data: {action: 'load_member_age_by_order', offset: offset, final: final, year: clicked_year},
 		        crossDomain: false,
 		        dataType : "json",
 		        scriptCharset: 'utf-8'
@@ -76,10 +76,10 @@ jQuery(function($){
 		$('body').on('click', '.load_member_age_btn', function(){
 			$('.load_member_age_btn').removeClass('clicked');
 			$(this).addClass('clicked');
-			
+			var clicked_year = $(this).attr('attr-date');
 			current_load_age_btn = $(this).index();
 			$('#user_age_report_dashboard_widget').LoadingOverlay('show');
-			load_member_age_by_order(0)
+			load_member_age_by_order(0, 0, clicked_year)
 		});
 		
 		$('body').on('click', '#load_member_age_btn', function(){
