@@ -2152,7 +2152,7 @@ function elsey_wp_ajax_load_member_age_by_order()
 		{
 			if (!$rangeCount) continue;
 			
-			$percent = round(($rangeCount / $allRangeCount) * 100);
+			$percent = round(($rangeCount / $allRangeCount) * 100, 2);
 			$response['content'] .= 
 			'<div class="age-record">
 			<span class="range">
