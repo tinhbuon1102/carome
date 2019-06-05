@@ -11,7 +11,7 @@ if (strpos($_SERVER['SERVER_NAME'], 'carome.net') !== false){
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
-		$src = add_query_arg( array('ver' => '2.001'), $src );
+		$src = add_query_arg( array('ver' => '2.002'), $src );
 		return $src;
 }
 add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
@@ -2155,6 +2155,7 @@ function elsey_wp_ajax_load_member_age_by_order()
 			</div>';
 			
 		}
+		$response['date'] = sprintf(__('The age list calculated at %1$s', 'elsey'), current_time('mysql'));
 		update_option('dashboard_age_member_html', $response['content']);
 		update_option('dashboard_age_member_date', current_time('mysql'));
 		$response['end'] = 1;
