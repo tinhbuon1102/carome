@@ -11,7 +11,7 @@ if (strpos($_SERVER['SERVER_NAME'], 'carome.net') !== false){
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
 		$src = remove_query_arg( 'ver', $src );
-		$src = add_query_arg( array('ver' => '2.1'), $src );
+		$src = add_query_arg( array('ver' => '2.001'), $src );
 		return $src;
 }
 add_filter( 'style_loader_src', 'elsey_change_cssjs_ver', 1000 );
@@ -2076,39 +2076,103 @@ function product_report_dashboard_widget() {
 }
 add_action( 'wp_dashboard_setup', 'product_report_dashboard_widget' );
 
-function elsey_user_age_report_dashboard_widget_function() {
+add_action( 'wp_ajax_load_member_age_by_order', 'elsey_wp_ajax_load_member_age_by_order', 1, 2 );
+add_action( 'wp_ajax_nopriv_load_member_age_by_order', 'elsey_wp_ajax_load_member_age_by_order', 1, 2 );
+function elsey_wp_ajax_load_member_age_by_order()
+{
 	global $wpdb;
-	$ageRanges = array('1-13', '14-19', '20-24', '25-29', '30-34', '35-39', '40-50', '51-60', '61-70', '71-100');
-	$aRangesCount = array();
-	foreach ($ageRanges as $range)
-	{
-		$ageRange = explode('-', $range);
-		$sql = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} 
-			WHERE 
-				meta_key = 'birth_year' 
-				AND meta_value <= YEAR(CURDATE()) - {$ageRange[0]} 
-				AND meta_value >= YEAR(CURDATE()) - {$ageRange[1]}
-				";
-		$result = $wpdb->get_row($sql);
-		$aRangesCount[$range] = $result ? $result->count : 0;
-	}
-	$sqlAllAge = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} WHERE meta_key = 'birth_year'";
-	$result = $wpdb->get_row($sqlAllAge);
-	$allCount = $result ? $result->count : 0;
-	arsort($aRangesCount);
+	$offset = isset($_POST['offset']) ? $_POST['offset'] : 0;
+	$limit = 3000;
+	$final = isset($_POST['final']) ? $_POST['final'] : 0;
+	$response = array();
 	
-	foreach ($aRangesCount as $range => $rangeCount)
-	{
-		if (!$rangeCount) continue;
-		
-		$percent = round(($rangeCount / $allCount) * 100);
-		echo '<div class="age-record">';
-		echo '<span class="range">';
-		echo sprintf(__('%1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $rangeCount, $percent);
-		echo '</span>';
-		echo '</div>';
-		
+	if (!$offset) {
+		$response['first'] = 0;
+		$_SESSION['aRangesCount'] = array();
 	}
+	
+	if (!$final)
+	{
+		$sub_query = " AND user_id IN (
+						SELECT * FROM (
+							SELECT meta_value FROM wp_postmeta
+							WHERE meta_key = '_customer_user'
+								AND meta_value > 0 GROUP BY meta_value
+						) as t
+					)";
+		
+		$sqlAllAge = "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = 'birth_year'" . $sub_query . " LIMIT $offset, $limit ";
+		$results = $wpdb->get_results($sqlAllAge);
+		$allCount = $results ? count($results): 0;
+		if ($allCount)
+		{
+			$query_user_id = array();
+			foreach ($results as $result_user_id)
+			{
+				$query_user_id[] = $result_user_id->user_id;
+			}
+			$ageRanges = array('1-13', '14-19', '20-24', '25-29', '30-34', '35-39', '40-50', '51-60', '61-70', '71-100');
+			$aRangesCount = isset($_SESSION['aRangesCount']) && !empty($_SESSION['aRangesCount']) ? $_SESSION['aRangesCount'] : array();
+			foreach ($ageRanges as $range)
+			{
+				$ageRange = explode('-', $range);
+				$sql = "SELECT COUNT(*) as count FROM {$wpdb->usermeta}
+					WHERE
+						meta_key = 'birth_year'
+						AND user_id IN (". implode(',', $query_user_id) .")
+						AND meta_value <= YEAR(CURDATE()) - {$ageRange[0]}
+						AND meta_value >= YEAR(CURDATE()) - {$ageRange[1]}
+						";
+				$result = $wpdb->get_row($sql);
+				$aRangesCount[$range] = (isset($aRangesCount[$range]) ? $aRangesCount[$range] : 0) + ($result ? $result->count : 0);
+			}
+			$_SESSION['aRangesCount'] = $aRangesCount;
+			$response['aRangesCount'] = $aRangesCount;
+		}
+		else {
+			$response['final'] = true;
+		}
+	}
+	else
+	{
+		$sqlAllAge = "SELECT COUNT(*) as count FROM {$wpdb->usermeta} WHERE meta_key = 'birth_year'" . $sub_query;
+		$result = $wpdb->get_row($sqlAllAge);
+		$allCount = $result ? $result->count : 0;
+		$aRangesCount = isset($_SESSION['aRangesCount']) && !empty($_SESSION['aRangesCount']) ? $_SESSION['aRangesCount'] : array();
+		
+		arsort($aRangesCount);
+		$response['content'] = '';
+		foreach ($aRangesCount as $range => $rangeCount)
+		{
+			if (!$rangeCount) continue;
+			
+			$percent = round(($rangeCount / $allCount) * 100);
+			$response['content'] .= 
+			'<div class="age-record">
+			<span class="range">
+			'. sprintf(__('%1$s : %2$s members, %3$s%% in total', 'elsey'), $range, $rangeCount, $percent) .'
+			</span>
+			</div>';
+			
+		}
+		update_option('dashboard_age_member_html', $response['content']);
+		update_option('dashboard_age_member_date', current_time('mysql'));
+		$response['end'] = 1;
+	}
+	$response['offset'] = $offset + $limit;
+	print_r(json_encode($response));die;
+}
+function elsey_user_age_report_dashboard_widget_function() {
+	$dashboard_age_member_html = get_option('dashboard_age_member_html');
+	$dashboard_age_member_date = get_option('dashboard_age_member_date');
+	
+	echo '<div id="load_member_age_content">'. $dashboard_age_member_html .'</div>';
+	if ($dashboard_age_member_date)
+	{
+		echo '<br/><div id="member_age_date">'. sprintf(__('The age list calculated at %1$s', 'elsey'), $dashboard_age_member_date) .'</div>';
+	}
+	echo '<br/><div id="load_member_age_btn">'. __('Click here to re-calculate members age', 'elsey') .'</div>';
+	return '';
 }
 /**
  * Create the function to output the contents of our Dashboard Widget.

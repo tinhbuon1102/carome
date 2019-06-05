@@ -1,0 +1,9 @@
+div#load_member_age_btn {
+    cursor: pointer;
+    color: #4b4be8;
+    text-decoration: underline;
+}
+div#member_age_date {
+    font-size: 14px;
+    color: red;
+}

@@ -34,4 +34,40 @@ jQuery(function($){
 			getAjaxLoadTableList($(this), element)
 		})
 	});
+	
+	if ($('#load_member_age_btn').length)
+	{
+		function load_member_age_by_order(offset, final)
+		{
+			var protocol = location.protocol;
+			var slashes = protocol.concat("//");
+			var host = slashes.concat(window.location.hostname);
+			var gl_siteUrl = host + '/wp-admin/admin-ajax.php'
+			$.ajax({
+		        type: "post",
+		        url: gl_siteUrl,
+		        data: {action: 'load_member_age_by_order', offset: offset, final: final},
+		        crossDomain: false,
+		        dataType : "json",
+		        scriptCharset: 'utf-8'
+		    }).done(function(data){
+		    	if (!offset) $('#load_member_age_content').html('');
+		    	
+		    	if (data.end) {
+		    		$('#load_member_age_content').append(data.content)
+		    		$('#user_age_report_dashboard_widget').LoadingOverlay('hide');
+		    	}
+		    	else if (data.final) {
+		    		load_member_age_by_order(data.offset, data.final)
+		    	}
+		    	else {
+		    		load_member_age_by_order(data.offset)
+		    	}
+		    });
+		}
+		$('body').on('click', '#load_member_age_btn', function(){
+			$('#user_age_report_dashboard_widget').LoadingOverlay('show');
+			load_member_age_by_order(0)
+		});
+	}
 });
