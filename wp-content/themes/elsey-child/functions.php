@@ -2083,7 +2083,6 @@ function elsey_wp_ajax_load_member_age_by_order()
 	global $wpdb;
 	$offset = isset($_POST['offset']) ? $_POST['offset'] : 0;
 	$selected_year = $_POST['year'];
-	$selected_year = 2019;
 	$limit = 3000;
 	$final = isset($_POST['final']) ? $_POST['final'] : 0;
 	$response = array();
@@ -2184,8 +2183,8 @@ function elsey_user_age_report_dashboard_widget_function() {
 	$dashboard_age_member_html_last_year = get_option('dashboard_age_member_html_' . $last_year);
 	$dashboard_age_member_date = get_option('dashboard_age_member_date');
 	
-	echo '<div id="load_member_age_content_current_year" class="load_member_age_content">'. $dashboard_age_member_html_current_year .'</div>';
 	echo '<div id="load_member_age_content_last_year"  class="load_member_age_content">'. $dashboard_age_member_html_last_year .'</div>';
+	echo '<div id="load_member_age_content_current_year" class="load_member_age_content">'. $dashboard_age_member_html_current_year .'</div>';
 	if ($dashboard_age_member_date)
 	{
 		echo '<br/><div id="member_age_date">'. sprintf(__('The age list calculated at %1$s', 'elsey'), $dashboard_age_member_date) .'</div>';
