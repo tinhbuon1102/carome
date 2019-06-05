@@ -52,7 +52,8 @@ jQuery(function($){
 		        dataType : "json",
 		        scriptCharset: 'utf-8'
 		    }).done(function(data){
-		    	if (!offset) $('.load_member_age_content').html('');
+		    	var current_btn = $('.load_member_age_btn.clicked');
+		    	if (!offset && current_btn == 0) $('.load_member_age_content').html('');
 		    	
 		    	if (data.end) {
 		    		var current_btn = $('.load_member_age_btn.clicked');
