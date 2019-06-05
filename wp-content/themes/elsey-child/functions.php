@@ -2142,7 +2142,12 @@ function elsey_wp_ajax_load_member_age_by_order()
 		
 		arsort($aRangesCount);
 		$response['content'] = '';
-		$allRangeCount = array_count_values($aRangesCount);
+		$allRangeCount = 0;
+		foreach ($aRangesCount as $range => $rangeCount)
+		{
+			$allRangeCount += $rangeCount;
+		}
+		
 		foreach ($aRangesCount as $range => $rangeCount)
 		{
 			if (!$rangeCount) continue;
