@@ -55,7 +55,7 @@ jQuery(function($){
 		    	
 		    	if (data.end) {
 		    		$('#load_member_age_content').append(data.content)
-		    		$('#member_age_date').append(data.date)
+		    		$('#member_age_date').html(data.date)
 		    		$('#user_age_report_dashboard_widget').LoadingOverlay('hide');
 		    	}
 		    	else if (data.final) {
