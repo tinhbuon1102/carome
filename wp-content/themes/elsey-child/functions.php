@@ -2148,7 +2148,7 @@ function elsey_wp_ajax_load_member_age_by_order()
 			$allRangeCount += $rangeCount;
 			if (!$rangeCount) continue;
 			
-			$percent = round(($rangeCount / $allCount) * 100);
+			$percent = round(($rangeCount / $allRangeCount) * 100, 2);
 			$response['content'] .= 
 			'<div class="age-record">
 			<span class="range">
@@ -2157,7 +2157,7 @@ function elsey_wp_ajax_load_member_age_by_order()
 			</div>';
 			
 		}
-		$response['counting'] = array('allCount' => $allCount, 'rangeCount' => $allRangeCount);
+		$response['counting'] = array('allCount' => $allRangeCount, 'rangeCount' => $allRangeCount);
 		$response['date'] = sprintf(__('The age list calculated at %1$s', 'elsey'), current_time('mysql'));
 		update_option('dashboard_age_member_html', $response['content']);
 		update_option('dashboard_age_member_date', current_time('mysql'));
