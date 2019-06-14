@@ -4,7 +4,7 @@ $product_id = wc_get_product_id_by_sku( $sku );
 $link = get_permalink( $product_id );
 $tickets = new WC_Product_Variable( $product_id);
 $variables = $tickets->get_available_variations();
-$var_data = '';
+$var_data = 0;
 foreach ($variables as $variation)  {
 	$var_data += ($variation['max_qty'] ? $variation['max_qty'] : 0);
 }
