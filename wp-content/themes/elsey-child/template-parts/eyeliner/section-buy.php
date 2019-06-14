@@ -6,7 +6,7 @@ $tickets = new WC_Product_Variable( $product_id);
 $variables = $tickets->get_available_variations();
 $var_data = '';
 foreach ($variables as $variation)  {
-    $var_data += $variation['max_qty'];
+	$var_data += ($variation['max_qty'] ? $variation['max_qty'] : 0);
 }
 ?>
 <section class="buy bg_black">
