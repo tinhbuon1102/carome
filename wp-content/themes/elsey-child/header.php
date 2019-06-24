@@ -339,12 +339,12 @@ $get_terms_to_exclude =  get_terms(
 	  </div>
 	  <?php if (isCustomerInPrivateEvent()) { ?> 
 	  <?php } elseif(is_product_category()||is_shop()){ ?> 
-	  		<div id="test_banner"><div class="sub_banner xs-hide">
+	  		<div class="sub_banner xs-hide">
 	  			<?php echo do_shortcode('[metaslider id="33896"]'); ?>
 	  		</div>
 	  		<div class="sub_banner xs-show">
 	  			<?php echo do_shortcode('[metaslider id="33899"]'); ?>
-	  		</div><!--time set end--></div>
+	  		</div><!--time set end-->
 	  	<?php } else { ?>
 	  	<?php }?>
 
