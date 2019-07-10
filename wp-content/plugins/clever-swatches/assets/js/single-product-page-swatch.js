@@ -52,12 +52,12 @@
                             var option_value = $(this).val();
                             if (option_value != '') {
                                 var option_text = $(this).text();
-                                var new_text = option_text.replace(' * (Not suitable)', '');
+                                var new_text = option_text.replace(' * (SOLD OUT)', '');
                                 check_options[attribute_name] = option_value;
                                 if (cw_findMatchVariation(product_variations, check_options, need_check_stock)) {
                                     $(this).text(new_text);
                                 } else {
-                                    $(this).text(new_text + ' * (Not suitable)');
+                                    $(this).text(new_text + ' * (SOLD OUT)');
                                 }
                             }
                         });
