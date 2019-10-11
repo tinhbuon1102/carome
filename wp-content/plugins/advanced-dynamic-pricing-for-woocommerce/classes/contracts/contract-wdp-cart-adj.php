@@ -12,9 +12,10 @@ interface WDP_Cart_Adjustment {
 
 	/**
 	 * @param WDP_Cart $cart
+	 * @param          $set_collection WDP_Cart_Set_Collection
 	 * @param int      $rule_id
 	 *
 	 * @return bool
 	 */
-	public function apply_to_cart( $cart, $rule_id );
+	public function apply_to_cart( $cart, $set_collection, $rule_id );
 }

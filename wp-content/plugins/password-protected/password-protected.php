@@ -4,7 +4,7 @@
 Plugin Name: Password Protected
 Plugin URI: https://wordpress.org/plugins/password-protected/
 Description: A very simple way to quickly password protect your WordPress site with a single password. Please note: This plugin does not restrict access to uploaded files and images and does not work with some caching setups.
-Version: 2.2.4
+Version: 2.2.5
 Author: Ben Huson
 Text Domain: password-protected
 Author URI: http://github.com/benhuson/password-protected/
@@ -42,7 +42,7 @@ $Password_Protected = new Password_Protected();
 
 class Password_Protected {
 
-	var $version = '2.2.4';
+	var $version = '2.2.5';
 	var $admin   = null;
 	var $errors  = null;
 
@@ -672,8 +672,8 @@ class Password_Protected {
 	 *
 	 * Support for 3rd party plugins:
 	 *
-	 * - Login Logo       http://wordpress.org/extend/plugins/login-logo/
-	 * - Uber Login Logo  http://wordpress.org/plugins/uber-login-logo/
+	 * - Login Logo       https://wordpress.org/plugins/login-logo/
+	 * - Uber Login Logo  https://wordpress.org/plugins/uber-login-logo/
 	 */
 	public function compat() {
 

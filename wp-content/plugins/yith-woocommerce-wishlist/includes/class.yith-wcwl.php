@@ -399,10 +399,13 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
 		    }
 
 		    if( is_user_logged_in() ) {
+
+		        $user_id = ( $this->details['user_id'] ) ? $this->details['user_id'] : get_current_user_id();
+
 			    $sql = "SELECT COUNT(*) as `cnt` FROM `{$wpdb->yith_wcwl_items}` WHERE `prod_id` = %d AND `user_id` = %d";
 			    $sql_args = array(
 				    $product_id,
-				    $this->details['user_id']
+				    $user_id
 			    );
 
 			    if( $wishlist_id != false ){
@@ -563,29 +566,42 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
 		    else{
 			    $wishlist = yith_getcookie( 'yith_wcwl_products' );
 			    $hidden_products = yith_wcwl_get_hidden_products();
+			    $items = is_array( $wishlist ) ? wp_list_pluck( $wishlist, 'prod_id' ) : false;
 
-			    $query = "SELECT ID FROM {$wpdb->posts} AS p
-                          WHERE post_type = %s AND post_status = %s";
-			    $query .= ! empty( $hidden_products ) ? ( " AND p.ID NOT IN ( " . implode( ', ', array_filter( $hidden_products, 'esc_sql' ) ). " )" ) : "";
+			    if( empty( $items ) ){
+			    	return array();
+			    }
 
-			    $query_args = array(
-				    'product',
-				    'publish'
-			    );
+			    $valid_products = wc_get_products( array(
+				    'status' => 'publish',
+				    'include' => $items,
+				    'limit' => -1,
+				    'return' => 'ids'
+			    ) );
 
-			    $existing_products = $wpdb->get_col( $wpdb->prepare( $query, $query_args ) );
+			    if( empty( $valid_products ) ){
+			    	return array();
+			    }
 
 			    foreach( $wishlist as $key => $cookie ){
-				    if( ! in_array( $cookie['prod_id'], $existing_products ) ){
+			    	if( in_array( $cookie['prod_id'], $hidden_products )  ){
+			    		unset( $wishlist[ $key ] );
+			    		continue;
+				    }
+
+			    	if( ! in_array( $cookie['prod_id'], $valid_products ) ){
 					    unset( $wishlist[ $key ] );
+					    continue;
 				    }
 
 				    if( ! empty( $product_id ) && $cookie['prod_id'] != $product_id ){
 					    unset( $wishlist[ $key ] );
+					    continue;
 				    }
 
 				    if( ( ! empty( $wishlist_id ) && $wishlist_id != 'all' ) && $cookie['wishlist_id'] != $wishlist_id ){
 					    unset( $wishlist[ $key ] );
+					    continue;
 				    }
 			    }
 
@@ -1037,6 +1053,8 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
             if( ! empty( $wishlists ) ){
                 $default_user_wishlist = $wishlists[0]['ID'];
                 $this->last_operation_token = $wishlists[0]['wishlist_token'];
+
+                do_action('yith_wcwl_default_user_wishlist', $user_id, $wishlists);
             }
             else{
                 $token = $this->generate_wishlist_token();
@@ -1061,7 +1079,6 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
             );
 
             $wpdb->query( $wpdb->prepare( $sql, $sql_args ) );
-
             return $default_user_wishlist;
         }
 
@@ -1555,7 +1572,7 @@ if ( ! class_exists( 'YITH_WCWL' ) ) {
                 }
             }
 
-            return apply_filters( 'yit_wcwl_add_to_cart_redirect_url', esc_url( $url ) );
+            return apply_filters( 'yit_wcwl_add_to_cart_redirect_url', esc_url_raw( $url ), $url,$product );
         }
 
         /**

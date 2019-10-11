@@ -1,6 +1,7 @@
 <?php
 defined("ABSPATH") or die("");
 require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/classes/utilities/class.u.php');
+DUP_PRO_U::init();
 
 //Enum used to define the various test statues 
 final class DUP_PRO_CTRL_Status
@@ -89,7 +90,8 @@ class DUP_PRO_CTRL_Result
 
 	function __construct(DUP_PRO_CTRL_Base $CTRL_OBJ)
 	{
-		DUP_PRO_U::hasCapability('read');
+		// DUP_PRO_U::hasCapability('read');
+		DUP_PRO_U::hasCapability('export');
 		$this->timeStart = $this->microtimeFloat();
 		$this->CTRL		 = $CTRL_OBJ;
 

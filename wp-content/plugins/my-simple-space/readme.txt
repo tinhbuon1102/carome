@@ -2,8 +2,8 @@
 Contributors: mannweb
 Tags: disk space, database size
 Requires at least: 4.3.0
-Tested up to: 5.1
-Stable tag: 1.2.4
+Tested up to: 5.2
+Stable tag: 1.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,9 @@ The plugin cycles through the provided path to calculate the total space used fo
 1. The dashboard widget
 
 == Changelog ==
+= 1.2.5 =
+* Adjusted \FilesystemIterator::FOLLOW_SYMLINKS on line 227 to \FilesystemIterator::CURRENT_AS_FILEINFO, as it returned the same folder size for wp-content, themes & uploads.
+* Stripping the 2 path variable lines on 220 & 221 (reverting change made in 1.2.4)
 
 = 1.2.4 =
 * Fixed issue in the mss_dir_size function which caused a fatal exception when it tries to access a file path, instead of a folder path. Thanks @idempotent for pointing this out.

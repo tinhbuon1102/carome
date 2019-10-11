@@ -29,4 +29,8 @@ abstract class WDP_Admin_Abstract_Page {
 
 		include $template;
 	}
+
+	public function get_pagenum() {
+		return false;
+	}
 }

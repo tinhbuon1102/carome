@@ -10,6 +10,7 @@ class WDP_User_Impl implements WDP_User {
 	private $shipping_state;
 	private $payment_method;
 	private $shipping_methods;
+	private $is_vat_exempt;
 
 	public function __construct( $wp_user = null ) {
 		$this->wp_user = $wp_user;
@@ -29,7 +30,7 @@ class WDP_User_Impl implements WDP_User {
 		}
 		$roles = ( array ) $this->wp_user->roles;
 
-		return apply_filters( 'wdp_current_user_roles', $roles );
+		return apply_filters( 'wdp_current_user_roles', $roles, $this );
 	}
 
 	public function convert_for_strtotime( $time ) {
@@ -112,6 +113,14 @@ class WDP_User_Impl implements WDP_User {
 
 	public function set_shipping_methods( $method ) {
 		$this->shipping_methods = $method;
+	}
+
+	public function set_is_vat_exempt( $is_vat_exempt ) {
+		$this->is_vat_exempt = wc_string_to_bool( $is_vat_exempt );
+	}
+
+	public function get_tax_exempt() {
+		return $this->is_vat_exempt;
 	}
 
 	/**

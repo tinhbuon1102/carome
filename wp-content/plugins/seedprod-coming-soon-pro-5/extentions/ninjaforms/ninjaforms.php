@@ -24,7 +24,7 @@ function seed_cspv5_section_ninjaforms($emaillist,$page_id) {
     <div class="postbox">
         <h3 class="hndle"><?php _e('Ninja Forms', 'seedprod') ?></h3>
         <div class="inside">
-        <p><?php __('Configure saving subscribers to Ninja Forms options. <a href="http://support.seedprod.com/article/25-embedding-ninja-forms" target="_blank">Learn More</a>', 'seedprod') ?></p>
+        <!-- <p><?php __('Configure saving subscribers to Ninja Forms options. <a href="http://support.seedprod.com/article/25-embedding-ninja-forms" target="_blank">Learn More</a>', 'seedprod') ?></p> -->
         <form id="seed_cspv5_emaillist_settings">
         <input type="hidden" id="settings_name" name="settings_name" value="<?php echo $settings_name ?>"/>
         <input type="hidden" id="page_id" name="page_id" value="<?php echo $page_id ?>"/>

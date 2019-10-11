@@ -2,36 +2,51 @@
 
 if (!defined('ABSPATH')) exit;
 if (!class_exists('BVInfoCallback')) :
-class BVInfoCallback {
+
+class BVInfoCallback extends BVCallbackBase {
+	public $db;
+	public $settings;
+	public $siteinfo;
+	public $bvinfo;
+
+	public function __construct($callback_handler) {
+		$this->db = $callback_handler->db;
+		$this->siteinfo = $callback_handler->siteinfo;
+		$this->settings = $callback_handler->settings;
+		$this->bvinfo = new WPEInfo($this->settings);
+	}
+
 	public function getPosts($post_type, $count = 5) {
-		global $bvresp;
 		$output = array();
 		$args = array('numberposts' => $count, 'post_type' => $post_type);
 		$posts = get_posts($args);
 		$keys = array('post_title', 'guid', 'ID', 'post_date');
+		$result = array();
 		foreach ($posts as $post) {
 			$pdata = array();
 			$post_array = get_object_vars($post);
 			foreach ($keys as $key) {
 				$pdata[$key] = $post_array[$key];
 			}
-			$bvresp->addArrayToStatus("posts", $pdata);
+			$result["posts"][] = $pdata;
 		}
+		return $result;
 	}
 
 	public function getStats() {
-		global $bvresp;
-		$bvresp->addStatus("posts", get_object_vars(wp_count_posts()));
-		$bvresp->addStatus("pages", get_object_vars(wp_count_posts("page")));
-		$bvresp->addStatus("comments", get_object_vars(wp_count_comments()));
+		return array(
+			"posts" => get_object_vars(wp_count_posts()),
+			"pages" => get_object_vars(wp_count_posts("page")),
+			"comments" => get_object_vars(wp_count_comments())
+		);
 	}
 
 	public function getPlugins() {
-		global $bvresp;
 		if (!function_exists('get_plugins')) {
 			require_once (ABSPATH."wp-admin/includes/plugin.php");
 		}
 		$plugins = get_plugins();
+		$result = array();
 		foreach ($plugins as $plugin_file => $plugin_data) {
 			$pdata = array(
 				'file' => $plugin_file,
@@ -40,8 +55,9 @@ class BVInfoCallback {
 				'active' => is_plugin_active($plugin_file),
 				'network' => $plugin_data['Network']
 			);
-			$bvresp->addArrayToStatus("plugins", $pdata);
+			$result["plugins"][] = $pdata;
 		}
+		return $result;
 	}
 
 	public function themeToArray($theme) {
@@ -66,19 +82,19 @@ class BVInfoCallback {
 	}
 
 	public function getThemes() {
-		global $bvresp;
+		$result = array();
 		$themes = function_exists('wp_get_themes') ? wp_get_themes() : get_themes();
 		foreach($themes as $theme) {
 			$pdata = $this->themeToArray($theme);
-			$bvresp->addArrayToStatus("themes", $pdata);
+			$result["themes"][] = $pdata;
 		}
 		$theme = function_exists('wp_get_theme') ? wp_get_theme() : get_current_theme();
 		$pdata = $this->themeToArray($theme);
-		$bvresp->addStatus("currenttheme", $pdata);
+		$result["currenttheme"] = $pdata;
+		return $result;
 	}
 
 	public function getSystemInfo() {
-		global $bvresp;
 		$sys_info = array(
 			'serverip' => $_SERVER['SERVER_ADDR'],
 			'host' => $_SERVER['HTTP_HOST'],
@@ -98,22 +114,22 @@ class BVInfoCallback {
 			$sys_info['webuid'] = posix_getuid();
 			$sys_info['webgid'] = posix_getgid();
 		}
-		$bvresp->addStatus("sys", $sys_info);
+		return array("sys" => $sys_info);
 	}
 
 	public function getWpInfo() {
 		global $wp_version, $wp_db_version, $wp_local_package;
-		global $bvresp, $bvcb;
+		$siteinfo = $this->siteinfo;
+		$db = $this->db;
 		$upload_dir = wp_upload_dir();
-		$info = $bvcb->bvmain->info;
 
 		$wp_info = array(
-			'dbprefix' => $bvcb->bvmain->db->dbprefix(),
-			'wpmu' => $info->isMultisite(),
-			'mainsite' => $info->isMainSite(),
+			'dbprefix' => $db->dbprefix(),
+			'wpmu' => $siteinfo->isMultisite(),
+			'mainsite' => $siteinfo->isMainSite(),
 			'name' => get_bloginfo('name'),
-			'siteurl' => $info->siteurl(),
-			'homeurl' => $info->homeurl(),
+			'siteurl' => $siteinfo->siteurl(),
+			'homeurl' => $siteinfo->homeurl(),
 			'charset' => get_bloginfo('charset'),
 			'wpversion' => $wp_version,
 			'dbversion' => $wp_db_version,
@@ -128,17 +144,16 @@ class BVInfoCallback {
 			'disallow_file_mods' => defined('DISALLOW_FILE_MODS'),
 			'locale' => get_locale(),
 			'wp_local_string' => $wp_local_package,
-			'charset_collate' => $bvcb->bvmain->db->getCharsetCollate()
+			'charset_collate' => $db->getCharsetCollate()
 		);
-		$bvresp->addStatus("wp", $wp_info);
+		return array("wp" => $wp_info);
 	}
 
 	public function getUsers($args = array(), $full) {
-		global $bvresp, $bvcb;
 		$results = array();
 		$users = get_users($args);
 		if ('true' == $full) {
-			$results = $bvcb->bvmain->lib->objectToArray($users);
+			$results = $this->objectToArray($users);
 		} else {
 			foreach( (array) $users as $user) {
 				$result = array();
@@ -154,7 +169,7 @@ class BVInfoCallback {
 				$results[] = $result;
 			}
 		}
-		$bvresp->addStatus("users", $results);
+		return array("users" => $results);
 	}
 	
 	public function availableFunctions(&$info) {
@@ -181,27 +196,25 @@ class BVInfoCallback {
 		return $info;
 	}
 	
-	public function servicesInfo(&$info) {
-		global $bvcb;
-		$bvinfo = $bvcb->bvmain->info;
-		$info['dynsync'] = $bvinfo->getOption('bvDynSyncActive');
-		$info['woodyn'] = $bvinfo->getOption('bvWooDynSync');
-		$info['dynplug'] = $bvinfo->getOption('bvdynplug');
-		$info['ptplug'] = $bvinfo->getOption('bvptplug');
-		$info['fw'] = $this->getFWConfig();
-		$info['lp'] = $this->getLPConfig();
-		$info['brand'] = $bvinfo->getOption($bvcb->bvmain->brand_option);
-		$info['badgeinfo'] = $bvinfo->getOption($bvcb->bvmain->badgeinfo);
+	public function servicesInfo(&$data) {
+		$settings = $this->settings;
+		$data['dynsync'] = $settings->getOption('bvDynSyncActive');
+		$data['woodyn'] = $settings->getOption('bvWooDynSync');
+		$data['dynplug'] = $settings->getOption('bvdynplug');
+		$data['ptplug'] = $settings->getOption('bvptplug');
+		$data['fw'] = $this->getFWConfig();
+		$data['lp'] = $this->getLPConfig();
+		$data['brand'] = $settings->getOption($this->bvinfo->brand_option);
+		$data['badgeinfo'] = $settings->getOption($this->bvinfo->badgeinfo);
 	}
 
 	public function getLPConfig() {
-		global $bvcb;
 		$config = array();
-		$bvinfo = $bvcb->bvmain->info;
-		$mode = $bvinfo->getOption('bvlpmode');
-		$cplimit = $bvinfo->getOption('bvlpcaptchalimit');
-		$tplimit = $bvinfo->getOption('bvlptempblocklimit');
-		$bllimit = $bvinfo->getOption('bvlpblockAllLimit');
+		$settings = $this->settings;
+		$mode = $settings->getOption('bvlpmode');
+		$cplimit = $settings->getOption('bvlpcaptchalimit');
+		$tplimit = $settings->getOption('bvlptempblocklimit');
+		$bllimit = $settings->getOption('bvlpblockAllLimit');
 		$config['mode'] = intval($mode ? $mode : 1);
 		$config['captcha_limit'] = intval($cplimit ? $cplimit : 3);
 		$config['temp_block_limit'] = intval($tplimit? $tplimit : 6);
@@ -210,83 +223,86 @@ class BVInfoCallback {
 	}
 
 	public function getFWConfig() {
-		global $bvcb;
 		$config = array();
-		$bvinfo = $bvcb->bvmain->info;
-		$mode = $bvinfo->getOption('bvfwmode');
-		$drules = $bvinfo->getOption('bvfwdisabledrules');
-		$rmode = $bvinfo->getOption('bvfwrulesmode');
+		$settings = $this->settings;
+		$mode = $settings->getOption('bvfwmode');
+		$drules = $settings->getOption('bvfwdisabledrules');
+		$arules = $settings->getOption('bvfwauditrules');
+		$rmode = $settings->getOption('bvfwrulesmode');
+		$reqprofilingmode = $settings->getOption('bvfwreqprofilingmode');
 		$config['mode'] = intval($mode ? $mode : 1);
 		$config['disabled_rules'] = $drules ? $drules : array();
+		$config['audit_rules'] = $arules ? $arules : array();
 		$config['rules_mode'] = intval($rmode ? $rmode : 1);
+		$config['req_profiling_mode'] = intval($reqprofilingmode ? $reqprofilingmode : 1);
 		return $config;
 	}
 
 	public function dbconf(&$info) {
-		global $bvcb;
+		$db = $this->db;
 		if (defined('DB_CHARSET'))
 			$info['dbcharset'] = DB_CHARSET;
-		$info['dbprefix'] = $bvcb->bvmain->db->dbprefix();
-		$info['charset_collate'] = $bvcb->bvmain->db->getCharsetCollate();
+		$info['dbprefix'] = $db->dbprefix();
+		$info['charset_collate'] = $db->getCharsetCollate();
 		return $info;
 	}
 	
 	public function activate() {
-		global $bvcb, $bvresp;
 		$resp = array();
-		$bvcb->bvmain->info->basic($resp);
+		$this->siteinfo->basic($resp);
 		$this->servicesInfo($resp);
 		$this->dbconf($resp);
 		$this->availableFunctions($resp);
-		$bvresp->addStatus('actinfo', $resp);
+		return array('actinfo' => $resp);
 	}
 
-	public function process($method) {
-		global $bvresp, $bvcb;
-		switch ($method) {
+	public function process($request) {
+		$db = $this->db;
+		$params = $request->params;
+		switch ($request->method) {
 		case "activateinfo":
-			$this->activate();
+			$resp = $this->activate();
 			break;
 		case "gtpsts":
 			$count = 5;
-			if (array_key_exists('count', $_REQUEST))
-				$count = $_REQUEST['count'];
-			$this->getPosts($_REQUEST['post_type'], $count);
+			if (array_key_exists('count', $params))
+				$count = $params['count'];
+			$resp = $this->getPosts($params['post_type'], $count);
 			break;
 		case "gtsts":
-			$this->getStats();
+			$resp = $this->getStats();
 			break;
 		case "gtplgs":
-			$this->getPlugins();
+			$resp = $this->getPlugins();
 			break;
 		case "gtthms":
-			$this->getThemes();
+			$resp = $this->getThemes();
 			break;
 		case "gtsym":
-			$this->getSystemInfo();
+			$resp = $this->getSystemInfo();
 			break;
 		case "gtwp":
-			$this->getWpInfo();
+			$resp = $this->getWpInfo();
 			break;
 		case "getoption":
-			$bvresp->addStatus("option", $bvresp->getOption($_REQUEST['name']));
+			$resp = array("option" => $this->settings->getOption($params['name']));
 			break;
 		case "gtusrs":
 			$full = false;
-			if (array_key_exists('full', $_REQUEST))
+			if (array_key_exists('full', $params))
 				$full = true;
-			$this->getUsers($_REQUEST['args'], $full);
+			$resp = $this->getUsers($params['args'], $full);
 			break;
 		case "gttrnsnt":
-			$transient = $bvcb->bvmain->info->getTransient($_REQUEST['name']);
-			if ($transient && array_key_exists('asarray', $_REQUEST))
-				$transient = $bvcb->bvmain->lib->objectToArray($transient);
-			$bvresp->addStatus("transient", $transient);
+			$transient = $this->settings->getTransient($params['name']);
+			if ($transient && array_key_exists('asarray', $params))
+				$transient = $this->objectToArray($transient);
+			$resp = array("transient" => $transient);
 			break;
 		default:
-			return false;
+			$resp = false;
 		}
-		return true;
+		return $resp;
 	}
 }
 endif;

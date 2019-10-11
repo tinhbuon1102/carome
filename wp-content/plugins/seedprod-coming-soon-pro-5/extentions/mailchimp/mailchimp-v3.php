@@ -24,7 +24,7 @@ function seed_cspv5_section_mailchimp_v3($emaillist,$page_id) {
         <input type="hidden" id="page_id" name="page_id" value="<?php echo $page_id ?>"/>
         <input type="hidden" id="emaillist" name="emaillist" value="<?php echo $emaillist ?>"/>
         <input type="hidden" id="api_version" name="api_version" value="3"/>
-        <p><a href="http://support.seedprod.com/article/42-collecting-emails-with-mailchimp" target="_blank">Learn how to Configure</a></p>
+        <p><a href="https://support.seedprod.com/article/82-collecting-emails-with-mailchimp" target="_blank">Learn how to Configure</a></p>
         <table class="form-table">
             <tbody>
                 <tr valign="top">

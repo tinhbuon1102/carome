@@ -10,40 +10,107 @@ class WDP_Helpers {
 	public static function get_settings() {
 		$options = get_option( 'wdp_settings' );
 
-		return $options ? array_merge( self::get_default_settings(), (array) $options ) : self::get_default_settings();
+		return $options ? array_merge( self::get_default_settings(), array_filter((array) $options , function($a){return isset($a);} )) : self::get_default_settings();
 	}
 
 	protected static function get_default_settings() {
 		return apply_filters( "wdp_get_default_settings", array(
-			'show_matched_bulk_table'          => 0,
+			'show_matched_bulk_table'          => 1,
 			'show_category_bulk_table'         => 0,
 			'show_matched_deals'               => 0,
 			'show_matched_adjustments'         => 0,
 			'show_matched_get_products'        => 0,
 			'show_matched_cart_adjustments'    => 0,
 			'show_matched_bulk'                => 0,
-			'show_striked_prices'              => 0,
+			'show_striked_prices'              => 1,
+			'hide_coupon_word_in_totals'       => 0,
 			'show_onsale_badge'                => 0,
 			'update_price_with_qty'            => 0,
 			'limit_results_in_autocomplete'    => 25,
+			'rule_max_exec_time'               => 5,
+			'rules_per_page'                   => 50,
+			'support_shortcode_products_on_sale' => 0,
+			'show_cross_out_subtotal_in_cart_totals' => 0,
 
-			'combine_discounts'                     => 0,
-			'default_discount_name'                 => __( 'Coupon', 'advanced-dynamic-pricing-for-woocommerce' ),
-			'combine_fees'                          => 0,
-			'default_fee_name'                      => __( 'Fee', 'advanced-dynamic-pricing-for-woocommerce' ),
-			'default_fee_tax_class'                 => "",
-			'discount_for_onsale'                   => 'sale_price',
-			'do_not_modify_price_at_product_page'   => 0,
-			'is_override_cents'                     => 0,
-			'prices_ends_with'                      => 99,
-			'is_show_amount_saved_in_mini_cart'     => 0,
-			'is_show_amount_saved_in_cart'          => 0,
-			'is_show_amount_saved_in_checkout_cart' => 0,
+			'combine_discounts'                          => 0,
+			'default_discount_name'                      => __( 'Coupon', 'advanced-dynamic-pricing-for-woocommerce' ),
+			'combine_fees'                               => 0,
+			'default_fee_name'                           => __( 'Fee', 'advanced-dynamic-pricing-for-woocommerce' ),
+			'default_fee_tax_class'                      => "",
+			'discount_for_onsale'                        => 'compare_discounted_and_sale',
+			'do_not_modify_price_at_product_page'        => 0,
+			'is_override_cents'                          => 0,
+			'is_calculate_based_on_wc_precision'         => 0,
+			'prices_ends_with'                           => 99,
+			'is_show_amount_saved_in_mini_cart'          => 0,
+			'is_show_amount_saved_in_cart'               => 1,
+			'is_show_amount_saved_in_checkout_cart'      => 0,
+			'replace_price_with_min_bulk_price'          => 0,
+			'replace_price_with_min_bulk_price_template' => __( "From {{price}} {{price_suffix}}", 'advanced-dynamic-pricing-for-woocommerce' ),
 
-			'uninstall_remove_data'          => 0,
-			'load_in_backend'                => 0,
-			'suppress_other_pricing_plugins' => 0,
+			'uninstall_remove_data'                              => 0,
+			'load_in_backend'                                    => 0,
+			'allow_to_edit_prices_in_po'                         => 0,
+			'suppress_other_pricing_plugins'                     => 0,
+			'amount_saved_label'                                 => __( "Amount Saved", 'advanced-dynamic-pricing-for-woocommerce' ),
+			'disable_external_coupons'                           => 0,
+			'disable_external_coupons_only_if_items_updated'     => 0,
+			'allow_to_exclude_products'                          => 1,
+
+			'show_debug_bar'                        => 0,
 		));
+	}
+
+	public static function get_validate_filters() {
+		return apply_filters( "wdp_get_validate_filters", array(
+			'show_matched_bulk_table'          => FILTER_VALIDATE_BOOLEAN,
+			'show_category_bulk_table'         => FILTER_VALIDATE_BOOLEAN,
+			'show_striked_prices'              => FILTER_VALIDATE_BOOLEAN,
+			'hide_coupon_word_in_totals'       => FILTER_VALIDATE_BOOLEAN,
+			'show_onsale_badge'                => FILTER_VALIDATE_BOOLEAN,
+			'update_price_with_qty'            => FILTER_VALIDATE_BOOLEAN,
+			'limit_results_in_autocomplete'    => FILTER_VALIDATE_INT,
+			'rule_max_exec_time'               => FILTER_SANITIZE_STRING,
+			'rules_per_page'                   => FILTER_VALIDATE_INT,
+			'support_shortcode_products_on_sale' => FILTER_VALIDATE_BOOLEAN,
+			'show_cross_out_subtotal_in_cart_totals' => FILTER_VALIDATE_BOOLEAN,
+
+			'combine_discounts'                          => FILTER_VALIDATE_BOOLEAN,
+			'default_discount_name'                      => array(
+				'filter'  => FILTER_CALLBACK,
+				'options' => 'wc_format_coupon_code',
+			),
+			'combine_fees'                               => FILTER_VALIDATE_BOOLEAN,
+			'default_fee_name'                           => FILTER_SANITIZE_STRING,
+			'default_fee_tax_class'                      => FILTER_SANITIZE_STRING,
+			'discount_for_onsale'                        => FILTER_SANITIZE_STRING,
+			'do_not_modify_price_at_product_page'        => FILTER_VALIDATE_BOOLEAN,
+			'is_override_cents'                          => FILTER_VALIDATE_BOOLEAN,
+			'is_calculate_based_on_wc_precision'         => FILTER_VALIDATE_BOOLEAN,
+			'prices_ends_with'                           => array(
+				'filter'  => FILTER_VALIDATE_REGEXP,
+				'options' => array(
+					'regexp'  => '/^[0-9]{2}$/',
+					'default' => 99,
+				),
+			),
+			'is_show_amount_saved_in_mini_cart'          => FILTER_VALIDATE_BOOLEAN,
+			'is_show_amount_saved_in_cart'               => FILTER_VALIDATE_BOOLEAN,
+			'is_show_amount_saved_in_checkout_cart'      => FILTER_VALIDATE_BOOLEAN,
+			'replace_price_with_min_bulk_price'          => FILTER_VALIDATE_BOOLEAN,
+			'replace_price_with_min_bulk_price_template' => FILTER_SANITIZE_STRING,
+
+			'uninstall_remove_data'                              => FILTER_VALIDATE_BOOLEAN,
+			'load_in_backend'                                    => FILTER_VALIDATE_BOOLEAN,
+			'allow_to_edit_prices_in_po'                         => FILTER_VALIDATE_BOOLEAN,
+			'suppress_other_pricing_plugins'                     => FILTER_VALIDATE_BOOLEAN,
+			'amount_saved_label'                                 => FILTER_SANITIZE_STRING,
+			'disable_external_coupons'                           => FILTER_VALIDATE_BOOLEAN,
+			'disable_external_coupons_only_if_items_updated'     => FILTER_VALIDATE_BOOLEAN,
+			'allow_to_exclude_products'                          => FILTER_VALIDATE_BOOLEAN,
+
+			'show_debug_bar'                          => FILTER_VALIDATE_BOOLEAN,
+		) );
 	}
 
 	public static function set_settings( $options ) {
@@ -102,6 +169,12 @@ class WDP_Helpers {
 				'text' => $role['name'],
 			);
 		}, array_keys( $all_roles ), $all_roles );
+
+		// dummy role for non registered users
+		$result[] = array(
+			'id'   => 'wdp_guest',
+			'text' => __( 'Guest', 'advanced-dynamic-pricing-for-woocommerce' ),
+		);
 
 		return array_values( $result );
 	}
@@ -211,6 +284,13 @@ class WDP_Helpers {
 	}
 
 	public static function get_product_id( $name ) {
+		if ( is_int( $name ) ) {
+			if ( wc_get_product( $name ) ) {
+				return $name;
+			}
+		}
+
+
 		/** @var WC_Product[] $posts */
 		$posts = wc_get_products( array(
 			'name' => $name,
@@ -235,6 +315,12 @@ class WDP_Helpers {
 		return ! empty( $term ) && ! is_wp_error( $term ) ? $term->name : $id;
 	}
 
+	public static function get_category_slug_title( $slug ) {
+		$term = get_term_by( 'slug', $slug, 'product_cat' );
+
+		return ! empty( $term ) && ! is_wp_error( $term ) ? $term->name : $slug;
+	}
+
 	public static function get_category_slug( $id ) {
 		$term = get_term( $id, 'product_cat' );
 
@@ -242,11 +328,17 @@ class WDP_Helpers {
 	}
 
 	public static function get_category_id( $name ) {
-		return self::get_term_id( $name, 'product_cat' );
+		return is_numeric( $name ) ? $name : self::get_term_id( $name, 'product_cat' );
 	}
 
 	public static function get_category_link( $id ) {
 		return get_category_link( $id );
+	}
+
+	public static function get_category_slug_link( $slug ) {
+		$link = get_term_link( $slug, 'product_cat' );
+
+		return ! empty( $link ) && ! is_wp_error( $link ) ? $link : "";
 	}
 
 	public static function get_tag_title( $id ) {
@@ -256,7 +348,7 @@ class WDP_Helpers {
 	}
 
 	public static function get_tag_id( $name ) {
-		return self::get_term_id( $name, 'product_tag' );
+		return is_numeric( $name ) ? $name : self::get_term_id( $name, 'product_tag' );
 	}
 
 	public static function get_tag_link( $id ) {
@@ -279,7 +371,7 @@ class WDP_Helpers {
 	}
 
 	public static function get_attribute_id( $name ) {
-		return self::get_term_id( $name, 'product_tag' );
+		return is_numeric( $name ) ? $name : self::get_term_id( $name, 'product_tag' );
 	}
 
 	public static function get_attribute_link( $id ) {
@@ -301,6 +393,8 @@ class WDP_Helpers {
 			$name = WDP_Helpers::get_product_title( $id );
 		} elseif ( 'product_categories' === $type ) {
 			$name = WDP_Helpers::get_category_title( $id );
+		} elseif ( 'product_category_slug' === $type ) {
+			$name = WDP_Helpers::get_category_slug_title( $id );
 		} elseif ( 'product_tags' === $type ) {
 			$name = WDP_Helpers::get_tag_title( $id );
 		} elseif ( 'product_attributes' === $type ) {
@@ -318,6 +412,8 @@ class WDP_Helpers {
 			$link = WDP_Helpers::get_product_link( $id );
 		} elseif ( 'product_categories' === $type ) {
 			$link = WDP_Helpers::get_category_link( $id );
+		} elseif ( 'product_category_slug' === $type ) {
+			$link = WDP_Helpers::get_category_slug_link( $id );
 		} elseif ( 'product_tags' === $type ) {
 			$link = WDP_Helpers::get_tag_link( $id );
 		} elseif ( 'product_attributes' === $type ) {
@@ -330,9 +426,9 @@ class WDP_Helpers {
 		return $link;
 	}
 
-	public static function get_custom_product_taxonomies() {
+	public static function get_custom_product_taxonomies( $skip_cache = false ) {
 		static $custom_taxonomies = null;
-		if ( $custom_taxonomies !== null ) {
+		if ( ! $skip_cache && $custom_taxonomies !== null ) {
 			return $custom_taxonomies;
 		}
 

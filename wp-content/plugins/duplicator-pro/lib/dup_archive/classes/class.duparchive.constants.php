@@ -1,33 +1,43 @@
 <?php
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *
+ * Standard: PSR-2
+ * @link http://www.php-fig.org/psr/psr-2
+ *
+ * @package dup_archive
+ * @copyright (c) year, Snapcreek LLC
+ * @license	https://opensource.org/licenses/GPL-3.0 GNU Public License
+ *
  */
+defined('ABSPATH') || defined('DUPXABSPATH') || exit;
 
-if(!class_exists('DupArchiveConstants')) {
-class DupArchiveConstants
-{
-    public static $DARoot;
-    public static $LibRoot;
-	public static $MaxFilesizeForHashing;
+if (!class_exists('DupArchiveConstants')) {
 
-    public static function init() {
+    class DupArchiveConstants
+    {
 
-        self::$LibRoot = dirname(__FILE__).'/../../';
-        self::$DARoot = dirname(__FILE__).'/../';
-		self::$MaxFilesizeForHashing = 1000000000;
+        public static $DARoot;
+        public static $LibRoot;
+        public static $MaxFilesizeForHashing;
+
+        public static function init()
+        {
+            self::$LibRoot               = dirname(__FILE__).'/../../';
+            self::$DARoot                = dirname(__FILE__).'/../';
+            self::$MaxFilesizeForHashing = 1000000000;
+        }
     }
+    DupArchiveConstants::init();
 }
 
-DupArchiveConstants::init();
-}
+if (!class_exists('DupArchiveExceptionCodes')) {
 
-if(!class_exists('DupArchiveExceptionCodes')) {
-class DupArchiveExceptionCodes
-{
-    const NonFatal = 0;
-    const Fatal = 1;
-}
+    class DupArchiveExceptionCodes
+    {
+
+        const NonFatal = 0;
+        const Fatal    = 1;
+
+    }
 }
 

@@ -147,9 +147,39 @@ class WDP_Database {
 
         $sql .= " ORDER BY priority";
 
+	    if ( isset( $args['limit'] ) ) {
+		    $sql_limit = "";
+		    $limit     = $args['limit'];
+
+		    $count = null;
+		    $start = null;
+
+		    if ( is_string( $limit ) ) {
+			    $count = $limit;
+		    } else if ( is_array( $limit ) ) {
+			    if ( 1 === count( $limit ) ) {
+				    $count = reset( $limit );
+			    } else if ( 2 === count( $limit ) ) {
+				    list( $start, $count ) = $limit;
+			    }
+		    }
+
+		    if ( ! is_null( $count ) ) {
+			    $count = (int) $count;
+			    if ( ! is_null( $start ) ) {
+				    $start     = (int) $start;
+				    $sql_limit = sprintf( "LIMIT %d, %d", $start, $count );
+			    } else {
+				    $sql_limit = sprintf( "LIMIT %d", $count );
+			    }
+		    }
+
+		    $sql .= " " . $sql_limit;
+	    }
+
         $rows = $wpdb->get_results( $sql );
 
-	    return array_map( function ( $item ) {
+	    $rows = array_map( function ( $item ) {
 		    $result = array(
 			    'id'                       => $item->id,
 			    'title'                    => $item->title,
@@ -173,6 +203,110 @@ class WDP_Database {
 
 		    return $result;
 	    }, $rows );
+
+	    foreach ( $rows as &$row ) {
+		    $row = self::validate_bulk_adjustments( $row );
+	    }
+
+	    $rows = self::migrate_to_2_2_3($rows);
+
+	    return $rows;
+    }
+
+	private static function validate_bulk_adjustments( $row ) {
+		if ( empty( $row['bulk_adjustments']['ranges'] ) ) {
+			return $row;
+		}
+
+		$ranges = $row['bulk_adjustments']['ranges'];
+		$ranges = array_values( array_filter( array_map( function ( $range ) {
+			return isset( $range['to'], $range['from'], $range['value'] ) ? $range : false;
+		}, $ranges ) ) );
+
+
+		usort( $ranges, function ( $a, $b ) {
+			if ( $a["to"] === '' && $b["to"] === '' ) {
+				return 0;
+			} else if ( $a["to"] === '' ) {
+				return 1;
+			} else if ( $b["to"] === '' ) {
+				return - 1;
+			}
+
+			return (integer) $a["to"] - (integer) $b["to"];
+		} );
+
+		$previous_range = null;
+		foreach ( $ranges as &$range ) {
+			$from = $range['from'];
+			if ( $from === '' ) {
+				if ( is_null( $previous_range ) ) {
+					$from = 1;
+				} else {
+					if ( $previous_range['to'] !== '' ) {
+						$from = (integer)$previous_range['to'] + 1;
+					}
+				}
+			}
+			$range['from']  = $from;
+			$previous_range = $range;
+		}
+
+		$row['bulk_adjustments']['ranges'] = $ranges;
+
+		return $row;
+	}
+
+	private static function migrate_to_2_2_3( $rows ) {
+		// add selector "in_list/not_in_list" for amount conditions
+		foreach ( $rows as &$row ) {
+			foreach ( $row['conditions'] as &$condition ) {
+				if ( 'amount_' === substr( $condition['type'], 0, strlen( 'amount_' ) ) && 3 === count( $condition['options'] ) ) {
+					array_unshift( $condition['options'], 'in_list' );
+				}
+			}
+		}
+
+		return $rows;
+	}
+
+    public static function get_rules_count($args = array()) {
+	    //    	return self::get_test_rules();
+	    global $wpdb;
+	    $table = $wpdb->prefix . self::TABLE_RULES;
+
+	    $sql = "SELECT COUNT(*) FROM $table WHERE 1 ";
+
+	    if ( isset( $args['types'] ) ) {
+		    $types = (array) $args['types'];
+		    $placeholders = array_fill(0, count($types), '%s');
+		    $placeholders = implode(', ', $placeholders);
+		    $sql = $wpdb->prepare( "$sql AND type IN($placeholders)", $types );
+	    }
+
+	    $active_only = isset( $args['active_only'] ) && $args['active_only'];
+	    if ( $active_only ) {
+		    $sql .= ' AND enabled = 1';
+	    }
+
+	    $include_deleted = isset( $args['include_deleted'] ) && $args['include_deleted'];
+	    if ( !$include_deleted ) {
+		    $sql .= ' AND deleted = 0';
+	    }
+
+	    if ( isset( $args['exclusive'] ) ) {
+		    $show_exclusive = $args['exclusive'] ? 1 : 0;
+		    $sql = "$sql AND exclusive = $show_exclusive";
+	    }
+
+	    if ( isset( $args['id'] ) ) {
+		    $ids = (array) $args['id'];
+		    $placeholders = array_fill(0, count($ids), '%d');
+		    $placeholders = implode(', ', $placeholders);
+		    $sql = $wpdb->prepare( "$sql AND id IN($placeholders)", $ids );
+	    }
+
+	    return $wpdb->get_var( $sql );
     }
 
 	private static function decode_array_text_fields($array) {
@@ -181,7 +315,7 @@ class WDP_Database {
 				$value = self::decode_array_text_fields($value);
 			}
 			else {
-				$value = htmlspecialchars_decode( $value );
+				$value = trim( htmlspecialchars_decode( $value ) );
 			}
 		}
 		return $array;
@@ -500,6 +634,26 @@ class WDP_Database {
 		return (int) $value;
 	}
 
+	public static function mark_as_disabled_by_plugin( $rule_id ) {
+		global $wpdb;
+
+		$table_rules = $wpdb->prefix . self::TABLE_RULES;
+
+		$sql = $wpdb->prepare( "
+            SELECT {$table_rules}.additional
+            FROM {$table_rules}
+            WHERE 'rule_id' = %d
+        ", $rule_id );
+
+		$additional                       = $wpdb->get_var( $sql );
+		$additional                       = unserialize( $additional );
+		$additional['disabled_by_plugin'] = 1;
+
+		$data  = array( 'enabled' => 0, 'additional' => serialize( $additional ) );
+		$where = array( 'id' => $rule_id );
+		$wpdb->update( $table_rules, $data, $where );
+	}
+
 	public static function delete_conditions_from_db_by_types( $types ) {
 
 		$rules = array_merge(
@@ -558,5 +712,55 @@ class WDP_Database {
 
 		}
 		return false;
+	}
+
+	public static function disable_rule( $rule_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . self::TABLE_RULES;
+
+		$data  = array( 'enabled' => 0 );
+		$where = array( 'id' => $rule_id );
+		$wpdb->update( $table, $data, $where );
+	}
+
+	public static function get_only_required_child_post_meta_data( $parent_id ) {
+		global $wpdb;
+
+		$required_keys = array(
+			'_sale_price',
+			'_regular_price',
+			'_sale_price_dates_from',
+			'_sale_price_dates_to',
+			'_tax_status',
+			'_tax_class',
+			'_sku',
+		);
+		$required_keys = '"' . implode( '","', $required_keys ) . '"';
+
+		$meta_list = $wpdb->get_results( "
+			SELECT post_id, meta_key, meta_value 
+			FROM $wpdb->postmeta 
+			WHERE 
+				post_id IN (SELECT ID FROM $wpdb->posts WHERE post_parent = $parent_id ) 
+				AND
+				(meta_key IN ( $required_keys ) OR meta_key LIKE 'attribute_%')
+			ORDER BY post_id ASC", ARRAY_A );
+
+		$post_data = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE post_parent = $parent_id ", OBJECT_K );
+
+		$required_data = array();
+
+		foreach ( $post_data as $post_datum ) {
+			$post_datum->meta = array();
+
+			$required_data[ $post_datum->ID ] = $post_datum;
+		}
+
+		foreach ( $meta_list as $row ) {
+			$value                                                      = maybe_unserialize( $row['meta_value'] );
+			$required_data[ $row['post_id'] ]->meta[ $row['meta_key'] ] = $value;
+		}
+
+		return $required_data;
 	}
 }

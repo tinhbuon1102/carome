@@ -19,6 +19,7 @@ class SEED_CSPV5{
 	private $path = null;
 
 	function __construct(){
+        
             if(!seed_cspv5_cu('none')){
 
             $ts = seed_cspv5_get_settings();
@@ -54,6 +55,7 @@ class SEED_CSPV5{
                     $this->path =$wpdb->get_row($safe_sql);
 
         			if(!empty($this->path)){
+                        add_action('init',array( &$this, 'remove_ngg_print_scripts' ));
         			    if(function_exists('bp_is_active')){
                             add_action( 'template_redirect', array(&$this,'render_landing_page'),9);
                         }else{
@@ -87,8 +89,14 @@ class SEED_CSPV5{
                     if(function_exists('the_seo_framework_pre_load')){
                        $priority = 1; 
                     }
+                    // jetpack subscribe
+                    if ( isset( $_REQUEST['jetpack_subscriptions_widget'] ) ){
+                        $priority = 11; 
+                    }
+                   
                     add_action( 'template_redirect', array(&$this,'render_comingsoon_page'),$priority );
                 }
+                add_action('init',array( &$this, 'remove_ngg_print_scripts' ));
                 add_action( 'admin_bar_menu',array( &$this, 'admin_bar_menu' ), 1000 );
             }
             }
@@ -113,6 +121,12 @@ class SEED_CSPV5{
         }
 
         return self::$instance;
+    }
+
+    function remove_ngg_print_scripts(){
+        if (class_exists('C_Photocrati_Resource_Manager')) {
+            remove_all_actions( 'wp_print_footer_scripts', 1 );
+        }
     }
 
 
@@ -259,10 +273,62 @@ class SEED_CSPV5{
 
 
     /**
+     * Remove theme's style sheets so they do not conflict with the coming soon page
+     */
+    function deregister_frontend_theme_styles(){
+        // remove scripts registered ny the theme so they don't screw up our page's style
+
+               global $wp_styles;
+                // list of styles to keep else remove
+                $styles = "admin-bar";
+                $d = explode("|",$styles);
+                $theme = wp_get_theme();
+      
+      
+                //loop styles to see which one's the theme registers
+                $remove_these_styles = array('admin-bar');
+                foreach($wp_styles->registered as $k=> $v){
+                  if(in_array($k,$wp_styles->queue)){
+                    // if the src contains the template or stylesheet remove
+                    if(strpos($v->src,$theme->stylesheet) !== false){
+                      $remove_these_styles[] = $k;
+                    }
+                    if(strpos($v->src,$theme->template) !== false){
+                       if(!in_array($k,$remove_these_styles)){
+                        $remove_these_styles[] = $k;
+                       }
+                       
+                    }
+                  }
+                }
+      
+                foreach( $wp_styles->queue as $handle ) {
+                  //echo '<br> '.$handle;
+                    if(!empty($remove_these_styles)){
+                        if(in_array($handle,$remove_these_styles)){
+                           
+                                wp_dequeue_style( $handle );
+                                wp_deregister_style( $handle );
+                                //echo '<br>removed '.$handle;
+                          
+                        }
+                    }
+                }
+
+
+                add_filter('show_admin_bar', '__return_false');  
+               
+       
+      }
+      
+
+
+
+
+    /**
      * Display the landing page
      */
     function render_landing_page() {
-       
             // Prevetn Plugins from caching
             // Disable caching plugins. This should take care of:
             //   - W3 Total Cache
@@ -306,6 +372,8 @@ class SEED_CSPV5{
             } else {
                 $settings = unserialize($page->settings);
             }
+
+
 
             // Check  for languages
             if(seed_cspv5_cu('ml')){
@@ -358,6 +426,11 @@ class SEED_CSPV5{
                 $update_result =$wpdb->get_var($safe_sql);
             }
 
+            // check if 3rd party plugins is enabled
+            if(!empty($settings['enable_wp_head_footer'])){
+                add_action( 'wp_enqueue_scripts', array(&$this,'deregister_frontend_theme_styles'), PHP_INT_MAX );
+            }
+
             header("HTTP/1.1 200 OK");
             header('Cache-Control: max-age=0, private');
 
@@ -389,6 +462,7 @@ class SEED_CSPV5{
      * Display the coming soon page
      */
     function render_comingsoon_page() {
+      
         //var_dump('coming soon');
 
         // Setting
@@ -417,8 +491,6 @@ class SEED_CSPV5{
         } else {
             $settings = unserialize($page->settings);
         }
-
-
 
 
         // Check  for languages
@@ -713,10 +785,31 @@ class SEED_CSPV5{
                     $post_id = $post->ID;
                 }
 
+                $show_coming_soon_page = false;
+
                 if(is_array($include_urls) && (in_array($url,$include_urls) || in_array($post_id,$include_urls))){
-                }else{
+                    $show_coming_soon_page = true;
+                }
+
+                // check wildcard urls
+                $urls_to_test = $include_urls;
+                $urls_to_test = str_replace(home_url(),"",$urls_to_test);
+                $url_uri = $_SERVER['REQUEST_URI'];
+                foreach($urls_to_test as $url_to_test){
+                    if(strpos($url_to_test, '*') !== false){
+                        // Wildcard url
+                        $url_to_test = str_replace("*","",$url_to_test);
+                        if(strpos($url_uri, untrailingslashit($url_to_test)) !== false){
+                            $show_coming_soon_page = true;
+                        }
+                    }
+                }
+
+                if($show_coming_soon_page === false){
                     return false;
                 }
+
+
             }
         }else{
             // Check for included pages regex
@@ -754,8 +847,23 @@ class SEED_CSPV5{
                    $post_id = $post->ID; 
                 }
                 
+                // check exact urls
                 if(is_array($exclude_urls) && (in_array($url,$exclude_urls) || in_array($post_id,$exclude_urls))){
                     return false;
+                }
+
+                // check wildcard urls
+                $urls_to_test = $exclude_urls;
+                $urls_to_test = str_replace(home_url(),"",$urls_to_test);
+                $url_uri = $_SERVER['REQUEST_URI'];
+                foreach($urls_to_test as $url_to_test){
+                    if(strpos($url_to_test, '*') !== false){
+                        // Wildcard url
+                        $url_to_test = str_replace("*","",$url_to_test);
+                        if(strpos($url_uri, untrailingslashit($url_to_test)) !== false){
+                            return false;
+                        }
+                    }
                 }
 
                 // Check for affiliateWP
@@ -837,6 +945,10 @@ class SEED_CSPV5{
                 }
             }
 
+        // check if 3rd party plugins is enabled
+        if(!empty($settings['enable_wp_head_footer'])){
+            add_action( 'wp_enqueue_scripts', array(&$this,'deregister_frontend_theme_styles'), PHP_INT_MAX );
+        }
 
 
 
@@ -907,6 +1019,8 @@ class SEED_CSPV5{
         if(!defined('DONOTCACHEOBJECT')) {
           define('DONOTCACHEOBJECT', true);
         }
+
+       
 
         // render
         $upload_dir = wp_upload_dir();

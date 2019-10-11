@@ -12,13 +12,37 @@ class WDP_Cart_Adj_Registry {
 		$items = array(
 			'discount__amount' => array(
 				'class'    => 'WDP_Cart_Adjustment_Discount_Amount',
-				'label'    => __( 'Fixed discount', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'label'    => __( 'Fixed discount, once', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'group'    => __( 'Discount', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'template' => WC_ADP_PLUGIN_PATH . 'views/cart_adjustments/discount.php',
+			),
+			'discount_repeatable__amount' => array(
+				'class'    => 'WDP_Cart_Adjustment_Discount_Amount_Repeatable',
+				'label'    => __( 'Add fixed discount on each rule execution', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'group'    => __( 'Discount', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'template' => WC_ADP_PLUGIN_PATH . 'views/cart_adjustments/discount.php',
+			),
+			'discount_repeatable_sets_count__amount' => array(
+				'class'    => 'WDP_Cart_Adjustment_Discount_Amount_Repeatable_Sets_Count',
+				'label'    => __( 'Add fixed discount to each item line affected by rule', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'group'    => __( 'Discount', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'template' => WC_ADP_PLUGIN_PATH . 'views/cart_adjustments/discount.php',
 			),
 			'fee__amount'      => array(
 				'class'    => 'WDP_Cart_Adjustment_Fee_Amount',
-				'label'    => __( 'Fixed fee', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'label'    => __( 'Fixed fee, once', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'group'    => __( 'Fee', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'template' => WC_ADP_PLUGIN_PATH . 'views/cart_adjustments/fee.php',
+			),
+			'fee_repeatable__amount'      => array(
+				'class'    => 'WDP_Cart_Adjustment_Fee_Amount_Repeatable',
+				'label'    => __( 'Add fixed fee on each rule execution', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'group'    => __( 'Fee', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'template' => WC_ADP_PLUGIN_PATH . 'views/cart_adjustments/fee.php',
+			),
+			'fee_repeatable_sets_count__amount'      => array(
+				'class'    => 'WDP_Cart_Adjustment_Fee_Amount_Repeatable_Sets_Count',
+				'label'    => __( 'Add fixed fee to each item line affected by rule', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'group'    => __( 'Fee', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'template' => WC_ADP_PLUGIN_PATH . 'views/cart_adjustments/fee.php',
 			),

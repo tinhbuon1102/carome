@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <ul class="subsubsub">
 	<?php
-		$last_index = "system";
+		$last_index = "order";
 	   foreach ( $sections as $index => $section ):
 		   if ( empty( $section['templates'] ) ) {
 			   continue;

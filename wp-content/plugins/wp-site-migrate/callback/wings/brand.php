@@ -3,46 +3,52 @@
 if (!defined('ABSPATH')) exit;
 if (!class_exists('BVBrandCallback')) :
 
-class BVBrandCallback {
-	public function process($method) {
-		global $bvresp, $bvcb;
-		$info = $bvcb->bvmain->info;
-		$option_name = $bvcb->bvmain->brand_option;
-		switch($method) {
+class BVBrandCallback extends BVCallbackBase {
+	public $settings;
+
+	public function __construct($callback_handler) {
+		$this->settings = $callback_handler->settings;
+	}
+
+	public function process($request) {
+		$bvinfo = new WPEInfo($this->settings);
+		$option_name = $bvinfo->brand_option;
+		$params = $request->params;
+		switch($request->method) {
 		case 'setbrand':
 			$brandinfo = array();
-			if (array_key_exists('hide', $_REQUEST)) {
-				$brandinfo['hide'] = $_REQUEST['hide'];
+			if (array_key_exists('hide', $params)) {
+				$brandinfo['hide'] = $params['hide'];
 			} else {
-				$brandinfo['name'] = $_REQUEST['name'];
-				$brandinfo['title'] = $_REQUEST['title'];
-				$brandinfo['description'] = $_REQUEST['description'];
-				$brandinfo['pluginuri'] = $_REQUEST['pluginuri'];
-				$brandinfo['author'] = $_REQUEST['author'];
-				$brandinfo['authorname'] = $_REQUEST['authorname'];
-				$brandinfo['authoruri'] = $_REQUEST['authoruri'];
-				$brandinfo['menuname'] = $_REQUEST['menuname'];
-				$brandinfo['logo'] = $_REQUEST['logo'];
-				$brandinfo['webpage'] = $_REQUEST['webpage'];
-				$brandinfo['appurl'] = $_REQUEST['appurl'];
-				if (array_key_exists('hide_plugin_details', $_REQUEST)) {
-					$brandinfo['hide_plugin_details'] = $_REQUEST['hide_plugin_details'];
+				$brandinfo['name'] = $params['name'];
+				$brandinfo['title'] = $params['title'];
+				$brandinfo['description'] = $params['description'];
+				$brandinfo['pluginuri'] = $params['pluginuri'];
+				$brandinfo['author'] = $params['author'];
+				$brandinfo['authorname'] = $params['authorname'];
+				$brandinfo['authoruri'] = $params['authoruri'];
+				$brandinfo['menuname'] = $params['menuname'];
+				$brandinfo['logo'] = $params['logo'];
+				$brandinfo['webpage'] = $params['webpage'];
+				$brandinfo['appurl'] = $params['appurl'];
+				if (array_key_exists('hide_plugin_details', $params)) {
+					$brandinfo['hide_plugin_details'] = $params['hide_plugin_details'];
 				}
-				if (array_key_exists('hide_from_menu', $_REQUEST)) {
-					$brandinfo['hide_from_menu'] = $_REQUEST['hide_from_menu'];
+				if (array_key_exists('hide_from_menu', $params)) {
+					$brandinfo['hide_from_menu'] = $params['hide_from_menu'];
 				}
 			}
-			$info->updateOption($option_name, $brandinfo);
-			$bvresp->addStatus("setbrand", $info->getOption($option_name));
+			$this->settings->updateOption($option_name, $brandinfo);
+			$resp = array("setbrand" => $this->settings->getOption($option_name));
 			break;
 		case 'rmbrand':
-			$info->deleteOption($option_name);
-			$bvresp->addStatus("rmbrand", !$info->getOption($option_name));
+			$this->settings->deleteOption($option_name);
+			$resp = array("rmbrand" => !$this->settings->getOption($option_name));
 			break;
 		default:
-			return false;
+			$resp = false;
 		}
-		return true;
+		return $resp;
 	}
 }
 endif;

@@ -2,8 +2,8 @@
 Contributors: wpengine, blogvault, akshatc, taylor4484
 Tags: wpe, wpengine, migration
 Requires at least: 4.0
-Tested up to: 5.1
-Stable tag: trunk
+Tested up to: 5.2.1
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,15 @@ That's easy! [Signup here](http://wpengine.com/plans/).
 2. BlogVault dashboard showing live updates.
 
 == Changelog ==
+= 2.1 =
+* Restructuring classes
+
+= 1.88 =
+* Callback improvements
+
+= 1.86 =
+* Updating tested upto 5.1
+
 = 1.84 =
 * Disable form on submit
 

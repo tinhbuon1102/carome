@@ -18,12 +18,12 @@ function seed_cspv5_section_madmimi($emaillist,$page_id) {
     <div class="postbox">
         <h3 class="hndle"><?php _e('madmimi', 'seedprod') ?></h3>
         <div class="inside">
-        <p><?php __('Configure saving subscribers to Mad Mimi options. Save after you enter your api key and username to load your list. <a href="http://support.seedprod.com/article/75-collecting-emails-with-mad-mimi" target="_blank">Learn More</a>', 'seedprod') ?></p>
+        <p><?php __('Configure saving subscribers to Mad Mimi options. Save after you enter your api key and username to load your list. <a href="https://support.seedprod.com/article/77-collecting-emails-with-mad-mimi" target="_blank">Learn More</a>', 'seedprod') ?></p>
         <form id="seed_cspv5_emaillist_settings">
         <input type="hidden" id="settings_name" name="settings_name" value="<?php echo $settings_name ?>"/>
         <input type="hidden" id="page_id" name="page_id" value="<?php echo $page_id ?>"/>
         <input type="hidden" id="emaillist" name="emaillist" value="<?php echo $emaillist ?>"/>
-        <p><a href="http://support.seedprod.com/article/75-collecting-emails-with-mad-mimi" target="_blank">Learn how to Configure</a></p>
+        <p><a href="https://support.seedprod.com/article/77-collecting-emails-with-mad-mimi" target="_blank">Learn how to Configure</a></p>
         <table class="form-table">
             <tbody>
                 <tr valign="top">

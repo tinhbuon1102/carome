@@ -5,16 +5,22 @@ defined("DUPXABSPATH") or die("");
 /* @var $archive_config DUPX_ArchiveConfig */
 /* @var $installer_state DUPX_InstallerState */
 
-require_once($GLOBALS['DUPX_INIT'] . '/classes/config/class.archive.config.php');
+require_once($GLOBALS['DUPX_INIT'].'/classes/config/class.archive.config.php');
+require_once($GLOBALS['DUPX_INIT'].'/views/classes/class.view.s1.php');
 
+$paramsManager = DUPX_Paramas_Manager::getInstance();
 //ARCHIVE FILE
-$arcCheck = (file_exists($GLOBALS['FW_PACKAGE_PATH'])) ? 'Pass' : 'Fail';
-$arcSize = @filesize($GLOBALS['FW_PACKAGE_PATH']);
-$arcSize = is_numeric($arcSize) ? $arcSize : 0;
+if (DUPX_Conf_Utils::archiveExists()) {
+    $arcCheck = 'Pass';
+} else {
+    if (DUPX_Conf_Utils::isConfArkPresent()) {
+        $arcCheck = 'Warn';
+    } else {
+        $arcCheck = 'Fail';
+    }
+}
 
-$root_path				= $GLOBALS['DUPX_ROOT'];
 $installer_state		= DUPX_InstallerState::getInstance();
-$is_wpconfarc_present	= file_exists("{$root_path}/dup-wp-config-arc__{$GLOBALS['DUPX_AC']->package_hash}.txt");
 $is_overwrite_mode		= ($installer_state->mode === DUPX_InstallerMode::OverwriteInstall);
 $is_wordpress			= DUPX_Server::isWordPress();
 $is_dbonly				= $GLOBALS['DUPX_AC']->exportOnlyDB;
@@ -25,26 +31,28 @@ $ret_is_dir_writable = DUPX_Server::is_dir_writable($GLOBALS['DUPX_ROOT']);
 $req['10'] = $ret_is_dir_writable['ret'] ? 'Pass' : 'Fail';
 $req['20'] = function_exists('mysqli_connect') ? 'Pass' : 'Fail';
 $req['30'] = DUPX_Server::$php_version_safe ? 'Pass' : 'Fail';
+$req['40'] = (DUPX_Custom_Host_Manager::getInstance()->isManaged() 
+    && $GLOBALS['DUPX_AC']->wp_tableprefix != DUPX_WPConfig::getValueFromLocalWpConfig('table_prefix', 'variable'))
+				? 'Fail' : 'Pass';
+
 $all_req = in_array('Fail', $req) ? 'Fail' : 'Pass';
+if ('Fail' == $all_req)	DUPX_U::maintenanceMode(false, $GLOBALS['DUPX_ROOT']);
 
 //NOTICES
 $openbase	= ini_get("open_basedir");
 $datetime1	= $GLOBALS['DUPX_AC']->created;
 $datetime2	= date("Y-m-d H:i:s");
 $fulldays	= round(abs(strtotime($datetime1) - strtotime($datetime2))/86400);
-$root_path	= SnapLibIOU::safePath($GLOBALS['DUPX_ROOT'], true);
-$archive_path = SnapLibIOU::safePath($GLOBALS['FW_PACKAGE_PATH'], true);
-$wpconf_path = "{$root_path}/wp-config.php";
 $max_time_zero = ($GLOBALS['DUPX_ENFORCE_PHP_INI']) ? false : @set_time_limit(0);
 $max_time_size = 314572800;  //300MB
 $max_time_ini = ini_get('max_execution_time');
-$max_time_warn = (is_numeric($max_time_ini) && $max_time_ini < 31 && $max_time_ini > 0) && $arcSize > $max_time_size;
+$max_time_warn = (is_numeric($max_time_ini) && $max_time_ini < 31 && $max_time_ini > 0) && DUPX_Conf_Utils::archiveSize() > $max_time_size;
 $parent_has_wordfence = file_exists($GLOBALS['DUPX_ROOT'].'/../wp-content/plugins/wordfence/wordfence.php');
 
 
 $notice = array();
 $notice['10'] = ! $is_overwrite_mode ? 'Good' : 'Warn';
-$notice['20'] = ! $is_wpconfarc_present ? 'Good' : 'Warn';
+$notice['20'] = ! DUPX_Conf_Utils::isConfArkPresent() ? 'Good' : 'Warn';
 if ($is_dbonly) {
 	$notice['25'] =	$is_wordpress ? 'Good' : 'Warn';
 }
@@ -68,6 +76,13 @@ if ($GLOBALS['DUPX_AC']->exportOnlyDB) {
 						? 'Good' 
 						: 'Warn';
 }
+
+$space_free = @disk_free_space($GLOBALS['DUPX_ROOT']); 
+$archive_size = DUPX_Conf_Utils::archiveSize();
+$notice['100'] = ($space_free && $archive_size > 0 && $archive_size > $space_free) 
+                    ? 'Warn'
+                    : 'Good';
+
 $all_notice = in_array('Warn', $notice) ? 'Warn' : 'Good';
 
 //SUMMATION
@@ -76,115 +91,36 @@ $req_notice		= ($all_notice == 'Good');
 $all_success	= ($req_success && $req_notice);
 $agree_msg		= "To enable this button the checkbox above under the 'Terms & Notices' must be checked.";
 
-$shell_exec_unzip_path  = DUPX_Server::get_unzip_filepath();
-$shell_exec_unzip_enabled = ($shell_exec_unzip_path != null);
-$zip_archive_enabled    = class_exists('ZipArchive');
 $archive_config			= DUPX_ArchiveConfig::getInstance();
 
-
-//MULTISITE
-$show_multisite = ($archive_config->mu_mode !== 0) && (count($archive_config->subsites) > 0);
-$multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::BusinessGold);
+DUPX_Log::logTime('VIEW STEP 1 CHECK END', DUPX_Log::LV_DETAILED);
 ?>
 
+
 <form id="s1-input-form" method="post" class="content-form">
-    <input type="hidden" name="view" value="step1" />
-    <input type="hidden" name="csrf_token" value="<?php echo DUPX_CSRF::generate('step1'); ?>">
-    <input type="hidden" name="secure-pass" value="<?php echo DUPX_U::esc_attr($_POST['secure-pass']); ?>" />
-    <input type="hidden" name="bootloader" value="<?php echo DUPX_U::esc_attr($GLOBALS['BOOTLOADER_NAME']); ?>" />
-	<input type="hidden" name="archive" value="<?php echo DUPX_U::esc_attr($GLOBALS['FW_PACKAGE_PATH']); ?>" />    
-	<input type="hidden" name="ctrl_action" value="ctrl-step1" />
-    <input type="hidden" name="ctrl_csrf_token" value="<?php echo DUPX_CSRF::generate('ctrl-step1'); ?>"> 
-    <input type="hidden" id="s1-input-form-extra-data" name="extra_data" />
-
-    <div class="hdr-main">
-        Step <span class="step">1</span> of 4: Deployment
-    </div><br/>
-
-
+    <?php DUPX_U_Html::getHeaderMain('Step <span class="step">1</span> of 4: Deployment'); ?>
+    <input type="hidden" name="<?php echo DUPX_Security::VIEW_TOKEN; ?>" value="<?php echo DUPX_U::esc_attr(DUPX_CSRF::generate('step1')); ?>">
+    <input type="hidden" name="<?php echo DUPX_Security::CTRL_TOKEN; ?>" value="<?php echo DUPX_CSRF::generate('ctrl-step1'); ?>"> 
+    <input type="hidden" id="s1-input-dawn-status" name="dawn_status" />
+    <?php 
+    $paramsManager->getHtmlFormParam(DUPX_Paramas_Manager::PARAM_CTRL_ACTION, 'ctrl-step1');
+    $paramsManager->getHtmlFormParam(DUPX_Paramas_Manager::PARAM_VIEW, 'step1');
+    ?>
     <!-- ====================================
     ARCHIVE
-    ==================================== -->
-    <div class="hdr-sub1 toggle-hdr" data-type="toggle" data-target="#s1-area-archive-file">
-        <a id="s1-area-archive-file-link"><i class="fa fa-plus-square"></i>Archive</a>
-        <div class="<?php echo ( $arcCheck == 'Pass') ? 'status-badge-pass' : 'status-badge-fail'; ?>">
-            <?php echo ($arcCheck == 'Pass') ? 'Pass' : 'Fail'; ?>
-        </div>
-    </div>
-    <div id="s1-area-archive-file" style="display:none">
-        <div id="tabs">
-            <ul>
-                <li><a href="#tabs-1">Server</a></li>
-                <!--li><a href="#tabs-2">Cloud</a></li-->
-            </ul>
-            <div id="tabs-1">
-
-                <table class="s1-archive-local">
-                    <tr>
-                        <td colspan="2"><div class="hdr-sub3">Site Details</div></td>
-                    </tr>
-                    <tr>
-                        <td>Site:</td>
-                        <td><?php echo DUPX_U::esc_html($GLOBALS['DUPX_AC']->blogname);?> </td>
-                    </tr>
-                    <tr>
-                        <td>Notes:</td>
-                        <td><?php echo strlen($GLOBALS['DUPX_AC']->package_notes) ? "{$GLOBALS['DUPX_AC']->package_notes}" : " - no notes - "; ?></td>
-                    </tr>
-                    <?php if ($GLOBALS['DUPX_AC']->exportOnlyDB) :?>
-                        <tr>
-                            <td>Mode:</td>
-                            <td>Archive only database was enabled during package package creation.</td>
-                        </tr>
-                    <?php endif; ?>
-                </table>
-
-                <table class="s1-archive-local">
-                    <tr>
-                        <td colspan="2"><div class="hdr-sub3">File Details</div></td>
-                    </tr>
-                    <tr>
-                        <td>Size:</td>
-                        <td><?php echo DUPX_U::readableByteSize($arcSize);?> </td>
-                    </tr>
-                    <tr>
-                        <td>Path:</td>
-                        <td><?php echo $root_path; ?> </td>
-                    </tr>
-                    <tr>
-                        <td style="vertical-align:top">Status:</td>
-                        <td>
-                            <?php if ($arcCheck != 'Fail') : ?>
-                                <span class="dupx-pass">Archive file successfully detected.</span>
-                            <?php else : ?>
-                                <span class="dupx-fail" style="font-style:italic">
-							The archive file named above must be the <u>exact</u> name of the archive file placed in the root path (character for character).
-							When downloading the package files make sure both files are from the same package line.  <br/><br/>
-
-							If the contents of the archive were manually transferred to this location without the archive file then simply create a temp file named with
-							the exact name shown above and place the file in the same directory as the installer.php file.  The temp file will not need to contain any data.
-							Afterward, refresh this page and continue with the install process.
-						</span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                </table>
-
-            </div>
-            <!--div id="tabs-2"><p>Content Here</p></div-->
-        </div>
-    </div><br/><br/>
+    ==================================== -->    
+    <?php DUPX_View_S1::infoTabs()?>
 
     <!-- ====================================
     VALIDATION
     ==================================== -->
-    <div class="hdr-sub1 toggle-hdr" data-type="toggle" data-target="#s1-area-sys-setup">
+    <div class="hdr-sub1 toggle-hdr open" data-type="toggle" data-target="#s1-area-sys-setup">
         <a id="s1-area-sys-setup-link"><i class="fa fa-plus-square"></i>Validation</a>
-        <div class="<?php echo ( $req_success) ? 'status-badge-pass' : 'status-badge-fail'; ?>	">
+        <div class="<?php echo ( $req_success) ? 'status-badge status-badge-pass' : 'status-badge status-badge-fail'; ?>	">
             <?php echo ( $req_success) ? 'Pass' : 'Fail'; ?>
         </div>
     </div>
-    <div id="s1-area-sys-setup" style="display:none">
+    <div id="s1-area-sys-setup" class="hdr-sub1-area no-display" >
         <div class='info-top'>The system validation checks help to make sure the system is ready for install.</div>
 
         <!-- REQUIREMENTS -->
@@ -258,9 +194,18 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 		<div class="status <?php echo strtolower($req['30']); ?>"><?php echo $req['30']; ?></div>
 		<div class="title" data-type="toggle" data-target="#s1-reqs30"><i class="fa fa-caret-right"></i> PHP Version</div>
 		<div class="info" id="s1-reqs30">
-			This server is running PHP: <b><?php echo DUPX_Server::$php_version ?></b>. <i>A minimum of PHP 5.2.17 is required</i>.
+            This server is running PHP: <b><?php echo DUPX_Server::$php_version ?></b>. <i>A minimum of PHP <?php echo DUPX_Boot::MINIMUM_PHP_VERSION; ?> is required</i>.
 			Contact your hosting provider or server administrator and let them know you would like to upgrade your PHP version.
 		</div>
+        <?php    if (DUPX_Custom_Host_Manager::getInstance()->isManaged()) { ?>
+		<!-- REQ 40 -->
+		<div class="status <?php echo strtolower($req['40']); ?>"><?php echo $req['40']; ?></div>
+		<div class="title" data-type="toggle" data-target="#s1-reqs40"><i class="fa fa-caret-right"></i> Table prefix of managed hosting</div>
+		<div class="info" id="s1-reqs40">
+			You are installing the package in the managed hosting.
+			Your existing WordPress setup table prefix doesn't match the package creation source site's table prefix.
+		</div>
+        <?php } ?>
 	</div><br/>
 
 
@@ -309,7 +254,7 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 			</div>
 
 		<!-- NOTICE 20: ARCHIVE EXTRACTED -->
-		<?php elseif ($is_wpconfarc_present) :?>
+		<?php elseif (DUPX_Conf_Utils::isConfArkPresent()) :?>
 			<div class="status fail">Warn</div>
 			<div class="title" data-type="toggle" data-target="#s1-notice20"><i class="fa fa-caret-right"></i> Archive Extracted</div>
 			<div class="info" id="s1-notice20">
@@ -362,23 +307,6 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 			package unless your aware of the content and its data.  This is message is simply a recommendation.
 		</div>
 
-		<!-- NOTICE 40 -->
-		<div class="status <?php echo ($notice['40'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo $notice['40']; ?></div>
-		<div class="title" data-type="toggle" data-target="#s1-notice40"><i class="fa fa-caret-right"></i> PHP Version 5.2</div>
-		<div class="info" id="s1-notice40">
-			<?php
-				$cssStyle   = DUPX_Server::$php_version_53_plus	 ? 'color:green' : 'color:red';
-				echo "<b style='{$cssStyle}'>This server is currently running PHP version [{$currentPHP}]</b>.<br/>"
-				. "Duplicator Pro allows PHP 5.2 to be used during install but does not officially support it.  If you're using PHP 5.2 we strongly recommend NOT using it and having your "
-				. "host upgrade to a newer more stable, secure and widely supported version.  The <a href='http://php.net/eol.php' target='_blank'>end of life for PHP 5.2</a> "
-				. "was in January of 2011 and is not recommended for use.<br/><br/>";
-
-                echo "Many plugin and theme authors are no longer supporting PHP 5.2 and trying to use it can result in site wide problems and compatibility warnings and errors.  "
-                    . "Please note if you continue with the install using PHP 5.2 the Duplicator Pro support team will not be able to help with issues or troubleshoot your site.  "
-                    . "If your server is running <b>PHP 5.3+</b> please feel free to reach out for help if you run into issues with your migration/install.";
-                ?>
-            </div>
-
         <!-- NOTICE 45 -->
 		<div class="status <?php echo ($notice['45'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo $notice['45']; ?></div>
 		<div class="title" data-type="toggle" data-target="#s1-notice45"><i class="fa fa-caret-right"></i> PHP Version mismatch</div>
@@ -415,7 +343,7 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 		<div class="status <?php echo ($notice['60'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo $notice['60']; ?></div>
 		<div class="title" data-type="toggle" data-target="#s1-notice60"><i class="fa fa-caret-right"></i> PHP Timeout</div>
 		<div class="info" id="s1-notice60">
-			<b>Archive Size:</b> <?php echo DUPX_U::readableByteSize($arcSize) ?>  <small>(detection limit is set at <?php echo DUPX_U::readableByteSize($max_time_size) ?>) </small><br/>
+			<b>Archive Size:</b> <?php echo DUPX_U::readableByteSize(DUPX_Conf_Utils::archiveSize()) ?>  <small>(detection limit is set at <?php echo DUPX_U::readableByteSize($max_time_size) ?>) </small><br/>
 			<b>PHP max_execution_time:</b> <?php echo "{$max_time_ini}"; ?> <small>(zero means not limit)</small> <br/>
 			<b>PHP set_time_limit:</b> <?php echo ($max_time_zero) ? '<i style="color:green">Success</i>' : '<i style="color:maroon">Failed</i>' ?>
 			<br/><br/>
@@ -461,225 +389,47 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 			<br/><br/>
 			The Duplicator Installer will place the wp-content directory in the WordPress root folder of the WordPress installation. This will not affect operation of the site.
 		</div>
+
+        <!-- NOTICE 100 -->
+		<div class="status <?php echo ($notice['100'] == 'Good') ? 'pass' : 'fail' ?>"><?php echo DUPX_U::esc_html($notice['100']); ?></div>
+		<div class="title" data-type="toggle" data-target="#s1-notice100"><i class="fa fa-caret-right"></i> Sufficient disk space</div>
+		<div class="info" id="s1-notice100">
+        <?php
+        echo ($notice['100'] == 'Good')
+                ? 'You have sufficient disk space in your machine to extract the archive.'
+                : 'You don’t have sufficient disk space in your machine to extract the archive. Ask your host to increase disk space.'
+        ?>
+		</div>
         </div>
     </div>
-    <br/><br/>
 
     <!-- ====================================
     MULTISITE PANEL
     ==================================== -->
-    <?php if($show_multisite) : ?>
-        <div class="hdr-sub1 toggle-hdr" data-type="toggle" data-target="#s1-multisite">
-            <a href="javascript:void(0)"><i class="fa fa-minus-square"></i>Multisite</a>
-        </div>
-        <div id="s1-multisite">
-            <?php if(!$archive_config->mu_is_filtered): ?>
-                <input id="full-network" onclick="DUPX.enableSubsiteList(false);" type="radio" name="multisite-install-type" value="0" checked>
-                <label for="full-network">Restore entire multisite network</label><br/>
-                <input <?php if($multisite_disabled) {echo 'disabled';} ?> id="multisite-install-type" onclick="DUPX.enableSubsiteList(true);" type="radio" name="multisite-install-type" value="1">
-                <label for="multisite-install-type">Convert subsite
-                    <select id="subsite-id" name="subsite-id" style="width:200px" disabled>
-                        <?php foreach($archive_config->subsites as $subsite) :
-                            if (property_exists($subsite, 'blogname')) {
-                                $label = $subsite->blogname.' ('.$subsite->name.')';
-                            } else {
-                                $label = $subsite->name;
-                            }
-                            ?>
-                            <option value="<?php echo intval($subsite->id); ?>"><?php echo DUPX_U::esc_html($label); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    into a standalone site<?php if($multisite_disabled) { echo '*';} ?>
-                </label>
-            <?php else: ?>
-                Convert subsite
-                <select id="subsite-id" name="subsite-id" style="width:200px" <?php if($multisite_disabled) { echo 'disabled';}?>>
-                    <?php foreach($archive_config->subsites as $subsite) : 
-                        if (property_exists ( $subsite , 'blogname')) {
-                            $label = $subsite->blogname.' ('.$subsite->name.')';
-                        } else {
-                            $label = $subsite->name;
-                        }
-                        ?>
-                        <option value="<?php echo $subsite->id; ?>"><?php echo DUPX_U::esc_html($label); ?></option>
-                    <?php endforeach; ?>
-                </select>
-                into a standalone site<?php if($multisite_disabled) { echo '*';} ?><br>
-                <p style="line-height:17px; margin-top:27px">
-                    <b>Note:</b> You can't restore the entire multisite network because one or more subsites were filtered when this package was created.
-                </p>
-            <?php endif; ?>
-            <?php
-            if($multisite_disabled) {
-                $license_string = ' This installer was created with ';
-
-                switch($archive_config->getLicenseType()) {
-                    case DUPX_LicenseType::Unlicensed:
-                        $license_string .= "an Unlicensed copy of Duplicator Pro.";
-                        break;
-
-                    case DUPX_LicenseType::Personal:
-                        $license_string .= "a Personal license of Duplicator Pro.";
-                        break;
-
-                    case DUPX_LicenseType::Freelancer:
-                        $license_string .= "a Freelancer license of Duplicator Pro.";
-                        break;
-
-                    default:
-                        $license_string = '';
-                }
-                echo "<p class='note'>*Requires Business or Gold license. $license_string</p>";
-            }
-            ?>
-        </div>
-        <br/><br/>
-    <?php endif; ?>
-
+    <?php DUPX_View_S1::multisiteOptions(); ?>
+    
     <!-- ====================================
     OPTIONS
     ==================================== -->
-    <div class="hdr-sub1 toggle-hdr" data-type="toggle" data-target="#s1-area-adv-opts">
+    <div class="hdr-sub1 toggle-hdr open" data-type="toggle" data-target="#s1-area-adv-opts">
         <a href="javascript:void(0)"><i class="fa fa-plus-square"></i>Options</a>
     </div>
-    <div id="s1-area-adv-opts" style="display:none">
+    <div id="s1-area-adv-opts" class="hdr-sub1-area no-display">
         <div class="help-target">
-            <a href="<?php echo DUPX_U::esc_url($GLOBALS['_HELP_URL_PATH']); ?>#help-s1" target="_blank"><i class="fa fa-question-circle"></i></a>
-        </div><br/>
-
-	<div class="hdr-sub3">General</div>
-	<table class="dupx-opts dupx-advopts">
-        <tr>
-            <td>Extraction:</td>
-            <td>
-                <?php $num_selections = ($archive_config->isZipArchive() ? 3 : 2); ?>
-                <select id="archive_engine" name="archive_engine" size="<?php echo $num_selections; ?>">
-					<option <?php echo ($is_wpconfarc_present ? '' : 'disabled'); ?> value="manual">Manual Archive Extraction <?php echo ($is_wpconfarc_present ? '' : '*'); ?></option>
-                    <?php
-                        if($archive_config->isZipArchive()){
-
-                            //ZIP-ARCHIVE
-                            if ($zip_archive_enabled){
-                                echo '<option value="ziparchive">PHP ZipArchive</option>';
-                                echo '<option value="ziparchivechunking" selected="true">PHP ZipArchive Chunking</option>';
-                            } else {
-                                echo '<option value="ziparchive" disabled="true">PHP ZipArchive (not detected on server)</option>';
-                            }
-                            
-                            //SHELL-EXEC UNZIP
-                            if ($shell_exec_unzip_enabled) {
-                                 if($zip_archive_enabled) {
-                                    echo '<option value="shellexec_unzip" >Shell Exec Unzip</option>';
-                                 } else {
-                                    echo '<option value="shellexec_unzip" selected="true">Shell Exec Unzip</option>';
-                                 }
-                            } else {
-                                echo '<option value="shellexec_unzip" disabled="true">Shell Exec Unzip (not detected on server)</option>';
-                            }
-                    }
-                    else {
-                        echo '<option value="duparchive" selected="true">DupArchive</option>';
-                    }
-                    ?>
-                </select><br/>
-				<?php if(!$is_wpconfarc_present) :?>
-					<span class="sub-notes">
-						*Option enabled when archive has been pre-extracted
-						<a href="https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-015-q" target="_blank">[more info]</a>
-					</span>
-				<?php endif ?>
-            </td>
-        </tr>
-		<tr>
-			<td>Permissions:</td>
-			<td>
-				<input type="checkbox" name="set_file_perms" id="set_file_perms" value="1" onclick="jQuery('#file_perms_value').prop('disabled', !jQuery(this).is(':checked'));"/>
-				<label for="set_file_perms">All Files</label><input name="file_perms_value" id="file_perms_value" style="width:30px; margin-left:7px;" value="644" disabled> &nbsp;
-				<input type="checkbox" name="set_dir_perms" id="set_dir_perms" value="1" onclick="jQuery('#dir_perms_value').prop('disabled', !jQuery(this).is(':checked'));"/>
-				<label for="set_dir_perms">All Directories</label><input name="dir_perms_value" id="dir_perms_value" style="width:30px; margin-left:7px;" value="755" disabled>
-			</td>
-		</tr>
-	</table><br/><br/>
-
-        <div class="hdr-sub3">Advanced</div>
-        <table class="dupx-opts dupx-advopts">
-            <tr>
-                <td>Safe Mode:</td>
-                <td>
-                    <select name="exe_safe_mode" id="exe_safe_mode" onchange="DUPX.onSafeModeSwitch();" style="width:200px;">
-                        <option value="0">Off</option>
-                        <option value="1">Basic</option>
-                        <option value="2">Advanced</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Config Files:</td>
-                <td>
-                    <input type="checkbox" name="retain_config" id="retain_config" value="1" />
-                    <label for="retain_config" style="font-weight: normal">Retain original .htaccess, .user.ini and web.config</label>
-                </td>
-            </tr>
-            <tr>
-                <td>File Times:</td>
-                <td>
-                    <input type="radio" name="zip_filetime" id="zip_filetime_now" value="current" checked="checked" />
-                    <label class="radio" for="zip_filetime_now" title='Set the files current date time to now'>Current</label> &nbsp;
-                    <input type="radio" name="zip_filetime" id="zip_filetime_orginal" value="original" />
-                    <label class="radio" for="zip_filetime_orginal" title="Keep the files date time the same">Original</label>
-                </td>
-            </tr>
-            <tr>
-                <td>Logging:</td>
-                <td>
-                    <input type="radio" name="logging" id="logging-light" value="1" checked="true"> <label for="logging-light" class="radio">Light</label> &nbsp;
-                    <input type="radio" name="logging" id="logging-detailed" value="2"> <label for="logging-detailed" class="radio">Detailed</label> &nbsp;
-                    <input type="radio" name="logging" id="logging-debug" value="3"> <label for="logging-debug" class="radio">Debug</label>
-                </td>
-            </tr>
-            <?php if(!$archive_config->isZipArchive()): ?>
-                <tr>
-                    <td>Client-Kickoff:</td>
-                    <td>
-                        <input type="checkbox" name="clientside_kickoff" id="clientside_kickoff" value="1" checked/>
-                        <label for="clientside_kickoff" style="font-weight: normal">Browser drives the archive engine.</label>
-                    </td>
-                </tr>
-            <?php endif;
-            $licence_type = $GLOBALS['DUPX_AC']->getLicenseType();
-            if ($licence_type >= DUPX_LicenseType::Freelancer) {
-            ?>
-            <tr id="remove-redundant-row" <?php if ($GLOBALS['DUPX_AC']->exportOnlyDB) {?>style="display:none;"<?php } ?>>
-                <td>Inactive Plugins<br> and Themes:</td>
-                <td>
-                    <input type="checkbox" id="remove-redundant" name="remove-redundant" value="1">
-                    <label for="remove-redundant">Migrate only active themes and plugins.</label>
-                    <?php if($show_multisite) { ?>
-                        <br>
-                        <span class="sub-notes">
-                            <?php echo str_repeat('&nbsp;', 7);?>When checked for a subsite to standalone migration, only active users will be retained also.
-                        </span>
-                    <?php } ?>                    
-                </td>
-            </tr>
-            <?php
-            }
-            ?>
-        </table>
-    </div><br/>
-
-    <?php include ('view.s1.terms.php') ;?>
-
-    <div id="s1-warning-check">
-        <input id="accept-warnings" name="accpet-warnings" type="checkbox" onclick="DUPX.acceptWarning()" />
-        <label for="accept-warnings">I have read and accept all <a href="javascript:void(0)" onclick="DUPX.viewTerms()">terms &amp; notices</a> <small style="font-style:italic">(required to continue)</small></label><br/>
+            <?php DUPX_View_Funcs::helpIconLink('step1'); ?>
+        </div>
+        <?php DUPX_View_S1::generalOptions(); ?>
+        <br/><br/>
+        <?php DUPX_View_S1::advancedOptions(); ?>
     </div>
-    <br/><br/>
-    <br/><br/>
 
+    <?php
+    $req_counts = array_count_values($req);
+    $is_only_permission_issue = (isset($req_counts['Fail']) && 1 == $req_counts['Fail'] && 'Fail' == $req[10] && 'Fail' == $all_req && 'Fail' != $arcCheck);
+    ?>
 
     <?php if (!$req_success || $arcCheck == 'Fail') : ?>
-        <div class="s1-err-msg">
+        <div class="s1-err-msg" <?php if ($is_only_permission_issue) { ?>style="padding: 0 0 20px 0;"<?php } ?>>
             <i>
                 This installation will not be able to proceed until the archive and validation sections both pass. Please adjust your servers settings or contact your
                 server administrator, hosting provider or visit the resources below for additional help.
@@ -689,12 +439,32 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
                 &raquo; <a href="https://snapcreek.com/support/docs/" target="_blank">Online Documentation</a> <br/>
             </div>
         </div>
-    <?php else : ?>
-        <div class="footer-buttons" >
-            <button id="s1-deploy-btn" type="button" title="<?php echo $agree_msg; ?>" onclick="DUPX.processNext()"  class="default-btn"> Next <i class="fa fa-caret-right"></i> </button>
+    <?php
+        $is_next_btn_html = false;
+    else :
+        $is_next_btn_html = true;
+    endif;
+    
+    if ($is_only_permission_issue) { ?>
+        <div class="s1-accept-check">
+            <input id="accept-perm-error" name="accept-perm-error" type="checkbox" onclick="DUPX.showHideNextBtn(this)" />
+            <label for="accept-perm-error" style="color: #AF0000;">I would like to proceed with my own risk despite the permission error</label><br/>
         </div>
-    <?php endif; ?>
-
+    <?php
+    }
+    if ($is_next_btn_html || $is_only_permission_issue) {
+    ?>
+        <div class="footer-buttons" <?php if ($is_only_permission_issue) { ?>style="display: none;"<?php } ?>>
+            <div class="content-left">
+                <?php DUPX_View_S1::acceptAndContinue(); ?>
+            </div>
+            <div class="content-right" >
+            <button id="s1-deploy-btn" type="button" title="<?php echo $agree_msg; ?>" onclick="DUPX.processNext()"  class="default-btn"> Next <i class="fa fa-caret-right"></i> </button>
+            </div>
+       </div>
+    <?php
+    }
+    ?>
 </form>
 
 
@@ -702,27 +472,14 @@ $multisite_disabled = ($archive_config->getLicenseType() != DUPX_LicenseType::Bu
 VIEW: STEP 1 - AJAX RESULT
 Auto Posts to view.step2.php
 ========================================= -->
+
 <form id='s1-result-form' method="post" class="content-form" style="display:none">
-
-    <div class="dupx-logfile-link"><a href="<?php echo './'.DUPX_U::esc_attr($GLOBALS["LOG_FILE_NAME"]);?>" target="dup-installer">installer-log.txt</a></div>
-    <div class="hdr-main">
-        Step <span class="step">1</span> of 4: Extraction
-    </div>
-
+    <?php DUPX_U_Html::getHeaderMain('Step <span class="step">1</span> of 4: Extraction'); ?>
     <!--  POST PARAMS -->
     <div class="dupx-debug">
         <i>Step 1 - AJAX Response</i>
         <input type="hidden" name="view" value="step2" />
-        <input type="hidden" name="csrf_token" value="<?php echo DUPX_U::esc_attr(DUPX_CSRF::generate('step2')); ?>">
-		<input type="hidden" name="secure-pass" value="<?php echo DUPX_U::esc_attr($_POST['secure-pass']); ?>" />
-        <input type="hidden" name="bootloader" value="<?php echo DUPX_U::esc_attr($GLOBALS['BOOTLOADER_NAME']); ?>" />
-	    <input type="hidden" name="archive" value="<?php echo DUPX_U::esc_attr($GLOBALS['FW_PACKAGE_PATH']); ?>" />
-        <input type="hidden" name="logging" id="ajax-logging"  />
-        <input type="hidden" name="archive_name" value="<?php echo DUPX_U::esc_attr($GLOBALS['FW_PACKAGE_NAME']); ?>" />
-        <input type="hidden" name="retain_config" id="ajax-retain-config" />
-        <input type="hidden" name="exe_safe_mode" id="exe-safe-mode"  value="0" />
-        <input type="hidden" name="subsite-id" id="ajax-subsite-id" value="-1" />
-        <input type="hidden" name="remove_redundant" id="ajax-remove-redundant" value="0" />
+        <input type="hidden" name="<?php echo DUPX_Security::VIEW_TOKEN; ?>" value="<?php echo DUPX_U::esc_attr(DUPX_CSRF::generate('step2')); ?>">
         <input type="hidden" name="json" id="ajax-json" />
         <textarea id='ajax-json-debug' name='json_debug_view'></textarea>
         <input type='submit' value='manual submit'>
@@ -731,7 +488,7 @@ Auto Posts to view.step2.php
     <!--  PROGRESS BAR -->
     <div id="progress-area">
         <div style="width:500px; margin:auto">
-            <div class="progress-text"><i class="fa fa-circle-o-notch fa-spin"></i> Extracting Archive Files<span id="progress-pct"></span></div>
+            <div class="progress-text"><i class="fas fa-circle-notch fa-spin"></i> Extracting Archive Files<span id="progress-pct"></span></div>
             <div id="secondary-progress-text"></div>
             <div id="progress-notice"></div>
             <div id="progress-bar"></div>
@@ -745,7 +502,7 @@ Auto Posts to view.step2.php
     <div id="ajaxerr-area" style="display:none">
         <p>Please try again an issue has occurred.</p>
         <div style="padding: 0px 10px 10px 0px;">
-            <div id="ajaxerr-data">An unknown issue has occurred with the file and database setup process.  Please see the installer-log.txt file for more details.</div>
+            <div id="ajaxerr-data">An unknown issue has occurred with the file and database setup process.  Please see the <?php DUPX_View_Funcs::installerLogLink(); ?> file for more details.</div>
             <div style="text-align:center; margin:10px auto 0px auto">
                 <input type="button" class="default-btn" onclick="DUPX.hideErrorResult()" value="&laquo; Try Again" /><br/><br/>
                 <i style='font-size:11px'>See online help for more details at <a href='https://snapcreek.com/ticket' target='_blank'>snapcreek.com</a></i>
@@ -753,8 +510,18 @@ Auto Posts to view.step2.php
         </div>
     </div>
 </form>
-
+<?php DUPX_Log::logTime('VIEW STEP 1 SCRIPTS START', DUPX_Log::LV_DETAILED); ?>
 <script>
+    
+    var exeSafeModeInputId = <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormItemId(DUPX_Paramas_Manager::PARAM_SAFE_MODE)); ?>; 
+    var htConfigInputId =  <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormItemId(DUPX_Paramas_Manager::PARAM_HTACCESS_CONFIG)); ?>;
+    var htConfigWrapperId =  <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormWrapperId(DUPX_Paramas_Manager::PARAM_HTACCESS_CONFIG)); ?>;
+    var otConfigInputId =  <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormItemId(DUPX_Paramas_Manager::PARAM_OTHER_CONFIG)); ?>;
+    var otConfigWrapperId =  <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormWrapperId(DUPX_Paramas_Manager::PARAM_OTHER_CONFIG)); ?>;
+    var clientSideKickoffInputId = <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormItemId(DUPX_Paramas_Manager::PARAM_CLIENT_KICKOFF)); ?>; 
+    var archiveEngineInputId = <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormItemId(DUPX_Paramas_Manager::PARAM_ARCHIVE_ENGINE)); ?>; 
+    var removeRedundantWrapperId = <?php echo DupProSnapJsonU::wp_json_encode($paramsManager->getFormWrapperId(DUPX_Paramas_Manager::PARAM_REMOVE_RENDUNDANT)); ?>; 
+        
     DUPX.toggleSetupType = function ()
     {
         var val = $("input:radio[name='setup_type']:checked").val();
@@ -762,38 +529,19 @@ Auto Posts to view.step2.php
         $('#s1-setup-type-sub-' + val).show(200);
     };
 
-DUPX.getManaualArchiveOpt = function ()
-{
-	$("html, body").animate({scrollTop: $(document).height()}, 1500);
-	$("div[data-target='#s1-area-adv-opts']").find('i.fa').removeClass('fa-plus-square').addClass('fa-minus-square');
-	$('#s1-area-adv-opts').show(1000);
-	$('select#archive_engine').val('manual').focus();
-};
-
-    DUPX.enableSubsiteList = function (enable)
+    DUPX.getManaualArchiveOpt = function ()
     {
-        if (enable) {
-            <?php if ($GLOBALS['DUPX_AC']->exportOnlyDB) :?>
-                if ($('#remove-redundant-row').length) {
-                    $('#remove-redundant-row').show();
-                }
-            <?php endif; ?>
-            $("#subsite-id").prop('disabled', false);
-        } else {
-            <?php if ($GLOBALS['DUPX_AC']->exportOnlyDB) :?>
-                if ($('#remove-redundant-row').length) {
-                    $('#remove-redundant-row').hide();
-                }
-            <?php endif; ?>
-            $("#subsite-id").prop('disabled', 'disabled');
-        }
+        $("html, body").animate({scrollTop: $(document).height()}, 1500);
+        $("div[data-target='#s1-area-adv-opts']").find('i.fa').removeClass('fa-plus-square').addClass('fa-minus-square');
+        $('#s1-area-adv-opts').show(1000);
+        $('#' + archiveEngineInputId).val('manual').focus();
     };
 
     DUPX.startExtraction = function()
     {
-        var isManualExtraction = ($("#archive_engine").val() == "manual");
-        var zipEnabled = <?php echo SnapLibStringU::boolToString($archive_config->isZipArchive()); ?>;
-        var chunkingEnabled  = ($("#archive_engine").val() == "ziparchivechunking");
+        var isManualExtraction = ($('#' + archiveEngineInputId).val() == '<?php echo DUP_PRO_Extraction::ENGINE_MANUAL; ?>');
+        var zipEnabled = <?php echo DupProSnapLibStringU::boolToString($archive_config->isZipArchive()); ?>;
+        var chunkingEnabled  = ($('#' + archiveEngineInputId).val() == '<?php echo DUP_PRO_Extraction::ENGINE_ZIP_CHUNK; ?>');
 
         $("#operation-text").text("Extracting Archive Files");
 
@@ -848,31 +596,31 @@ DUPX.getManaualArchiveOpt = function ()
         }
     };
 
-   DUPX.getCriticalFailureText = function(failures)
-{
-	var retVal = null;
+    DUPX.getCriticalFailureText = function(failures)
+    {
+        var retVal = null;
 
-	if((failures !== null) && (typeof failures !== 'undefined')) {
-		var len = failures.length;
+        if((failures !== null) && (typeof failures !== 'undefined')) {
+            var len = failures.length;
 
-		for(var j = 0; j < len; j++) {
-			failure = failures[j];
-			if(failure.isCritical) {
-				retVal = failure.description;
-				break;
-			}
-		}
-	}
+            for(var j = 0; j < len; j++) {
+                failure = failures[j];
+                if(failure.isCritical) {
+                    retVal = failure.description;
+                    break;
+                }
+            }
+        }
 
-	return retVal;
-};
+        return retVal;
+    };
 
-DUPX.DAWSProcessingFailed = function(errorText)
-{
-	DUPX.clearDupArchiveStatusTimer();
-	$('#ajaxerr-data').html(errorText);
-	DUPX.hideProgressBar();
-}
+    DUPX.DAWSProcessingFailed = function(errorText)
+    {
+        DUPX.clearDupArchiveStatusTimer();
+        $('#ajaxerr-data').html(errorText);
+        DUPX.hideProgressBar();
+    };
 
 DUPX.handleDAWSProcessingProblem = function(errorText, pingDAWS)
 {
@@ -928,7 +676,11 @@ DUPX.handleDAWSCommunicationProblem = function(xHr, pingDAWS, textStatus, page)
 DUPX.pingDAWS = function ()
 {
 	console.log('pingDAWS:start');
-	var request = new Object();
+	var request = <?php echo DupProSnapJsonU::wp_json_encode_pprint(array(
+        DUPX_Ctrl_ajax::AJAX_NAME => true,
+        DUPX_Ctrl_ajax::ACTION_NAME => DUPX_Ctrl_ajax::ACTION_DAWN,
+        DUPX_Ctrl_ajax::TOKEN_NAME => DUPX_Ctrl_ajax::generateToken(DUPX_Ctrl_ajax::ACTION_DAWN)
+    )); ?>;
 	var isClientSideKickoff = DUPX.isClientSideKickoff();
 
 	if (isClientSideKickoff) {
@@ -949,7 +701,7 @@ DUPX.pingDAWS = function ()
 		type: "POST",
 		timeout: DUPX.DAWS.PingWorkerTimeInSec * 2000, // Double worker time and convert to ms
 		url: DUPX.DAWS.Url,
-		data: JSON.stringify(request),
+		data: request,
 		success: function (respData, textStatus, xHr) {
             try {
                 var data = DUPX.parseJSON(respData);
@@ -1011,23 +763,7 @@ DUPX.pingDAWS = function ()
 						var dataJSON = JSON.stringify(data);
 
 						// Don't stop for non-critical failures - just display those at the end
-						$("#ajax-logging").val($("input:radio[name=logging]:checked").val());
-						$("#ajax-retain-config").val($("#retain_config").is(":checked") ? 1 : 0);
 						$("#ajax-json").val(escape(dataJSON));
-
-                        if ($("#remove-redundant").is(":checked")) {
-                            $("#ajax-remove-redundant").val(1);
-                        } else{
-                            $("#ajax-remove-redundant").val(0);
-                        }
-
-                        <?php if($show_multisite) : ?>
-                        if ($("#full-network").is(":checked")) {
-                            $("#ajax-subsite-id").val(-1);
-                        } else {
-                            $("#ajax-subsite-id").val($('#subsite-id').val());                            
-                        }
-                        <?php endif; ?>
 
 						<?php if (!$GLOBALS['DUPX_DEBUG']) : ?>
 						setTimeout(function () {
@@ -1044,14 +780,15 @@ DUPX.pingDAWS = function ()
 					}
 				}
 				else {
-					console.log("pingDAWS:critical failures present");
 					// If we get a critical failure it means it's something we can't recover from so no purpose in retrying, just fail immediately.
+                    console.log("pingDAWS:critical failures present, data:" , data);
 					var errorString = 'Error Processing Step 1<br/>';
 					errorString += criticalFailureText;
 					DUPX.DAWSProcessingFailed(errorString);
 				}
 			} else {
 				var errorString = 'Error Processing Step 1<br/>';
+                console.log("pingDAWS: success but data problem, data:" , data);
 				errorString += data.error;
 				DUPX.handleDAWSProcessingProblem(errorString, true);
 			}
@@ -1067,34 +804,28 @@ DUPX.pingDAWS = function ()
 
 DUPX.isClientSideKickoff = function()
 {
-	return $('#clientside_kickoff').is(':checked');
-}
-
-DUPX.areConfigFilesPreserved = function()
-{
-	return $('#retain_config').is(':checked');
-}
+	return $('#' + clientSideKickoffInputId).is(':checked');
+};
 
 DUPX.kickOffDupArchiveExtract = function ()
 {
 	console.log('kickOffDupArchiveExtract:start');
 	var $form = $('#s1-input-form');
-	var request = new Object();
 	var isClientSideKickoff = DUPX.isClientSideKickoff();
 
+	var request = <?php echo DupProSnapJsonU::wp_json_encode_pprint(array(
+        DUPX_Ctrl_ajax::AJAX_NAME => true,
+        DUPX_Ctrl_ajax::ACTION_NAME => DUPX_Ctrl_ajax::ACTION_DAWN,
+        DUPX_Ctrl_ajax::TOKEN_NAME => DUPX_Ctrl_ajax::generateToken(DUPX_Ctrl_ajax::ACTION_DAWN)
+    )); ?>;
+            
 	request.action = "start_expand";
-	request.archive_filepath = '<?php echo $archive_path; ?>';
-	request.restore_directory = '<?php echo $root_path; ?>';
+	request.archive_filepath = '<?php echo DUPX_Security::getInstance()->getArchivePath(); ?>';
+	request.restore_directory = '<?php echo $GLOBALS['DUPX_ROOT']; ?>';
 	request.worker_time = DUPX.DAWS.KickoffWorkerTimeInSec;
 	request.client_driven = isClientSideKickoff ? 1 : 0;
 	request.throttle_delay = DUPX.throttleDelay;
 	request.filtered_directories = ['dup-installer'];
-
-    if(!DUPX.areConfigFilesPreserved()) {
-        request.file_renames = {".htaccess":"htaccess.orig"};
-    }
-
-	var requestString = JSON.stringify(request);
 
 	if (!isClientSideKickoff) {
 		console.log('kickOffDupArchiveExtract:Setting timer');
@@ -1106,13 +837,12 @@ DUPX.kickOffDupArchiveExtract = function ()
 	}
 
 	console.log("daws url=" + DUPX.DAWS.Url);
-	console.log("requeststring=" + requestString);
 
 	$.ajax({
 		type: "POST",
 		timeout: DUPX.DAWS.KickoffWorkerTimeInSec * 2000,  // Double worker time and convert to ms
 		url: DUPX.DAWS.Url,
-		data: requestString,
+		data: request,
 		beforeSend: function () {
 			DUPX.showProgressBar();
 			$form.hide();
@@ -1152,16 +882,19 @@ DUPX.kickOffDupArchiveExtract = function ()
 						}
 
 					} else {
+                        console.log("kickOffDupArchiveExtract: success but data problem, data:" , data);
 						$('#ajaxerr-data').html('Error Processing Step 1');
 						DUPX.hideProgressBar();
 					}
 				} else {
 					// If we get a critical failure it means it's something we can't recover from so no purpose in retrying, just fail immediately.
+                    console.log("kickOffDupArchiveExtract: success but data problem, data:" , data);
 					var errorString = 'kickOffDupArchiveExtract:Error Processing Step 1<br/>';
 					errorString += criticalFailureText;
 					DUPX.DAWSProcessingFailed(errorString);
 				}
 			} else {
+                console.log("kickOffDupArchiveExtract: success but data problem, data:" , data);
 				var errorString = 'kickOffDupArchiveExtract:Error Processing Step 1<br/>';
 				errorString += data.error;
 				DUPX.handleDAWSProcessingProblem(errorString, false);
@@ -1179,7 +912,7 @@ DUPX.finalizeDupArchiveExtraction = function(dawsStatus)
 {
 	console.log("finalizeDupArchiveExtraction:start");
 	var $form = $('#s1-input-form');
-	$("#s1-input-form-extra-data").val(JSON.stringify(dawsStatus));
+	$("#s1-input-dawn-status").val(JSON.stringify(dawsStatus));
 	console.log("finalizeDupArchiveExtraction:after stringify dawsstatus");
 	var formData = $form.serialize();
 
@@ -1246,29 +979,14 @@ DUPX.runStandardExtraction = function ()
                 return false;
             }
 			if (typeof (data) != 'undefined' && data.pass == 1) {
-				$("#ajax-logging").val($("input:radio[name=logging]:checked").val());
-				$("#ajax-retain-config").val($("#retain_config").is(":checked") ? 1 : 0);
                 $("#ajax-json").val(escape(dataJSON));
                 
-                if ($("#remove-redundant").is(":checked")) {
-                    $("#ajax-remove-redundant").val(1);
-                }else{
-                    $("#ajax-remove-redundant").val(0);
-                }
-
-                <?php if($show_multisite) : ?>
-					if ($("#full-network").is(":checked")) {
-						$("#ajax-subsite-id").val(-1);
-					} else {
-						$("#ajax-subsite-id").val($('#subsite-id').val());                        
-					}
-                <?php endif; ?>
-
 				<?php if (!$GLOBALS['DUPX_DEBUG']) : ?>
 					setTimeout(function () {$('#s1-result-form').submit();}, 500);
 				<?php endif; ?>
 				$('#progress-area').fadeOut(1000);
 			} else {
+                console.log('runStandardExtraction: success but data return problem', data);
 				$('#ajaxerr-data').html('Error Processing Step 1');
 				DUPX.hideProgressBar();
 			}
@@ -1326,24 +1044,7 @@ DUPX.runChunkedExtraction = function (data)
                     return false;
                 }
                 if (data.pass == 1) {
-                    $("#ajax-logging").val($("input:radio[name=logging]:checked").val());
-                    $("#ajax-retain-config").val($("#retain_config").is(":checked") ? 1 : 0);
                     $("#ajax-json").val(escape(dataJSON));
-
-                    if ($("#remove-redundant").is(":checked")) {
-                        $("#ajax-remove-redundant").val(1);
-                    }else{
-                        $("#ajax-remove-redundant").val(0);
-                    }
-
-                    <?php if($show_multisite) : ?>
-                    if ($("#full-network").is(":checked")) {
-                        $("#ajax-subsite-id").val(-1);
-                    } else {
-                        $("#ajax-subsite-id").val($('#subsite-id').val());                        
-                    }
-                    <?php endif; ?>
-
                     <?php if (!$GLOBALS['DUPX_DEBUG']) : ?>
                     setTimeout(function () {
                         $('#s1-result-form').submit();
@@ -1358,6 +1059,7 @@ DUPX.runChunkedExtraction = function (data)
                     DUPX.updateZipArchiveProgress(data.archive_offset, data.num_files);
                     DUPX.runChunkedExtraction(data);
                 } else {
+                    console.log('runChunkedExtraction: success but data return problem', data);
                     $('#ajaxerr-data').html('Error Processing Step 1');
                     DUPX.hideProgressBar();
                 }
@@ -1442,10 +1144,22 @@ DUPX.hideErrorResult = function ()
 }
 
 /**
+ * show next button */
+DUPX.showHideNextBtn = function (evtSrc)
+{
+    var target = $(".footer-buttons");
+    if (evtSrc.checked) {
+        target.slideDown();
+    } else {
+        target.slideUp();
+    }
+};
+
+/**
  * Accetps Usage Warning */
 DUPX.acceptWarning = function ()
 {
-	if ($("#accept-warnings").is(':checked')) {
+	if ($("#<?php echo $paramsManager->getFormItemId(DUPX_Paramas_Manager::PARAM_ACCEPT_TERM_COND); ?>").is(':checked')) {
 		$("#s1-deploy-btn").removeAttr("disabled");
 		$("#s1-deploy-btn").removeAttr("title");
 	} else {
@@ -1456,23 +1170,32 @@ DUPX.acceptWarning = function ()
 
 DUPX.onSafeModeSwitch = function ()
 {
-    var mode = $('#exe_safe_mode').val();
-    if(mode == 0){
-        $("#retain_config").removeAttr("disabled");
-    }else if(mode == 1 || mode ==2){
-        if($("#retain_config").is(':checked'))
-                    $("#retain_config").removeAttr("checked");
-        $("#retain_config").attr("disabled", true);
-    }
+    var safeObj = $('#' + exeSafeModeInputId)
+    var mode = safeObj ? parseInt(safeObj.val()) : 0;
+    var htWr = $('#' + htConfigWrapperId);
+    var otWr = $('#' + otConfigWrapperId);
 
-    $('#exe-safe-mode').val(mode);
+    switch (mode) {
+        case 1:
+        case 2:
+            htWr.find('#' + htConfigInputId + '_0').prop("checked", true);
+            htWr.find('input').prop("disabled", true);
+            otWr.find('#' + otConfigInputId + '_0').prop("checked", true);
+            otWr.find('input').prop("disabled", true);
+            break;
+        case 0:
+        default:
+            htWr.find('input').prop("disabled", false);
+            otWr.find('input').prop("disabled", false);
+            break;
+    }
     console.log("mode set to"+mode);
 };
 //DOCUMENT LOAD
 $(document).ready(function ()
 {
 	DUPX.DAWS = new Object();
-	DUPX.DAWS.Url = window.location.href + '?is_daws=1&daws_csrf_token=<?php echo DUPX_CSRF::generate('daws');?>';
+	DUPX.DAWS.Url = window.location.href; // + '?is_daws=1&<?php echo DUPX_Security::DAWN_TOKEN; ?>=<?php echo urlencode(DUPX_CSRF::generate('daws'));?>';
 	DUPX.DAWS.StatusPeriodInMS = 10000;
 	DUPX.DAWS.PingWorkerTimeInSec = 9;
 	DUPX.DAWS.KickoffWorkerTimeInSec = 6; // Want the initial progress % to come back quicker
@@ -1488,17 +1211,6 @@ $(document).ready(function ()
 	$("*[data-type='toggle']").click(DUPX.toggleClick);
 	$("#tabs").tabs();
 	DUPX.acceptWarning();
-
-    <?php
-    $isWindows = DUPX_U::isWindows();
-    if (!$isWindows) {
-    ?>
-        $('#set_file_perms').trigger("click");
-        $('#set_dir_perms').trigger("click");
-    <?php
-    }
-    ?>
-
 	DUPX.toggleSetupType();
 
 	<?php echo ($arcCheck == 'Fail') ? "$('#s1-area-archive-file-link').trigger('click');" : ""; ?>

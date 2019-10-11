@@ -56,12 +56,23 @@ class DUP_PRO_UI_ViewState
      */
     public static function saveByPost()
     {
-        DUP_PRO_U::hasCapability('read');
+        DUP_PRO_Handler::init_error_handler();
+        check_ajax_referer('DUP_PRO_UI_ViewState_SaveByPost', 'nonce');        
+        DUP_PRO_U::hasCapability('export');        
 
-        // $post    = stripslashes_deep($_POST);
-        $key     = sanitize_text_field($_POST['key']);
-        $value   = sanitize_text_field($_POST['value']);
-        $success = self::save($key, $value);
+        if (!empty($_POST['states'])) {
+            $view_state = self::getArray();
+            foreach ($_POST['states'] as $state) {
+                $key   = sanitize_text_field($state['key']);
+                $value = sanitize_text_field($state['value']);
+                $view_state[$key] = $value;
+            }
+            $success = self::setArray($view_state);
+        } else {
+            $key     = sanitize_text_field($_POST['key']);
+            $value   = sanitize_text_field($_POST['value']);
+            $success = self::save($key, $value);
+        }
 
         //Show Results as JSON
         $json                   = array();
@@ -79,6 +90,17 @@ class DUP_PRO_UI_ViewState
     public static function getArray()
     {
         return get_option(self::$optionsTableKey);
+    }
+
+    /**
+     * Sets all the values from the settings array
+     * @param array $view_state states
+     * 
+     * @return boolean Returns whether updated or not
+     */
+    public static function setArray($view_state)
+    {
+        return update_option(self::$optionsTableKey, $view_state);
     }
 
     /**

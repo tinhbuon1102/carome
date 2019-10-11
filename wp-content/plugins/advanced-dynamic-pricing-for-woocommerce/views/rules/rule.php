@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <span class="dashicons dashicons-no-alt"
                   title="<?php _e( 'Delete', 'advanced-dynamic-pricing-for-woocommerce' ) ?>"></span>
         </button>
-        <div class="rule-id-badge">
+        <div class="rule-id-badge wdp-list-item-id-badge">
             <label><?php _e( '#', 'advanced-dynamic-pricing-for-woocommerce' );?></label>
             <label class="rule-id"></label>
         </div>
@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <option value="on" selected>On</option>
             </select>
         </div>
-        <span data-wdp-title></span>&nbsp;</h2>
+        <div class="wdp-disabled-automatically-prefix">[disabled automatically]</div><span data-wdp-title></span>&nbsp;</h2>
     <!-- <div style="clear: both;"></div> -->
     <div class="inside">
         <div class="wdp-row wdp-options">
@@ -83,6 +83,17 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <option value="cheap"><?php _e( 'Cheap products', 'advanced-dynamic-pricing-for-woocommerce' ) ?></option>
                     </select>
                 </label>
+            </div>
+        </div>
+
+        <div class="wdp-row wdp-options">
+            <div class="buffer"></div>
+            <div class="replace-adjustments">
+                <div style="float: right">
+                    <input type="checkbox" name="rule[additional][is_replace]">
+                    <?php _e( "Don't modify prices and add discount to cart as fee/coupon", 'advanced-dynamic-pricing-for-woocommerce' ) ?>
+                    <input type="text" name="rule[additional][replace_name]">
+                </div>
             </div>
         </div>
 
@@ -129,7 +140,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <select name="rule[product_adjustments][total][type]" class="adjustment-total-type">
                             <option value="discount__amount"><?php _e('Fixed discount', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
                             <option value="discount__percentage"><?php _e('Percentage discount', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                            <option value="price__fixed"><?php _e('Fixed unit price', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
+                            <option value="price__fixed"><?php _e('Fixed price', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
                         </select>
                     </div>
 
@@ -147,16 +158,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                                    class="product-adjustments-max-discount" placeholder="0.00" min="0" step="any"/>
                         </label>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="wdp-block wdp-cart-adjustments wdp-sortable" style="display: none;">
-            <label><?php _e('Cart adjustments', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
-            <div class="wdp-wrapper">
-                <div class="wdp-cart-adjustments-container"></div>
-                <div class="wdp-block add-cart-adjustment">
-                    <button type="button" class="button"><?php _e('Add cart adjustment', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
                 </div>
             </div>
         </div>
@@ -201,15 +202,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
 
                         <div class="wdp-column">
-                            <select name="rule[bulk_adjustments][qty_based]" class="bulk-qty_based-type">
-                                <option value="sets"><?php _e('Qty equals count of sets', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="all"><?php _e('Qty based on all matched products', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="product"><?php _e('Qty based on product', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="variation"><?php _e('Qty based on variation', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="product_categories"><?php _e('Qty based on product categories', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="product_selected_categories"><?php _e('Qty based on selected categories', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="total_qty_in_cart"><?php _e('Qty based on all items in the cart', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                            </select>
+                            <select name="rule[bulk_adjustments][qty_based]" class="bulk-qty_based-type"></select>
                         </div>
 
                         <div class="wdp-column bulk-selected_categories-type">
@@ -222,11 +215,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
 
                         <div class="wdp-column">
-                            <select name="rule[bulk_adjustments][discount_type]" class="bulk-discount-type">
-                                <option value="discount__amount" class="fixed_discount_label"><?php _e('Fixed discount for item', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="discount__percentage"><?php _e('Percentage discount', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                                <option value="price__fixed" class="fixed_price_label"><?php _e('Fixed price for item', 'advanced-dynamic-pricing-for-woocommerce') ?></option>
-                            </select>
+                            <select name="rule[bulk_adjustments][discount_type]" class="bulk-discount-type"></select>
                         </div>
 
                         <div class="wdp-column wdp-btn-remove wdp_bulk_adjustment_remove">
@@ -263,22 +252,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <div class="wdp-block wdp-get-products-block wdp-get-products-options" style="display: none;">
             <div class="wdp-row wdp-get-products-repeat">
-                <label><?php _e( 'Free products. Can be applied ', 'advanced-dynamic-pricing-for-woocommerce' ); ?></label>
                 <div class="wdp-column">
+                    <label><?php _e( 'Free products. Can be applied ', 'advanced-dynamic-pricing-for-woocommerce' ); ?></label>
+
                     <select name="rule[get_products][repeat]">
-                        <option value="-1"><?php _e( 'Unlimited', 'advanced-dynamic-pricing-for-woocommerce' ) ?></option>
-                        <option value="0"><?php _e( 'No one', 'advanced-dynamic-pricing-for-woocommerce' ) ?></option>
-                        <option value="1"><?php _e( 'Once', 'advanced-dynamic-pricing-for-woocommerce' ) ?></option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
+                        <optgroup label="<?php _e( 'Can be applied', 'advanced-dynamic-pricing-for-woocommerce' ) ?>">
+                            <option value="-1"><?php _e( 'Unlimited', 'advanced-dynamic-pricing-for-woocommerce' ) ?></option>
+                            <option value="1"><?php _e( 'Once', 'advanced-dynamic-pricing-for-woocommerce' ) ?></option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </optgroup>
+                        <optgroup label="<?php _e( 'Based on', 'advanced-dynamic-pricing-for-woocommerce' ) ?>">
+                            <option value="based_on_subtotal"><?php _e( 'Subtotal', 'advanced-dynamic-pricing-for-woocommerce' ) ?></option>
+                        </optgroup>
                     </select>
+
+                    <div class="repeat-subtotal" style="display: none">
+                        <label><?php _e( 'Repeat counter is subtotal amount divided by', 'advanced-dynamic-pricing-for-woocommerce' ); ?>
+                            <input class="repeat-subtotal-value" name="rule[get_products][repeat_subtotal]">
+                        </label>
+                    </div>
+                </div>
+                <div style="flex: 1;" class="replace-free-products">
+                    <div style="float: right;">
+                        <input type="checkbox" name="rule[additional][is_replace_free_products_with_discount]">
+                        <?php _e( "Don't gift products and add discount to cart as coupon", 'advanced-dynamic-pricing-for-woocommerce' ) ?>
+                        <input type="text" name="rule[additional][free_products_replace_name]" style="width: 100px; display: inline-block;">
+                    </div>
                 </div>
             </div>
 
@@ -287,6 +294,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <div class="wdp-add-condition">
                     <button type="button" class="button add-filter-get-product"><?php _e('Add product', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="wdp-block wdp-cart-adjustments wdp-sortable" style="display: none;">
+            <label><?php _e('Cart adjustments', 'advanced-dynamic-pricing-for-woocommerce'); ?></label>
+            <div class="wdp-wrapper">
+                <div class="wdp-cart-adjustments-container"></div>
+                <div class="wdp-block add-cart-adjustment">
+                    <button type="button" class="button"><?php _e('Add cart adjustment', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
                 </div>
             </div>
         </div>
@@ -321,11 +338,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <div class="wdp-add-condition">
             <button type="button" class="button wdp-btn-add-product-filter"><?php _e('Product filters', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
-            <button type="button" class="button wdp-btn-add-product-adjustment"><?php _e('Product rules', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
+            <button type="button" class="button wdp-btn-add-product-adjustment"><?php _e('Product discounts', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
             <button type="button" class="button wdp-btn-add-role-discount"><?php _e('Role discounts', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
             <button type="button" class="button wdp-btn-add-bulk"><?php _e('Bulk rules', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
-            <button type="button" class="button wdp-btn-add-cart-adjustment"><?php _e('Cart rules', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
             <button type="button" class="button wdp-btn-add-getproduct"><?php _e('Free products', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
+            <button type="button" class="button wdp-btn-add-cart-adjustment"><?php _e('Cart adjustments', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
             <button type="button" class="button wdp-btn-add-condition"><?php _e('Cart conditions', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
             <button type="button" class="button wdp-btn-add-limit"><?php _e('Limits', 'advanced-dynamic-pricing-for-woocommerce'); ?></button>
             <button type="submit" class="button button-primary save-rule"><?php _e('Save changes', 'advanced-dynamic-pricing-for-woocommerce') ?></button>

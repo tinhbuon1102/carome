@@ -5,6 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WDP_Condition_Customer_Role extends WDP_Condition_Abstract {
 
+	/**
+	 * @param WDP_Cart $cart
+	 *
+	 * @return bool
+	 */
 	public function check( $cart ) {
 		$options           = $this->data['options'];
 		$comparison_method = $options[0];

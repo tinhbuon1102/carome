@@ -1,96 +1,32 @@
 <?php
-defined("DUPXABSPATH") or die("");
+
+/**
+ * controller step 2
+ * 
+ * @link http://www.php-fig.org/psr/psr-2 Full Documentation
+ *
+ * @package CTRL
+ *
+ */
+defined('ABSPATH') || defined('DUPXABSPATH') || exit;
+
 //-- START OF ACTION STEP 2
 /** IDE HELPERS */
 /* @var $GLOBALS['DUPX_AC'] DUPX_ArchiveConfig */
 
 require_once($GLOBALS['DUPX_INIT'] . '/api/class.cpnl.ctrl.php');
 
-//BASIC
-if ($_POST['view_mode'] == 'basic') {
-	$_POST['dbaction']		= isset($_POST['dbaction']) ? DUPX_U::sanitize_text_field($_POST['dbaction']) : 'create';
+$paramsManager = DUPX_Paramas_Manager::getInstance();
 
-	if (isset($_POST['dbhost'])) {
-		$post_db_host = DUPX_U::sanitize_text_field($_POST['dbhost']);
-		$_POST['dbhost'] = trim($post_db_host);
-	} else {
-		$_POST['dbhost'] = null;
-	}
-	
-	if (isset($_POST['dbname'])) {
-		$post_db_name = DUPX_U::sanitize_text_field($_POST['dbname']);
-		$_POST['dbname'] = trim($post_db_name);
-	} else {
-		$_POST['dbname'] = null;
-	}
-	
-	if (isset($_POST['dbuser'])) {
-		$post_db_user = DUPX_U::sanitize_text_field($_POST['dbuser']);
-		$_POST['dbuser'] = trim($post_db_user);
-	} else {
-		$_POST['dbuser'] = null;
-	}
-	
-	if (isset($_POST['dbpass'])) {
-		$post_db_pass = DUPX_U::wp_unslash($_POST['dbpass']);
-		$_POST['dbpass'] = trim($post_db_pass);
-	} else {
-		$_POST['dbpass'] = null;
-	}
-	
-
-	if (isset($_POST['dbhost'])) {
-		$post_db_host = DUPX_U::sanitize_text_field($_POST['dbhost']);
-		$_POST['dbport'] = parse_url($post_db_host, PHP_URL_PORT);
-	} else {
-		$_POST['dbport'] = 3306;
-	}
-
-	$_POST['dbport']		= (!empty($_POST['dbport'])) ? DUPX_U::sanitize_text_field($_POST['dbport']) : 3306;
-	$_POST['dbnbsp']		= (isset($_POST['dbnbsp']) && $_POST['dbnbsp'] == '1') ? true : false;
-	
-	if (isset($_POST['dbcharset'])) {
-		$post_db_charset = DUPX_U::sanitize_text_field($_POST['dbcharset']);
-		$_POST['dbcharset'] = trim($_POST['dbcharset']);
-	} else {
-		$_POST['dbcharset'] = $GLOBALS['DBCHARSET_DEFAULT'];
-	}
-	
-	$_POST['dbcollate']		= isset($_POST['dbcollate']) ? DUPX_U::sanitize_text_field(trim($_POST['dbcollate'])) : $GLOBALS['DBCOLLATE_DEFAULT'];
-	$_POST['dbcollatefb']	= (isset($_POST['dbcollatefb']) && $_POST['dbcollatefb'] == '1') ? true : false;
-	$_POST['dbchunk']		= (isset($_POST['dbchunk']) && $_POST['dbchunk'] == '1') ? true : false;
-	$_POST['dbobj_views']	= isset($_POST['dbobj_views']) ? true : false; 
-	$_POST['dbobj_procs']	= isset($_POST['dbobj_procs']) ? true : false;
-}
-//CPANEL
-else {
-	$_POST['dbaction']	= isset($_POST['cpnl-dbaction']) ? DUPX_U::sanitize_text_field($_POST['cpnl-dbaction']) : 'create';
-	$_POST['dbhost']	= isset($_POST['cpnl-dbhost']) ? DUPX_U::sanitize_text_field(trim($_POST['cpnl-dbhost'])) : null;
-	$_POST['dbname']	= isset($_POST['cpnl-dbname-result']) ? DUPX_U::sanitize_text_field(trim($_POST['cpnl-dbname-result'])) : null;
-	$_POST['dbuser']	= isset($_POST['cpnl-dbuser-result']) ? DUPX_U::sanitize_text_field(trim($_POST['cpnl-dbuser-result'])) : null;
-	$_POST['dbpass']	= isset($_POST['cpnl-dbpass']) ? trim(DUPX_U::wp_unslash($_POST['cpnl-dbpass'])) : null;
-	$_POST['dbport']	= isset($_POST['cpnl-dbhost']) ? parse_url($_POST['cpnl-dbhost'], PHP_URL_PORT) : 3306;
-	$_POST['dbport']	= (!empty($_POST['cpnl-dbport'])) ? DUPX_U::sanitize_text_field($_POST['cpnl-dbport']) : 3306;
-	$_POST['dbnbsp']	= (isset($_POST['cpnl-dbnbsp']) && $_POST['cpnl-dbnbsp'] == '1') ? true : false;
-	$_POST['dbmysqlmode']		= DUPX_U::sanitize_text_field($_POST['cpnl-dbmysqlmode']);
-	$_POST['dbmysqlmode_opts']	= DUPX_U::sanitize_text_field($_POST['cpnl-dbmysqlmode_opts']);
-	$_POST['dbcharset']			= isset($_POST['cpnl-dbcharset']) ? DUPX_U::sanitize_text_field(trim($_POST['cpnl-dbcharset'])) : $GLOBALS['DBCHARSET_DEFAULT'];
-	$_POST['dbcollate']			= isset($_POST['cpnl-dbcollate']) ? DUPX_U::sanitize_text_field(trim($_POST['cpnl-dbcollate'])) : $GLOBALS['DBCOLLATE_DEFAULT'];
-	$_POST['dbcollatefb']		= (isset($_POST['cpnl-dbcollatefb']) && $_POST['cpnl-dbcollatefb'] == '1') ? true : false;
-	$_POST['dbchunk']			= (isset($_POST['cpnl-dbchunk']) && $_POST['cpnl-dbchunk'] == '1') ? true : false;
-	$_POST['dbobj_views']		= isset($_POST['cpnl-dbobj_views']) ? true : false;
-	$_POST['dbobj_procs']		= isset($_POST['cpnl-dbobj_procs']) ? true : false;
+if ($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_TEST_OK) == false) {
+    throw new Exception('Database test not passed');
 }
 
-$_POST['cpnl-dbuser-chk'] = (isset($_POST['cpnl-dbuser-chk']) && $_POST['cpnl-dbuser-chk'] == '1') ? true : false;
-$_POST['cpnl-host']		  = isset($_POST['cpnl-host']) ? DUPX_U::sanitize_text_field($_POST['cpnl-host']) : '';
-$_POST['cpnl-user']		  = isset($_POST['cpnl-user']) ? DUPX_U::sanitize_text_field($_POST['cpnl-user']) : '';
-$_POST['cpnl-pass']		  = isset($_POST['cpnl-pass']) ? trim(DUPX_U::wp_unslash($_POST['cpnl-pass'])) : '';
-
-$ajax2_start	 = DUPX_U::getMicrotime();
-$root_path		 = $GLOBALS['DUPX_ROOT'];
-$JSON			 = array();
-$JSON['pass']	 = 0;
+$ajax2_start = DUPX_U::getMicrotime();
+$root_path   = $GLOBALS['DUPX_ROOT'];
+$JSON        = array(
+    'pass' => 0
+);
 
 /**
 JSON RESPONSE: Most sites have warnings turned off by default, but if they're turned on the warnings
@@ -99,127 +35,62 @@ $ajax2_error_level = error_reporting();
 error_reporting(E_ERROR);
 ($GLOBALS['LOG_FILE_HANDLE'] != false) or DUPX_Log::error(ERR_MAKELOG);
 
-
-//===============================================
-//DB TEST & ERRORS: From Postback
-//===============================================
-//INPUTS
-$dbTestIn			 = new DUPX_DBTestIn();
-$dbTestIn->mode		 = DUPX_U::sanitize_text_field($_POST['view_mode']);
-$dbTestIn->dbaction	 = DUPX_U::sanitize_text_field($_POST['dbaction']);
-$dbTestIn->dbhost	 = DUPX_U::sanitize_text_field($_POST['dbhost']);
-$dbTestIn->dbuser	 = DUPX_U::sanitize_text_field($_POST['dbuser']);
-$dbTestIn->dbpass	 = trim(DUPX_U::wp_unslash($_POST['dbpass']));
-$dbTestIn->dbname	 = DUPX_U::sanitize_text_field($_POST['dbname']);
-$dbTestIn->dbport	 = DUPX_U::sanitize_text_field($_POST['dbport']);
-$dbTestIn->dbcollatefb = DUPX_U::sanitize_text_field($_POST['dbcollatefb']);
-$dbTestIn->cpnlHost  = DUPX_U::sanitize_text_field($_POST['cpnl-host']);
-$dbTestIn->cpnlUser  = DUPX_U::sanitize_text_field($_POST['cpnl-user']);
-$dbTestIn->cpnlPass  = trim(DUPX_U::wp_unslash($_POST['cpnl-pass']));
-$dbTestIn->cpnlNewUser = DUPX_U::sanitize_text_field($_POST['cpnl-dbuser-chk']);
-
-$dbTest	= new DUPX_DBTest($dbTestIn);
-
-//CLICKS 'Test Database'
-if (isset($_GET['dbtest'])) {
-	
-	$dbTest->runMode = 'TEST';
-	$dbTest->responseMode = 'JSON';
-	if (!headers_sent()) {
-		header('Content-Type: application/json');
-	}
-	die($dbTest->run());
-	
-//CLICKS 'Next' 
-} else {
-
-	//@todo: 
-	// - Convert DUPX_DBTest to DUPX_DBSetup
-	// - implement property runMode = "Test/Live"
-	// - This should replace the cpnl code block below
-	/*
-	$dbSetup->runMode = 'LIVE';
-	$dbSetup->responseMode = 'PHP';
-	$dbSetupResult = $dbSetup->run();
-
-	if (! $dbSetupResult->payload->reqsPass) {
-		$errorMessage = $dbTestResult->payload->lastError;
-		DUPX_Log::error(empty($errorMessage) ? 'UNKNOWN ERROR RESPONSE:  Please try the process again!' : $errorMessage);
-	}*/
-}
-
-//===============================================
-//CPANEL LOGIC: From Postback
-//===============================================
-$cpnllog = "";
-if ($_POST['view_mode'] == 'cpnl') {
-	try {
-		$cpnllog	  ="--------------------------------------\n";
-		$cpnllog	 .="CPANEL API\n";
-		$cpnllog	 .="--------------------------------------\n";
-
-		$CPNL		 = new DUPX_cPanel_Controller();
-
-		$post_cpnl_host = DUPX_U::sanitize_text_field($_POST['cpnl-host']);
-		$post_cpnl_user = DUPX_U::sanitize_text_field($_POST['cpnl-user']);
-		$post_cpnl_pass = trim(DUPX_U::wp_unslash($_POST['cpnl-pass']));
-
-		$cpnlToken	 = $CPNL->create_token($post_cpnl_host, $post_cpnl_user, $post_cpnl_pass);
-		$cpnlHost	 = $CPNL->connect($cpnlToken);
-		
-		//CREATE DB USER: Attempt to create user should happen first in the case that the
-		//user passwords requirements are not met.
-		if ($_POST['cpnl-dbuser-chk']) {
-			$post_db_user = DUPX_U::sanitize_text_field($_POST['dbuser']);
-			$post_db_pass = trim(DUPX_U::wp_unslash($_POST['dbpass']));
-			$result = $CPNL->create_db_user($cpnlToken, $post_db_user, $post_db_pass);
-			if ($result['status'] !== true) {
-				DUPX_Log::info('CPANEL API ERROR: create_db_user ' . print_r($result['cpnl_api'], true), 2);
-				DUPX_Log::error(sprintf(ERR_CPNL_API, $result['status']));
-			} else {
-				$cpnllog .= "- A new database user was created\n";
-			}
-		}
-
-		$post_db_name = DUPX_U::sanitize_text_field($_POST['dbname']);
-		//CREATE NEW DB
-		if ($_POST['dbaction'] == 'create') {
-			$result = $CPNL->create_db($cpnlToken, $post_db_name);
-			if ($result['status'] !== true) {
-				DUPX_Log::info('CPANEL API ERROR: create_db '.print_r($result['cpnl_api'], true), 2);
-				DUPX_Log::error(sprintf(ERR_CPNL_API, $result['status']));
-			} else {
-				$cpnllog .= "- A new database was created\n";
-			}
-		} else {
-			$cpnllog .= "- Used to connect to existing database named [{$post_db_name}]\n";
-		}
-
-		$post_db_user = DUPX_U::sanitize_text_field($_POST['dbuser']);
-		//ASSIGN USER TO DB IF NOT ASSIGNED
-		$result = $CPNL->is_user_in_db($cpnlToken, $post_db_name, $post_db_user);
-		if (!$result['status']) {
-			$result		 = $CPNL->assign_db_user($cpnlToken, $post_db_name, $post_db_user);
-			if ($result['status'] !== true) {
-				DUPX_Log::info('CPANEL API ERROR: assign_db_user '.print_r($result['cpnl_api'], true), 2);
-				DUPX_Log::error(sprintf(ERR_CPNL_API, $result['status']));
-			} else {
-				$cpnllog .= "- Database user was assigned to database";
-			}
-		}
-	} catch (Exception $ex) {
-		DUPX_Log::error($ex);
-	}
-}
+$inputValues = array(
+    'view_mode'        => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_VIEW_MODE),
+    'dbaction'         => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_ACTION),
+    'dbhost'           => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_HOST),
+    'dbname'           => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_NAME),
+    'dbuser'           => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_USER),
+    'dbpass'           => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_PASS),
+    'dbport'           => parse_url($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_HOST), PHP_URL_PORT),
+    'dbchunk'          => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_CHUNK),
+    'dbcollatefb'      => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_COLLATE_FB),
+    'dbnbsp'           => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_SPACING),
+    'dbmysqlmode'      => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_MYSQL_MODE),
+    'dbmysqlmode_opts' => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_MYSQL_MODE_OPTS),
+    'dbobj_views'      => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_VIEW_CEATION),
+    'dbobj_procs'      => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_PROC_CREATION),
+    'dbcharset'        => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_CHARSET),
+    'dbcollate'        => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_COLLATE),
+    'cpnl-host'        => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_CPNL_HOST),
+    'cpnl-user'        => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_CPNL_USER),
+    'cpnl-pass'        => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_CPNL_PASS),
+    'cpnl-dbuser-chk'  => $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_CPNL_DB_USER_CHK),
+    'pos'              => (int) (isset($_POST['pos']) ? $_POST['pos'] : 0),
+    'pass'             => (isset($_POST['pass']) && $_POST['pass']),
+    'first_chunk'      => (isset($_POST['first_chunk']) && $_POST['first_chunk']),
+    'progress'         => (isset($_POST['progress']) ? $_POST['progress'] : 0),
+    'delimiter'        => (isset($_POST['delimiter']) ? $_POST['delimiter'] : ';'),
+);
 
 $not_yet_logged = (isset($_POST['first_chunk']) && $_POST['first_chunk']) || (!isset($_POST['continue_chunking']));
 
 if($not_yet_logged){
+    $labelPadSize = 20;
+    
     DUPX_Log::info("\n\n\n********************************************************************************");
     DUPX_Log::info('* DUPLICATOR PRO INSTALL-LOG');
     DUPX_Log::info('* STEP-2 START @ '.@date('h:i:s'));
     DUPX_Log::info('* NOTICE: Do NOT post to public sites or forums!!');
     DUPX_Log::info("********************************************************************************");
+    DUPX_Log::info("USER INPUTS");
+    DUPX_Log::info(str_pad('VIEW MODE', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_VIEW_MODE)));
+    DUPX_Log::info(str_pad('DB ACTION', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_ACTION)));
+    DUPX_Log::info(str_pad('DB HOST', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString('**OBSCURED**'));
+    DUPX_Log::info(str_pad('DB NAME', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString('**OBSCURED**'));
+    DUPX_Log::info(str_pad('DB PASS', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString('**OBSCURED**'));
+    DUPX_Log::info(str_pad('DB PORT', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString('**OBSCURED**'));
+    DUPX_Log::info(str_pad('MYSQL MODE', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_MYSQL_MODE)));
+    DUPX_Log::info(str_pad('MYSQL MODE OPTS', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_MYSQL_MODE_OPTS)));
+    DUPX_Log::info(str_pad('NON-BREAKING SPACES', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_SPACING)));
+    DUPX_Log::info(str_pad('CHARSET', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_CHARSET)));
+    DUPX_Log::info(str_pad('COLLATE', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_COLLATE)));
+    DUPX_Log::info(str_pad('COLLATE FB', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_COLLATE_FB)));
+    DUPX_Log::info(str_pad('CUNKING', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_CHUNK)));
+    DUPX_Log::info(str_pad('VIEW CREATION', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_VIEW_CEATION)));
+    DUPX_Log::info(str_pad('STORED PROCEDURE', $labelPadSize, '_', STR_PAD_RIGHT).': '.DUPX_Log::varToString($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_PROC_CREATION)));
+    DUPX_Log::info("********************************************************************************\n");
+
     if (! empty($cpnllog)) {
         DUPX_Log::info($cpnllog);
     }
@@ -231,16 +102,18 @@ if($not_yet_logged){
     $log .= "POST DATA\n";
     $log .= "--------------------------------------\n";
     $log .= print_r($POST_LOG, true);
-    DUPX_Log::info($log, 2);
+    DUPX_Log::info($log, DUPX_Log::LV_DEBUG);
+    DUPX_Log::flush();
 }
 
 
 //===============================================
 //DATABASE ROUTINES
 //===============================================
-$dbinstall = new DUPX_DBInstall($_POST, $ajax2_start);
-if ($_POST['dbaction'] != 'manual') {
+$dbinstall = new DUPX_DBInstall($inputValues, $ajax2_start);
+if ($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_ACTION) != 'manual') {
     if(!isset($_POST['continue_chunking'])){
+        $dbinstall->prepareCpanel();
         $dbinstall->prepareDB();
     } else if(isset($_POST['first_chunk']) && $_POST['first_chunk'] == 1) {
 		$dbchunk_retry = intval($_POST['dbchunk_retry']);
@@ -251,7 +124,8 @@ if ($_POST['dbaction'] != 'manual') {
 		if (file_exists($dbinstall->sql_chunk_seek_tell_log)) {
 			unlink($dbinstall->sql_chunk_seek_tell_log);
 		}
-		
+        
+		$dbinstall->prepareCpanel();
         $dbinstall->prepareDB();
     }
 }
@@ -278,7 +152,7 @@ if ($not_yet_logged) {
     DUPX_Log::info("--------------------------------------");
 }
 
-if ($_POST['dbaction'] == 'manual') {
+if ($paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DB_ACTION) == 'manual') {
 
 	DUPX_Log::info("\n** SQL EXECUTION IS IN MANUAL MODE **");
 	DUPX_Log::info("- No SQL script has been executed -");
@@ -288,10 +162,44 @@ if ($_POST['dbaction'] == 'manual') {
     echo json_encode($ret);
     die();
 } elseif(isset($_POST['continue_chunking']) && ($_POST['continue_chunking'] === 'false' && $_POST['pass'] == 1)) {
-    $JSON['pass'] = 1;
+    $rowCountMisMatchTables = $dbinstall->getRowCountMisMatchTables();
+	$JSON['pass'] = 1;
+	if (!empty($rowCountMisMatchTables)) {
+		$nManager = DUPX_NOTICE_MANAGER::getInstance();
+		$errMsg = 'Database Table row count verification was failed for table(s): '
+									.implode(', ', $rowCountMisMatchTables).'.';
+		DUPX_Log::info($errMsg);
+		$nManager->addNextStepNoticeMessage($errMsg, DUPX_NOTICE_ITEM::NOTICE);		
+		/*
+		$nManager->addFinalReportNotice(array(
+			'shortMsg' => 'Database Table row count validation failed',
+			'level' => DUPX_NOTICE_ITEM::NOTICE,
+			'longMsg' => $errMsg,
+			'sections' => 'database'
+		));
+		*/
+		$nManager->saveNotices();
+	}
 } elseif(!isset($_POST['continue_chunking'])) {
 	$dbinstall->writeInDB();
-    $JSON['pass'] = 1;
+	$rowCountMisMatchTables = $dbinstall->getRowCountMisMatchTables();
+	$JSON['pass'] = 1;
+	if (!empty($rowCountMisMatchTables)) {		
+		$nManager = DUPX_NOTICE_MANAGER::getInstance();
+		$errMsg = 'Database Table row count verification was failed for table(s): '
+									.implode(', ', $rowCountMisMatchTables).'.';
+		DUPX_Log::info($errMsg);
+		$nManager->addNextStepNoticeMessage($errMsg , DUPX_NOTICE_ITEM::NOTICE);
+		/*
+		$nManager->addFinalReportNotice(array(
+			'shortMsg' => 'Database Table row count was validation failed',
+			'level' => DUPX_NOTICE_ITEM::NOTICE,
+			'longMsg' => $errMsg,
+			'sections' => 'database'
+		));
+		*/
+		$nManager->saveNotices();
+	}
 }
 
 $dbinstall->runCleanupRotines();
@@ -300,10 +208,15 @@ $dbinstall->profile_end = DUPX_U::getMicrotime();
 $dbinstall->writeLog();
 $JSON = $dbinstall->getJSON($JSON);
 
+DUPX_Plugins_Manager::getInstance()->preViewChecks();
+
 //FINAL RESULTS
 $ajax1_sum	 = DUPX_U::elapsedTime(DUPX_U::getMicrotime(), $dbinstall->start_microtime);
 DUPX_Log::info("\nINSERT DATA RUNTIME: " . DUPX_U::elapsedTime($dbinstall->profile_end, $dbinstall->profile_start));
 DUPX_Log::info('STEP-2 COMPLETE @ '.@date('h:i:s')." - RUNTIME: {$ajax1_sum}");
 
+
+
 error_reporting($ajax2_error_level);
-die(json_encode($JSON));
+DUPX_Log::close();
+die(DupProSnapJsonU::wp_json_encode($JSON));

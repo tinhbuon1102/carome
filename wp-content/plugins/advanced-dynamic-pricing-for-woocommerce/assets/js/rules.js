@@ -1,6 +1,162 @@
 /* global jQuery, wpc_postboxes, ajaxurl, wdp_data */
 jQuery(document).ready(function ($) {
 
+    var bulk_adjustment = (function () {
+        var $available_types = wdp_data.bulk_rule;
+        var $rule = null;
+
+        var init_events = function ($container, $rule) {
+            $rule.find('.wdp_bulk_adjustment_remove').click(function () {
+                destroy($container, $rule);
+            });
+            $container.find('.bulk-adjustment-type').on('change', function () {
+                update_selectors($container, $rule);
+            });
+            $container.find('.bulk-qty_based-type').on('change', function () {
+                update_selectors($container, $rule);
+            });
+            make_select2_products($container.find('[data-field="autocomplete"]'));
+        };
+
+        var destroy = function ($container, $rule) {
+            $rule.find('.wdp-btn-add-bulk').show();
+            $container.hide();
+            flushInputs($container);
+            $container.find('.wdp-range').remove();
+            $container.find('.wdp-ranges-empty').show();
+
+            // Unconditionally hide all sortable handlers
+            $rule.find(".wdp-drag-handle").hide();
+            // Hide label with checkbox in role discount
+            $rule.find('.dont-apply-bulk-if-roles-matched-check').hide();
+        };
+
+        var update_selectors = function ($container, $rule) {
+            var $adj_type = $container.find('.bulk-adjustment-type').val();
+            var $qty_based = $container.find('.bulk-qty_based-type').val();
+            var $discount_type = $container.find('.bulk-discount-type').val();
+
+            var $available_qty_based = get_available_qty_based_types($adj_type);
+            if (!check_qty_based_availability($adj_type, $qty_based)) {
+                $qty_based = Object.keys(get_available_qty_based_types($adj_type))[0];
+            }
+            $container.find('.bulk-qty_based-type').html("");
+            $.each($available_qty_based, function ($key, $item) {
+                $container.find('.bulk-qty_based-type').append(make_option($key, $item.label))
+            });
+
+            var $available_discount_types = get_available_discount_types($adj_type, $qty_based);
+            if (!check_discount_type_availability($adj_type, $qty_based, $discount_type)) {
+                $discount_type = Object.keys(get_available_discount_types($adj_type, $qty_based))[0];
+            }
+            $container.find('.bulk-discount-type').html("");
+            $.each($available_discount_types, function ($key, $label) {
+                $container.find('.bulk-discount-type').append(make_option($key, $label))
+            });
+
+            $container.find('.bulk-qty_based-type').val($qty_based);
+            $container.find('.bulk-discount-type').val($discount_type);
+
+            if ($qty_based === 'product_selected_categories') {
+                $container.find('.bulk-selected_categories-type').show();
+            } else {
+                $container.find('.bulk-selected_categories-type').hide();
+            }
+        };
+
+        var make_option = function ($value, $label, $classes) {
+            if (typeof $classes === 'undefined') {
+                $classes = [];
+            }
+
+            var option = $("<option></option>");
+
+            option.val($value).text($label);
+
+            $classes.forEach(function ($class) {
+                option.addClass($class);
+            });
+
+            return option;
+        };
+
+        var get_available_qty_based_types = function ($adj_type) {
+            return $available_types[$adj_type]
+        };
+
+        var check_qty_based_availability = function ($adj_type, $qty_based) {
+            return typeof $available_types[$adj_type][$qty_based] !== 'undefined';
+        };
+
+        var get_available_discount_types = function ($adj_type, $qty_based) {
+            return $available_types[$adj_type][$qty_based].items;
+        };
+
+        var check_discount_type_availability = function ($adj_type, $qty_based, $discount_type) {
+            return typeof $available_types[$adj_type][$qty_based].items[$discount_type] !== 'undefined';
+        };
+
+        return {
+            // init: function ($available_types) {
+            //     this.$available_types = $available_types;
+            // },
+
+            add: function ($container, $data) {
+                $rule = $container.closest('.postbox');
+
+                $container.show();
+                $rule.find('.wdp-btn-add-bulk').hide();
+
+                // selector categories
+                $container.find('.bulk-selected_categories-type').hide();
+
+                $rule.find('.bulk-adjustment-type').find('option:first-child').prop("selected", "selected");
+                $rule.find('.bulk-qty_based-type').find('option:first-child').prop("selected", "selected");
+                $rule.find('.bulk-discount-type').find('option:first-child').prop("selected", "selected");
+
+                init_events($container, $rule);
+
+                update_selectors($container, $rule);
+
+                if ($data) {
+                    $container.find('.bulk-adjustment-type').val($data.type);
+
+                    if ($data.discount_type) {
+                        $container.find('.bulk-discount-type').val($data.discount_type);
+                    }
+
+                    if ($data.qty_based) {
+                        $container.find('.bulk-qty_based-type').val($data.qty_based);
+                    }
+
+                    if ($data.selected_categories) {
+                        var html = '';
+                        $.each($data.selected_categories, function (i, id) {
+                            var title = wdp_data.titles['product_categories'] && wdp_data.titles['product_categories'][id] ? wdp_data.titles['product_categories'][id] : id;
+                            html += '<option selected value="' + id + '">' + title + '</option>';
+                        });
+                        $container.find('.bulk-selected_categories-type select').html(html);
+                    }
+
+                    if ($data.ranges) {
+                        var $range_button = $container.find('.add-range');
+                        $.each($data.ranges, function (index, item) {
+                            add_range($range_button, item);
+                        });
+                    }
+
+                    if ($data.table_message) {
+                        $container.find('.bulk-table-message').val($data.table_message);
+                    }
+                }
+
+                update_selectors($container, $rule);
+            }
+
+        }
+
+    });
+
     // make rule blocks collapsable and sortable
     wpc_postboxes.add_postbox_toggles( $('#rules-container') );
 
@@ -11,7 +167,7 @@ jQuery(document).ready(function ($) {
             $('.rule-priority', el).val( i );
             return {
                 id: $('.rule-id', el).val(),
-                priority: i,
+                priority: wdp_data.paged && wdp_data.options.rules_per_page ? (wdp_data.paged - 1) * wdp_data.options.rules_per_page + i : i,
             }
         }).toArray();
 
@@ -76,8 +232,16 @@ jQuery(document).ready(function ($) {
 
         // for exists rule, apply data
         if (data) {
+            if (data.additional.disabled_by_plugin) {
+                new_rule.addClass('disabled-by-plugin');
+                new_rule.find('.wdp-disabled-automatically-prefix').show();
+            } else {
+                new_rule.find('.wdp-disabled-automatically-prefix').hide();
+            }
+
             setRuleData(new_rule, data);
         } else {
+            new_rule.find('.wdp-disabled-automatically-prefix').hide();
             new_rule.removeClass('closed');
             new_rule.addClass('dirty');
         }
@@ -227,6 +391,8 @@ jQuery(document).ready(function ($) {
                     $form.find('.rule-id').val(id);
 
                     $form.removeClass('dirty');
+                    $form.removeClass('disabled-by-plugin');
+                    $form.find('.wdp-disabled-automatically-prefix').hide();
                 },
                 'json'
             );
@@ -278,6 +444,10 @@ jQuery(document).ready(function ($) {
         new_rule.on('change', function() {
             new_rule.addClass('dirty');
         });
+
+        new_rule.find('.wdp-get-products-repeat select').change(function () {
+            update_get_products_options_visibility(new_rule);
+        });
     }
 
     function setRuleData(new_rule, data) {
@@ -302,6 +472,24 @@ jQuery(document).ready(function ($) {
 		    } );
 
 	    }
+
+        if ( data.additional.is_replace ) {
+            var $replace_checkbox = new_rule.find( '.replace-adjustments input:checkbox' );
+            $replace_checkbox.prop( 'checked', true );
+        }
+
+        if ( data.additional.replace_name ) {
+            var $replace_name = new_rule.find( '.replace-adjustments input:text' );
+            $replace_name.val(data.additional.replace_name);
+        }
+
+        if (data.additional.is_replace_free_products_with_discount) {
+            new_rule.find('.replace-free-products input:checkbox').prop('checked', true);
+        }
+
+        if (data.additional.free_products_replace_name) {
+            new_rule.find('.replace-free-products input:text').val(data.additional.free_products_replace_name);
+        }
 
         if (data.options) {
             fill_options(new_rule.find('.wdp-options'), data.options);
@@ -337,8 +525,7 @@ jQuery(document).ready(function ($) {
         if (data.product_adjustments && data.product_adjustments.type) {
             if ('total' === data.product_adjustments.type && data.product_adjustments['total']['type']) {
                 add_product_adjustment(new_rule.find('.wdp-product-adjustments'), data.product_adjustments);
-            }
-            else if ('split' === data.product_adjustments.type && data.product_adjustments['split'][0]['type']) {
+            } else if ('split' === data.product_adjustments.type && typeof data.product_adjustments['split'][0] !== 'undefined' && data.product_adjustments['split'][0]['type']) {
                 add_product_adjustment(new_rule.find('.wdp-product-adjustments'), data.product_adjustments);
             }
         }
@@ -370,9 +557,9 @@ jQuery(document).ready(function ($) {
 				    new_rule.find( '.dont-apply-bulk-if-roles-matched-check' ).hide();
 			    }
 
-			    if ( typeof data.role_discounts.dont_apply_bulk_if_roles_matched === "undefined" ) {
-				    new_rule.find( '[name="rule[role_discounts][dont_apply_bulk_if_roles_matched]"]' ).attr( 'checked', true );
-			    }
+                if ( typeof data.role_discounts.dont_apply_bulk_if_roles_matched !== "undefined" && data.role_discounts.dont_apply_bulk_if_roles_matched === '1' ) {
+                    new_rule.find( '[name="rule[role_discounts][dont_apply_bulk_if_roles_matched]"]' ).attr( 'checked', true );
+                }
             }
 	    }
 
@@ -449,6 +636,11 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        if (!wdp_data.options.enable_product_exclude) {
+            $container.find(".wdp-product-exclude").hide();
+            $container.find(".wdp-exclude-on-wc-sale-container").hide();
+        }
+
         // render controls for selected filter type
         $product_filter_selector.change(function () {
             update_product_filter_fields($(this));
@@ -500,6 +692,27 @@ jQuery(document).ready(function ($) {
                 });
                 $container.find('.wdp-condition-field-value select').append(html);
             }
+
+            if ( data.product_exclude ) {
+                if ( data.product_exclude.values ) {
+                    var product_exclude_html = '';
+                    var pr_excl_type = 'products';
+                    $.each(data.product_exclude.values, function (i, id) {
+                        var title = wdp_data.titles[pr_excl_type] && wdp_data.titles[pr_excl_type][id] ? wdp_data.titles[pr_excl_type][id] : id;
+                        product_exclude_html += '<option selected value="' + id + '">' + title + '</option>';
+                    });
+                    $container.find('.wdp-product-exclude select').append(product_exclude_html);
+                }
+
+                if (data.product_exclude.on_wc_sale) {
+                    $container.find('.wdp-exclude-on-wc-sale-container input').prop('checked', true);
+                }
+            }
+
+            /** pro version functionality */
+            if ( data.select_priority ) {
+                $container.find('.wdp-select-filter-priority select').val(data.select_priority);
+            }
         }
 
         make_select2_products($container.find('[data-field="autocomplete"]'));
@@ -541,7 +754,6 @@ jQuery(document).ready(function ($) {
             $condition_type_selector.val(new_val);
         }
 
-        var $condition_type_selector = $condition.find('.wdp-condition-field-type select');
         update_condition_fields($condition_type_selector, data);
         $condition_type_selector.change(function () {
             update_condition_fields($(this));
@@ -562,6 +774,16 @@ jQuery(document).ready(function ($) {
         if (data && data.options) {
 
             var fields = $container.find('.wdp-condition-subfield');
+
+            fields.sort(function (a, b) {
+                var priority_a = jQuery(a).find('select, input').attr('name').match(/options]\[(\d+)]/i);
+                var priority_b = jQuery(b).find('select, input').attr('name').match(/options]\[(\d+)]/i);
+                priority_a = priority_a[priority_a.length - 1];
+                priority_b = priority_b[priority_b.length - 1];
+
+                return +priority_a - +priority_b;
+            });
+
             fields.each( function(index, field) {
                 var value_field;
 
@@ -694,9 +916,22 @@ jQuery(document).ready(function ($) {
 
         $postbox.find('.wdp-ranges-empty').hide();
 
+        var last_range_to_value;
+        var el_last_range_to_value = $postbox.find('.wdp-ranges .wdp-range:last .adjustment-to');
+        if (el_last_range_to_value.length) {
+            last_range_to_value = el_last_range_to_value.val();
+        }
+
         var $range = $(template);
 
         $postbox.find('.wdp-ranges').append($range);
+
+        if (last_range_to_value) {
+            $range.find('.adjustment-from').val(parseInt(last_range_to_value)+1);
+            $range.find('.adjustment-to').focus();
+        } else {
+            $range.find('.adjustment-from').focus();
+		}	
 
         if (data) {
             $range.find('.adjustment-from').val(data.from);
@@ -720,7 +955,13 @@ jQuery(document).ready(function ($) {
             if (data.repeat) {
                 $container.find('.wdp-get-products-repeat select').val(data.repeat);
             }
+
+            if (data.repeat_subtotal) {
+                $container.find('.wdp-get-products-repeat .repeat-subtotal-value').val(data.repeat_subtotal);
+            }
         }
+
+        update_get_products_options_visibility($container);
     }
 
     function add_get_products($container, data) {
@@ -830,94 +1071,7 @@ jQuery(document).ready(function ($) {
     }
 
     function add_bulk_adjustment($container, data) {
-        $container.show();
-
-        var $rule = $container.closest('.postbox');
-        $rule.find('.wdp-btn-add-bulk').hide();
-
-        $rule.find('.wdp_bulk_adjustment_remove').click(function () {
-            $rule.find('.wdp-btn-add-bulk').show();
-            $container.hide();
-            flushInputs($container);
-            $container.find('.wdp-range').remove();
-            $container.find('.wdp-ranges-empty').show();
-
-	        // Unconditionally hide all sortable handlers
-	        $rule.find(".wdp-drag-handle").hide();
-	        // Hide label with checkbox in role discount
-	        $rule.find( '.dont-apply-bulk-if-roles-matched-check' ).hide();
-        });
-
-        make_select2_products($container.find('[data-field="autocomplete"]'));
-
-        $container.find('.bulk-selected_categories-type').hide();
-        $container.find('select.bulk-discount-type .fixed_discount_label').text(wdp_data.labels.fixed_discount);
-        $container.find('select.bulk-discount-type .fixed_price_label').text(wdp_data.labels.fixed_price);
-        $container.find('.bulk-qty_based-type').on('change', function () {
-            if ($(this).val() === 'product_selected_categories') {
-                $container.find('.bulk-selected_categories-type').show();
-            } else {
-                $container.find('.bulk-selected_categories-type').hide();
-            }
-
-            if ($(this).val() === 'sets') {
-                $container.find('select.bulk-discount-type .fixed_discount_label').text(wdp_data.labels.fixed_discount_for_set);
-                $container.find('select.bulk-discount-type .fixed_price_label').text(wdp_data.labels.fixed_price_for_set);
-            } else {
-                $container.find('select.bulk-discount-type .fixed_discount_label').text(wdp_data.labels.fixed_discount);
-                $container.find('select.bulk-discount-type .fixed_price_label').text(wdp_data.labels.fixed_price);
-            }
-        });
-
-        if (data) {
-            $container.find('.bulk-adjustment-type').val(data.type);
-
-            if (data.discount_type) {
-                $container.find('.bulk-discount-type').val(data.discount_type);
-            }
-
-	        if (data.qty_based) {
-		        $container.find('.bulk-qty_based-type').val(data.qty_based);
-	        }
-
-            if (data.selected_categories) {
-                var html = '';
-                $.each( data.selected_categories, function ( i, id ) {
-                    var title = wdp_data.titles['product_categories'] && wdp_data.titles['product_categories'][id] ? wdp_data.titles['product_categories'][id] : id;
-                    html += '<option selected value="' + id + '">' + title + '</option>';
-                } );
-                $container.find('.bulk-selected_categories-type select').html(html);
-            }
-
-            if (data.qty_based === 'product_selected_categories') {
-                $container.find('.bulk-selected_categories-type').show();
-            } else {
-                $container.find('.bulk-selected_categories-type').hide();
-            }
-
-            if (data.qty_based === 'sets') {
-                $container.find('select.bulk-discount-type .fixed_discount_label').text(wdp_data.labels.fixed_discount_for_set);
-                $container.find('select.bulk-discount-type .fixed_price_label').text(wdp_data.labels.fixed_price_for_set);
-            } else {
-                $container.find('select.bulk-discount-type .fixed_discount_label').text(wdp_data.labels.fixed_discount);
-                $container.find('select.bulk-discount-type .fixed_price_label').text(wdp_data.labels.fixed_price);
-            }
-
-            if (data.ranges) {
-                var $range_button = $container.find('.add-range');
-                $.each(data.ranges, function (index, item) {
-                    add_range($range_button, item);
-                });
-            }
-
-            if (data.table_message) {
-                $container.find('.bulk-table-message').val(data.table_message);
-            }
-        } else {
-            $rule.find('.bulk-adjustment-type').find('option:first-child').prop("selected", "selected");
-	        $rule.find('.bulk-qty_based-type').find('option:first-child').prop("selected", "selected");
-            $rule.find('.bulk-discount-type').find('option:first-child').prop("selected", "selected");
-        }
+        bulk_adjustment().add($container, data);
     }
 
     function add_cart_adjustment($el, data) {
@@ -977,7 +1131,7 @@ jQuery(document).ready(function ($) {
 						if ( "roles" === field_name ) {
 							var html = '';
 							$.each( field_value, function ( i, id ) {
-								html += '<option selected value="' + id + '">' + id + '</option>';
+								html += '<option selected value="' + id + '">' + get_role_label(id) + '</option>';
 							} );
 							$( this ).append( html );
 						} else {
@@ -1042,6 +1196,16 @@ jQuery(document).ready(function ($) {
         $row.find('.wdp-condition-field-deal-options--before').html(before);
         $row.find('.wdp-condition-field-deal-options--after').html(after);
         $row.find('.wdp-condition-field-deal-options input').val('');
+    }
+
+    function update_get_products_options_visibility($rule) {
+        var $type_val = $rule.find('.wdp-get-products-repeat select').val();
+
+        if ($type_val === 'based_on_subtotal') {
+            $rule.find('.wdp-get-products-repeat .repeat-subtotal').show();
+        } else {
+            $rule.find('.wdp-get-products-repeat .repeat-subtotal').hide();
+        }
     }
 
     function update_get_products_auto_visibility($rule) {
@@ -1167,7 +1331,7 @@ jQuery(document).ready(function ($) {
             var $el = $(el);
 
 	        if ( $el.data( 'list' ) === 'product_taxonomies' ) {
-		        return false;
+		        return true;
 	        }
 
             $el.select2({
@@ -1371,9 +1535,59 @@ jQuery(document).ready(function ($) {
         $container.find('input:not([data-readonly]), select:not([data-readonly]), textarea:not([data-readonly])').val('');
     }
 
-    $('.hide-disabled-rules').change( function() {
-        $('#rules-container').toggleClass('hide-disabled', $(this).val() );
-    } );
+    $('.hide-disabled-rules').change(function () {
+        var checked = $(this).prop('checked');
+        remove_get_parameter('hide_inactive');
+        remove_get_parameter('paged');
+
+        if (checked) {
+            window.location.href += '&hide_inactive=1';
+        } else {
+            window.location.reload();
+        }
+        // $('#rules-container').toggleClass('hide-disabled', $(this).val() );
+    });
+
+    $('.wdp-btn-rebuild-onsale-list').click(function () {
+
+	$( "#progress_div" ).show();
+
+	$.post(
+            ajaxurl,
+            {
+                action: 'wdp_ajax',
+                method: 'rebuild_onsale_list',
+            },
+            function (d) {
+		$( "#progress_div" ).hide();
+	    },
+            'json'
+        );
+    });
+
+    function remove_get_parameter(parameterName) {
+        var result = null,
+            clean_uri = null,
+            tmp = [];
+
+        location.search
+            .substr(1)
+            .split("&")
+            .forEach(function (item) {
+                tmp = item.split("=");
+                if (tmp[0] === parameterName) {
+                    result = decodeURIComponent(tmp[1]);
+                    clean_uri = window.location.toString().replace("&" + tmp[0] + "=" + tmp[1], "");
+                    clean_uri = clean_uri.replace(tmp[0] + "=" + tmp[1], "");
+                    clean_uri = clean_uri.replace(/\?$/ig, "");
+                }
+            });
+
+        if (result && clean_uri) {
+            window.history.replaceState({}, document.title, clean_uri)
+        }
+        return result;
+    };
 
     function deparam(params){
 
@@ -1420,5 +1634,17 @@ jQuery(document).ready(function ($) {
             }
         }
         return data;
+    }
+
+    function get_role_label(id) {
+        var roles_list = wdp_data.lists.user_roles;
+
+        for (var i = 0; i < roles_list.length; i++) {
+            if (typeof roles_list[i] !== 'undefined' && roles_list[i].id === id) {
+                return roles_list[i].text;
+            }
+        }
+
+        return id
     }
 });

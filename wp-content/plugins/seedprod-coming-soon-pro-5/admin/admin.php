@@ -155,29 +155,43 @@ class SEED_CSPV5_ADMIN
         wp_deregister_script( 'pirateforms_scripts_admin' );
 
         // debug remove
-        if(isset($_GET['page']) && $_GET['page'] == 'seed_cspv5_customizer'){
-            if(isset($_GET['seed_cspv5_debug'])){
+        if(1 == 0){
+        if(isset($_GET['page']) && ($_GET['page'] == 'seed_cspv5_customizer' || $_GET['page'] == 'seed_cspv5_customizer_v2' )){
+            //if(isset($_GET['seed_cspv5_debug'])){
             // only ones we need are: common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js|jquery|jquery-ui|media-editor
-            $s = 'common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js|jquery|jquery-ui|media-editor';
+            $s = 'admin-bar|common|utils|wp-auth-check|media-upload|seed_cspv5-customizer-js|jquery|jquery-ui|media-editor';
             $d = explode("|",urldecode($s)); 
         
-            global $wp_scripts;
-             foreach( $wp_scripts->queue as $handle ) :
+            global $wp_scripts,$wp_styles;
+            foreach( $wp_scripts->queue as $handle ) :
                 //echo $handle . '|';
                 
                 if(!empty($d)){
                 if(!in_array($handle,$d)){
                     wp_dequeue_script( $handle );
                     wp_deregister_script( $handle );
-                    echo '<br>removed '.$handle;
+                    //echo '<br>removed '.$handle;
                 }
                 }
             endforeach;
+
+            $handle = '';
+            $s = 'colors|admin-bar|ie';
+            $d = explode("|",urldecode($s)); 
+            foreach($wp_styles->queue as $handle){
+                if(!empty($d)){
+                if(!in_array($handle,$d)){
+                    wp_dequeue_style( $handle );
+                    wp_deregister_style( $handle );
+                    //echo '<br>removed '.$handle;
+                }
+                }
             }
+            //}
         //die();
         }
        
-    }
+    }}
     
     /**
      * Get pages and put in assoc array
@@ -306,7 +320,7 @@ class SEED_CSPV5_ADMIN
 // var_dump($seed_cspv5_current_version);
 // var_dump(SEED_CSPV5_VERSION);
 // var_dump(version_compare( $seed_cspv5_current_version,SEED_CSPV5_VERSION));
-        if ( version_compare( $seed_cspv5_current_version,SEED_CSPV5_VERSION) === -1) {
+        if ( version_compare( $seed_cspv5_current_version,SEED_CSPV5_VERSION) === -1 || !empty($_GET['seed_cspv5_force_db_setup'])) {
             // Upgrade db if new version
             $this->database_setup();
             $upgrade_complete = true;
@@ -359,7 +373,8 @@ class SEED_CSPV5_ADMIN
               path varchar(255) DEFAULT NULL,
               name varchar(255) DEFAULT NULL,
               type varchar(255) DEFAULT NULL,
-              settings text DEFAULT NULL,
+              settings mediumtext DEFAULT NULL,
+              settings_v2 mediumtext DEFAULT NULL,
               html text DEFAULT NULL,
               meta text DEFAULT NULL,
               mailprovider varchar(255) DEFAULT NULL,
@@ -764,7 +779,7 @@ class SEED_CSPV5_ADMIN
                 array( 
                     'name' => stripslashes($name),
                     //'url' => $url,
-                    'settings' => $settings,
+                    'settings_v2' => $settings,
                     'mailprovider' => $mailprovider,
                     
                 ), 
@@ -1496,7 +1511,7 @@ class SEED_CSPV5_ADMIN
                     }
             }
             if(seed_cspv5_cu()){
-            echo '<a class="nav-tab " href="http://support.seedprod.com/article/126-coming-soon-page-pro-documentation-version-5" target="_blank" style="float:right;"><i class="fa fa-life-ring"></i> Support</a>';
+            echo '<a class="nav-tab " href="http://support.seedprod.com/" target="_blank" style="float:right;"><i class="fa fa-life-ring"></i> Support</a>';
             }
             if(!defined('SEED_CSP_API_KEY')){
             echo '<a class="nav-tab " href="'.admin_url().'options-general.php?page=seed_cspv5_welcome" style="float:right;"><i class="fa fa-hashtag"></i> License</a>';
@@ -1913,29 +1928,11 @@ class SEED_CSPV5_ADMIN
     
     $emaillist = apply_filters( 'seed_cspv5_providers', array(
                                     'database' => __( 'Database', 'seedprod-coming-soon-pro' ),
-                                    'feedblitz' => 'FeedBlitz',
-                                    'drip' => 'Drip',
-                                    'feedburner' => 'FeedBurner',
-                                    'activecampaign' => 'Active Campaign',
-                                    'aweber' => 'Aweber',
-                                    'campaignmonitor' => 'Campaign Monitor',
-                                    'constantcontact' => 'Constant Contact',
-                                    'convertkit' => 'ConvertKit',
-                                    'getresponse' => 'Get Response',
-                                    'gravityforms' => 'Gravity Forms',
-                                    'ninjaforms' => 'Ninja Forms',
-                                    'followupemails' => 'Follow-Up Emails',
-                                    'formidable' => 'Formidable',
-                                    'icontact' => 'iContact',
-                                    'infusionsoft' => 'Infusionsoft',
-                                    'madmimi' => 'Mad Mimi',
-                                    'mailchimp' => 'MailChimp',
-                                    'sendy' => 'Sendy',
-                                    'zapier' => 'Zapier',
-                                    'mailpoet' => 'MailPoet',
-                                    'mymail' => 'Mailster formerly MyMail',
-                                    'htmlwebform' => 'HTML Web Form / Shortcode',
+
                                 ) );
+
+
+
     
     natcasesort($emaillist);
     $emaillist = array('database'=>'Database') + $emaillist;
@@ -2572,7 +2569,7 @@ class SEED_CSPV5_ADMIN
         }
 
         // check recaptcha
-        if($is_error == false && !empty($enable_recaptcha)){
+        if($is_error == false && !empty($enable_recaptcha) && !empty($recaptcha_site_key) && !empty($recaptcha_secret_key)){
             $response = wp_remote_post( 'https://www.google.com/recaptcha/api/siteverify', 
                 array('body' => array( 
                     'secret' =>  $recaptcha_secret_key, 
@@ -2738,7 +2735,7 @@ class SEED_CSPV5_ADMIN
 
             // Check it we need to validate recaptcha
             if(!in_array($emaillist, $bypassed_emaillist)){
-                if(!empty($enable_recaptcha) && !$cookie_submit){
+                if(!empty($enable_recaptcha) && !$cookie_submit  && !empty($recaptcha_site_key) && !empty($recaptcha_secret_key)){
                     $response = wp_remote_post( 'https://www.google.com/recaptcha/api/siteverify', 
                         array('body' => array( 
                             'secret' =>  $recaptcha_secret_key, 

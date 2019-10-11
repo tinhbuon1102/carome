@@ -1,7 +1,7 @@
 <?php
 
 namespace DuplicatorPro\Krizalys\Onedrive;
-
+defined("ABSPATH") or die("");
 class ResumableUploader
 {
     /**
@@ -22,9 +22,9 @@ class ResumableUploader
     /**
      * @var int Chunk size
      */
-    //private $_chunkSize = 327680 * 5;
-    private $_chunkSize = 1000000; // 1 MB
-
+    // https://dev.onedrive.com/items/upload_large_files.htm says "Use a fragment size that is a multiple of 320 KB"
+    private $_chunkSize = 3276800; // 3 MB
+    
     /**
      * @var int Offset to start uploading next chunk from
      */
@@ -89,12 +89,8 @@ class ResumableUploader
      */
     public function obtainResumableUploadUrl($path)
     {
-        if($this->_client->isBusiness()){
-            $path = "drive/special/approot:/" . $path . ":/upload.createSession";
-        }else{
-            $path = "drive/special/approot:/" . $path . ":/upload.createSession";
-        }
-
+        $postFix = $this->_client->use_msgraph_api ? 'createUploadSession' : 'upload.createSession';
+        $path = $this->_client->route_prefix."drive/special/approot:/" . $path . ":/".$postFix;
 
         $resumable = $this->_client->apiPost($path, []);
         if (property_exists($resumable, "uploadUrl")) {

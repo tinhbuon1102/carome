@@ -227,4 +227,3 @@ class DUPX_PasswordHash
 	}
 }
 
-?>

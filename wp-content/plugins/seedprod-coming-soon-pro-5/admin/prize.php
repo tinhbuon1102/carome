@@ -94,7 +94,7 @@ if(!empty($settings)){
                                     <p>This is what will be revealed once the user refers the required number of user. You could enter a coupon code, link to a download or other instruction to access the prize.</p>
 
                                     <strong>Example</strong>
-                                    <p>Say I enter "2" in the How Many Referrals Required field, and "30% Off Coupon Code" in the Prize Description and "USE CODE: 30%OFF" in the Prize Reveal. The user would see that it takes to referrals to get the coupon code. Once they got 2 the code would then be revealed.<br><a href="http://support.seedprod.com/article/134-how-prize-levels-work" target="_blank">See this video for a walk through example.</a></p>
+                                    <p>Say I enter "2" in the How Many Referrals Required field, and "30% Off Coupon Code" in the Prize Description and "USE CODE: 30%OFF" in the Prize Reveal. The user would see that it takes to referrals to get the coupon code. Once they got 2 the code would then be revealed.<br><a href="https://support.seedprod.com/article/38-how-prize-levels-work" target="_blank">See this video for a walk through example.</a></p>
 
                                  
                                 </div>

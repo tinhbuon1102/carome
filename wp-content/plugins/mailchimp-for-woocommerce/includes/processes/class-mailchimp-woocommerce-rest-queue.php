@@ -165,6 +165,10 @@ class MailChimp_WooCommerce_Rest_Queue
         }
 
         return (int) preg_replace_callback('/(\-?\d+)(.?)/', function ($m) {
+            if (!isset($m[2]) || $m[2] == '') {
+                $m[1] = '128';
+                $m[2] = 'M';
+            }
             return $m[1] * pow(1024, strpos('BKMG', $m[2]));
         }, strtoupper($memory_limit));
     }
@@ -225,20 +229,23 @@ class MailChimp_WooCommerce_Rest_Queue
     public function unlock_worker()
     {
         if (!delete_site_transient('http_worker_lock')) {
-            mailchimp_log('rest-queue', 'http_worker_lock did not delete properly - will respawn in 60 seconds.');
+            mailchimp_log('rest-queue', 'http_worker_lock enabled - respawn in 60 seconds.');
         }
     }
 
     /**
-     *
+     * @throws MailChimp_WooCommerce_Error
+     * @throws MailChimp_WooCommerce_RateLimitError
+     * @throws MailChimp_WooCommerce_ServerError
      */
     protected function again()
     {
-        wp_remote_get(esc_url_raw(rest_url('mailchimp-for-woocommerce/v1/queue/work')), array(
+        add_filter( 'https_local_ssl_verify', '__return_false', 1 );
+        $url = esc_url_raw(rest_url('mailchimp-for-woocommerce/v1/queue/work'));
+        $params = array(
             'timeout'   => 0.01,
             'blocking'  => false,
-            'cookies'   => $_COOKIE,
-            'sslverify' => apply_filters('https_local_ssl_verify', false)
-        ));
+        );
+        mailchimp_woocommerce_rest_api_get($url, $params, mailchimp_get_http_local_json_header());
     }
 }

@@ -1,8 +1,9 @@
 === Metorik - Reports & Email Automation for WooCommerce ===
 Contributors: bryceadams, metorik
-Tags: woocommerce, woocommerce analytics, woocommerce reports, woocommerce filtering, woocommerce google analytics, woocommerce zendesk, woocommerce help scout, woocommerce freshdesk, woocommerce support, subscription reports, woo reports
+Tags: woocommerce, woocommerce reports, woocommerce emails, woocommerce abandoned carts, woocommerce carts,  woocommerce filtering, woocommerce google analytics, woocommerce zendesk, woocommerce help scout, woocommerce freshdesk, woocommerce support, woocommerce analytics, subscription reports, woo reports, woocommerce email, woocommerce email automation, woocommerce cart emails, woocommerce export, woocommerce csv 
 Requires at least: 4.4.0
-Tested up to: 5.1.0
+Requires PHP: 5.6.20
+Tested up to: 5.2.2
 Stable tag: trunk
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -120,6 +121,12 @@ To hide the links from individual orders/products, you can click the 'Screen Opt
 We all make mistakes. To get them back, go to http://yoursite.com/wp-admin?show-metorik-notices=yes while logged in as an administrator.
 
 == Changelog ==
+= 1.3.0 =
+* Improvements to sending guest carts.
+
+= 1.2.0 =
+* Additional WooCommerce 3.6 fixes for coupon applying.
+
 = 1.1.2 =
 * Further WooCommerce 3.6 fixes for cart recovery links.
 * Better i18n support.

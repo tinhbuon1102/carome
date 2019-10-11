@@ -5,7 +5,7 @@ Tags: woocommerce, discounts, deals, dynamic pricing, pricing deals, bulk discou
 Requires PHP: 5.4.0
 Requires at least: 4.8
 Tested up to: 5.2
-Stable tag: 1.6.0
+Stable tag: 2.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,7 +30,7 @@ Also supports role-based prices & bulk pricing. **Bulk tables can be designed wi
 * Apply bulk discount for selected items, available only to wholesale buyers
 * Give a 10% discount to all "Accessories"(Category) if a product X is present in the cart
 
-Check more examples [on our website](https://algolplus.com/plugins/category/advanced-dynamic-pricing/).
+Check more examples [on our website](https://algolplus.com/plugins/woocommerce-pricing-rules-examples/).
 
 = One pricing rule can  =
 * Filter cart items by products, categories, tags or custom fields
@@ -49,7 +49,7 @@ Check more examples [on our website](https://algolplus.com/plugins/category/adva
 * Set rule for  products which already on sale
 * and much more ...
 
-[Pro version](https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/) can [adjust product price onfly](https://algolplus.com/plugins/pro-features-in-action/), adds **extra conditions, exclusive rules, export/import and statistics** (which rules really work, which products are involved and how much does it cost for you).
+[Pro version](https://algolplus.com/plugins/downloads/advanced-dynamic-pricing-woocommerce-pro/) can [adjust product price onfly](https://algolplus.com/plugins/pro-features-in-action/), adds **exclusive rules, extra conditions, a lot of settings, and statistics** (which rules really work, which products are involved and how much does it cost for you).
 
 Have an idea or feature request?
 Please create a topic in the "Support" section with any ideas or suggestions for new features.
@@ -67,8 +67,15 @@ Install and activate plugin, visit WooCommerce > Pricing Rules.
 
 = Compatibility with my theme/plugin =
 Free and pro versions use same core, so you can test it using free version. [Please, visit the link to see detailed reply](https://algolplus.com/plugins/pricing-plugin-compatibility/)
+= How to allow customer to select free product =
+You should create package rule and set zero price for free product. [Please, check 3rd example](https://algolplus.com/plugins/dynamic-pricing-examples-package-pricing/)
+= How to customize bulk tables =
+You should copy necessary files from folder “templates” to folder “advanced-dynamic-pricing-for-woocommerce” (create it in active theme)
+= The rules are not applied to orders if I use button "Add order" (>WooCommerce>Orders) =
+This form adds new order directly to the database. But all pricing plugins work with cart items. Use our plugin [Phone Orders](https://wordpress.org/plugins/phone-orders-for-woocommerce/) to add backend orders.
 = I need custom cart condition =
 You should be PHP programmer to do it. [Please, review sample addon and adapt it for your needs](https://algolplus.com/plugins/program-custom-condition/)
+
 
 == Screenshots ==
 1. List of pricing rules
@@ -80,6 +87,82 @@ You should be PHP programmer to do it. [Please, review sample addon and adapt it
 
 
 == Changelog ==
+
+= 2.2.4 - 2019-10-07 =
+* Fixed bug - bulk table can't be shown if custom product taxonomies are active
+* Fixed bug - bulk table can't be shown if products were filtered by category slug
+* Fixed bug - incompatibility with WooCommerce 3.3
+
+= 2.2.3 - 2019-09-26 =
+* Fixed critical bug - some options can't be turned OFF
+
+= 2.2.2 - 2019-09-25 =
+* Changes for bulk tables: new template, option "Display ranges as headers"(products only)
+* Tag {{price_striked}} is supported by category option "Replace product price with lowest bulk price"
+* Override price range for Grouped products
+* Added button "Refresh" to debugbar (useful to check applied rules after ajax calls)
+* Tweak default settings
+* Fixed bug - plugin showed wrong price for variable products having 30+ variations
+* Fixed bug - plugin showed "0.00" if price was just empty 
+* Fixed bug - option "Suppress other pricing plugins" generates warnings for some hooks
+* Fixed bug - now plugin overrides cents only if price was changed
+* Fixed bug - attributes filtering doesn't work for some cases
+
+= 2.2.1 - 2019-08-26 =
+* Fixed bug - option "Best between discount and sale price" uses sale price
+* Fixed bug - the shortcode incorrectly works for variable products
+* Fixed bug - non-standard ajax requests use empty cart for price calculations
+* Fixed minor bugs for debug bar 
+
+= 2.2.0 - 2019-08-19 =
+* Debug bar for admins (enable it in >Settings>Debug)
+* UI updated for rule - added checkbox "Exclude on sale products" for product filters
+* UI updated for rule - added checkbox "Don't set zero price and add discount to cart as coupon" for free products
+* UI updated for rule - added ranges for product/category conditions (when compare qty of items)
+* Category option "Replace product price with lowest bulk price"
+* Cart option "Disable external coupons only if any of cart items updated"
+* Cart option "Show striked subtotal"
+* Cart option "Hide word Coupon"
+* Support UTF8 coupons
+* Partially support WooCommerce Subscriptions (adjust only amount for period)
+* Improved performance for product filters
+* Fixed bug - showed warning for role discount if roles were not selected 
+* Fixed bug - shortcodes printed some html even if product have no bulk ranges
+
+= 2.1.1 - 2019-07-16 =
+* New mode for "Free products", repeat counter = subtotal amount divided by XXX
+* Fixed bug - plugin showed wrong price for the products which are not affected by rules
+* Fixed bug - default settings were not applied to Customizer, user had to modify any option and publish changes
+* Fixed bug - plugin rounded fractional qty in the cart
+
+= 2.1.0 - 2019-07-02 =
+* The plugin requires at least WooCommerce 3.3.0 !
+* Added shortcode [adp_products_on_sale] (enable it in >Settings>Rules)
+* New product filter - "Any product" 
+* Category filter  updated , parent category filter is applied even if only child category was selected in the product
+* UI updated for rule  - added checkbox "Don't modify prices and add discount to cart as fee/coupon"
+* New cart rules - repeatable fixed fee and discounts
+* New cart option "Calculate totals based on modified item price"
+* Fixed bug - tab "Tools" exported only settings
+* Fixed bug - fatal error for bulk rules (created in previous versions -  1.6.0 or earlier)
+* Fixed bug - system option "Still allow edit Phone orders" worked incorrectly
+* Fixed bug - the plugin disabled coupon form in the cart (for some themes only)
+
+= 2.0.0 - 2019-05-27 =
+* New calculation algorithm, the plugin works much faster
+* Tab "Tools" can export/import settings and rules
+* Rule UI change - Different product attributes can be selected in same filter
+* Rule UI change - Allow to exclude products in product filters (must be turned ON at tab Settings)	
+* Added pagination to list of rules
+* New rule option "Automatically disable rule if it runs longer than X seconds" (default - 5 seconds)
+* New customizer option "Show bulk table message as table header" 
+* New cart option "Label for saved amount" (previous label "Discount Amount" confused customers)
+* New cart option "Disable external coupons if any rule was applied"
+* New system option "Still allow to edit prices in Phone Orders"
+* Fixed bug - Customizer didn't work if we used only shortcodes
+* Fixed bug - filter "Product taxonomies" didn't work for variable products
+* Fixed bug - path (for custom templates) has  ignored folders
+* Fixed bug - missed role "Guest" in conditions and role-based rules
 
 = 1.6.0 - 2019-03-12 =
 * **Warning!** If you used bulk to packages - switch mode to "Qty equals count of sets"

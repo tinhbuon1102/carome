@@ -1,121 +1,50 @@
-jQuery(function($) {
-    
-        /**
-         * Allow the user to click on the element to select it.
-         *
-         * @param string elm Element The html element to be selected
-         */
-        var metaslider_select_text = function (elm) {
-            var range;
-            var selection;
+window.jQuery(function($) {
 
-            // Most browsers will be able to select the text
-            if (window.getSelection) {
-                selection = window.getSelection();
-                range = document.createRange();
-                range.selectNodeContents(elm);
-                selection.removeAllRanges();
-                selection.addRange(range);
-            } else if (document.body.createTextRange) {
-                range = document.body.createTextRange();
-                range.moveToElementText(elm);
-                range.select();
-            }
+	const APP = window.metaslider.app ? window.metaslider.app.MetaSlider : null
+	/**
+	 * Event listening to media library edits
+	 */
+	var media_library_events = {
+		loaded: false,
+		/**
+		 * Attaches listenTo event to the library collection
+		 *
+		 * @param modal object wp.media modal
+		 */
+		attach_event: function(modal) {
+			var library = modal.state().get('library')
+			modal.listenTo(library, 'change', function(model) {
+				media_library_events.update_slide_metadata({
+					id: model.get('id'),
+					caption: model.get('caption'),
+					description: model.get('description'),
+					title: model.get('title'),
+					alt: model.get('alt')
+				})
+			})
+		},
 
-            // Some browsers will be able to copy the text too!
-            try {
-                if (document.execCommand('copy')) {
-                    var notice = new MS_Notification(metaslider.success_language, metaslider.copied_language, undefined, 'is-success');
-                    notice.fire(2000);
-                }
-            } catch (err) {
-                console.warn('MetaSlider: Couldn\'t copy the text');
-            }
-        }
+		/**
+		 * Updates slide caption and other metadata when a media is edited in a modal
+		 *
+		 * @param object metadata
+		 */
+		update_slide_metadata: function(metadata) {
+			var $slides = $('.slide').filter(function(i) {
+				return $(this).data('attachment-id') === metadata.id
+			})
 
-        // Select the shortcode on click
-        $('.ms-shortcode').on('click', function () {
-            metaslider_select_text(this);
-        });
+			var slideIds = $slides.map(function() {
+				return this.id.replace('slide-', '')
+			})
 
-        // Select the entire codeblock when the button is clicked
-		document.getElementById('ms-copy-all') && 
-			document.getElementById('ms-copy-all').addEventListener('click', function (event) {
-				event.preventDefault()
-				metaslider_select_text(document.getElementById('ms-entire-code'))
-        })
+			// To be picked up by vue components
+			$(document).trigger('metaslider/image-meta-updated', [slideIds.toArray(), metadata])
 
-		// Update the shortcode when the button is clicked (id, title)
-		document.getElementById('ms-copy-type') && 
-			document.getElementById('ms-copy-type').addEventListener('click', function (event) {
-				event.preventDefault()
-				
-				// Hide the current shortcode text
-				$('#ms-shortcode-' + $(this).data('type')).css('display', 'none')
-
-				// update the button name
-				$(this).prop('title', 'Show ' + $(this).data('type'))
-
-				// Set the expected shortcode text
-				if ('title' === $(this).data('type')) {
-					$(this).data('type', 'id')
-				} else {
-					$(this).data('type', 'title')
-				}
-
-				// Show the shortcode text
-				$('#ms-shortcode-' + $(this).data('type')).css('display', 'inline')
-        })
-
-        /**
-         * Filter out spaces when copying the shortcode.
-         */
-		document.getElementById('ms-entire-code') &&
-			document.getElementById('ms-entire-code').addEventListener('copy', function(event) {
-				var text = window.getSelection()
-					.toString().split("'")
-					.map(function(string, index) {
-						return string.trim()
-					}).join("'")
-            event.clipboardData.setData('text/plain', text)
-            event.preventDefault()
-        })
-
-        /**
-         * Event listening to media library edits
-         */
-        var media_library_events = {
-            loaded: false,
-            /**
-             * Attaches listenTo event to the library collection
-             * 
-             * @param modal object wp.media modal 
-             */
-            attach_event: function(modal) {
-                var library = modal.state().get('library');
-                modal.listenTo(library, 'change', function(model) { 
-                    media_library_events.update_slide_infos({
-                        id: model.get('id'),
-                        caption: model.get('caption'),
-                        title: model.get('title'),
-                        alt: model.get('alt'),
-                    });
-                });
-            },
-            /**
-             * Updates slide caption and other infos when a media is edited in a modal
-             * 
-             * @param object infos 
-             */
-            update_slide_infos: function(infos) {
-                var $slides = $('.slide').filter(function(i){
-                    return $(this).data('attachment-id') == infos.id;
-                });
-                infos.caption ? $('.caption .default', $slides).html(infos.caption) : $('.caption .default', $slides).html('&nbsp;');
-                infos.title ? $('.title .default', $slides).html(infos.title) : $('.title .default', $slides).html('&nbsp;');
-                infos.alt ? $('.alt .default', $slides).html(infos.alt) : $('.alt .default', $slides).html('&nbsp;');
-            }
-        };
+			metadata.title ? $('.title .default', $slides).html(metadata.title) : $('.title .default', $slides).html('&nbsp;')
+			metadata.alt ? $('.alt .default', $slides).html(metadata.alt) : $('.alt .default', $slides).html('&nbsp;')
+		}
+	}
         
         /**
          * UI for adding a slide. Managed through the WP media upload UI
@@ -132,7 +61,10 @@ jQuery(function($) {
             var slide_ids = [];
             create_slides.state().get('selection').map(function(media) {
                 slide_ids.push(media.toJSON().id);
-            });
+			});
+			
+			// Remove the events for image APIs
+			remove_image_apis()
     
             var data = {
                 action: 'create_image_slide',
@@ -153,46 +85,84 @@ jQuery(function($) {
                     alert(response.responseJSON.data.message);
                 },
                 success: function(response) {
-    
-					/**
-					 * Echo Slide on success
-					 * TODO: instead have it return data and use JS to render it
-					 */
-					$('.metaslider table#metaslider-slides-list').append(response)
-					MetaSlider_Helpers.loading(false)
-					$('.metaslider table#metaslider-slides-list').trigger('resizeSlides')
-					$(document).trigger('metaslider/slides-added')
+
+				// Mount and render each new slide
+				response.data.forEach(function(slide) {
+					// TODO: Eventually move the creation to the slideshow or slide vue component
+					// TODO: Be careful about the handling of filters (ex. scheduling)
+					var res = window.metaslider.app.Vue.compile(slide['html'])
+
+					// Mount the slide to the end of the list
+					$('#metaslider-slides-list > tbody').append(
+						(new window.metaslider.app.Vue({
+							render: res.render,
+							staticRenderFns: res.staticRenderFns
+						}).$mount()).$el
+					)
+				})
+
+				MetaSlider_Helpers.loading(false)
+				$('.metaslider table#metaslider-slides-list').trigger('resizeSlides')
+				$(document).trigger('metaslider/slides-added')
+			}
+		})
+	})
+
+	/**
+	 * Starts to watch the media library for changes
+	 */
+	create_slides.on('attach', function() {
+		if (!media_library_events.loaded) {
+			media_library_events.attach_event(create_slides)
+		}
+	})
+
+	/**
+	 * Fire events when the modal is opened
+	 * Available events: create_slides.on('all', function (e) { console.log(e) })
+	 */
+	// This is also a little "hack-ish" but necessary since we are accessing the UI indirectly
+	create_slides.on('open activate uploader:ready', function() {
+		// TODO: when converted to vue component make this work for other languages
+		$('.media-menu a:contains("Media Library")').remove()
+		add_image_apis()
+	})
+	APP && create_slides.on('open', function() {
+		APP.notifyInfo('metaslider/add-slide-opening-ui', APP.__('Opening add slide UI...', 'ml-slider'))
+	})
+	APP && create_slides.on('deactivate close', function() {
+		APP.notifyInfo('metaslider/add-slide-closing-ui', APP.__('Closing add slide UI...', 'ml-slider'))
+		remove_image_apis()
+	})
+
+	/**
+	* Handles changing alt and title on SEO tab
+	* TODO: refactor to remove this
+	*/
+	$('.metaslider').on('change', '.js-inherit-from-image', function(e) {
+		var $this = $(this)
+		var $parent = $this.parents('.can-inherit')
+		var input = $parent.children('textarea,input[type=text]')
+		var default_item = $parent.children('.default')
+		if ($this.is(':checked')) {
+			$parent.addClass('inherit-from-image')
+		} else {
+			$parent.removeClass('inherit-from-image')
+			input.focus()
+			if ('' === input.val()) {
+				if (0 === default_item.find('.no-content').length) {
+					input.val(default_item.html())
 				}
-            });
-        });
+			}
+		}
+	})
 
-        /**
-         * Starts to watch the media library for changes 
-         */
-        create_slides.on('attach', function() {
-            if (!media_library_events.loaded) {
-                media_library_events.attach_event(create_slides);
-            }
-        });
+	/**
+	 * For changing slide image. Managed through the WP media upload UI
+	 * Initialized dynamically due to multiple slides.
+	 */
+	var update_slide_frame;
 
-        /**
-         * I for changing slide image. Managed through the WP media upload UI
-         * Initialized dynamically due to multiple slides.
-         */
-        var update_slide_frame;
-    
-        /**
-         * Opens the UI for the slide selection.
-         */
-        $('.metaslider').on('click', '.add-slide', function(event) {
-            event.preventDefault();
-            create_slides.open();
-    
-            // Remove the Media Library tab (media_upload_tabs filter is broken in 3.6)
-            // TODO investigate if this is needed
-            $(".media-menu a:contains('Media Library')").remove();
-        });
-    
         /**
          * Handles changing an image when edited by the user.
          */
@@ -204,7 +174,7 @@ jQuery(function($) {
             /**
              * Opens up a media window showing images
              */
-            update_slide_frame = wp.media.frames.file_frame = wp.media({
+			update_slide_frame = window.update_slide_frame = wp.media.frames.file_frame = wp.media({
                 title: MetaSlider_Helpers.capitalize(metaslider.update_image),
                 library: {type: 'image'},
                 button: {
@@ -218,7 +188,10 @@ jQuery(function($) {
             update_slide_frame.on('open', function() {
                 if (current_id) {
                     var selection = update_slide_frame.state().get('selection');
-                    selection.reset([wp.media.attachment(current_id)]);
+					selection.reset([wp.media.attachment(current_id)]);
+
+					// Add various image APIs
+					add_image_apis($this.data('slideType'), $this.data('slideId'))
                 }
             });
 
@@ -245,8 +218,11 @@ jQuery(function($) {
                     attachment = attachment.toJSON();
                     new_image_id = attachment.id;
                     selected_item = attachment;
-                });
-    
+				});
+				
+				// Remove the events for image APIs
+				remove_image_apis()
+
                 /**
                  * Updates the meta information on the slide
                  */
@@ -281,40 +257,111 @@ jQuery(function($) {
                             $('#slide-' + $this.data('slideId')).trigger('metaslider/attachment/updated', response.data);
                         }
 
-                        // update default infos to new image
-                        media_library_events.update_slide_infos({
-                            id: selected_item.id,
-                            caption: selected_item.caption,
-                            title: selected_item.title,
-                            alt: selected_item.alt,
-                        });
+						// Update metadata to new image
+						media_library_events.update_slide_metadata({
+							id: selected_item.id,
+							caption: selected_item.caption,
+							description: selected_item.description,
+							title: selected_item.title,
+							alt: selected_item.alt
+						})
+
                         $(".metaslider table#metaslider-slides-list").trigger('resizeSlides');
                     }
                 });
-            });
-        });
+			});
 
-        /** 
-        * Handles changing caption mode
-        */
-        $('.metaslider').on('change', '.js-inherit-from-image', function(e){
-            var $this = $(this);
-            var $parent = $this.parents('.can-inherit');
-            var input = $parent.children('textarea,input[type=text]');
-            var default_item = $parent.children('.default');
-            if ($this.is(':checked')) {
-                $parent.addClass('inherit-from-image');
-            } else {
-                $parent.removeClass('inherit-from-image');
-                input.focus();
-                if ('' === input.val()) {
-                    if (0 === default_item.find('.no-content').length) {
-                        input.val(default_item.html());
-                    }
-                }
-            }
-    
-        });
+			update_slide_frame.on('close', function() {
+				remove_image_apis()
+			})
+			create_slides.on('close', function() {
+				remove_image_apis()
+			})
+		})
+
+	/**
+	 * Add all the image APIs. Add events everytime the modal is open
+	 * TODO: refactor out hard-coded unsplash (can wait until we add a second service)
+	 * TODO: right now this replaces the content pane. It might take some time but look for more native integration
+	 * TODO: It gets a little bit buggy when someone triggers a download and clicks around. Maybe not important.
+	 */
+	var unsplash_api_events = function(event) {
+		event.preventDefault()
+
+		// Some things shouldn't happen when we're about to reload
+		if (window.metaslider.about_to_reload) return
+
+		// Set this tab as active
+		$(this).addClass('active').siblings().removeClass('active')
+
+		// If the image api container exists we don't want to create it again
+		if ($('#image-api-container').length) return
+
+		// Move the content and trigger vue to fetch the data
+		// Add a container to house the content
+		$(this).parents('.media-frame-router').siblings('.media-frame-content').append('<div id="image-api-container"></div>')
+
+		// Add content to the container
+		$('#image-api-container').append('<metaslider-external source="unsplash" :slideshow-id="' + window.parent.metaslider_slider_id + '" :slide-id="' + window.metaslider.slide_id + '" slide-type="' + (window.metaslider.slide_type || 'image') + '"></metaslider-external>')
+		
+		// Tell our app to render a new component
+		$(window).trigger('metaslider/initialize_external_api', {
+			'selector': '#image-api-container'
+		})
+
+		// Discard these
+		delete window.metaslider.slide_id
+		delete window.metaslider.slide_type
+	}
+	var add_image_apis = function (slide_type, slide_id) {
+
+		// This is the pro layer screen (not currently used)
+		if ($('.media-menu-item.active:contains("Layer")').length) {
+			// If this is the layer slide screen and pro isnt installed, exit
+			if (!window.metaslider.pro_supports_imports) return
+			window.metaslider.slide_type = 'layer'
+		}
+
+		// If slide type is set then override the above because we're just updating an image
+		if (slide_type) {
+			window.metaslider.slide_type = slide_type
+		}
+
+		window.metaslider.slide_id = slide_id
+
+		// Unsplash - First remove potentially leftover tabs in case the WP close event doesn't fire
+		$('.unsplash-tab').remove()
+		$('.media-frame-router .media-router').append('<a href="#" id="unsplash-tab" class="unsplash-tab">Unsplash Library</a>')
+		$('.toplevel_page_metaslider').on('click', '.unsplash-tab', unsplash_api_events)
+
+		// Each API will fake the container, so if we click on a native WP container, we should delete the API container
+		$('.media-frame-router .media-router .media-menu-item').on('click', function() {
+
+			// Destroy the component (does clean up)
+			$(window).trigger('metaslider/destroy_external_api')
+
+			// Additionally set the active tab
+			$(this).addClass('active').siblings().removeClass('active')
+		})
+	}
+	
+	/**
+	 * Remove tab and events for api type images. Add this when a modal closes to avoid duplicate events
+	 */
+	var remove_image_apis = function() {
+
+		// Some things shouldn't happen when we're about to reload
+		if (window.metaslider.about_to_reload) return
+
+		// Tell tell components they are about to be removed
+		$(window).trigger('metaslider/destroy_external_api')
+
+		$('.toplevel_page_metaslider').off('click', '.unsplash-tab', unsplash_api_events)
+		$('.unsplash-tab').remove()
+
+		// Since we will destroy the container each time we should add the active class to whatever is first
+		$('.media-frame-router .media-router > a').first().trigger('click')
+	}
 
         /**
          * delete a slide using ajax (avoid losing changes)
@@ -369,16 +416,19 @@ jQuery(function($) {
 
                         // If the image is the same as the URL then it's empty (external slide type)
                         img = (window.location.href === img) ? '' : img;
-                        
+						
+						// @codingStandardsIgnoreStart
+						// Will be refactored in the the next branch
                         // Send a notice to the user
-                        var notice = new MS_Notification(metaslider.deleted_language, metaslider.click_to_undo_language, img);
+                        // var notice = new MS_Notification(metaslider.deleted_language, metaslider.click_to_undo_language, img);
 
                         // Fire the notice and set callback to undo
-                        notice.fire(10000, function() {
-                            jQuery('#slide-' + $this.data('slideId'))
-                                .addClass('hide-status')
-                                .find('.undo-delete-slide').trigger('click');
-                        });
+                        // notice.fire(10000, function() {
+                        //     jQuery('#slide-' + $this.data('slideId'))
+                        //         .addClass('hide-status')
+                        //         .find('.undo-delete-slide').trigger('click');
+						// });
+						// @codingStandardsIgnoreEnd
 
                         // If the trash link isn't there, add it in (without counter)
                         if ('none' == $('.restore-slide-link').css('display')) {
@@ -457,11 +507,15 @@ jQuery(function($) {
                     // If the image is the same as the URL then it's empty (external slide type)
                     img = (window.location.href === img) ? '' : img;
 
-                    // Send a success notification
-                    var notice = new MS_Notification(metaslider.restored_language, '', img, 'is-success');
+					// @codingStandardsIgnoreStart
+					// Will be refactored in the the next branch
+					// Send a success notification
+					// TODO: fire notification
+                    // var notice = new MS_Notification(metaslider.restored_language, '', img, 'is-success');
                     
                     // Fire the notice
-                    notice.fire(5000);
+					// notice.fire(5000);
+					// @codingStandardsIgnoreEnd
                 }
             });
         });
@@ -527,18 +581,10 @@ jQuery(function($) {
             helper: metaslider_sortable_helper,
             handle: "td.col-1",
             stop: function() {
-                $(".metaslider table#metaslider-slides-list").trigger("updateSlideOrder");
                 $("#ms-save").click();
             }
         });
     
-        // bind an event to the slides table to update the menu order of each slide
-        $(".metaslider table#metaslider-slides-list").live("updateSlideOrder", function(event) {
-            $("tr", this).each(function() {
-                $("input.menu_order", $(this)).val($(this).index());
-            });
-        });
-
         $("input.width, input.height").on('change', function(e) {
             $(".metaslider table#metaslider-slides-list").trigger('metaslider/size-has-changed', {
                 width: $("input.width").val(),
@@ -604,11 +650,7 @@ jQuery(function($) {
         $('.tipsy-tooltip').tipsy({className: 'msTipsy', live: true, delayIn: 500, html: true, gravity: 'e'})
 		$('.tipsy-tooltip-top').tipsy({live: true, delayIn: 500, html: true, gravity: 's'})
 		$('.tipsy-tooltip-bottom').tipsy({ live: true, delayIn: 500, html: true, gravity: 'n' })
-    
-        // Select input field contents when clicked
-        $(".metaslider .shortcode input, .metaslider .shortcode textarea").on('click', function() {
-            this.select();
-        });
+		$('.tipsy-tooltip-bottom-toolbar').tipsy({ live: true, delayIn: 500, html: true, gravity: 'n', offset: 2 })
     
         // return lightbox width
         var getLightboxWidth = function() {
@@ -635,17 +677,6 @@ jQuery(function($) {
                 }
             }
             return height;
-        };
-    
-    
-        // IE10 treats placeholder text as the actual value of a textarea
-        // http://stackoverflow.com/questions/13764607/html5-placeholder-attribute-on-textarea-via-$-in-ie10
-        var fixIE10PlaceholderText = function() {
-            $("textarea").each(function() {
-                if ($(this).val() == $(this).attr('placeholder')) {
-                    $(this).val('');
-                }
-            });
         };
     
         $(".metaslider .ms-toggle .hndle, .metaslider .ms-toggle .handlediv").on('click', function() {
@@ -687,57 +718,7 @@ jQuery(function($) {
                 $('.slider-lib-row #' + $(this).attr('for')).trigger('click');
             }
         });
-    
-	// AJAX save & preview
-	$(".metaslider form").find("button[type=submit]").on("click", function(e) {
-		e.preventDefault()
-		$(".metaslider .spinner").show().css('visibility', 'visible')
-		$(".metaslider input[type=submit]").attr("disabled", "disabled")
 
-		// update slide order
-		$(".metaslider table#metaslider-slides-list").trigger('updateSlideOrder')
-		fixIE10PlaceholderText();
-
-		// get some values from elements on the page:
-		var the_form = $(this).parents("form")
-		var url = the_form.attr("action")
-		var button = $(this)
-
-		var form_data = new FormData()
-		the_form.serializeArray().forEach(function(data) {
-			form_data.append(data.name, data.value)
-		})
-
-		$.ajax({
-			type: "POST",
-			data: form_data,
-			cache: false,
-			contentType: false,
-			processData: false,
-			url: url,
-			success: function(data) {
-				var response = $(data)
-				$.when($(".metaslider table#metaslider-slides-list").trigger("resizeSlides")).done(function() {
-
-					$("button[data-thumb]", response).each(function() {
-						var $this = $(this)
-						var editor_id = $this.attr("data-editor_id")
-						$("button[data-editor_id=" + editor_id + "]")
-							.attr("data-thumb", $this.attr("data-thumb"))
-							.attr("data-width", $this.attr("data-width"))
-							.attr("data-height", $this.attr("data-height"))
-					});
-					fixIE10PlaceholderText()
-
-					// Send a message that vuejs can use to fire the preview
-					// .prop and .data return undefined, so using attr
-					if (button.attr('preview-id')) {
-						$(window).trigger('metaslider/show-preview-' + button.attr('preview-id'))
-					}
-				})
-			}
-		})
-	})
 
     // UI/Feedback
     // Events for the slideshow title
@@ -748,15 +729,16 @@ jQuery(function($) {
     }).on('focusout', function() {
 
         // Retract and save the slideshow title
-        $(this).css('width', 150);
+		$(this).css('width', 150);
+		window.metaslider.app.Current.title = $(this).val()
         $("#ms-save").trigger('click');
     }).on('keypress', function() {
 
         // Pressing enter on the slide title saves it and focuses outside.
         if (13 === event.which) {
-            event.preventDefault();
+			event.preventDefault();
+			window.metaslider.app.Current.title = $(this).val()
             $("#ms-save").trigger('click');
-            $("button.add-slide").focus();
         }
     });
 
@@ -767,16 +749,13 @@ jQuery(function($) {
 
         var title = new MS_Binder(".slider-title > h3");
         title.bind($(this).val());
-		
-		var shortcode_title = new MS_Binder("#ms-shortcode-title");
-		shortcode_title.bind('title="' + $(this).val() + '"')
 
         var dropdown = document.querySelector('select[name="select-slideshow"]');
         if (dropdown) {
             var dropdownselectedoption = dropdown.options[dropdown.selectedIndex];
             dropdownselectedoption.text = $(this).val();
         }
-    });
+	});
 });
 
 /**
@@ -826,99 +805,4 @@ MS_Binder.prototype.bind = function(value){
     
     this.value = value;
     this.dom.innerText = this.value;
-};
-
-/**
- * Simple notifications
- * var notice = new MS_Notification("Slide Deleted", "click to undo", 'img.jpg', 'success');
- * Can use a custom function for the callback as well
- * requires jQuery
- */
-var MS_Notification = function(message, submessage, image, _classname) {
-    this.panel = document.getElementById('ms-notifications');
-    if (!this.panel) {
-        this.panel = document.createElement('div');
-        this.panel.id = "ms-notifications";
-    }
-    this.notice = jQuery('<div class="ms-notification"><div class="ms-notification-content"><h3></h3><p></p></div><div class="img"></div></div>');
-    this.notice.find('h3').text(message);
-    this.notice.find('p').text(submessage);
-
-    // If there is an image, let's add it.
-    if (('undefined' !== typeof image) && image.length) {
-        this.notice.addClass('has-image')
-        .find('.img')
-        .append('<img width=50 height=50 src="' + image + '">');
-    }
-
-    // TODO add an option for svg
-    // If an extra class is set, set it
-    ('undefined' !== typeof _classname) && this.notice.addClass(_classname);
-    
-    // Append the panel to the body and
-    jQuery(this.panel).appendTo(jQuery('body'));
-};
-
-/**
- * Hide a notification
- */
-MS_Notification.prototype.hide = function() {
-    var _this = this;
-    _this.notice.addClass('finished');
-    this.notice.fadeOut(500, function () {
-        _this.notice.remove();
-    });
-};
-
-/**
- * Launch a notification and add a click event
- *
- * @param int      delay    the time in milliseconds
- * @param Function callback a method on the object or anon function
- */
-MS_Notification.prototype.fire = function(delay, callback) {
-    var _this = this;
-    var _callback = ('undefined' !== typeof callback) ? callback : 'hide';
-
-    // Prepend this to the notification stack
-    this.notice.prependTo(this.panel);
-
-    // Automatically hide after the delay
-    this.timeout = setTimeout(function() {
-        _this.hide();
-    }, delay);
-
-    // Clear this timeout on click
-    this.notice.on('click', function() {
-        clearTimeout(_this.timeout);
-    });
-
-    // Pause the timeout on hover
-    this.notice.on('mouseenter', function() {
-        clearTimeout(_this.timeout);
-    });
-    
-    // Restart the timeout after leaving
-    this.notice.on('mouseleave', function() {
-        _this.timeout = setTimeout(function() {
-            _this.hide();
-        }, delay);
-    });
-
-    // If callback is a method
-    if (MS_Notification.prototype.hasOwnProperty(_callback)) {
-        this.notice.on('click', function() {
-            if ('hide' !== _callback) {
-                _this.hide();
-            }
-            MS_Notification.call(_this[_callback]());
-        });
-    } else {
-
-        // If the callback is a custom function
-        this.notice.on('click', function() {
-            _this.hide();
-            _callback();
-        });
-    }
 };

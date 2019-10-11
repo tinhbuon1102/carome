@@ -7,6 +7,12 @@ if ( ! defined( 'ABSPATH' ) ) {
     <input type="number" placeholder="qty" min="1" name="rule[conditions][{c}][options][0]" value="1">
 </div>
 
+<div class="wdp-column wdp-condition-field-qty-separator">—</div>
+
+<div class="wdp-column wdp-condition-subfield wdp-condition-field-qty">
+    <input type="number" placeholder="qty" min="1" name="rule[conditions][{c}][options][3]" value="">
+</div>
+
 <div class="wdp-column wdp-condition-subfield wdp-condition-field-method">
 	<select name="rule[conditions][{c}][options][1]">
 		<option value="in_list" selected><?php _e('in list', 'advanced-dynamic-pricing-for-woocommerce') ?></option>

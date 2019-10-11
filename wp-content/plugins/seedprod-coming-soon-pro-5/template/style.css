@@ -248,8 +248,8 @@ _:-ms-fullscreen, :root body{
   font-size:14px;
 }
 
-#cspio-pp-modal{
-  color: #333;
+#cspio-pp-modal .modal-body h1, #cspio-pp-modal p, #cspio-pp-modal ul, #cspio-pp-modal h1, #cspio-pp-modal h2,  #cspio-pp-modal h3,  #cspio-pp-modal h4 {
+  color: #333 !important;
 }
 
 
@@ -315,6 +315,11 @@ _:-ms-fullscreen, :root body{
 	flex-wrap: wrap;
 	}
 }
+
+#emplacementRecaptcha > div{
+  margin:10px auto
+}
+
 
 /* Gravity Forms */
 #gforms_confirmation_message {

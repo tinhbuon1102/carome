@@ -24,8 +24,9 @@ if(in_array($_SERVER['REMOTE_ADDR'], $localhost) || !empty($_GET['debug'])){
 <?php } ?>
 
 <!-- css -->
+<link href="<?php echo SEED_CSPV5_PLUGIN_URL ?>template/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.12/css/all.css" integrity="sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" /> -->
 
 
 <!-- Plugins -->
@@ -42,17 +43,18 @@ if(in_array($_SERVER['REMOTE_ADDR'], $localhost) || !empty($_GET['debug'])){
         </div>
 
         <div id="seed-cspv5-sidebar-form">
-            <div class="seed-cspv5-form-field">
-                <label for="name">Name<span class="required">*</span></label>
-                <br><small>Name of the product (for default display and management purposes).</small> 
-                <input autofocus v-validate="'required'" :class="{'input': true, 'seed-cspv5-is-danger': errors.has('name') }"  name="name" v-model="page.name" class="regular-text">
+            <div id="page_name" class="seed-cspv5-form-field form-group">
+                <label for="name">Name<span class="control-label required">*</span></label>
+                
+                <input autofocus v-validate="'required'" :class="{'input': true, 'seed-cspv5-is-danger': errors.has('name') }"  name="name" v-model="page.name" class="form-control input-sm">
                 <span v-show="errors.has('name')" class="help seed-cspv5-is-danger">{{ errors.first('name') }}</span>
+                <small>Name of the product (for default display and management purposes).</small> 
                 
             </div> 
             
-            <div class="seed-cspv5-form-field">
-                <label for="name">Logo</label>
-                <input v-model="settings.logo" class="regular-text">
+            <div class="seed-cspv5-form-field form-group">
+                <label for="logo" class="control-label required">Logo</label>
+                <input name="logo" v-model="settings.logo" class="form-control input-sm">
                 <input class="button-secondary" type='button' value="Select Image" v-on:click="insert_logo" />
                 <div class="img-preview" v-if="page.logo_preview">
                         <img v-bind:src="page.logo_preview">
@@ -93,7 +95,7 @@ if(in_array($_SERVER['REMOTE_ADDR'], $localhost) || !empty($_GET['debug'])){
 
         </div>
 
-    
+    <div id="dragbar"></div>
     </div><!-- /#seed-cspv5-sidebar-wrapper -->
 
     <div id="seed-cspv5-preview-wrapper">
@@ -210,6 +212,23 @@ if(in_array($_SERVER['REMOTE_ADDR'], $localhost) || !empty($_GET['debug'])){
         seed_cspv5_app.settings.description = jQuery(this).val();
     });
 
+    // listeners
+    jQuery('#seed-cspv5-preview').load(function(){
+
+        var iframe = $('#seed-cspv5-preview').contents();
+
+        iframe.find("#cspio-headline").click(function(){
+            seed_cspv5_scroll_to_el('#page_name');
+        });
+    });
+
+    function seed_cspv5_scroll_to_el(el){
+        jQuery('#seed-cspv5-sidebar-wrapper').scrollTop(jQuery('#seed-cspv5-sidebar-wrapper').scrollTop() + jQuery('#page_name').position().top);
+    }
+
+    
+
+
     // Sidebar drag
     var i = 0;
     jQuery('#dragbar').mousedown(function(e) {
@@ -218,7 +237,7 @@ if(in_array($_SERVER['REMOTE_ADDR'], $localhost) || !empty($_GET['debug'])){
     jQuery("#seed-cspv5-preview").hide();
     jQuery(window.top).mousemove(function(e) {
         if(e.pageX > 300){    
-        jQuery('#seed-cspv5-sidebar,#seed-cspv5-preview-actions').css("width", e.pageX + 2);
+        jQuery('#seed-cspv5-sidebar-wrapper').css("width", e.pageX + 2);
         jQuery('.page-container').css("padding-left", e.pageX + 2);
         }
     });

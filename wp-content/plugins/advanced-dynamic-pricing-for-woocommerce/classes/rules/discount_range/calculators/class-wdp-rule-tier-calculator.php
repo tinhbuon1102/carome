@@ -4,8 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WDP_Rule_Tier_Calculator implements WDP_Rule_Discount_Range_Calculator {
-	use WDP_Price_Calc;
-
 	/**
 	 * @var array WDP_Rule_Discount_Range[]
 	 */
@@ -36,37 +34,33 @@ class WDP_Rule_Tier_Calculator implements WDP_Rule_Discount_Range_Calculator {
 
 	/**
 	 * @param $items WDP_Rule_Discount_Range_Calculation_Item[]
+	 * @param $custom_qty int
 	 *
 	 * @return array
 	 */
-	public function calculate_items_prices( $items ) {
+	public function calculate_items_discounts( $items, $custom_qty = null ) {
 		if ( ! $items ) {
 			return array();
 		}
 
 		foreach ( $this->ranges as $range ) {
+			/**
+			 * @var $range WDP_Rule_Discount_Range
+			 */
+
+			if ( ! is_null( $custom_qty ) && $range->is_in( $custom_qty ) ) {
+				$from  = $range->get_from();
+				$to    = $custom_qty;
+				$value = $range->get_value();
+				$range = new WDP_Rule_Discount_Range( $from, $to, $value );
+				$items = $this->process_range( $items, $range );
+				break;
+			}
+
 			$items = $this->process_range( $items, $range );
 		}
 
 		return $items;
-	}
-
-	/**
-	 * @param $price float
-	 * @param $qty int
-	 *
-	 * @return float
-	 */
-	public function calculate_item_price( $price, $qty = 1 ) {
-		$items = array( new WDP_Rule_Discount_Range_Calculation_Item( '', $price, $qty ) );
-		foreach ( $this->ranges as $range ) {
-			$items = $this->process_range( $items, $range );
-		}
-
-		return array_sum( array_map( function ( $item ) {
-			/** @var $item WDP_Rule_Discount_Range_Calculation_Item */
-			return $item->get_total_price();
-		}, $items ) );
 	}
 
 	/**
@@ -93,26 +87,26 @@ class WDP_Rule_Tier_Calculator implements WDP_Rule_Discount_Range_Calculator {
 					$require_qty = $processed_qty + $item->get_qty() - $range->get_from();
 
 					if ( $require_qty > 0 ) {
-						$new_items[]                 = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_hash(), $item->get_price(), $require_qty );
+						$new_items[]                 = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_initial_hash(), $require_qty );
 						$index_of_items_to_process[] = count( $new_items ) - 1;
 						$processed_qty               += $require_qty;
 					}
 
 					if ( ( $item->get_qty() - $require_qty ) > 0 ) {
-						$new_items[] = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_hash(), $item->get_price(), $item->get_qty() - $require_qty );
+						$new_items[] = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_initial_hash(), $item->get_qty() - $require_qty );
 						$processed_qty += $item->get_qty() - $require_qty;
 					}
 				} elseif ( $range->is_more( $processed_qty + $item->get_qty() ) ) {
 					$require_qty = $range->get_qty();
 
 					if ( $require_qty > 0 ) {
-						$new_items[]                 = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_hash(), $item->get_price(), $require_qty );
+						$new_items[]                 = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_initial_hash(), $require_qty );
 						$index_of_items_to_process[] = count( $new_items ) - 1;
 						$processed_qty               += $require_qty;
 					}
 
 					if ( ( $item->get_qty() - $require_qty ) > 0 ) {
-						$new_items[] = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_hash(), $item->get_price(), $item->get_qty() - $require_qty );
+						$new_items[] = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_initial_hash(),  $item->get_qty() - $require_qty );
 						$processed_qty += $item->get_qty() - $require_qty;
 					}
 
@@ -125,13 +119,13 @@ class WDP_Rule_Tier_Calculator implements WDP_Rule_Discount_Range_Calculator {
 				$require_qty = $require_qty < $item->get_qty() ? $require_qty : $item->get_qty();
 
 				if ( $require_qty > 0 ) {
-					$new_items[]                 = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_hash(), $item->get_price(), $require_qty );
+					$new_items[]                 = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_initial_hash(),  $require_qty );
 					$index_of_items_to_process[] = count( $new_items ) - 1;
 					$processed_qty               += $require_qty;
 				}
 
 				if ( ( $item->get_qty() - $require_qty ) > 0 ) {
-					$new_items[] = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_hash(), $item->get_price(), $item->get_qty() - $require_qty );
+					$new_items[] = new WDP_Rule_Discount_Range_Calculation_Item( $item->get_initial_hash(), $item->get_qty() - $require_qty );
 					$processed_qty += $item->get_qty() - $require_qty;
 				}
 
@@ -141,36 +135,10 @@ class WDP_Rule_Tier_Calculator implements WDP_Rule_Discount_Range_Calculator {
 			}
 		}
 
-		$prices = array();
-		$total_qty = 0;
-		foreach ( $index_of_items_to_process as $index ) {
-			$item                        = $new_items[ $index ];
-			$prices[ $item->get_hash() ] = $item->get_total_price();
-			$total_qty += $item->get_qty();
-		}
-
-		if ( $range->is_apply_to_total_price() ) {
-			$prices = $this->calculate_prices(
-				$prices,
-				$this->discount_type,
-				$range->get_value()
-			);
-		} else {
-			foreach ( $prices as $hash => &$price ) {
-				$new_price = $this->calculate_prices(
-					array( $price / $total_qty ),
-					$this->discount_type,
-					$range->get_value()
-				);
-				$price     = count( $new_price ) ? reset( $new_price ) : $price;
-				$price     = $price * $total_qty;
-			}
-		}
-
 		foreach ( $index_of_items_to_process as $index ) {
 			$item = $new_items[ $index ];
-			$new_items[ $index ]->set_singular_price( $prices[ $item->get_hash() ] / $item->get_qty() );
-			$new_items[ $index ]->mark_as_processed();
+			$item->set_discount( $this->discount_type, $range->get_value() );
+			$item->mark_as_processed();
 		}
 
 		return $new_items;

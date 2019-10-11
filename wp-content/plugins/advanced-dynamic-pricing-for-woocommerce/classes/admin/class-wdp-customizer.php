@@ -4,19 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WDP_Customizer {
+    const LAYOUT_VERBOSE = WDP_Range_Discounts_Table::LAYOUT_VERBOSE;
+    const LAYOUT_SIMPLE = WDP_Range_Discounts_Table::LAYOUT_SIMPLE;
+    const ANY = 'any';
+
 	private static $option_name = 'woocommerce_wdp_bulk_table';
 	private $options = array();
 
 	public function __construct(  ) {
-		add_action( 'init', function () {
-			$this->init();
-		}, 100 );
+        $this->init();
 
 		add_action( 'customize_register', array( $this, 'add_sections' ) );
-
-		add_action( 'wp_loaded', function () {
-			$this->init_hooks();
-		} );
 
 		add_action( 'wp_head', function () {
 			$this->customize_css( is_customize_preview() );
@@ -29,10 +27,10 @@ class WDP_Customizer {
 
 	private function init_font_options( $panel_id, $section ) {
 		$map_section_and_css_selector = array(
-			"{$panel_id}-bulk_table_header"  => '.wdp_bulk_table_content .wdp_pricing_table_caption',
-			"{$panel_id}-bulk_table_columns" => '.wdp_bulk_table_content table thead td',
-			"{$panel_id}-bulk_table_body"     => '.wdp_bulk_table_content table tbody td',
-			"{$panel_id}-bulk_table_footer"   => '.wdp_bulk_table_content .wdp_pricing_table_footer',
+			"{$panel_id}-table_header"  => '.wdp_bulk_table_content .wdp_pricing_table_caption',
+			"{$panel_id}-table_columns" => '.wdp_bulk_table_content table thead td',
+			"{$panel_id}-table_body"     => '.wdp_bulk_table_content table tbody td',
+			"{$panel_id}-table_footer"   => '.wdp_bulk_table_content .wdp_pricing_table_footer',
 		);
 
 		if ( empty( $map_section_and_css_selector[ $section ] ) ) {
@@ -52,6 +50,7 @@ class WDP_Customizer {
 				'selector'         => $selector,
 				'css_option_name'  => 'font-weight',
 				'css_option_value' => 'bold',
+				'layout'           => self::ANY,
 			),
 			"{$panel_id}-emphasis_italic"   => array(
 				'label'             => __( 'Italic text', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -64,6 +63,7 @@ class WDP_Customizer {
 				'selector'         => $selector,
 				'css_option_name'  => 'font-style',
 				'css_option_value' => 'italic',
+				'layout'           => self::ANY,
 			),
 			"{$panel_id}-text_align"        => array(
 				'label'         => __( 'Text Align', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -74,6 +74,7 @@ class WDP_Customizer {
 				'apply_type'      => 'css',
 				'selector'        => $selector,
 				'css_option_name' => 'text-align',
+				'layout'           => self::ANY,
 			),
 			"{$panel_id}-text_color" => array(
 				'label'             => __( 'Text color', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -85,6 +86,7 @@ class WDP_Customizer {
 				'apply_type'      => 'css',
 				'selector'        => $selector,
 				'css_option_name' => 'color',
+				'layout'           => self::ANY,
 			),
 		);
 
@@ -100,15 +102,29 @@ class WDP_Customizer {
 		$type = 'product';
 
 		$product_options = array(
-			"{$panel_id}-bulk_table"         => array(
+			"{$panel_id}-table"         => array(
 				'title'    => __( 'Options', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 10,
 				'options'  => array(
+					'table_layout' => array(
+						'label'        => __( 'Product table layout', 'advanced-dynamic-pricing-for-woocommerce' ),
+						'default'      => self::LAYOUT_VERBOSE,
+						'control_type' => 'select',
+						'choices' => array(
+                            self::LAYOUT_VERBOSE => __( 'Display ranges as rows', 'advanced-dynamic-pricing-for-woocommerce' ),
+                            self::LAYOUT_SIMPLE => __( 'Display ranges as headers', 'advanced-dynamic-pricing-for-woocommerce' ),
+						),
+						'priority'     => 5,
+
+						'apply_type' => 'filter',
+//						'hook'       => "wdp_{$type}_bulk_table_action",
+						'layout'     => self::ANY,
+					),
 					'product_bulk_table_action' => array(
 						'label'        => __( 'Product Bulk Table position', 'advanced-dynamic-pricing-for-woocommerce' ),
 						'description'  => __( 'You can use shortcode [adp_product_bulk_rules_table] in product template.',
 							'advanced-dynamic-pricing-for-woocommerce' ),
-						'default'      => 'woocommerce_after_single_product_summary',
+						'default'      => 'woocommerce_after_add_to_cart_form',
 						'control_type' => 'select',
 						'choices' => apply_filters( 'wdp_product_bulk_table_places', array(
 							'woocommerce_before_single_product_summary' => __( 'Above product summary',
@@ -132,6 +148,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_action",
+						'layout'     => self::ANY,
 					),
 					'show_discounted_price'     => array(
 						'label'             => __( 'Show discounted price', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -142,6 +159,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_show_discounted_price_in_{$type}_bulk_table",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'show_discount_column'      => array(
 						'label'             => __( 'Show discount column', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -152,6 +170,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_show_product_discount_in_{$type}_bulk_table",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'show_footer'  => array(
 						'label'             => __( 'Show footer', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -162,14 +181,26 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_show_footer_in_{$type}_bulk_table",
+						'layout'     => self::ANY,
 					),
 				),
 
 			),
-			"{$panel_id}-bulk_table_header"  => array(
+			"{$panel_id}-table_header"  => array(
 				'title'    => __( 'Style header', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 20,
 				'options'  => array(
+					'use_message_as_title' => array(
+						'label'             => __( 'Use bulk table message as table header', 'advanced-dynamic-pricing-for-woocommerce' ),
+						'default'           => false,
+						'priority'          => 50,
+						'control_type'      => 'checkbox',
+						'sanitize_callback' => 'wc_string_to_bool',
+
+						'apply_type' => 'filter',
+						'hook'       => "wdp_use_message_as_{$type}_bulk_table_header",
+						'layout'     => self::ANY,
+					),
 					'bulk_title' => array(
 						'label'    => __( 'Header bulk title', 'advanced-dynamic-pricing-for-woocommerce' ),
 						'default'  => __( 'Bulk deal', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -177,6 +208,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_header_for_bulk_title",
+						'layout'     => self::ANY,
 					),
 					'tier_title' => array(
 						'label'    => __( 'Header tier title', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -185,10 +217,11 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_header_for_tier_title",
+						'layout'     => self::ANY,
 					),
 				),
 			),
-			"{$panel_id}-bulk_table_columns" => array(
+			"{$panel_id}-table_columns" => array(
 				'title'    => __( 'Style columns', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 30,
 				'options'  => array(
@@ -199,6 +232,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_qty_title",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'discount_column_title'                 => array(
 						'label'    => __( 'Discount column title', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -207,6 +241,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_discount_price_title",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'discount_column_title_for_fixed_price' => array(
 						'label'    => __( 'Discount column title for fixed price', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -215,6 +250,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_fixed_price_title",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'discounted_price_title'                => array(
 						'label'    => __( 'Discounted price column title', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -223,6 +259,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_discounted_price_title",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'header_background_color'               => array(
 						'label'             => __( 'Background color', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -234,10 +271,11 @@ class WDP_Customizer {
 						'apply_type'      => 'css',
 						'selector'        => '.wdp_bulk_table_content table thead td',
 						'css_option_name' => 'background-color',
+						'layout'          => self::ANY,
 					),
 				),
 			),
-			"{$panel_id}-bulk_table_body"    => array(
+			"{$panel_id}-table_body"    => array(
 				'title'    => __( 'Style body', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 40,
 				'options'  => array(
@@ -251,10 +289,11 @@ class WDP_Customizer {
 						'apply_type'      => 'css',
 						'selector'        => '.wdp_bulk_table_content table tbody td',
 						'css_option_name' => 'background-color',
+						'layout'          => self::ANY,
 					),
 				),
 			),
-			"{$panel_id}-bulk_table_footer"  => array(
+			"{$panel_id}-table_footer"  => array(
 				'title'    => __( 'Style footer', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 50,
 				'options'  => array(),
@@ -275,10 +314,23 @@ class WDP_Customizer {
 		$type = 'category';
 
 		$category_options = array(
-			"{$panel_id}-bulk_table"         => array(
+			"{$panel_id}-table"         => array(
 				'title'    => __( 'Options', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 10,
 				'options'  => array(
+					'table_layout' => array(
+						'label'        => __( 'Category table layout', 'advanced-dynamic-pricing-for-woocommerce' ),
+						'default'      => self::LAYOUT_VERBOSE,
+						'control_type' => 'select',
+						'choices' => array(
+							self::LAYOUT_VERBOSE => __( 'Display ranges as rows', 'advanced-dynamic-pricing-for-woocommerce' ),
+						),
+						'priority'     => 5,
+
+						'apply_type' => 'filter',
+						'hook'       => "wdp_{$type}_bulk_table_action",
+						'layout'     => self::ANY,
+					),
 					'category_bulk_table_action' => array(
 						'label'        => __( 'Category Bulk Table position', 'advanced-dynamic-pricing-for-woocommerce' ),
 						'description'  => __( 'You can use shortcode [adp_product_bulk_rules_table] in product template.',
@@ -295,6 +347,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_action",
+						'layout'     => self::ANY,
 					),
 
 					'show_discount_column'     => array(
@@ -306,6 +359,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_show_product_discount_in_{$type}_bulk_table",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'show_footer' => array(
 						'label'             => __( 'Show footer', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -316,14 +370,26 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_show_footer_in_{$type}_bulk_table",
+						'layout'     => self::ANY,
 					),
 				),
 
 			),
-			"{$panel_id}-bulk_table_header"  => array(
+			"{$panel_id}-table_header"  => array(
 				'title'    => __( 'Style header', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 20,
 				'options'  => array(
+					'use_message_as_title' => array(
+						'label'             => __( 'Use bulk table message as table header', 'advanced-dynamic-pricing-for-woocommerce' ),
+						'default'           => false,
+						'priority'          => 50,
+						'control_type'      => 'checkbox',
+						'sanitize_callback' => 'wc_string_to_bool',
+
+						'apply_type' => 'filter',
+						'hook'       => "wdp_use_message_as_{$type}_bulk_table_header",
+						'layout'     => self::ANY,
+					),
 					'bulk_title' => array(
 						'label'    => __( 'Header bulk title', 'advanced-dynamic-pricing-for-woocommerce' ),
 						'default'  => __( 'Bulk deal', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -331,6 +397,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_header_for_bulk_title",
+						'layout'     => self::ANY,
 					),
 					'tier_title' => array(
 						'label'    => __( 'Header tier title', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -339,10 +406,11 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_header_for_tier_title",
+						'layout'     => self::ANY,
 					),
 				),
 			),
-			"{$panel_id}-bulk_table_columns" => array(
+			"{$panel_id}-table_columns" => array(
 				'title'    => __( 'Style columns', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 30,
 				'options'  => array(
@@ -353,6 +421,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_qty_title",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'discount_column_title'                 => array(
 						'label'    => __( 'Discount column title', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -361,6 +430,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_discount_price_title",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'discount_column_title_for_fixed_price' => array(
 						'label'    => __( 'Discount column title for fixed price', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -369,6 +439,7 @@ class WDP_Customizer {
 
 						'apply_type' => 'filter',
 						'hook'       => "wdp_{$type}_bulk_table_fixed_price_title",
+						'layout'     => self::LAYOUT_VERBOSE,
 					),
 					'header_background_color'               => array(
 						'label'             => __( 'Background color', 'advanced-dynamic-pricing-for-woocommerce' ),
@@ -380,10 +451,11 @@ class WDP_Customizer {
 						'apply_type'      => 'css',
 						'selector'        => '.wdp_bulk_table_content table thead td',
 						'css_option_name' => 'background-color',
+						'layout'          => self::ANY,
 					),
 				),
 			),
-			"{$panel_id}-bulk_table_body"    => array(
+			"{$panel_id}-table_body"    => array(
 				'title'    => __( 'Style body', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 40,
 				'options'  => array(
@@ -397,10 +469,11 @@ class WDP_Customizer {
 						'apply_type'      => 'css',
 						'selector'        => '.wdp_bulk_table_content table tbody td',
 						'css_option_name' => 'background-color',
+						'layout'          => self::ANY,
 					),
 				),
 			),
-			"{$panel_id}-bulk_table_footer"  => array(
+			"{$panel_id}-table_footer"  => array(
 				'title'    => __( 'Style footer', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'priority' => 50,
 				'options'  => array(),
@@ -419,32 +492,25 @@ class WDP_Customizer {
 	private function init() {
 		$options = WDP_Helpers::get_settings();
 
-		if ( ! empty( $options['show_matched_bulk_table'] ) ) {
-			$this->options['wdp_product_bulk_table'] = array(
-				'title'    => __( 'Product bulk table (Advanced Dynamic Pricing)',
-					'advanced-dynamic-pricing-for-woocommerce' ),
-				'priority' => 200,
-				'options'  => $this->get_product_table_options( 'wdp_product_bulk_table' ),
-			);
-		}
+		$this->options['wdp_product_bulk_table'] = array(
+			'title'    => __( 'Product bulk table (Advanced Dynamic Pricing)',
+				'advanced-dynamic-pricing-for-woocommerce' ),
+			'priority' => 200,
+			'options'  => $this->get_product_table_options( 'wdp_product_bulk_table' ),
+		);
 
-		if ( ! empty( $options['show_category_bulk_table'] ) ) {
-			$this->options['wdp_category_bulk_table'] = array(
-				'title'    => __( 'Category bulk table (Advanced Dynamic Pricing)',
-					'advanced-dynamic-pricing-for-woocommerce' ),
-				'priority' => 200,
-				'options'  => $this->get_category_table_options( 'wdp_category_bulk_table' ),
-			);
-		}
+		$this->options['wdp_category_bulk_table'] = array(
+			'title'    => __( 'Category bulk table (Advanced Dynamic Pricing)',
+				'advanced-dynamic-pricing-for-woocommerce' ),
+			'priority' => 200,
+			'options'  => $this->get_category_table_options( 'wdp_category_bulk_table' ),
+		);
 	}
 
 	public function customize_css( $preview ) {
 		$css          = array();
 		$attr_options = get_theme_mod( self::$option_name );
 		$important = ! $preview ? '! important' : "";
-		if ( ! is_array($attr_options) ) {
-		    return;
-        }
 
 		$panel_id = is_product() || woocommerce_product_loop() ? 'wdp_product_bulk_table' : ( is_product_category() ? 'wdp_category_bulk_table' : false );
 		if ( empty( $panel_id ) || empty( $this->options[ $panel_id ] ) ) {
@@ -500,9 +566,6 @@ class WDP_Customizer {
 
 	public function init_hooks() {
 		$attr_options = get_theme_mod( self::$option_name );
-		if ( ! is_array($attr_options) ) {
-			return;
-		}
 
 		foreach ( $this->options as $panel_id => $panel_data ) {
 			if ( empty( $panel_data['options'] ) ) {
@@ -543,6 +606,81 @@ class WDP_Customizer {
 			}
 		}
 	}
+
+	public function get_theme_options() {
+		if ( ! did_action( 'wp_loaded' ) ) {
+			_doing_it_wrong( __FUNCTION__, sprintf( __( '%1$s should not be called before the %2$s action.', 'woocommerce' ), 'WDP_Customizer::get_theme_options', 'wp_loaded' ), '2.2.2' );
+
+			return array();
+		}
+
+	    $result = array();
+		$attr_options = get_theme_mod( self::$option_name );
+
+		foreach ( $this->options as $panel_id => $panel_data ) {
+			if ( empty( $panel_data['options'] ) ) {
+				continue;
+			}
+
+			switch ($panel_id) {
+                case 'wdp_product_bulk_table':
+                    $context = WDP_Range_Discounts_Table::CONTEXT_PRODUCT_PAGE;
+                    break;
+				case 'wdp_category_bulk_table':
+					$context = WDP_Range_Discounts_Table::CONTEXT_CATEGORY_PAGE;
+					break;
+                default:
+                    $context = null;
+            }
+
+			if ( ! $context ) {
+			    continue;
+            }
+
+			$section_options = array();
+			foreach ( $panel_data['options'] as $section_id => $section_settings ) {
+				if ( ! isset( $section_settings['options'] ) ) {
+					continue;
+				}
+
+				$section_key = str_replace($panel_id . '-', "", $section_id);
+
+				$options = array();
+				foreach ( $section_settings['options'] as $option_id => $option_data ) {
+					if ( empty( $option_data['apply_type'] ) ) {
+						continue;
+					}
+
+					// font options
+					$option_key = str_replace($panel_id . '-', "", $option_id);
+
+                    $default = $option_data['default'];
+                    if ( ! isset( $attr_options[ $panel_id ][ $section_id ][ $option_id ] ) ) {
+                        $attr_option = $default;
+                    } else {
+                        $attr_option = $attr_options[ $panel_id ][ $section_id ][ $option_id ];
+                    }
+
+                    /**
+                     * Do not apply saved value which not in choices
+                     * e.g. delete add_action
+                     */
+                    $choices = isset( $option_data['choices'] ) ? $option_data['choices'] : array();
+                    if ( $choices && empty( $choices[ $attr_option ] ) ) {
+                        $attr_option = $default;
+                    }
+
+					$options[$option_key] = $attr_option;
+				}
+
+				$section_options[$section_key] = $options;
+			}
+
+			$result[$context] = $section_options;
+		}
+
+		return $result;
+    }
 
 	/**
 	 * @param WP_Customize_Manager $wp_customize Theme Customizer object.

@@ -3,8 +3,8 @@ Contributors: timwhitlock
 Tags: translation, translators, localization, localisation, l10n, i18n, Gettext, PO, MO, productivity, multilingual, internationalization
 Requires at least: 4.1
 Requires PHP: 5.2.4
-Tested up to: 5.1.0
-Stable tag: 2.2.1
+Tested up to: 5.2.1
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,18 @@ We don't collect your data or snoop on you. See the [plugin privacy notice](http
 
 
 == Changelog ==
+
+= 2.3.0 =
+* Added experimental support for multipart uploads
+* Added relocation tab for moving translation sets
+* Creation of missing directories when writing new files
+* Fixed duplicate file addition when iterating over symlink
+* Bumped WP compatibility to 5.2.1
+
+= 2.2.2 =
+* Security fixes for reading sensitive files
+* Fixed old PHP version error in data files
+* Bumped WP compatibility to 5.1.1
 
 = 2.2.1 =
 * Fixed bug where plural tabs not displaying RTL
@@ -294,7 +306,7 @@ We don't collect your data or snoop on you. See the [plugin privacy notice](http
 
 == Upgrade Notice ==
 
-= 2.2.1 =
+= 2.3.0 =
 * Various bug fixes and improvements
 
 

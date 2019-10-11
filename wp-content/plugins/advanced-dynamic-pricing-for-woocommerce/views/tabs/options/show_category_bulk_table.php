@@ -2,6 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+/**
+ * @var string $category_bulk_table_customizer_url
+ */
 
 ?>
 
@@ -14,12 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<input <?php checked( $options['show_category_bulk_table'] ); ?>
 					name="show_category_bulk_table" id="show_category_bulk_table" type="checkbox">
 			</label>
-			<?php if ( $options['show_category_bulk_table'] ): ?>
 				<a href="<?php echo $category_bulk_table_customizer_url; ?>" target="_blank">
 					<?php _e( 'Customize', 'advanced-dynamic-pricing-for-woocommerce' ) ?>
 				</a>
-                  &nbsp; <?php _e( 'or add shortcode [adp_category_bulk_rules_table]', 'advanced-dynamic-pricing-for-woocommerce' ) ?>
-			<?php endif; ?>
+                  &nbsp; <?php _e( 'You can use shortcode [adp_category_bulk_rules_table]', 'advanced-dynamic-pricing-for-woocommerce' ) ?>
 		</fieldset>
 	</td>
 </tr>

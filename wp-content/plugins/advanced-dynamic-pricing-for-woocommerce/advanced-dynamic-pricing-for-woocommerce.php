@@ -3,13 +3,11 @@
  * Plugin Name: Advanced Dynamic Pricing for WooCommerce
  * Plugin URI:
  * Description: Manage discounts/deals for WooCommerce
- * Version: 1.6.0
+ * Version: 2.2.4
  * Author: AlgolPlus
  * Author URI: https://algolplus.com/
- * Requires at least: 4.8
- * Tested up to: 4.9
- * WC requires at least: 3.0
- * WC tested up to: 3.5
+ * WC requires at least: 3.3
+ * WC tested up to: 3.7
  *
  * Text Domain: advanced-dynamic-pricing-for-woocommerce
  * Domain Path: /languages
@@ -36,8 +34,8 @@ define( 'WC_ADP_PLUGIN_FILE', basename( __FILE__ ) );
 define( 'WC_ADP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WC_ADP_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'WC_ADP_MIN_PHP_VERSION', '5.4.0' );
-define( 'WC_ADP_MIN_WC_VERSION', '3.0' );
-define( 'WC_ADP_VERSION', '1.6.0' );
+define( 'WC_ADP_MIN_WC_VERSION', '3.3' );
+define( 'WC_ADP_VERSION', '2.2.4' );
 
 include_once WC_ADP_PLUGIN_PATH . 'classes/common/class-wdp-database.php';
 include_once WC_ADP_PLUGIN_PATH . 'classes/class-wdp-loader.php';
@@ -47,3 +45,12 @@ register_uninstall_hook( __FILE__, array('WDP_Loader', 'uninstall') );
 
 //start
 new WDP_Loader();
+
+//declare missed function , for WC 3.3
+add_action("woocommerce_loaded", function() {
+	if( version_compare( WC_VERSION, '3.4', '<') )  {
+		function woocommerce_product_loop() {
+			return have_posts() || 'products' !== woocommerce_get_loop_display_mode();
+		}
+	}
+});

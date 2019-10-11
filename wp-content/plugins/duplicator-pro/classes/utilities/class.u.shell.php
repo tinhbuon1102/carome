@@ -49,18 +49,28 @@ class DUP_PRO_Shell_U
         $cmds = array('shell_exec', 'escapeshellarg', 'escapeshellcmd', 'extension_loaded');
 
         //Function disabled at server level
-        if (array_intersect($cmds, array_map('trim', explode(',', @ini_get('disable_functions'))))) return false;
+        if (array_intersect($cmds, array_map('trim', explode(',', @ini_get('disable_functions'))))) {
+            return false;
+        }
 
         //Suhosin: http://www.hardened-php.net/suhosin/
         //Will cause PHP to silently fail
         if (extension_loaded('suhosin')) {
             $suhosin_ini = @ini_get("suhosin.executor.func.blacklist");
-            if (array_intersect($cmds, array_map('trim', explode(',', $suhosin_ini)))) return false;
+            
+            if (array_intersect($cmds, array_map('trim', explode(',', $suhosin_ini)))) {
+                return apply_filters('duplicator_pro_is_shellzip_available', false);
+            }
         }
         // Can we issue a simple echo command?
-        if (!@shell_exec('echo duplicator')) return false;
+        if (!@shell_exec('echo duplicator')) {
+            $ret = false;
+        }
+        else {
+            $ret = true;
+        }
 
-        return true;
+        return apply_filters('duplicator_pro_is_shellzip_available', $ret);
     }
 
     /**

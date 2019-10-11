@@ -73,4 +73,7 @@ interface WDP_User {
 	 * @param string $time
 	 */
 	public function convert_for_strtotime( $time );
+
+	public function set_is_vat_exempt( $tax_exempt );
+	public function get_tax_exempt();
 }

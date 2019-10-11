@@ -7,16 +7,48 @@ class WDP_Settings {
 	/** @var WDP_Admin_Abstract_Page[] */
 	private $tabs;
 	static $activation_notice_option = 'advanced-dynamic-pricing-for-woocommerce-activation-notice-shown';
+	public static $disabled_rules_option_name = 'wdp_rules_disabled_notify';
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_backend_assets' ) );
 
-		include_once WC_ADP_PLUGIN_PATH . 'classes/admin/class-wdp-ajax.php';
-		add_action( 'wp_ajax_wdp_ajax', array( new WDP_Ajax(), 'ajax_requests' ) );
+		add_filter( 'woocommerce_hidden_order_itemmeta', function ( $keys ) {
+			/** @see  WDP_Frontend_pro::save_initial_price_to_order_item */
+			$keys[] = '_wdp_rules';
+
+			/** @see  WDP_Cart_Totals::woocommerce_package_rates */
+			$keys[] = '_wdp_initial_cost';
+			$keys[] = '_wdp_initial_tax';
+//			$keys[] = '_wdp_rules'; // duplicate
+			$keys[] = '_wdp_free_shipping';
+
+			return $keys;
+		}, 10, 1 );
+
+		if ( isset( $_GET['page'] ) && $_GET['page'] == 'wdp_settings' ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_backend_assets' ) );
+			add_filter( 'script_loader_src', array( $this, 'script_loader_src' ), PHP_INT_MAX, 2 );
+
+			if ( isset($_GET['from_notify']) ) {
+				$is_exclusive   = $_GET['tab'] == 'exclusive';
+				$disabled_rules = get_option( self::$disabled_rules_option_name, array() );
+
+				foreach ( $disabled_rules as $index => $disabled_rule ) {
+					if ( $disabled_rule['is_exclusive'] === $is_exclusive ) {
+						unset( $disabled_rules[ $index ] );
+					}
+				}
+
+				update_option( self::$disabled_rules_option_name, $disabled_rules );
+			}
+		}
+
+		add_action( 'wp_ajax_wdp_ajax', array( 'WDP_Settings', 'ajax' ) );
 
 		WDP_Loader::load_core();// init
 		$this->prepare_tabs();
+
+		new WDP_Customizer();
 
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ), 30 );
 
@@ -28,10 +60,17 @@ class WDP_Settings {
 		if( !get_option( self::$activation_notice_option ) )
 			add_action('admin_notices', array( $this,'display_plugin_activated_message'));
 
+		add_action( 'admin_notices', array( $this, 'notify_rule_disabled' ), 10 );
+
 	}
 
 	public static function print_applied_discounts_order_preview(){
 		WDP_Preview_Order_Applied_Discount_Rules::render();
+	}
+
+	public static function ajax() {
+	    include_once WC_ADP_PLUGIN_PATH . 'classes/admin/class-wdp-ajax.php';
+	    (new WDP_Ajax())->ajax_requests();
 	}
 
 	public static function add_applied_discounts_data($export_data, $order){
@@ -77,11 +116,12 @@ class WDP_Settings {
 			'common'     => new WDP_Admin_Common_Page(),
 			'exclusive'  => new WDP_Admin_Exclusive_Page(),
 			'statistics' => new WDP_Admin_Statistics_Page(),
+			'product_collections'=> new WDP_Admin_Collections_Page(),
 			'options'    => new WDP_Admin_Options_Page(),
 			'tools'      => new WDP_Admin_Tools_Page(),
 			'help'       => new WDP_Admin_Help_Page(),
 		);
-		
+
 		$tabs = apply_filters( 'wdp_admin_tabs', $tabs );
 
 		uasort( $tabs, function ( $tab1, $tab2 ) {
@@ -111,13 +151,6 @@ class WDP_Settings {
 	}
 
 	public function enqueue_backend_assets() {
-		$screen           = get_current_screen();
-		$is_settings_page = $screen && $screen->id === 'woocommerce_page_wdp_settings';
-
-		// Load backend assets conditionally
-		if ( ! $is_settings_page ) {
-			return;
-		}
 		$tab = $this->get_current_tab();
 
 		// Enqueue script for handling the meta boxes
@@ -130,8 +163,8 @@ class WDP_Settings {
 		wp_enqueue_style( 'wdp_jquery-ui', WC_ADP_PLUGIN_URL . '/assets/jquery-ui/jquery-ui.min.css', array(), '1.11.4' );
 
 		// Enqueue Select2 related scripts and styles
-		wp_enqueue_script( 'select2', WC()->plugin_url() . '/assets/js/select2/select2.full.min.js', array( 'jquery' ), '4.0.3' );
-		wp_enqueue_style( 'select2', WC()->plugin_url() . '/assets/css/select2.css', array(), '4.0.3' );
+		wp_enqueue_script( 'wdp_select2', WC_ADP_PLUGIN_URL . '/assets/js/select2/select2.full.min.js', array( 'jquery' ), '4.0.3' );
+		wp_enqueue_style( 'wdp_select2', WC_ADP_PLUGIN_URL . '/assets/css/select2/select2.css', array(), '4.0.3' );
 
 		if ( "options" !== $tab ) {
 			// Enqueue jquery mobile related scripts and styles (for flip switch)
@@ -143,7 +176,7 @@ class WDP_Settings {
 			wp_enqueue_script( 'wdp_settings-scripts', WC_ADP_PLUGIN_URL . '/assets/js/rules.js', array(
 				'jquery',
 				'jquery-ui-sortable',
-				'select2',
+				'wdp_select2',
 			), WC_ADP_VERSION );
         } else {
 			wp_enqueue_script( 'wdp_options-scripts', WC_ADP_PLUGIN_URL . '/assets/js/options.js', array( 'jquery'), WC_ADP_VERSION );
@@ -158,7 +191,13 @@ class WDP_Settings {
 		wp_enqueue_script('wdp_datetimepicker-scripts', WC_ADP_PLUGIN_URL . '/assets/datetimepicker/jquery.datetimepicker.full.min.js', array('jquery'));
 		wp_enqueue_style('wdp_datetimepicker-styles', WC_ADP_PLUGIN_URL . '/assets/datetimepicker/jquery.datetimepicker.min.css', array() );
 
-		$rules = $this->get_tab_rules( $tab );
+		if ( ! empty( $this->tabs[ $tab ] ) && method_exists( $this->tabs[ $tab ], 'get_tab_rules' ) ) {
+			$rules = $this->tabs[$tab]->get_tab_rules();
+		} else {
+			$rules = array();
+        }
+
+		$paged = $this->tabs[$tab]->get_pagenum();
 
 		$preloaded_lists = array(
 			'payment_methods'   => WDP_Helpers::get_payment_methods(),
@@ -174,36 +213,34 @@ class WDP_Settings {
 			$list = apply_filters( 'wdp_preloaded_list_' . $list_key, $list );
         }
 
+		$options = WDP_Helpers::get_settings();
+
 		$wdp_data = array(
-			'page'   => $tab,
-			'rules'  => $rules,
-			'titles' => $this->get_filter_titles( $this->get_ids_for_filter_titles( $rules ) ),
-			'labels' => array(
-				'select2_no_results' => __( 'no results', 'advanced-dynamic-pricing-for-woocommerce' ),
-				'confirm_remove_rule' => __( 'Remove rule?', 'advanced-dynamic-pricing-for-woocommerce' ),
-				'currency_symbol' => get_woocommerce_currency_symbol(),
+			'page'          => $tab,
+			'rules'         => $rules,
+			'titles'        => self::get_filter_titles( self::get_ids_for_filter_titles( $rules ) ),
+			'labels'        => array(
+				'select2_no_results'     => __( 'no results', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'confirm_remove_rule'    => __( 'Remove rule?', 'advanced-dynamic-pricing-for-woocommerce' ),
+				'currency_symbol'        => get_woocommerce_currency_symbol(),
 				'fixed_discount'         => __( 'Fixed discount for item', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'fixed_price'            => __( 'Fixed price for item', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'fixed_discount_for_set' => __( 'Fixed discount for set', 'advanced-dynamic-pricing-for-woocommerce' ),
 				'fixed_price_for_set'    => __( 'Fixed price for set', 'advanced-dynamic-pricing-for-woocommerce' ),
 			),
-			'lists' => $preloaded_lists,
-			'selected_rule' => isset( $_GET[ 'rule_id' ] ) ? (int) $_GET[ 'rule_id' ] : -1
+			'lists'         => $preloaded_lists,
+			'selected_rule' => isset( $_GET['rule_id'] ) ? (int) $_GET['rule_id'] : - 1,
+			'bulk_rule'     => WDP_Rule_Range_Adjustments_Qty_Based_Calculator::get_all_available_types(),
+			'options'       => array(
+				'enable_product_exclude' => isset( $options['allow_to_exclude_products'] ) ? $options['allow_to_exclude_products'] : false,
+				'rules_per_page'         => isset( $options['rules_per_page'] ) ? $options['rules_per_page'] : false,
+			),
+            'paged' => $paged,
 		);
 		wp_localize_script( 'wdp_settings-scripts', 'wdp_data', $wdp_data );
 	}
 
-	private function get_tab_rules( $tab_slug ) {
-		if ( $tab_slug === 'exclusive' ) {
-			$args = array( 'exclusive' => 1 );
-		} else {
-			$args = array( 'exclusive' => 0 );
-		}
-
-		return WDP_Database::get_rules( $args );
-	}
-
-	public function get_ids_for_filter_titles( $rules ){
+	public static function get_ids_for_filter_titles( $rules ){
 		// make array of filters splitted by type
 		$filters_by_type = array(
 			'products'              => array(),
@@ -224,11 +261,18 @@ class WDP_Settings {
 		$filters_by_type = apply_filters('wdp_ids_for_filter_titles', $filters_by_type, $rules);
 		foreach ( $rules as $rule ) {
 			foreach ( $rule['filters'] as $filter ) {
-				if ( ! isset( $filter[ 'value' ] ) ) continue;
-				$type  = $filter['type'];
-				$value = $filter['value'];
+			    if ( ! empty( $filter[ 'value' ] ) ) {
+					$type  = $filter['type'];
+					$value = $filter['value'];
 
-				$filters_by_type[ $type ] = array_merge( $filters_by_type[ $type ], (array) $value );
+					$filters_by_type[ $type ] = array_merge( $filters_by_type[ $type ], (array) $value );
+                }
+
+				if ( isset( $filter['product_exclude']['values'] ) ) {
+					foreach ( $filter['product_exclude']['values'] as $product_id ) {
+						$filters_by_type['products'][] = $product_id;
+					}
+				}
 			}
 
 			if (isset($rule['get_products']['value']) ) {
@@ -296,7 +340,7 @@ class WDP_Settings {
 	 *
 	 * @return array
 	 */
-	private function get_filter_titles( $filters_by_type ) {
+	public static function get_filter_titles( $filters_by_type ) {
 		$result = array();
 
 		// type 'products'
@@ -348,7 +392,7 @@ class WDP_Settings {
 		foreach ( $attributes as $attribute ) {
 			$result['product_attributes'][ $attribute['id'] ] = $attribute['text'];
 		}
-		
+
 		// type 'product_custom_fields'
 		$customfields = array_unique( $filters_by_type['product_custom_fields'] ); // use as is!
 		$result['product_custom_fields'] = array();
@@ -362,20 +406,83 @@ class WDP_Settings {
 		foreach ( $attributes as $attribute ) {
 			$result['users_list'][ $attribute['id'] ] = $attribute['text'];
 		}
-		
+
 		// type 'cart_coupons'
 		$result['coupons'] = array();
 		foreach ( array_unique( $filters_by_type['coupons'] ) as $code ) {
 			$result['coupons'][ $code ] = $code;
 		}
-		
-		// type 'subscriptions' 
+
+		// type 'subscriptions'
 		$result['subscriptions'] = array();
 		foreach ( $filters_by_type['subscriptions'] as $id ) {
 			$result['subscriptions'][ $id ] = '#' . $id . ' ' . WDP_Helpers::get_product_title( $id );
 		}
 
-
-		return $result;
+		return apply_filters( 'wdp_filter_titles', $result, $filters_by_type );
 	}
+
+	public function script_loader_src( $src, $handle ) {
+		// don't load ANY select2.js / select2.min.js  and OUTDATED select2.full.js
+		if ( ! preg_match( '/\/select2\.full\.js\?ver=[1-3]/', $src ) && ! preg_match( '/\/select2\.min\.js/', $src ) && ! preg_match( '/\/select2\.js/', $src ) ) {
+			return $src;
+		}
+
+		return "";
+	}
+
+	public function notify_rule_disabled() {
+		$disabled_rules = get_option( self::$disabled_rules_option_name, array() );
+
+		if ( $disabled_rules ) {
+			$disabled_count_common    = 0;
+			$disabled_count_exclusive = 0;
+			foreach ( $disabled_rules as $rule ) {
+				$is_exclusive = $rule['is_exclusive'];
+
+				if ( $is_exclusive ) {
+					$disabled_count_exclusive ++;
+				} else {
+					$disabled_count_common ++;
+				}
+			}
+
+			$rule_edit_url      = add_query_arg( array(
+				'page'        => 'wdp_settings',
+				'from_notify' => '1'
+			), admin_url( 'admin.php' ) );
+			$common_edit_url    = add_query_arg( 'tab', 'common', $rule_edit_url );
+			$exclusive_edit_url = add_query_arg( 'tab', 'exclusive', $rule_edit_url );
+
+			$format = "<p>%s %s <a href='%s'>%s</a></p>";
+
+			if ( $disabled_count_common ) {
+				$notice_message = "";
+				$notice_message .= '<div class="notice notice-success is-dismissible">';
+				if ( 1 === $disabled_count_common ) {
+					$notice_message .= sprintf( $format, "", __( "The common rule was turned off, it was running too slow.", 'advanced-dynamic-pricing-for-woocommerce' ), $common_edit_url, __( "Edit rule", 'advanced-dynamic-pricing-for-woocommerce' ) );
+                } else {
+					$notice_message .= sprintf( $format, $disabled_count_common, __( "common rules were turned off, it were running too slow.", 'advanced-dynamic-pricing-for-woocommerce' ), $common_edit_url, __( "Edit rule", 'advanced-dynamic-pricing-for-woocommerce' ) );
+				}
+
+				$notice_message .= '</div>';
+
+				echo $notice_message;
+			}
+
+			if ( $disabled_count_exclusive ) {
+				$notice_message = "";
+				$notice_message .= '<div class="notice notice-success is-dismissible">';
+				if ( 1 === $disabled_count_exclusive ) {
+					$notice_message .= sprintf( $format, "", __( "The exclusive rule was turned off, it was running too slow.", 'advanced-dynamic-pricing-for-woocommerce' ), $exclusive_edit_url, __( "Edit rule", 'advanced-dynamic-pricing-for-woocommerce' ) );
+				} else {
+					$notice_message .= sprintf( $format, $disabled_count_exclusive, __( "exclusive rules were turned off, it were running too slow.", 'advanced-dynamic-pricing-for-woocommerce' ), $exclusive_edit_url, __( "Edit rule", 'advanced-dynamic-pricing-for-woocommerce' ) );
+				}
+				$notice_message .= '</div>';
+
+				echo $notice_message;
+			}
+		}
+	}
+
 }

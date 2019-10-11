@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WDP_Ajax {
 
-	private $limit = null;
+	protected $limit = null;
 
 	public function __construct() {
 		$options = WDP_Helpers::get_settings();
@@ -32,12 +32,12 @@ class WDP_Ajax {
 		$query = filter_input( INPUT_POST, 'query', FILTER_SANITIZE_STRING );
 		$data_store = WC_Data_Store::load( 'product' );
 		$ids        = $data_store->search_products( $query, '', true, false, $this->limit );
-		return array_map( function ( $post_id ) {
+		return array_values(array_map( function ( $post_id ) {
 			return array(
 				'id'   => (string) $post_id,
 				'text' => '#' . $post_id . ' ' . get_the_title( $post_id ),
 			);
-		}, array_filter( $ids ) );
+		}, array_filter( $ids ) ));
 	}
 
 	public function ajax_giftable_products() {
@@ -47,7 +47,7 @@ class WDP_Ajax {
 		$ids        = $data_store->search_products( $query, '', true, false, $this->limit );
 
 		return array_values( array_filter( array_map( function ( $post_id ) {
-			$product = wc_get_product( $post_id );
+			$product = WDP_Object_Cache::get_instance()->get_wc_product( $post_id );
 			if ( ! $product ) {
 				return false;
 			}
@@ -80,17 +80,17 @@ class WDP_Ajax {
 		$query = filter_input( INPUT_POST, 'query', FILTER_SANITIZE_STRING );
 
 		$results = $wpdb->get_results( "
-			SELECT DISTINCT meta_value
+			SELECT DISTINCT meta_value, post_id
 			FROM $wpdb->postmeta
 			WHERE meta_key = '_sku' AND meta_value  like '%$query%' LIMIT $this->limit
 		" );
 
-		return array_map(function ( $result ) {
+		return apply_filters( 'wdp_product_sku_autocomplete_items', array_map( function ( $result ) {
 			return array(
 				'id'   => (string) $result->meta_value,
 				'text' => 'SKU: ' . $result->meta_value,
 			);
-		}, $results);
+		}, $results ), $results );
 	}
 
 	public function ajax_product_category_slug() {
@@ -151,6 +151,7 @@ class WDP_Ajax {
 			AND $wpdb->terms.name  like '%$query%' LIMIT $this->limit
 		" );
 
+
 		return array_map(function ( $term ) use ($wc_product_attributes) {
 			$attribute = $wc_product_attributes[ $term->taxonomy ]->attribute_label;
 			return array(
@@ -170,17 +171,17 @@ class WDP_Ajax {
 			);
 		}, $terms );
 	}
-	
+
 	public function ajax_product_custom_fields() {
 		global $wpdb;
-		
+
 		$query = filter_input( INPUT_POST, 'query', FILTER_SANITIZE_STRING );
 		$like     = $wpdb->esc_like( $query );
-		
-		$wp_fields = $wpdb->get_col( "SELECT DISTINCT CONCAT(fields.meta_key,'=',fields.meta_value) FROM {$wpdb->postmeta} AS fields 
+
+		$wp_fields = $wpdb->get_col( "SELECT DISTINCT CONCAT(fields.meta_key,'=',fields.meta_value) FROM {$wpdb->postmeta} AS fields
 										JOIN {$wpdb->posts} AS products ON products.ID = fields.post_id
 										WHERE products.post_type IN ('product','product_variation') AND CONCAT(fields.meta_key,'=',fields.meta_value) LIKE '%{$like}%' ORDER BY meta_key LIMIT $this->limit");
-		
+
 		return array_map( function ( $custom_field ) {
 			return array(
 				'id'   => $custom_field,
@@ -212,6 +213,8 @@ class WDP_Ajax {
 			});
 		}
 
+		$items = array_values($items);
+
 		return $items;
 	}
 
@@ -236,7 +239,7 @@ class WDP_Ajax {
 			'deleted'                  => 0,
 			'enabled'                  => ( isset( $rule['enabled'] ) && $rule['enabled'] === 'on' ) ? 1 : 0,
 			'exclusive'                => ( isset( $rule['exclusive'] ) && $rule['exclusive'] ) ? 1 : 0,
-			'title'                    => sanitize_text_field( $rule['title'] ),
+			'title'                    => filter_var( stripcslashes($rule['title']) , FILTER_SANITIZE_STRING),
 			'type'                     => sanitize_text_field( $rule['type'] ),
 			'priority'                 => isset( $rule['priority'] ) ? (int) $rule['priority'] : 0,
 			'options'                  => isset( $rule['options'] ) ? $rule['options'] : array(),
@@ -251,7 +254,11 @@ class WDP_Ajax {
 			'get_products'             => isset( $rule['get_products'] ) ? $rule['get_products'] : array(),
 			'additional'               => isset( $rule['additional'] ) ? $rule['additional'] : array(),
 		);
-		
+
+		if ( isset( $data['additional']['disabled_by_plugin'] ) ) {
+			unset( $data['additional']['disabled_by_plugin'] );
+		}
+
 		// arrays  saved as serialized values, must do "sanitize" recursive
 		$arrays = array(
 			'options',
@@ -273,8 +280,8 @@ class WDP_Ajax {
 		$id = WDP_Database::store_rule( $data, empty( $rule['id'] ) ? null : (int) $rule['id'] );
 		wp_send_json_success( $id );
 	}
-	
-	
+
+
 	function sanitize_array_text_fields($array) {
 		foreach ( $array as $key => &$value ) {
 			if ( is_array( $value ) ) {
@@ -288,7 +295,7 @@ class WDP_Ajax {
 	}
 
 	public function ajax_remove_rule() {
-		$rule_id = (int) $_POST['rule_id']; 
+		$rule_id = (int) $_POST['rule_id'];
 		if( $rule_id )
 			WDP_Database::mark_rule_as_deleted( $rule_id );
 		wp_send_json_success();
@@ -330,5 +337,9 @@ class WDP_Ajax {
 		} else {
 			return null;
 		}
+	}
+
+	public function ajax_rebuild_onsale_list() {
+	    WDP_Shortcode_Products_On_Sale::update_cached_products_ids_on_sale();
 	}
 }

@@ -85,34 +85,47 @@ if (isset($_REQUEST['action'])) {
             }
         }
 
-        if ($_REQUEST['storage_type'] == DUP_PRO_Storage_Types::OneDrive) {
+        if ($_REQUEST['storage_type'] == DUP_PRO_Storage_Types::OneDrive || $_REQUEST['storage_type'] == DUP_PRO_Storage_Types::OneDriveMSGraph) {
             if ($storage->onedrive_authorization_state == DUP_PRO_OneDrive_Authorization_States::Unauthorized) {
-                if (!empty($_REQUEST['onedrive-auth-code'])) {
-                    if ($_REQUEST['onedrive-is-business']) {
+                if (!empty($_REQUEST['onedrive-auth-code']) || !empty($_REQUEST['onedrive-msgraph-auth-code'])) {
+                    $use_msgraph_api = $_REQUEST['storage_type'] == DUP_PRO_Storage_Types::OneDriveMSGraph;
+                    if ($_REQUEST['onedrive-is-business'] || $use_msgraph_api) {
                         $onedrive_auth_client = DUP_PRO_Onedrive_U::get_onedrive_client_from_state(
                                         (object) array(
                                             'redirect_uri' => DUP_PRO_OneDrive_Config::ONEDRIVE_REDIRECT_URI,
                                             'token' => null
-                                        )
+                                        ),
+                                        $use_msgraph_api
                         );
-                        $onedrive_auth_client->setBusinessMode();
-                        $onedrive_auth_client->obtainAccessToken(DUP_PRO_OneDrive_Config::ONEDRIVE_CLIENT_SECRET, array(
-                            'code' => $_REQUEST['onedrive-auth-code'],
-                            'resource' => DUP_PRO_OneDrive_Config::MICROSOFT_GRAPH_ENDPOINT,
+                        
+                        $access_token_args = array (
+                            'code' => sanitize_text_field($use_msgraph_api ? $_REQUEST['onedrive-msgraph-auth-code'] : $_REQUEST['onedrive-auth-code']),
                             'grant_type' => 'authorization_code'
-                                )
+                        );
+                        if ($_REQUEST['onedrive-is-business']) {
+                            $onedrive_auth_client->setBusinessMode();
+                            $access_token_args['resource'] = DUP_PRO_OneDrive_Config::MICROSOFT_GRAPH_ENDPOINT;
+                        }
+                        $onedrive_auth_client->obtainAccessToken(
+                            DUP_PRO_OneDrive_Config::ONEDRIVE_CLIENT_SECRET,
+                            $access_token_args
                         );
                         DUP_PRO_Log::traceObject("Client State here", $onedrive_auth_client->getState());
                         $onedrive_info = $onedrive_auth_client->getServiceInfo();
-                        $onedrive_auth_client->obtainAccessToken(DUP_PRO_OneDrive_Config::ONEDRIVE_CLIENT_SECRET, array(
-                            'resource' => $onedrive_info['resource_id'],
-                            'refresh_token' => $onedrive_auth_client->getState()->token->data->refresh_token,
-                            'grant_type' => 'refresh_token'
-                                )
-                        );
+                        if ($_REQUEST['onedrive-is-business']) {
+                            $onedrive_auth_client->obtainAccessToken(DUP_PRO_OneDrive_Config::ONEDRIVE_CLIENT_SECRET, array(
+                                'resource' => $onedrive_info['resource_id'],
+                                'refresh_token' => $onedrive_auth_client->getState()->token->data->refresh_token,
+                                'grant_type' => 'refresh_token'
+                                    )
+                            );
+                        }
                         $storage->onedrive_endpoint_url = $onedrive_info['endpoint_url'];
                         $storage->onedrive_resource_id = $onedrive_info['resource_id'];
                     } else {
+                        $onedrive_auth_code = !empty($_REQUEST['onedrive-auth-code']) 
+                                                ? sanitize_text_field($_REQUEST['onedrive-auth-code']) 
+                                                : sanitize_text_field($_REQUEST['onedrive-msgraph-auth-code']);
                         $onedrive_auth_client = DUP_PRO_Onedrive_U::get_onedrive_client_from_state(
                                         (object) array(
                                             'redirect_uri' => DUP_PRO_OneDrive_Config::ONEDRIVE_REDIRECT_URI,
@@ -120,7 +133,7 @@ if (isset($_REQUEST['action'])) {
                                         )
                         );
                         $onedrive_auth_client->obtainAccessToken(DUP_PRO_OneDrive_Config::ONEDRIVE_CLIENT_SECRET, array(
-                            'code' => sanitize_text_field($_REQUEST['onedrive-auth-code']),
+                            'code' => $onedrive_auth_code,
                             'grant_type' => 'authorization_code'
                                 )
                         );
@@ -129,8 +142,9 @@ if (isset($_REQUEST['action'])) {
                     $storage->storage_type = DUP_PRO_Storage_Types::OneDrive;
                     $storage->onedrive_access_token = $onedrive_client_state->token->data->access_token;
                     $storage->onedrive_refresh_token = $onedrive_client_state->token->data->refresh_token;
-                    $storage->onedrive_user_id = property_exists($onedrive_client_state->token->data,"user_id") ?
-                        $onedrive_client_state->token->data->user_id : '';
+                    $storage->onedrive_user_id = property_exists($onedrive_client_state->token->data, "user_id") 
+                                                    ? $onedrive_client_state->token->data->user_id
+                                                    : '';
                     $storage->onedrive_token_obtained = $onedrive_client_state->token->obtained;
                     $storage->onedrive_authorization_state = DUP_PRO_OneDrive_Authorization_States::Authorized;
                     $storage->save();
@@ -145,15 +159,27 @@ if (isset($_REQUEST['action'])) {
         $storage->ftp_ssl = isset($_REQUEST['_ftp_ssl']);
         $storage->ftp_storage_folder = DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['_ftp_storage_folder']));
         $storage->sftp_storage_folder = DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['_sftp_storage_folder']));
+        $storage->dropbox_skip_archive_validation_hash = (isset($_REQUEST['dropbox_skip_archive_validation_hash']) && $_REQUEST['dropbox_skip_archive_validation_hash']) 
+                                                            ? 1 : 0;
         $storage->dropbox_storage_folder = DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['_dropbox_storage_folder']));
         $storage->gdrive_storage_folder = DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['_gdrive_storage_folder']));
         $storage->s3_storage_folder = DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['_s3_storage_folder']));
-        if ($storage->onedrive_storage_folder != DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['_onedrive_storage_folder']))) {
-            $storage->onedrive_storage_folder = DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['_onedrive_storage_folder']));
+
+        $onedrive_storage_folder = DUP_PRO_U::safePath(sanitize_text_field($_REQUEST['storage_type'] == DUP_PRO_Storage_Types::OneDriveMSGraph
+                                    ? $_REQUEST['_onedrive_msgraph_storage_folder']
+                                    : $_REQUEST['_onedrive_storage_folder']));
+        if ($storage->onedrive_storage_folder != $onedrive_storage_folder) {
+            $storage->onedrive_storage_folder = $onedrive_storage_folder;
             $storage->onedrive_storage_folder_id = '';
         }
 
         $storage->set_post_variables($_REQUEST);
+
+        $onedrive_max_files = intval($_REQUEST['storage_type'] == DUP_PRO_Storage_Types::OneDriveMSGraph
+                                    ? $_REQUEST['onedrive_msgraph_max_files'] 
+                                    : $_REQUEST['onedrive_max_files']);
+        $storage->onedrive_max_files = $onedrive_max_files;
+
         $storage->save();
 
         $local_folder_created = false;
@@ -234,8 +260,14 @@ if ($storage->dropbox_authorization_state == DUP_PRO_Dropbox_Authorization_State
 
 if ($storage->onedrive_authorization_state == DUP_PRO_OneDrive_Authorization_States::Authorized) {
     $onedrive = $storage->get_onedrive_client();
-    $storage->get_onedrive_storage_folder();
-    $onedrive_account_info = $onedrive->fetchAccountInfo($storage->onedrive_storage_folder_id);
+    
+
+    $onedrive_state = $onedrive->getState();
+    $onedrive_state_token = $onedrive_state->token;
+    if (!isset($onedrive_state_token->data->error)) {
+        $storage->get_onedrive_storage_folder();
+        $onedrive_account_info = $onedrive->fetchAccountInfo($storage->onedrive_storage_folder_id);
+    }
 }
 
 if (DUP_PRO_U::PHP53()) {
@@ -323,7 +355,7 @@ $txt_auth_note = DUP_PRO_U::__('Note: Clicking the button below will open a new 
             </td>
             <td>
                 <div class="btnnav">
-                    <a href="<?php echo $storage_tab_url; ?>" class="add-new-h2"> <i class="fa fa-database"></i> <?php DUP_PRO_U::esc_html_e('Providers'); ?></a>
+                    <a href="<?php echo $storage_tab_url; ?>" class="add-new-h2"> <i class="fas fa-database fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Providers'); ?></a>
 					<?php if ($storage_id == -1) : ?>
                         <span><?php DUP_PRO_U::esc_html_e('Add New') ?></span>
                     <?php else : 
@@ -379,17 +411,36 @@ if ($was_updated) {
                         <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::S3); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::S3); ?>"><?php DUP_PRO_U::esc_html_e("Amazon S3 (or Compatible)"); ?></option>
                     <?php endif; ?>
                     <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::Dropbox); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::Dropbox); ?>"><?php DUP_PRO_U::esc_html_e("Dropbox"); ?></option>
-                    <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::FTP); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::FTP); ?>"><?php DUP_PRO_U::esc_html_e("FTP"); ?></option>
-                    <?php if (DUP_PRO_U::PHP55() && extension_loaded('gmp')) : ?>
+                    <?php
+                    $ftp_connect_exists = function_exists('ftp_connect');
+                    $ftp_connect_exists_filtered = apply_filters('duplicator_pro_ftp_connect_exists', $ftp_connect_exists);
+                    if ($ftp_connect_exists_filtered) {
+                    ?>
+                        <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::FTP); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::FTP); ?>"><?php DUP_PRO_U::esc_html_e("FTP"); ?></option>
+                    <?php
+                    }
+                    if (DUP_PRO_U::PHP55() && extension_loaded('gmp')) : ?>
                         <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::SFTP); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::SFTP); ?>"><?php DUP_PRO_U::esc_html_e("SFTP"); ?></option>
                     <?php endif; ?>
                     <?php if (DUP_PRO_U::PHP53()) : ?>
                         <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::GDrive); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::GDrive); ?>"><?php DUP_PRO_U::esc_html_e("Google Drive"); ?></option>
                     <?php endif; ?>
                     <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::Local); ?> value="<?php echo esc_attr(DUP_PRO_Storage_Types::Local); ?>"><?php DUP_PRO_U::esc_html_e("Local Server"); ?></option>
-                    <?php if (DUP_PRO_U::PHP56()) : ?>
-                        <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::OneDrive); ?> value="<?php echo DUP_PRO_Storage_Types::OneDrive; ?>"><?php DUP_PRO_U::esc_html_e("OneDrive"); ?></option>
-                    <?php endif; ?>
+                    <?php 
+                    if (DUP_PRO_U::PHP56()) {
+                        $onedrive_deprecated_storage_option_disp =  (defined('DUPLICATOR_PRO_ONEDRIVE_DEPRECATED_STORAGE_OPTION_DISP')
+                                        && DUPLICATOR_PRO_ONEDRIVE_DEPRECATED_STORAGE_OPTION_DISP)
+                                        ? true
+                                        : $storage->storage_type == DUP_PRO_Storage_Types::OneDrive;
+                        if ($onedrive_deprecated_storage_option_disp) { ?>
+                            <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::OneDrive); ?> value="<?php echo DUP_PRO_Storage_Types::OneDrive; ?>"><?php DUP_PRO_U::esc_html_e("OneDrive v0.1"); ?></option>
+                        <?php
+                        }
+                        ?>
+                        <option <?php DUP_PRO_UI::echoSelected($storage->storage_type == DUP_PRO_Storage_Types::OneDriveMSGraph); ?> value="<?php echo DUP_PRO_Storage_Types::OneDriveMSGraph; ?>"><?php DUP_PRO_U::esc_html_e("OneDrive"); ?></option>
+                    <?php
+                    }
+                    ?>
                 </select>
                 <small class="dpro-store-type-notice">
                     <?php
@@ -398,6 +449,10 @@ if ($was_updated) {
                     }
                     if (DUP_PRO_U::PHP53() && !DUP_PRO_U::isCurlExists()) {
                         echo DUP_PRO_U::esc_html__("Amazon S3  (or Compatible) requires PHP cURL extension. This server hasn't PHP cURL extension.").'<br/>';
+                    }
+                    if (!$ftp_connect_exists_filtered) {
+                        printf(DUP_PRO_U::esc_html__('FTP requires FTP module enabled. Please install the FTP module as described in the %s.'), '<a href="https://secure.php.net/manual/en/ftp.installation.php" target="_blank">https://secure.php.net/manual/en/ftp.installation.php</a>');
+                        echo '<br/>';
                     }
                     if (DUP_PRO_U::PHP55() == false) {
                         echo sprintf(DUP_PRO_U::esc_html__('SFTP requires PHP 5.5.2+. This server is running PHP (%s).'), PHP_VERSION) . '<br/>';
@@ -567,7 +622,7 @@ if ($was_updated) {
             <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Connection"); ?></label></th>
             <td>
                 <button class="button button_s3_test" id="button_s3_send_file_test" type="button" onclick="DupPro.Storage.S3.SendFileTest();">
-                    <i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test S3 Connection'); ?>
+                    <i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test S3 Connection'); ?>
                 </button>
                 <p><i><?php DUP_PRO_U::esc_html_e("Test connection by sending and receiving a small file to/from the account."); ?></i></p>
             </td>
@@ -590,7 +645,7 @@ if ($was_updated) {
 
                 <div class='authorization-state' id="state-waiting-for-request-token">
                     <div style="padding:10px">
-                        <i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Getting Dropbox request token...'); ?>
+                        <i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Getting Dropbox request token...'); ?>
                     </div>
                 </div>
 
@@ -619,7 +674,7 @@ if ($was_updated) {
                 </div>
 
                 <div class='authorization-state' id="state-waiting-for-access-token">
-                    <div><i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Performing final authorization...Please wait'); ?></div>
+                    <div><i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Performing final authorization...Please wait'); ?></div>
                 </div>
 
                 <div class='authorization-state' id="state-authorized" style="margin-top:-5px">
@@ -635,6 +690,41 @@ if ($was_updated) {
 
                             <label><?php DUP_PRO_U::esc_html_e('Email'); ?>:</label>
                             <?php echo esc_html($account_info->email); ?>
+                            <?php
+                            if (is_a($dropbox, 'DUP_PRO_DropboxV2Client')) {
+                                $quota = $dropbox->getQuota();
+                                if (isset($quota->used) && isset($quota->allocation->allocated)) {
+                                ?>
+                                    <br/>
+                                    <label><?php DUP_PRO_U::esc_html_e('Quota usage'); ?>:</label>
+                                    <?php
+                                    
+                                    /*
+                                    stdClass Object
+                                    (
+                                        [used] => 0
+                                        [allocation] => stdClass Object
+                                            (
+                                                [.tag] => individual
+                                                [allocated] => 2147483648
+                                            )
+                                    
+                                    )
+                                    */
+                                    /*
+                                    echo "<pre>";
+                                    print_r($quota);
+                                    echo "</pre>";
+                                    */
+                                    $quota_used = $quota->used;
+                                    $quota_total = $quota->allocation->allocated;
+                                    $used_perc = round($quota_used*100/$quota_total, 1);
+                                    $available_quota = $quota_total - $quota_used;
+
+                                    printf(DUP_PRO_U::__('%s %% used, %s available'), $used_perc, round($available_quota/1048576, 1).' MB');                                 
+                                }
+                            }
+                            ?>
                         </div>
                         <?php endif; ?>
                     <br/>
@@ -655,6 +745,15 @@ if ($was_updated) {
             </td>
         </tr>
         <tr>
+            <th scope="row"><label><?php DUP_PRO_U::esc_html_e("Hash Validation"); ?></label></th>
+            <td>
+                <input type="checkbox" id="dropbox_skip_archive_validation_hash" name="dropbox_skip_archive_validation_hash" value="1" <?php DupProSnapLibUIU::echoChecked($storage->dropbox_skip_archive_validation_hash);?> >                    
+                <label for="dropbox_skip_archive_validation_hash">Disable</label>
+                 <br/>                                                    
+                <p><?php DUP_PRO_U::esc_html_e("Turn off hash validation. This is less reliable, but may be required when transferring very large archives to avoid timeouts."); ?></p>
+            </td>
+        </tr>
+        <tr>
             <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Max Packages"); ?></label></th>
             <td>
                 <label for="dropbox_max_files">
@@ -669,7 +768,7 @@ if ($was_updated) {
             <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Connection"); ?></label></th>
             <td>
                 <button class="button button_dropbox_test" id="button_dropbox_send_file_test" type="button" onclick="DupPro.Storage.Dropbox.SendFileTest();">
-                    <i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e('Test Dropbox Connection'); ?>
+                    <i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e('Test Dropbox Connection'); ?>
                 </button>
                 <p><i><?php DUP_PRO_U::esc_html_e("Test connection by sending and receiving a small file to/from the account."); ?></i></p>
             </td>
@@ -724,10 +823,33 @@ if ($was_updated) {
                         <?php echo (!$storage->onedrive_is_business()) ? DUP_PRO_U::__('OneDrive Personal Account') : DUP_PRO_U::__('OneDrive Business Account'); ?><br/>
                             <i class="dpro-edit-info"><?php DUP_PRO_U::esc_html_e('Duplicator has been authorized to access this user\'s OneDrive account'); ?></i>
                         </h3>
-                        <div id="onedrive-account-info">
-                            <label><?php DUP_PRO_U::esc_html_e('Name'); ?>:</label>
-    <?php echo esc_html($onedrive_account_info->displayName); ?><br/>
+                        
+                        <?php
+                        if (isset($onedrive_account_info)) {
+                        ?>
+                            <div id="onedrive-account-info">
+                                <label><?php DUP_PRO_U::esc_html_e('Name'); ?>:</label>
+<?php echo esc_html($onedrive_account_info->displayName); ?> <br/>                                
+                            </div>
                         </div>
+                        <?php
+                        } elseif (isset($onedrive_state_token->data->error)) {
+                        ?>
+                            <div class="error-txt">
+                                <?php
+                                printf(DUP_PRO_U::esc_html__('Error: %s'), $onedrive_state_token->data->error_description);
+                                // echo '<br/>';
+                                // $obtained = $onedrive_state_token->obtained;
+                                // printf(DUP_PRO_U::esc_html__('Last authorized date time : %s'), date('d-M-Y H:i:s a', $obtained));
+                                echo '<br/><strong>';
+                                DUP_PRO_U::esc_html_e('Please click on the "Cancel Authorization" button and reauthorize the OneDrive storage');
+                                echo '</strong>';
+                                ?>
+                            </div>
+                        <?php                                
+                        }
+                        ?>
+    
                         <br/>
 
                         <button type="button" class="button button-large" onclick='DupPro.Storage.OneDrive.CancelAuthorization();'>
@@ -754,14 +876,124 @@ if ($was_updated) {
 <?php DUP_PRO_U::esc_html_e("Number of packages to keep in folder."); ?> <br/>
                     <i><?php DUP_PRO_U::esc_html_e("When this limit is exceeded, the oldest package will be deleted. Set to 0 for no limit."); ?></i>
                 </label>
-                <div id="dropbox_max_files_error_container" class="duplicator-error-container"></div>
+                <div id="onedrive_max_files_error_container" class="duplicator-error-container"></div>
             </td>
         </tr>
         <tr>
             <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Connection"); ?></label></th>
             <td>
                 <button class="button button_onedrive_test" id="button_onedrive_send_file_test" type="button" onclick="DupPro.Storage.OneDrive.SendFileTest();">
-                    <i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e('Test OneDrive Connection'); ?>
+                    <i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e('Test OneDrive Connection'); ?>
+                </button>
+                <p><i><?php DUP_PRO_U::esc_html_e("Test connection by sending and receiving a small file to/from the account."); ?></i></p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- ===============================
+    ONE-DRIVE MSGraph PROVIDER -->
+    <table id="provider-<?php echo DUP_PRO_Storage_Types::OneDriveMSGraph;?>" class="form-table provider" >
+        <tr>
+            <th scope="row"><label><?php DUP_PRO_U::esc_html_e("Authorization"); ?></label></th>
+            <td class="onedrive-authorize">
+                <?php if ($storage->onedrive_authorization_state == DUP_PRO_OneDrive_Authorization_States::Unauthorized) : ?>
+                    <div class='onedrive-msgraph-authorization-state' id="onedrive-msgraph-state-unauthorized">
+                        <!-- CONNECT -->
+                        <button id="dpro-onedrive-msgraph-connect-btn" type="button" class="button button-large" onclick="DupPro.Storage.OneDrive.GetAuthUrl(); return false;">
+                            <i class="fa fa-plug"></i> <?php DUP_PRO_U::esc_html_e('Connect to OneDrive'); ?>
+                        </button>
+
+                        <div class='onedrive-msgraph-auth-container' style="display: none;">
+                            <!-- STEP 2 -->
+                            <b><?php DUP_PRO_U::esc_html_e("Step 1:"); ?></b>&nbsp;
+    <?php DUP_PRO_U::esc_html_e(' Duplicator needs to authorize at OneDrive.'); ?>
+                            <div class="auth-code-popup-note" style="margin-top:1px">
+                            <?php echo $txt_auth_note ?>
+                            </div>
+                            <button type="button" class="button button-large" onclick="DupPro.Storage.OneDrive.OpenAuthPage(); return false;">
+                                <i class="fa fa-user"></i> <?php DUP_PRO_U::esc_html_e('Authorize Onedrive'); ?>
+                            </button>
+                            <br/><br/>
+
+                            <div id="onedrive-msgraph-auth-container">
+                                <b><?php DUP_PRO_U::esc_html_e('Step 2:'); ?></b> <?php DUP_PRO_U::esc_html_e("Paste code from OneDrive authorization page."); ?> <br/>
+                                <input style="width:400px" id="onedrive-msgraph-auth-code" name="onedrive-msgraph-auth-code" />
+                            </div>
+                            <br><br>
+                            <!-- STEP 3 -->
+                            <b><?php DUP_PRO_U::esc_html_e("Step 3:"); ?></b>&nbsp;
+    <?php DUP_PRO_U::esc_html_e('Finalize OneDrive validation by clicking the "Finalize Setup" button.'); ?>
+                            <br/>
+                            <button type="button" class="button" onclick="DupPro.Storage.OneDrive.FinalizeSetup(); return false;"><i class="fa fa-check-square"></i> <?php DUP_PRO_U::esc_html_e('Finalize Setup'); ?></button>
+                        </div>
+                    </div>
+                    <?php endif; ?>                   
+                <div class='onedrive-msgraph-authorization-state' id="onedrive-msgraph-state-authorized" style="margin-top:-5px">
+                <?php if ($storage->onedrive_authorization_state == DUP_PRO_OneDrive_Authorization_States::Authorized) : ?>
+                        <h3>                        
+                            <i class="dpro-edit-info"><?php DUP_PRO_U::esc_html_e('Duplicator has been authorized to access this user\'s OneDrive account'); ?></i>
+                        </h3>
+                        
+                        <?php
+                        if (isset($onedrive_account_info)) {
+                        ?>
+                            <div id="onedrive-account-info">
+                                <label><?php DUP_PRO_U::esc_html_e('Name'); ?>:</label>
+<?php echo esc_html($onedrive_account_info->displayName); ?> <br/>
+                            </div>
+                        </div>
+                        <?php
+                        } elseif (isset($onedrive_state_token->data->error)) {
+                        ?>
+                            <div class="error-txt">
+                                <?php
+                                printf(DUP_PRO_U::esc_html__('Error: %s'), $onedrive_msgraph_state_token->data->error_description);
+                                // echo '<br/>';
+                                // $obtained = $onedrive_state_token->obtained;
+                                // printf(DUP_PRO_U::esc_html__('Last authorized date time : %s'), date('d-M-Y H:i:s a', $obtained));
+                                echo '<br/><strong>';
+                                DUP_PRO_U::esc_html_e('Please click on the "Cancel Authorization" button and reauthorize the OneDrive storage');
+                                echo '</strong>';
+                                ?>
+                            </div>
+                        <?php                                
+                        }
+                        ?>
+    
+                        <br/>
+
+                        <button type="button" class="button button-large" onclick='DupPro.Storage.OneDrive.CancelAuthorization();'>
+    <?php DUP_PRO_U::esc_html_e('Cancel Authorization'); ?>
+                        </button><br/>
+                        <i class="dpro-edit-info"><?php DUP_PRO_U::esc_html_e('Disassociates storage provider with the OneDrive account. Will require re-authorization.'); ?> </i>
+                        <?php endif; ?>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row"><label for="_onedrive_msgraph_storage_folder"><?php DUP_PRO_U::esc_html_e("Storage Folder"); ?></label></th>
+            <td>
+                <b>//OneDrive/Apps/Duplicator Pro/</b>
+                <input id="_onedrive_msgraph_storage_folder" name="_onedrive_msgraph_storage_folder" type="text" value="<?php echo esc_attr($storage->onedrive_storage_folder); ?>" class="dpro-storeage-folder-path" />
+                <p><i><?php DUP_PRO_U::esc_html_e("Folder where packages will be stored. This should be unique for each web-site using Duplicator."); ?></i></p>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Max Packages"); ?></label></th>
+            <td>
+                <label for="onedrive_max_files">
+                    <input data-parsley-errors-container="#onedrive_msgraph_max_files_error_container" id="onedrive_msgraph_max_files" name="onedrive_msgraph_max_files" type="text" value="<?php echo absint($storage->onedrive_max_files); ?>" maxlength="4">
+<?php DUP_PRO_U::esc_html_e("Number of packages to keep in folder."); ?> <br/>
+                    <i><?php DUP_PRO_U::esc_html_e("When this limit is exceeded, the oldest package will be deleted. Set to 0 for no limit."); ?></i>
+                </label>
+                <div id="onedrive_msgraph_max_files_error_container" class="duplicator-error-container"></div>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Connection"); ?></label></th>
+            <td>
+                <button class="button button_onedrive_test" id="button_onedrive_msgraph_send_file_test" type="button" onclick="DupPro.Storage.OneDrive.SendFileTest();">
+                    <i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e('Test OneDrive Connection'); ?>
                 </button>
                 <p><i><?php DUP_PRO_U::esc_html_e("Test connection by sending and receiving a small file to/from the account."); ?></i></p>
             </td>
@@ -850,7 +1082,7 @@ if ($was_updated) {
             <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Connection"); ?></label></th>
             <td>
                 <button class="button button_ftp_test" id="button_ftp_send_file_test" type="button" onclick="DupPro.Storage.FTP.SendFileTest();">
-                    <i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>
+                    <i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>
                 </button>
                 <p>
                     <i><?php DUP_PRO_U::esc_html_e("Test connection by sending and receiving a small file to/from the account."); ?>
@@ -961,7 +1193,7 @@ if ($was_updated) {
                 <th scope="row"><label for=""><?php DUP_PRO_U::esc_html_e("Connection"); ?></label></th>
                 <td>
                     <button class="button button_sftp_test" id="button_sftp_send_file_test" type="button" onclick="DupPro.Storage.SFTP.SendFileTest();">
-                        <i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>
+                        <i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>
                     </button>
                     <p>
                         <i><?php DUP_PRO_U::esc_html_e("Test connection by sending and receiving a small file to/from the account."); ?></i>
@@ -988,7 +1220,7 @@ if ($was_updated) {
                         </div>
                         <div class='authorization-state' id="dpro-gdrive-connect-progress">
                             <div style="padding:10px">
-                                <i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Getting Google Drive Request Token...'); ?>
+                                <i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Getting Google Drive Request Token...'); ?>
                             </div>
                         </div>
 
@@ -1029,6 +1261,20 @@ if ($was_updated) {
 
                                 <label><?php DUP_PRO_U::esc_html_e('Email'); ?>:</label>
                                 <?php echo esc_html($gdrive_user_info->email); ?>
+                                <?php
+                                 $google_service_drive = new Duplicator_Pro_Google_Service_Drive($google_client);
+                                 $optParams = array('fields' => '*');
+                                 $about = $google_service_drive->about->get($optParams);
+                                 $quota_total = max($about->storageQuota['limit'], 1);
+                                 $quota_used = $about->storageQuota['usage'];
+                                 
+                                 if (is_numeric($quota_total) && is_numeric($quota_used)) {
+                                     $available_quota = $quota_total - $quota_used;
+                                     $used_perc = round($quota_used*100/$quota_total, 1);
+                                     echo '<br>';
+                                     printf(DUP_PRO_U::__('Quota usage: %s %% used, %s available'), $used_perc, round($available_quota/1048576, 1).' MB');
+                                 }
+                                ?>
                             </div><br/>
                             <?php else : ?>
                             <div><?php DUP_PRO_U::esc_html_e('Error retrieving user information'); ?></div>
@@ -1049,7 +1295,7 @@ if ($was_updated) {
                 <input id="_gdrive_storage_folder" name="_gdrive_storage_folder" type="text" value="<?php echo esc_attr($storage->gdrive_storage_folder); ?>"  class="dpro-storeage-folder-path"/>
                 <p>
                     <i><?php DUP_PRO_U::esc_html_e("Folder where packages will be stored. This should be unique for each web-site using Duplicator."); ?></i>
-                    <i class="fa fa-question-circle" data-tooltip-title="<?php DUP_PRO_U::esc_attr_e("Storage Folder Notice"); ?>" data-tooltip="<?php DUP_PRO_U::esc_attr_e('If the directory path above is already in Google Drive before connecting then a duplicate folder name will be made in the same path. This is because the plugin only has rights to folders it creates.'); ?>"></i>
+                    <i class="fas fa-question-circle fa-sm" data-tooltip-title="<?php DUP_PRO_U::esc_attr_e("Storage Folder Notice"); ?>" data-tooltip="<?php DUP_PRO_U::esc_attr_e('If the directory path above is already in Google Drive before connecting then a duplicate folder name will be made in the same path. This is because the plugin only has rights to folders it creates.'); ?>"></i>
 
                 </p>
             </td>
@@ -1075,7 +1321,7 @@ if ($storage->id == -1 || (($storage->storage_type == DUP_PRO_Storage_Types::GDr
 }
 ?>
                 <button class="button button_gdrive_test" id="button_gdrive_send_file_test" type="button" onclick="DupPro.Storage.GDrive.SendFileTest();" <?php echo $gdrive_test_button_disabled; ?>>
-                    <i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e('Test Google Drive Connection'); ?>
+                    <i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e('Test Google Drive Connection'); ?>
                 </button>
                 <p><i><?php DUP_PRO_U::esc_html_e("Test connection by sending and receiving a small file to/from the account."); ?></i></p>
             </td>
@@ -1203,6 +1449,11 @@ $alert5 = new DUP_PRO_UI_Dialog();
 $alert5->title = $alert1->title;
 $alert5->message = DUP_PRO_U::__('Please enter your Dropbox authorization code!');
 $alert5->initAlert();
+
+$alert_onedrive_auth_code = new DUP_PRO_UI_Dialog();
+$alert_onedrive_auth_code->title = DUP_PRO_U::__('OneDrive Authentication Error');
+$alert_onedrive_auth_code->message = DUP_PRO_U::__('Please enter your OneDrive authorization code!');
+$alert_onedrive_auth_code->initAlert();
 
 $alert6 = new DUP_PRO_UI_Dialog();
 $alert6->title = 'Google Drive Authorization Error';
@@ -1389,7 +1640,12 @@ $alert17->initAlert();
         DupPro.Storage.OneDrive.GetAuthUrl = function (isBusiness = 0)
         {
             jQuery('.button_onedrive_test').prop('disabled', true);
-            var data = {action: 'duplicator_pro_onedrive_get_auth_url', business: isBusiness, nonce: '<?php echo wp_create_nonce('duplicator_pro_onedrive_get_auth_url'); ?>'};
+            var data = {
+                    action: 'duplicator_pro_onedrive_get_auth_url', 
+                    business: isBusiness,
+                    storage_type: $("#change-mode").val(),
+                    nonce: '<?php echo wp_create_nonce('duplicator_pro_onedrive_get_auth_url'); ?>'
+                };
 
             $.ajax({
                 type: "POST",
@@ -1406,10 +1662,15 @@ $alert17->initAlert();
                     }
 
                     if (data['status'] == 0) {
-                        $(".onedrive-auth-container").show();
-                        $("#onedrive-is-business").val(isBusiness);
-                        $("#dpro-onedrive-connect-btn").hide();
-                        $("#dpro-onedrive-business-connect-btn").hide();
+                        var msgraph_str = ($("#change-mode").val() == <?php echo DUP_PRO_Storage_Types::OneDriveMSGraph;?>)
+                            ? 'msgraph-'
+                            : '';
+                        $(".onedrive-" + msgraph_str + "auth-container").show();
+                        $("#onedrive-" + msgraph_str + "is-business").val(isBusiness);
+                        $("#dpro-onedrive-" + msgraph_str + "connect-btn").hide();
+                        if ($("#change-mode").val() != <?php echo DUP_PRO_Storage_Types::OneDriveMSGraph;?>) {
+                            $("#dpro-onedrive-business-connect-btn").hide();
+                        }                        
                         DupPro.Storage.OneDrive.AuthUrl = data['onedrive_auth_url'];
                     } else {
                         alert("<?php DUP_PRO_U::esc_html_e('Error getting OneDrive authentication URL. Please try again later.') ?>");
@@ -1422,33 +1683,49 @@ $alert17->initAlert();
         };
 
         DupPro.Storage.OneDrive.OpenAuthPage = function () {
-            console.log(DupPro.Storage.OneDrive.AuthUrl);
+            // console.log(DupPro.Storage.OneDrive.AuthUrl);
             window.open(DupPro.Storage.OneDrive.AuthUrl, '_blank');
         }
 
         DupPro.Storage.OneDrive.CancelAuthorization = function ()
         {
 <?php if (DUP_PRO_U::PHP56()): ?>
-                window.open('<?php echo DUP_PRO_Onedrive_U::get_onedrive_logout_url(); ?>', '_blank');
+                window.open(
+                    ($("#change-mode").val() == <?php echo DUP_PRO_Storage_Types::OneDriveMSGraph;?>)
+                        ? '<?php echo DUP_PRO_Onedrive_U::get_onedrive_logout_url(true); ?>'
+                        : '<?php echo DUP_PRO_Onedrive_U::get_onedrive_logout_url(); ?>', '_blank');
                 $("#dup-storage-form-action").val('onedrive-revoke-access');
                 $("#dup-storage-form").submit();
 <?php endif; ?>
         }
 
         DupPro.Storage.OneDrive.FinalizeSetup = function () {
-            if ($('#onedrive-auth-code').val().length > 5) {
+            var msgraph_str = ($("#change-mode").val() == <?php echo DUP_PRO_Storage_Types::OneDriveMSGraph;?>)
+                            ? 'msgraph-'
+                            : '';
+            if ($('#onedrive-' + msgraph_str + 'auth-code').val().length > 5) {
                 $("#dup-storage-form").submit();
             } else {
-				<?php $alert5->showAlert(); ?>
+				<?php $alert_onedrive_auth_code->showAlert(); ?>
             }
         }
 
         DupPro.Storage.OneDrive.SendFileTest = function ()
         {
-            var current_storage_folder = $('#_onedrive_storage_folder').val();
-            var data = {action: 'duplicator_pro_onedrive_send_file_test', storage_id: <?php echo absint($storage->id); ?>, storage_folder: current_storage_folder, nonce: '<?php echo wp_create_nonce('duplicator_pro_onedrive_send_file_test'); ?>' };
-            var $test_button = $('#button_onedrive_send_file_test');
-            $test_button.html('<i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
+            var msgraph_str = ($("#change-mode").val() == <?php echo DUP_PRO_Storage_Types::OneDriveMSGraph;?>)
+                                ? 'msgraph_'
+                                : '';
+            var current_storage_folder = $('#_onedrive_' + msgraph_str + 'storage_folder').val();
+            var use_msgraph_api = ($("#change-mode").val() == <?php echo DUP_PRO_Storage_Types::OneDriveMSGraph;?>) ? 1 : 0;
+            var data = {
+                            action: 'duplicator_pro_onedrive_send_file_test',
+                            storage_id: <?php echo absint($storage->id); ?>,
+                            storage_folder: current_storage_folder,
+                            nonce: '<?php echo wp_create_nonce('duplicator_pro_onedrive_send_file_test'); ?>'
+                        };
+            
+            var $test_button = $('#button_onedrive_' + msgraph_str + 'send_file_test');
+            $test_button.html('<i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
 
             $.ajax({
                 type: "POST",
@@ -1460,12 +1737,12 @@ $alert17->initAlert();
                     } catch(err) {
                         console.error(err);
                         console.error('JSON parse failed for response data: ' + respData);
-                        $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test Onedrive Connection"); ?>');
+                        $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test Onedrive Connection"); ?>');
 <?php $alert17->showAlert(); ?>
                         console.log(respData);
                         return false;
                     }
-                    $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e("Test Onedrive Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e("Test Onedrive Connection"); ?>');
                     if (typeof (data.success) !== 'undefined') {
 <?php $alert15->showAlert(); ?>
                         $("#<?php echo $alert15->getID(); ?>_message").html(data.success);
@@ -1475,13 +1752,12 @@ $alert17->initAlert();
                     }
                 },
                 error: function (data) {
-                    $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test Onedrive Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test Onedrive Connection"); ?>');
 <?php $alert17->showAlert(); ?>
                     console.log(data);
                 }
             });
         };
-
 
         //=========================================================================
         //DROPBOX SPECIFIC
@@ -1593,7 +1869,7 @@ $alert17->initAlert();
                 nonce: '<?php echo wp_create_nonce('duplicator_pro_dropbox_send_file_test'); ?>'
             };
             var $test_button = $('#button_dropbox_send_file_test');
-            $test_button.html('<i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
+            $test_button.html('<i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
 
             $.ajax({
                 type: "POST",
@@ -1605,13 +1881,13 @@ $alert17->initAlert();
                     } catch(err) {
                         console.error(err);
                         console.error('JSON parse failed for response data: ' + respData);
-                        $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test Dropbox Connection"); ?>');
+                        $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test Dropbox Connection"); ?>');
     <?php $alert4->showAlert(); ?>
                         console.log(respData);
                         return false;
                     }
 
-                    $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test Dropbox Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test Dropbox Connection"); ?>');
                     if (typeof (data.success) !== 'undefined') {
 <?php $alert15->showAlert(); ?>
                         $("#<?php echo $alert15->getID(); ?>_message").html(data.success);
@@ -1621,7 +1897,7 @@ $alert17->initAlert();
                     }
                 },
                 error: function (data) {
-                    $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test Dropbox Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test Dropbox Connection"); ?>');
 <?php $alert4->showAlert(); ?>
                     console.log(data);
                 }
@@ -1722,7 +1998,7 @@ $alert17->initAlert();
             var current_storage_folder = $('#_gdrive_storage_folder').val();
             var data = {action: 'duplicator_pro_gdrive_send_file_test', storage_folder: current_storage_folder, storage_id: <?php echo absint($storage->id); ?>, nonce: '<?php echo wp_create_nonce('duplicator_pro_gdrive_send_file_test'); ?>'};
             var $test_button = $('#button_gdrive_send_file_test');
-            $test_button.html('<i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
+            $test_button.html('<i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
 
             $.ajax({
                 type: "POST",
@@ -1734,13 +2010,13 @@ $alert17->initAlert();
                     } catch(err) {
                         console.error(err);
                         console.error('JSON parse failed for response data: ' + respData);
-                        $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e("Test Google Drive Connection"); ?>');
+                        $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e("Test Google Drive Connection"); ?>');
                         <?php $alert10->showAlert(); ?>
                         console.log(data);
                         return false;
                     }
 
-                    $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test Google Drive Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test Google Drive Connection"); ?>');
                     if (typeof (data.success) !== 'undefined') {
 <?php $alert13->showAlert(); ?>
                         $("#<?php echo $alert13->getID(); ?>_message").html(data.success);
@@ -1750,7 +2026,7 @@ $alert17->initAlert();
                     }
                 },
                 error: function (data) {
-                    $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test Google Drive Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test Google Drive Connection"); ?>');
 <?php $alert10->showAlert(); ?>
                     console.log(data);
                 }
@@ -1774,7 +2050,7 @@ $alert17->initAlert();
             var data = {action: 'duplicator_pro_ftp_send_file_test', storage_folder: current_storage_folder, server: server,
                 port: port, username: username, password: password, ssl: ssl, passive_mode: passive_mode, nonce: '<?php echo wp_create_nonce('duplicator_pro_ftp_send_file_test'); ?>'};
 
-            $test_button.html('<i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Attempting Connection Please Wait...'); ?>');
+            $test_button.html('<i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Attempting Connection Please Wait...'); ?>');
 
             $.ajax({
                 type: "POST",
@@ -1786,7 +2062,7 @@ $alert17->initAlert();
                     } catch(err) {
                         console.error(err);
                         console.error('JSON parse failed for response data: ' + respData);
-                        $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>');
+                        $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>');
 <?php $alert11->showAlert(); ?>
                         console.log(respData);
                         return false;
@@ -1800,10 +2076,10 @@ $alert17->initAlert();
 <?php $alert11->showAlert(); ?>
                         console.log(data);
                     }
-                    $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>');
                 },
                 error: function (data) {
-                    $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test FTP Connection'); ?>');
 <?php $alert11->showAlert(); ?>
                     console.log(data);
                 }
@@ -1826,7 +2102,7 @@ $alert17->initAlert();
             var data = {action: 'duplicator_pro_sftp_send_file_test', storage_folder: current_storage_folder, server: server,
                 port: port, username: username, password: password, private_key: sftp_private_key, private_key_password: private_key_password, nonce: '<?php echo wp_create_nonce('duplicator_pro_sftp_send_file_test'); ?>'};
 
-            $test_button.html('<i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Attempting Connection Please Wait...'); ?>');
+            $test_button.html('<i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e('Attempting Connection Please Wait...'); ?>');
 
             $.ajax({
                 type: "POST",
@@ -1838,7 +2114,7 @@ $alert17->initAlert();
                     } catch(err) {
                         console.error(err);
                         console.error('JSON parse failed for response data: ' + respData);
-                        $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>');
+                        $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>');
                         alert("<?php DUP_PRO_U::esc_html_e('Send SFTP file test failed. Be sure the full storage path exists.') ?>");
                         console.log(respData);
                         return false;
@@ -1853,10 +2129,10 @@ $alert17->initAlert();
                             alert("<?php DUP_PRO_U::esc_html_e('Send SFTP file test failed. Be sure the full storage path exists.') ?>");
                         }
                     }
-                    $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>');
                 },
                 error: function (data) {
-                    $test_button.html('<i class="fa fa-cloud-upload"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i> <?php DUP_PRO_U::esc_html_e('Test SFTP Connection'); ?>');
                     alert("<?php DUP_PRO_U::esc_html_e('Send SFTP file test failed. Be sure the full storage path exists.') ?>");
                     console.log(data);
                 }
@@ -1936,7 +2212,7 @@ $alert17->initAlert();
             }
 
             var $test_button = $('#button_s3_send_file_test');
-            $test_button.html('<i class="fa fa-circle-o-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
+            $test_button.html('<i class="fas fa-circle-notch fa-spin"></i> <?php DUP_PRO_U::esc_html_e("Attempting Connection Please Wait..."); ?>');
 
             $.ajax({
                 type: "POST",
@@ -1948,12 +2224,12 @@ $alert17->initAlert();
                     } catch(err) {
                         console.error(err);
                         console.error('JSON parse failed for response data: ' + respData);
-                        $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test S3 Connection"); ?>');
+                        $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test S3 Connection"); ?>');
 <?php $alert12->showAlert(); ?>
                         console.log(respData);
                         return false;
                     }
-                    $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test S3 Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test S3 Connection"); ?>');
                     if (typeof (data.success) !== 'undefined') {
 <?php $alert16->showAlert(); ?>
                         $("#<?php echo $alert16->getID(); ?>_message").html(data.success);
@@ -1967,7 +2243,7 @@ $alert17->initAlert();
                     }
                 },
                 error: function (data) {
-                    $test_button.html('<i class="fa fa-cloud-upload"></i>	<?php DUP_PRO_U::esc_html_e("Test S3 Connection"); ?>');
+                    $test_button.html('<i class="fas fa-cloud-upload-alt fa-sm"></i>	<?php DUP_PRO_U::esc_html_e("Test S3 Connection"); ?>');
 <?php $alert12->showAlert(); ?>
                     console.log(data);
                 }
@@ -1992,7 +2268,7 @@ $alert17->initAlert();
 
         //Init
         DupPro.Storage.LocalFilterToggle();
-        jQuery('#name').focus();
+        jQuery('#name').focus().select();
 
     });
 </script>

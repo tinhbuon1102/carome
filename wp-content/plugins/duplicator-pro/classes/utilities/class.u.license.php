@@ -3,6 +3,8 @@ defined("ABSPATH") or die("");
 require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/classes/class.constants.php');
 require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/classes/class.crypt.custom.php');
 
+DUP_PRO_Constants::init();
+
 /**
  * @copyright 2016 Snap Creek LLC
  */

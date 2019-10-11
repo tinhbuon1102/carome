@@ -82,7 +82,7 @@ wp_enqueue_script('masonry');
 <form id="seed_cspv5_customizer">
 <input type="hidden" id="disabled_fields" name="disabled_fields" value="<?php echo ( empty($settings->disabled_fields) ) ? '' : $settings->disabled_fields  ?>">
 <input type="hidden" id="first_run" name="first_run" value="">
-<input type="hidden" id="page_id" name="page_id" value="<?php echo $page_id; ?>">
+
 
 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
@@ -838,7 +838,7 @@ wp_enqueue_script('masonry');
             <div id="socialprofiles_settings">
                 
                 <div class="form-group">
-                <small ><a style="font-size:10px;line-height:1" href="http://support.seedprod.com/article/43-adding-custom-icons" target="_blank">Learn how to use any Font Awesome Icon or a Custom Icon.</a></small><br>
+                <small ><a style="font-size:10px;line-height:1" href="https://support.seedprod.com/article/86-adding-custom-icons" target="_blank">Learn how to use any Font Awesome Icon or a Custom Icon.</a></small><br>
                     <label class="control-label"><?php _e('Social Profiles','seedprod-coming-soon-pro') ?></label>
                     <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="top" title="<?php _e("Click the 'Add Profile Link' button to add a new profile. Then select an icon, enter the url and optionally use the bar icons to rearrange by dragging and dropping.",'seedprod-coming-soon-pro') ?>"></i>
 
@@ -930,18 +930,18 @@ wp_enqueue_script('masonry');
                                         <input id="share_buttons_facebook" name="share_buttons[facebook]" type="checkbox" value="1" <?php echo (!empty($settings->share_buttons->facebook) && $settings->share_buttons->facebook == '1') ? 'checked' : '' ?>>         
                                     </div>
                                 </li>
-                                <li>
+                                <!-- <li>
                                     <div class="form-group">
                                         <label class="control-label">Facebook Send</label>
                                         <input id="share_buttons_facebook_send" name="share_buttons[facebook_send]" type="checkbox" value="1" <?php echo (!empty($settings->share_buttons->facebook_send) && $settings->share_buttons->facebook_send == '1') ? 'checked' : '' ?>>       
                                     </div>
-                                </li>
-                                <li>
+                                </li> -->
+                                <!-- <li>
                                     <div class="form-group">
                                         <label class="control-label">Google Plus</label>
                                         <input id="share_buttons_googleplus" name="share_buttons[googleplus]" type="checkbox" value="1" <?php echo (!empty($settings->share_buttons->googleplus) && $settings->share_buttons->googleplus == '1') ? 'checked' : '' ?>>        
                                     </div>
-                                </li>
+                                </li> -->
                                 <li>
                                     <div class="form-group">
                                         <label class="control-label">LinkedIn</label>
@@ -1374,10 +1374,11 @@ wp_enqueue_script('masonry');
                 </div>
                
             </div>
+            <input type="hidden" id="page_id" name="page_id" value="<?php echo $page_id; ?>">
             </form>
 
         </div>
-        <div id="dragbar">drag bar</div>
+        <div id="dragbar"></div>
         <!-- /.sidebar -->
         <div class="clearfix"></div>
     </div>

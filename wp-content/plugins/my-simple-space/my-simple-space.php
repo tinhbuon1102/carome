@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: My Simple Space
- * Version: 1.2.4
+ * Version: 1.2.5
  * Plugin URI: http://mannwd.com/wordpress/my-simple-space/
  * Description: Shows the diskspace and memory usage of your site.
  * Author: Michael Mann
@@ -218,13 +218,10 @@ if( is_admin() ) {
 
 	function mss_dir_size( $path ) {
 
-		$path .= '.';
-		$path = pathinfo( $path , PATHINFO_DIRNAME );
-
 		if( false === ( $total_size = get_transient( $path ) ) ) {
 
 			$total_size = 0;
-			foreach( new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \FilesystemIterator::FOLLOW_SYMLINKS ) ) as $file ) {
+			foreach( new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \FilesystemIterator::CURRENT_AS_FILEINFO ) ) as $file ) {
 				$total_size += $file->getSize();
 			}
 

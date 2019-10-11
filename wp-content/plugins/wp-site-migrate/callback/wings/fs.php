@@ -2,7 +2,16 @@
 
 if (!defined('ABSPATH')) exit;
 if (!class_exists('BVFSCallback')) :
-class BVFSCallback {
+require_once dirname( __FILE__ ) . '/../streams.php';
+
+class BVFSCallback extends BVCallbackBase {
+	public $stream;
+	public $account;
+
+	public function __construct($callback_handler) {
+		$this->account = $callback_handler->account;
+	}
+
 	function fileStat($relfile) {
 		$absfile = ABSPATH.$relfile;
 		$fdata = array();
@@ -22,7 +31,6 @@ class BVFSCallback {
 	}
 
 	function scanFilesUsingGlob($initdir = "./", $offset = 0, $limit = 0, $bsize = 512, $recurse = true, $regex = '{.??,}*') {
-		global $bvresp;
 		$i = 0;
 		$dirs = array();
 		$dirs[] = $initdir;
@@ -51,7 +59,7 @@ class BVFSCallback {
 				$bfc++;
 				if ($bfc == $bsize) {
 					$str = serialize($bfa);
-					$bvresp->writeStream($str);
+					$this->stream->writeStream($str);
 					$bfc = 0;
 					$bfa = array();
 				}
@@ -63,12 +71,12 @@ class BVFSCallback {
 		}
 		if ($bfc != 0) {
 			$str = serialize($bfa);
-			$bvresp->writeStream($str);
+			$this->stream->writeStream($str);
 		}
+		return array("status" => "done");
 	}
 
 	function scanFiles($initdir = "./", $offset = 0, $limit = 0, $bsize = 512, $recurse = true) {
-		global $bvresp;
 		$i = 0;
 		$dirs = array();
 		$dirs[] = $initdir;
@@ -97,7 +105,7 @@ class BVFSCallback {
 					$bfc++;
 					if ($bfc == $bsize) {
 						$str = serialize($bfa);
-						$bvresp->writeStream($str);
+						$this->stream->writeStream($str);
 						$bfc = 0;
 						$bfa = array();
 					}
@@ -110,8 +118,9 @@ class BVFSCallback {
 		}
 		if ($bfc != 0) {
 			$str = serialize($bfa);
-			$bvresp->writeStream($str);
+			$this->stream->writeStream($str);
 		}
+		return array("status" => "done");
 	}
 
 	function calculateMd5($absfile, $fdata, $offset, $limit, $bsize) {
@@ -141,27 +150,27 @@ class BVFSCallback {
 	}
 
 	function getFilesStats($files, $offset = 0, $limit = 0, $bsize = 102400, $md5 = false) {
-		global $bvresp;
+		$result = array();
 		foreach ($files as $file) {
 			$fdata = $this->fileStat($file);
 			$absfile = ABSPATH.$file;
 			if (!is_readable($absfile)) {
-				$bvresp->addArrayToStatus("missingfiles", $file);
+				$result["missingfiles"][] = $file;
 				continue;
 			}
 			if ($md5 === true) {
 				$fdata["md5"] = $this->calculateMd5($absfile, $fdata, $offset, $limit, $bsize);
 			}
-			$bvresp->addArrayToStatus("stats", $fdata);
+			$result["stats"][] = $fdata;
 		}
+		return $result;
 	}
 
 	function uploadFiles($files, $offset = 0, $limit = 0, $bsize = 102400) {
-		global $bvresp;
-
+		$result = array();
 		foreach ($files as $file) {
 			if (!is_readable(ABSPATH.$file)) {
-				$bvresp->addArrayToStatus("missingfiles", $file);
+				$result["missingfiles"][] = $file;
 				continue;
 			}
 			$handle = fopen(ABSPATH.$file, "rb");
@@ -175,7 +184,7 @@ class BVFSCallback {
 					$_limit = $fdata["size"] - $offset;
 				$fdata["limit"] = $_limit;
 				$sfdata = serialize($fdata);
-				$bvresp->writeStream($sfdata);
+				$this->stream->writeStream($sfdata);
 				fseek($handle, $offset, SEEK_SET);
 				$dlen = 1;
 				while (($_limit > 0) && ($dlen > 0)) {
@@ -183,76 +192,89 @@ class BVFSCallback {
 						$_bsize = $_limit;
 					$d = fread($handle, $_bsize);
 					$dlen = strlen($d);
-					$bvresp->writeStream($d);
+					$this->stream->writeStream($d);
 					$_limit -= $dlen;
 				}
 				fclose($handle);
 			} else {
-				$bvresp->addArrayToStatus("unreadablefiles", $file);
+				$result["unreadablefiles"][] = $file;
 			}
 		}
+		$result["status"] = "done";
+		return $result;
 	}
 
-	function process($method) {
-		switch ($method) {
-		case "scanfilesglob":
-			$initdir = urldecode($_REQUEST['initdir']);
-			$offset = intval(urldecode($_REQUEST['offset']));
-			$limit = intval(urldecode($_REQUEST['limit']));
-			$bsize = intval(urldecode($_REQUEST['bsize']));
-			$regex = urldecode($_REQUEST['regex']);
-			$recurse = true;
-			if (array_key_exists('recurse', $_REQUEST) && $_REQUEST["recurse"] == "false") {
-				$recurse = false;
+	function process($request) {
+		$params = $request->params;
+		$stream_init_info = BVStream::startStream($this->account, $request);
+		if (array_key_exists('stream', $stream_init_info)) {
+			$this->stream = $stream_init_info['stream'];
+			switch ($request->method) {
+			case "scanfilesglob":
+				$initdir = urldecode($params['initdir']);
+				$offset = intval(urldecode($params['offset']));
+				$limit = intval(urldecode($params['limit']));
+				$bsize = intval(urldecode($params['bsize']));
+				$regex = urldecode($params['regex']);
+				$recurse = true;
+				if (array_key_exists('recurse', $params) && $params["recurse"] == "false") {
+					$recurse = false;
+				}
+				$resp = $this->scanFilesUsingGlob($initdir, $offset, $limit, $bsize, $recurse, $regex);
+				break;
+			case "scanfiles":
+				$initdir = urldecode($params['initdir']);
+				$offset = intval(urldecode($params['offset']));
+				$limit = intval(urldecode($params['limit']));
+				$bsize = intval(urldecode($params['bsize']));
+				$recurse = true;
+				if (array_key_exists('recurse', $params) && $params["recurse"] == "false") {
+					$recurse = false;
+				}
+				$resp = $this->scanFiles($initdir, $offset, $limit, $bsize, $recurse);
+				break;
+			case "getfilesstats":
+				$files = $params['files'];
+				$offset = intval(urldecode($params['offset']));
+				$limit = intval(urldecode($params['limit']));
+				$bsize = intval(urldecode($params['bsize']));
+				$md5 = false;
+				if (array_key_exists('md5', $params)) {
+					$md5 = true;
+				}
+				$resp = $this->getFilesStats($files, $offset, $limit, $bsize, $md5);
+				break;
+			case "sendmanyfiles":
+				$files = $params['files'];
+				$offset = intval(urldecode($params['offset']));
+				$limit = intval(urldecode($params['limit']));
+				$bsize = intval(urldecode($params['bsize']));
+				$resp = $this->uploadFiles($files, $offset, $limit, $bsize);
+				break;
+			case "filelist":
+				$initdir = $params['initdir'];
+				$glob_option = GLOB_MARK;
+				if(array_key_exists('onlydir', $params)) {
+					$glob_option = GLOB_ONLYDIR;
+				}
+				$regex = "*";
+				if(array_key_exists('regex', $params)){
+					$regex = $params['regex'];
+				}
+				$directoryList = glob($initdir.$regex, $glob_option);
+				$resp = $this->getFilesStats($directoryList);
+				break;
+			default:
+				$resp = false;
 			}
-			$this->scanFilesUsingGlob($initdir, $offset, $limit, $bsize, $recurse, $regex);
-			break;
-		case "scanfiles":
-			$initdir = urldecode($_REQUEST['initdir']);
-			$offset = intval(urldecode($_REQUEST['offset']));
-			$limit = intval(urldecode($_REQUEST['limit']));
-			$bsize = intval(urldecode($_REQUEST['bsize']));
-			$recurse = true;
-			if (array_key_exists('recurse', $_REQUEST) && $_REQUEST["recurse"] == "false") {
-				$recurse = false;
+			$end_stream_info = $this->stream->endStream();
+			if (!empty($end_stream_info) && is_array($resp)) {
+				$resp = array_merge($resp, $end_stream_info);
 			}
-			$this->scanFiles($initdir, $offset, $limit, $bsize, $recurse);
-			break;
-		case "getfilesstats":
-			$files = $_REQUEST['files'];
-			$offset = intval(urldecode($_REQUEST['offset']));
-			$limit = intval(urldecode($_REQUEST['limit']));
-			$bsize = intval(urldecode($_REQUEST['bsize']));
-			$md5 = false;
-			if (array_key_exists('md5', $_REQUEST)) {
-				$md5 = true;
-			}
-			$this->getFilesStats($files, $offset, $limit, $bsize, $md5);
-			break;
-		case "sendmanyfiles":
-			$files = $_REQUEST['files'];
-			$offset = intval(urldecode($_REQUEST['offset']));
-			$limit = intval(urldecode($_REQUEST['limit']));
-			$bsize = intval(urldecode($_REQUEST['bsize']));
-			$this->uploadFiles($files, $offset, $limit, $bsize);
-			break;
-		case "filelist":
-			$initdir = $_REQUEST['initdir'];
-			$glob_option = GLOB_MARK;
-			if(array_key_exists('onlydir', $_REQUEST)) {
-				$glob_option = GLOB_ONLYDIR;
-			}
-			$regex = "*";
-			if(array_key_exists('regex', $_REQUEST)){
-				$regex = $_REQUEST['regex'];
-			}
-			$directoryList = glob($initdir.$regex, $glob_option);
-			$this->getFilesStats($directoryList);
-			break;
-		default:
-			return false;
+		} else {
+			$resp = $stream_init_info;
 		}
-		return true;
+		return $resp;
 	}
 }
 endif;

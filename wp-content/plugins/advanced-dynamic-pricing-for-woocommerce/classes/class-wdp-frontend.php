@@ -4,23 +4,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WDP_Frontend {
-	private $show_bulk_table;
-	private $show_deals;
-	private $show_adj;
-	private $show_get_free;
-	private $show_cart;
-	private $show_bulk;
-	/** @var WDP_Rules_Collection */
-	private $matched_rules;
-
-	private $last_product_id = 0;
-	private $last_product_cached_result = null;
-	private $last_regular_product_id = 0;
-	private $last_regular_product_price = null;
-	private $last_onsale_product_id = 0;
-	private $last_onsale_product_price = null;
-
 	private $options;
+	private $price_display;
+
+	/**
+	 * @var WDP_Range_Discounts_Table
+	 */
+	private $bulk_table;
+
+	/**
+	 * @var WDP_Calculation_Profiler
+	 */
+	private $profiler;
+
+	/**
+	 * @var WDP_Customizer
+	 */
+	private $customizer;
 
 	public function __construct() {
 		//TODO: check if need load our scripts
@@ -31,71 +31,35 @@ class WDP_Frontend {
 
 		add_action( 'wp_print_styles', array( $this, 'load_frontend_assets' ) );
 
-		// change price if front page or during ajax call in admin area
-		if ( ! ( ( is_admin() AND ! wp_doing_ajax() ) OR $this->is_request_to_rest_api() ) ) {
-
-			// for prices in catalog and single product mode
-			add_filter( 'woocommerce_get_price_html', array( $this, 'woocommerce_get_price_html' ), 10, 2 );
-			add_filter( 'woocommerce_variable_price_html', array( $this, 'woocommerce_variable_price_html' ), 100, 2 );
-
-			if ( $options['show_onsale_badge'] && ! $options['do_not_modify_price_at_product_page'] ) {
-				add_filter( 'woocommerce_product_is_on_sale', array( $this, 'woocommerce_product_is_on_sale' ), 10, 2 );
-				add_filter( 'woocommerce_product_get_sale_price', array( $this, 'woocommerce_product_get_sale_price' ), 100, 2 );
-				add_filter( 'woocommerce_product_get_regular_price', array( $this, 'woocommerce_product_get_regular_price' ), 100, 2 );
+		$this->price_display = new WDP_Price_Display();
+		if ( $this->price_display->is_enabled() ) {
+			$this->price_display->init_hooks();
+			if ( ! empty( $options['show_debug_bar'] ) ) {
+				$this->profiler = new WDP_Calculation_Profiler( $this->price_display );
 			}
-		}
-		
-		if ( $options['show_matched_bulk_table'] ) {
-			$product_bulk_table_action = isset( $options['product_bulk_table_action'] ) ? $options['product_bulk_table_action'] : "";
-			add_action( 'wp_loaded', function () use ( $product_bulk_table_action ) {
-				$product_bulk_table_actions = (array) apply_filters( 'wdp_product_bulk_table_action', $product_bulk_table_action );
 
-				if ( is_array( $product_bulk_table_actions ) && $product_bulk_table_actions ) {
-					foreach ( $product_bulk_table_actions as $action ) {
-						add_action( $action, array( $this, 'print_table_with_product_bulk_rules' ), 50, 2 );
-					}
-				}
-			} );
+			add_action( 'wp_loaded', array( $this, 'wp_loaded_process_cart' ), PHP_INT_MAX );
 		}
+
+		$this->customizer = new WDP_Customizer();
+		$this->bulk_table = new WDP_Range_Discounts_Table( $this->price_display );
+		$this->bulk_table->set_theme_options( $this->customizer );
 
 		add_action( 'woocommerce_checkout_order_processed', array( $this, 'checkout_order_processed' ), 10, 3 );
 
-		add_action( 'woocommerce_cart_loaded_from_session', array( $this, 'woocommerce_cart_loaded_from_session' ), 100 );
-		add_action( 'woocommerce_checkout_update_order_review',
-			array( $this, 'woocommerce_checkout_update_order_review' ), 100 );
-
-		// strike prices for items
-		if ( $options['show_striked_prices'] ) {
-			add_filter( 'woocommerce_cart_item_price', array( $this, 'woocommerce_cart_item_price_and_price_subtotal' ), 10, 3 );
-			add_filter( 'woocommerce_cart_item_subtotal', array( $this, 'woocommerce_cart_item_price_and_price_subtotal' ), 10, 3 );
-		}
-
-		if ( $options['show_category_bulk_table'] ) {
-			$category_bulk_table_action = isset( $options['category_bulk_table_action'] ) ? $options['category_bulk_table_action'] : "";
-
-			add_action( 'wp_loaded', function () use ( $category_bulk_table_action ) {
-				$category_bulk_table_action = apply_filters( 'wdp_category_bulk_table_action',
-					$category_bulk_table_action );
-				if ( $category_bulk_table_action ) {
-					add_action( $category_bulk_table_action, array( $this, 'print_table_with_category_bulk_rules' ), 50,
-						2 );
-				}
-			} );
-		}
+		add_action( 'woocommerce_checkout_update_order_review', array( $this, 'woocommerce_checkout_update_order_review' ), 100 );
 
 		if ( $options['is_show_amount_saved_in_mini_cart'] ) add_action( 'woocommerce_mini_cart_contents', array( $this, 'output_amount_save' ) );
 		if ( $options['is_show_amount_saved_in_cart'] ) add_action( 'woocommerce_cart_totals_before_order_total', array( $this, 'output_amount_save' ) );
 		if ( $options['is_show_amount_saved_in_checkout_cart'] ) add_action( 'woocommerce_review_order_after_cart_contents', array( $this, 'output_amount_save' ) );
-		
-		//SHORTCODES
-		add_shortcode( 'adp_product_bulk_rules_table', array( $this, 'print_table_with_product_bulk_rules' ) );
-		add_shortcode( 'adp_category_bulk_rules_table', array( $this, 'print_table_with_category_bulk_rules' ) );
+
+		if ( $options['support_shortcode_products_on_sale'] ) {
+		    WDP_Shortcode_Products_On_Sale::register();
+		}
 
 		// hooking nopriv ajax methods
-		foreach ( self::get_nopriv_ajax_actions() as $ajax_action_name ) {
-			add_action( "wp_ajax_nopriv_{$ajax_action_name}", array( $this, "ajax_{$ajax_action_name}" ) );
-			add_action( "wp_ajax_{$ajax_action_name}", array( $this, "ajax_{$ajax_action_name}" ) );
-		}
+		add_action( "wp_ajax_nopriv_get_price_product_with_bulk_table", array( $this, "ajax_get_price_product_with_bulk_table" ) );
+		add_action( "wp_ajax_get_price_product_with_bulk_table", array( $this, "ajax_get_price_product_with_bulk_table" ) );
 
 		if ( $options['suppress_other_pricing_plugins'] AND !is_admin() ) {
 			add_action( "wp_loaded", array( $this, 'remove_hooks_set_by_other_plugins' ) );
@@ -103,6 +67,34 @@ class WDP_Frontend {
 
 		add_filter( 'woocommerce_add_to_cart_sold_individually_found_in_cart', array($this, 'woocommerce_add_to_cart_sold_individually_found_in_cart'), 10 ,5 );
 
+		add_filter( 'woocommerce_order_again_cart_item_data', function ( $cart_item, $item, $order ) {
+			$load_as_immutable = apply_filters( 'wdp_order_again_cart_item_load_with_order_deals', false, $cart_item, $item, $order );
+
+			if ( $load_as_immutable ) {
+				$rules = $item->get_meta( '_wdp_rules' );
+				if ( ! empty( $rules ) ) {
+					$cart_item['wdp_rules'] = $rules;
+					$cart_item['wdp_immutable'] = true;
+				}
+			}
+
+			return $cart_item;
+		}, 10, 3 );
+
+		add_action( 'woocommerce_checkout_create_order_line_item_object', array( $this, 'save_initial_price_to_order_item' ), 10, 4 );
+
+		if ( $options['hide_coupon_word_in_totals'] ) {
+			add_filter( 'woocommerce_cart_totals_coupon_label', function ( $html, $coupon ) {
+				/**
+				 * @var WC_Coupon $coupon
+				 */
+				if ( $coupon->get_description() && $coupon->get_virtual() ) {
+					$html = $coupon->get_code();
+				}
+
+				return $html;
+			}, 5, 2 );
+		}
 
 		/** Additional css class for free item line */
 		add_filter( 'woocommerce_cart_item_class', function ( $str_classes, $cart_item, $cart_item_key ) {
@@ -111,7 +103,7 @@ class WDP_Frontend {
 				$classes[] = 'wdp_free_product';
 			}
 
-			if ( ! empty( $cart_item['wdp_original_price'] ) && (float) $cart_item['data']->get_price() == 0 ) {
+			if ( ! empty( $cart_item['wdp_rules'] ) && (float) $cart_item['data']->get_price() == 0 ) {
 				$classes[] = 'wdp_zero_cost_product';
 			}
 
@@ -119,459 +111,136 @@ class WDP_Frontend {
 		}, 10, 3 );
 
 		/** PHONE ORDER HOOKS START */
-		add_filter( 'wpo_set_original_price_after_calculation', function ( $price, $cart_item ) {
-			return ! empty( $cart_item["wdp_original_price"] ) ? $cart_item["wdp_original_price"] : false;
-		}, 10, 2 );
-
-		add_filter( 'wpo_cart_item_is_price_readonly', function ( $is_read_only ) {
-			return true;
+		add_action( 'wdp_force_process_wc_cart', function ( $wc_cart ) {
+			WDP_Functions::process_cart_manually();
 		} );
 
-		add_filter( 'wpo_must_switch_cart_user', '__return_true' );
+		if ( ! $options['allow_to_edit_prices_in_po'] ) {
+			add_filter( 'wpo_set_original_price_after_calculation', function ( $price, $cart_item ) {
+				return isset( $cart_item["wdp_original_price"] ) ? $cart_item["wdp_original_price"] : false;
+			}, 10, 2 );
+			add_filter( 'wpo_cart_item_is_price_readonly', '__return_true', 10, 1 );
+
+			/**
+			 * Restore initial price if pricing plugin made changes
+			 */
+			add_filter( 'wpo_prepare_item', function ( $item, $product ) {
+				/**
+				 * @var $product WC_Product
+				 */
+				if ( $item['item_cost'] != $product->get_price() ) {
+					$item['item_cost'] = $product->get_price();
+				}
+
+				return $item;
+			}, 10, 2 );
+		} else {
+			add_filter( 'wpo_prepare_item', function ( $item, $product ) {
+				/**
+				 * @var $product WC_Product
+				 */
+				if ( empty( $item['cost_updated_manually'] ) && ( $item['item_cost'] != $product->get_price() ) ) {
+					$item['item_cost'] = $product->get_price();
+				}
+
+				return $item;
+			}, 10, 2 );
+
+
+			add_filter( 'wdp_prepare_cart_item', function ( $cart_item, $wc_cart_item ) {
+				/**
+				 * @var $product WC_Product
+				 */
+				if ( ! empty( $wc_cart_item['cost_updated_manually'] ) ) {
+					$cart_item->make_immutable();
+				}
+
+				return $cart_item;
+			}, 10, 2 );
+
+			add_filter( 'wpo_update_cart_cart_item_meta', function ( $cart_item_meta, $item ) {
+				if ( ! empty( $item['cost_updated_manually'] ) ) {
+					$cart_item_meta['immutable'] = true;
+				}
+
+				return $cart_item_meta;
+			}, 10, 2 );
+
+			add_filter( 'wdp_cart_item_before_insert', function ( $item, $wc_cart_item ) {
+				/**
+				 * @var $item WDP_Cart_Item
+				 */
+				if ( ! empty( $wc_cart_item['immutable'] ) ) {
+					$item->make_immutable();
+				}
+
+				return $item;
+			}, 10, 2 );
+
+			add_filter( 'wpo_cart_item_is_price_readonly', '__return_false', 10, 1 );
+		}
+
+		add_filter( 'wpo_must_switch_cart_user', '__return_true', 10, 1 );
 
 		add_filter( 'wpo_skip_add_to_cart_item', function ( $skip, $item ) {
 			return ! empty( $item['wdp_gifted'] ) ? (boolean) $item['wdp_gifted'] : $skip;
 		}, 10, 2 );
 		/** PHONE ORDER HOOKS FINISH */
+
+
+		/** Subscription hooks */
+		if ( class_exists( 'WC_Product_Subscription' ) ) {
+			add_filter( 'wdp_get_discounted_price_html', function ( $price_html, $price, $new_price, $product ) {
+				/**
+				 * @var WDP_Product $product
+				 */
+				if ( ! empty( $price_html ) ) {
+					$price_html = WC_Subscriptions_Product::get_price_string( $product->get_wc_product(), array( 'price' => $price_html ) );
+				}
+
+				return $price_html;
+			}, 10, 4 );
+		}
+	}
+
+	/**
+	 * @param $item WC_Order_Item_Product
+	 * @param $cart_item_key string
+	 * @param $values array
+	 * @param $order WC_Order
+	 *
+	 * @return WC_Order_Item_Product
+	 */
+	public function save_initial_price_to_order_item( $item, $cart_item_key, $values, $order ) {
+		if ( ! empty( $values['wdp_rules'] ) ) {
+			$item->add_meta_data( '_wdp_rules', $values['wdp_rules'] );
+		}
+
+		return $item;
 	}
 
 	public static function is_catalog_view() {
-		return is_product_tag() || is_product_category() || is_shop();
-	}
-
-	public function is_request_to_rest_api() {
-		if ( empty( $_SERVER['REQUEST_URI'] ) ) {
-			return false;
-		}
-
-		$rest_prefix = trailingslashit( rest_get_url_prefix() );
-
-		// Check if our endpoint.
-		$woocommerce = ( false !== strpos( $_SERVER['REQUEST_URI'], $rest_prefix . 'wc/' ) ); // @codingStandardsIgnoreLine
-
-		// Allow third party plugins use our authentication methods.
-		$third_party = ( false !== strpos( $_SERVER['REQUEST_URI'], $rest_prefix . 'wc-' ) ); // @codingStandardsIgnoreLine
-
-		return apply_filters( 'woocommerce_rest_is_request_to_rest_api', $woocommerce || $third_party );
-	}
-
-	public function woocommerce_product_is_on_sale( $on_sale, $product ) {
-		$this->last_product_id = 0;
-		// pass empty string as first argument in 'woocommerce_get_price_html' method to check if rule has been applied
-		// empty result means that price wasn`t change
-		if ( $last_product_cached_result = $this->woocommerce_get_price_html( '', $product ) ) {
-			$this->last_product_cached_result = $last_product_cached_result;
-			$this->last_product_id            = $product->get_id();
-		}
-
-		return $on_sale OR $last_product_cached_result;
-	}
-
-	public function woocommerce_sale_flash($html_sale, $post, $product){
-		return null;
-	}
-
-	public function woocommerce_variable_price_html( $price_html, $product, $qty = 1 ) {
-		if ( is_product() && $this->options['do_not_modify_price_at_product_page'] ) {
-			return $price_html;
-		}
-
-		$modify = apply_filters('wdp_modify_price_html', true, $price_html, $product, $qty);
-		if ( ! $modify ) {
-			return $price_html;
-		}
-
-		$min_price     = -1;
-		$max_price     = -1;
-		foreach ( $product->get_children() as $child_id ) {
-			$child = wc_get_product($child_id);
-			$prices        = $this->get_initial_and_discounted_price( $child, $qty );
-			if ( ! isset( $prices['initial_price'] ) || ! isset( $prices['initial_price'] ) ) {
-				return $price_html;
-			}
-			$initial_price = $prices['initial_price'];
-			$price         = $prices['price'];
-
-			if ( ! $prices ) {
-				$price = $child->get_price();
-			}
-
-			$min_price = $min_price > -1 ? min( $min_price, $price ) : $price;
-			$max_price = $max_price > -1 ? max( $max_price, $price ) : $price;
-
-		}
-
-
-		if ( $min_price < $max_price AND ( $min_price OR $max_price ) AND ( $min_price !== floatval( - 1 ) AND $max_price !== floatval( - 1 ) ) ) {
-			$price_html = wc_format_price_range( $min_price, $max_price ) . $product->get_price_suffix();
-		} elseif ( ( $min_price == $max_price ) AND ( $min_price !== floatval( - 1 ) AND $max_price !== floatval( - 1 ) ) ) {
-			if ( isset( $initial_price ) AND isset( $price ) AND ( $initial_price > $price ) ) {
-				$price_html = apply_filters(
-					'wdp_woocommerce_variable_discounted_price_html',
-					wc_format_sale_price( wc_price( $initial_price ), wc_price( $price ) ) . $product->get_price_suffix(),
-					$initial_price,
-					$price,
-					$product
-				);
-			}
-		}
-		return $price_html;
-	}
-	
-	public function woocommerce_get_price_html( $price_html, $product, $qty = 1 ) {
-		if ( is_product() && $this->options['do_not_modify_price_at_product_page'] ) {
-			return $price_html;
-		}
-
-		if ( $product->get_id() == $this->last_product_id && $qty == 1 ) {
-			return $this->last_product_cached_result !== null ? $this->last_product_cached_result : $price_html;
-		}
-
-		$modify = apply_filters('wdp_modify_price_html', true, $price_html, $product, $qty);
-		if ( ! $modify ) {
-			return $price_html;
-		}
-
-		if ( is_a( $product, 'WC_Product' ) ) {
-			/** @var WC_Product $product */
-			if ( $product->is_type( 'variable' ) ) {
-				return $price_html;
-			}
-
-			$prices        = $this->get_initial_and_discounted_price( $product, $qty );
-			if ( ! $prices ) {
-				return $price_html;
-			}
-			
-			//var_dump($prices);
-
-			if ( ! isset( $prices['initial_price'] ) || ! isset( $prices['initial_price'] ) ) {
-				return $price_html;
-			}
-			$initial_price = $prices['initial_price'];
-			$price         = $prices['price'];
-
-			if ( false == $initial_price ) {
-				if( !$price_html )// override price if not empty only! EMPTY means -- detect on sale 
-					return $price_html;
-				$price_html = wc_price( $price ) . $product->get_price_suffix();
-			} elseif ( false !== $price && $initial_price != $price ) {
-				$price_html = apply_filters(
-					'wdp_woocommerce_discounted_price_html',
-					wc_format_sale_price( wc_price( $initial_price ), wc_price( $price ) ) . $product->get_price_suffix(),
-					$initial_price,
-					$price,
-					$product
-				);
-			}
-		}
-
-		return $price_html;
-	}
-	
-	public function woocommerce_product_get_sale_price($value, $product) {
-		//cached?
-		if ( !empty($this->last_onsale_product_id) AND $product->get_id() == $this->last_onsale_product_id ) {
-			return $this->last_onsale_product_price;
-		}
-		//calculate 
-		$prices        = $this->get_initial_and_discounted_price( $product, 1 );
-		if( !empty($prices['price']) )
-			$value = $prices['price'];
-		//cache 
-		$this->last_onsale_product_id = $product->get_id();
-		$this->last_onsale_product_price = $value;
-		return $value;	
-	}
-	
-	public function woocommerce_product_get_regular_price($value, $product) {
-		//cached?
-		if ( !empty($this->last_regular_product_id) AND $product->get_id() == $this->last_regular_product_id ) {
-			return $this->last_regular_product_price;
-		}
-		//calculate 
-		$prices        = $this->get_initial_and_discounted_price( $product, 1 );
-		if( !empty($prices['initial_price']) )
-			$value = $prices['initial_price'];
-		//cache 
-		$this->last_regular_product_id = $product->get_id();
-		$this->last_regular_product_price = $value;
-		return $value;	
-	}
-
-	/* this function for future releases!
-	public function woocommerce_before_single_product_summary() {
-		global $product;
-
-		$settings = WDP_Helpers::get_settings();
-
-		$this->show_bulk_table = ! empty( $settings['show_matched_bulk_table'] );
-
-		$this->show_adj      = ! empty( $settings['show_matched_adjustments'] );
-		$this->show_get_free = ! empty( $settings['show_matched_get_products'] );
-		$this->show_cart     = ! empty( $settings['show_matched_cart_adjustments'] );
-		$this->show_bulk     = ! empty( $settings['show_matched_bulk'] );
-		$this->show_deals    = ! empty( $settings['show_matched_deals'] ) &&
-		                       ( $this->show_adj || $this->show_get_free || $this->show_cart || $this->show_bulk );
-		if ( ! $this->show_bulk_table && ! $this->show_deals ) {
-			return;
-		}
-
-		$this->matched_rules = $this->get_matched_offers( $product->get_id() );
-		if ( $this->matched_rules->is_empty() ) {
-			return;
-		}
-
-		if ( $this->show_bulk_table ) {
-			add_action( 'woocommerce_after_single_product_summary',
-				array( $this, 'print_table_with_product_bulk_rules' ), 9 );
-		}
-	}
-	*/
-
-	public function ajax_get_table_with_product_bulk_table() {
-		$product_id = ! empty( $_REQUEST['product_id'] ) ? $_REQUEST['product_id'] : false;
-		if ( ! $product_id ) {
-			wp_send_json_error();
-		}
-
-		wp_send_json_success( $this->make_table_with_product_bulk_table( $product_id ) );
+		return ! is_product() || ! empty( $GLOBALS['woocommerce_loop']['name'] );
 	}
 
 	public function ajax_get_price_product_with_bulk_table() {
 		$product_id = ! empty( $_REQUEST['product_id'] ) ? $_REQUEST['product_id'] : false;
 		$qty        = ! empty( $_REQUEST['qty'] ) ? (int) $_REQUEST['qty'] : false;
+		$page_data  = ! empty( $_REQUEST['page_data'] ) ? (array) $_REQUEST['page_data'] : array();
 		if ( ! $product_id || ! $qty ) {
 			wp_send_json_error();
 		}
-		wp_send_json_success( array( 'price_html' => $this->get_price_html_product_with_bulk_table( $product_id, $qty ) ) );
+		wp_send_json_success( array( 'price_html' => $this->get_price_html_product_with_bulk_table( $product_id, $qty, $page_data ) ) );
 	}
 
-	private function get_price_html_product_with_bulk_table( $product_id, $qty ) {
-		$product = wc_get_product( $product_id );
-
-		remove_filter( 'woocommerce_get_price_html', array( $this, 'woocommerce_get_price_html' ), 10 );
-		$price_html = $product->get_price_html();
-		add_filter( 'woocommerce_get_price_html', array( $this, 'woocommerce_get_price_html' ), 10, 2 );
-
-		return $product->is_type( 'variable' ) ? $this->woocommerce_variable_price_html( $price_html, $product, $qty ) : $this->woocommerce_get_price_html( $price_html, $product, $qty );
-	}
-
-	public function print_table_with_product_bulk_rules() {
-		/**
-		 * @var $product WC_Product
-		 */
-		global $product;
-		if ( ! empty( $product ) ) {
-			$available_products_ids   = array();
-			$available_products_ids[] = $product->get_id();
-			$available_products_ids   = array_merge( $available_products_ids, $product->get_children() );
-
-			echo '<span class="wdp_bulk_table_content" data-available-ids="' . json_encode( $available_products_ids ) . '">';
-			echo $this->make_table_with_product_bulk_table( $product->get_id() );
-			echo '</span>';
-		}
-	}
-
-	/**
-	 * @param $product_id integer
-	 *
-	 * @return string
-	 */
-	private function make_table_with_product_bulk_table( $product_id ) {
-		if( !isset($this->matched_rules) )//call from shortcode?
-			$this->matched_rules = $this->get_matched_offers( $product_id );
-
-		$bulk_rules = $this->matched_rules->with_bulk();
-		if ( $bulk_rules->is_empty() ) {
+	private function get_price_html_product_with_bulk_table( $product_id, $qty, $page_data ) {
+		try {
+			$wdp_product = new WDP_Product( $product_id );
+		} catch ( Exception $e ) {
 			return "";
 		}
 
-		$rule = $bulk_rules->get_first();
-		$data = $rule->get_bulk_details();
-
-		$options    = WDP_Helpers::get_settings();
-		$price_mode = $options['discount_for_onsale'];
-		$product    = wc_get_product( $product_id );
-		if ( ! $product ) {
-			return "";
-		}
-
-		if ( $product->is_type( 'variable' ) ) {
-			foreach ( $data['ranges'] as &$line ) {
-				if ( 'price__fixed' === $data['discount'] ) {
-					$line['value'] = wc_get_price_to_display( $product, array( 'price' => $line['value'] ) );
-				}
-				unset( $line['discounted_price'] );
-			}
-		} else {
-			if ( $product->is_on_sale( 'edit' ) ) {
-				if ( 'sale_price' === $price_mode ) {
-					$price = $product->get_sale_price( '' );
-				} elseif ( 'discount_sale' === $price_mode ) {
-					$price = $product->get_sale_price( '' );
-				} else {
-					$price = $product->get_regular_price( '' );
-				}
-			} else {
-				$price = $product->get_price();
-			}
-
-			foreach ( $data['ranges'] as &$line ) {
-				if ( 'price__fixed' === $data['discount'] ) {
-					$line['discounted_price'] = (float) $price - (float) $line['value'];
-					$line['value']            = wc_get_price_to_display( $product, array( 'price' => $line['value'] ) );
-				} elseif ( 'discount__amount' === $data['discount'] ) {
-					$line['discounted_price'] = (float) $price - (float) $line['value'];
-				} elseif ( 'discount__percentage' === $data['discount'] ) {
-					$line['discounted_price'] = (float) $price - (float) $price * (float) $line['value'] / 100;
-				}
-				$line['discounted_price'] = wc_price( wc_get_price_to_display( $product, array( 'price' => $line['discounted_price'] ) ) ) /*. $product->get_price_suffix()*/;
-			}
-		}
-
-		if ( empty( $data['table_message'] ) ) {
-			$dependencies = $rule->get_product_dependencies();
-			foreach ( $dependencies as &$dependency ) {
-				foreach ( $dependency['values'] as $id ) {
-					$dependency['titles'][] = WDP_Helpers::get_title_by_type($id, $dependency['type']);
-					$dependency['links'][]  = WDP_Helpers::get_permalink_by_type($id, $dependency['type']);
-				}
-			}
-			unset( $dependency );
-		}
-
-		$content = $this->wdp_get_template(
-			'bulk-table.php',
-			array(
-				'data' => $data,
-				'dependencies' => isset($dependencies) ? $dependencies : null,
-				'table_type'   => 'product',
-			)
-		);
-
-		return $content;
-	}
-
-	public function print_table_with_product_bulk_rules_old() {
-		/**
-		 * @var $product WC_Product
-		 */
-		global $product;
-
-		if( !isset($this->matched_rules) )//call from shortcode?
-			$this->matched_rules = $this->get_matched_offers( $product->get_id() );
-			
-		$bulk_rules = $this->matched_rules->with_bulk();
-		if ( $bulk_rules->is_empty() ) {
-			return;
-		}
-
-		$rule = $bulk_rules->get_first();
-		$data = $rule->get_bulk_details();
-		if ( empty( $data['table_message'] ) ) {
-			$dependencies = $rule->get_product_dependencies();
-			foreach ( $dependencies as &$dependency ) {
-				foreach ( $dependency['values'] as $id ) {
-					$dependency['titles'][] = WDP_Helpers::get_title_by_type($id, $dependency['type']);
-					$dependency['links'][]  = WDP_Helpers::get_permalink_by_type($id, $dependency['type']);
-				}
-			}
-			unset( $dependency );
-		}
-
-		$content = $this->wdp_get_template(
-			'bulk-table.php',
-			array(
-				'data' => $data,
-				'dependencies' => isset($dependencies) ? $dependencies : null,
-				)
-		);
-
-		echo $content;
-	}
-
-	public function print_table_with_category_bulk_rules() {
-		if ( is_tax() ) {
-			global $wp_query;
-
-
-			if ( isset( $wp_query->queried_object->term_id ) ) {
-				$term_id = $wp_query->queried_object->term_id;
-			} else {
-				return false;
-			}
-
-			$active_rules = WDP_Rules_Registry::get_instance()->get_active_rules()->with_bulk()->to_array();
-
-			foreach ( $active_rules as $index => $rule ) {
-				$data = $rule->get_bulk_details();
-
-				$dependencies = $rule->get_product_dependencies();
-
-				$delete = true;
-				foreach ( $dependencies as &$dependency ) {
-					foreach ( $dependency['values'] as $id ) {
-						$dependency['titles'][] = WDP_Helpers::get_title_by_type($id, $dependency['type']);
-						$dependency['links'][]  = WDP_Helpers::get_permalink_by_type($id, $dependency['type']);
-						if ( 'product_categories' === $dependency['type'] AND $term_id == $id) {
-								$delete = false;
-						}
-					}
-				}
-
-				if ( $delete ) {
-					unset( $active_rules[ $index ] );
-					continue;
-				}
-
-
-				$content = $this->wdp_get_template(
-					'bulk-table.php',
-					array(
-						'data'         => $data,
-						'dependencies' => isset( $dependencies ) ? $dependencies : null,
-						'table_type'   => 'category',
-					)
-				);
-
-				echo  '<span class="wdp_bulk_table_content">' . $content . '</span>';
-				break;
-
-			}
-		}
-	}
-
-	/**
-	 * @param int $product_id
-	 *
-	 * @return WDP_Rules_Collection
-	 */
-	public function get_matched_offers( $product_id ) {
-		$calc    = self::make_wdp_calc_from_wc();
-// 		$context = $this->make_wdp_cart_context_from_wc();
-// 		$coupons = $this->get_wc_cart_coupons();
-
-
-// 		$cart = new WDP_Cart( array(), $coupons, $context );
-		$cart = self::make_wdp_cart_from_wc();
-
-		$rules = $calc->find_product_matches( $cart, $product_id );
-
-		return $rules;
-	}
-
-	/**
-	 * @param WC_Product $product
-	 * @param integer $qty
-	 *
-	 * @return array|boolean
-	 */
-	private function get_initial_and_discounted_price( $product, $qty = 1 ) {
-		$calc = self::make_wdp_calc_from_wc();
-		$cart = self::make_wdp_cart_from_wc();
-
-		return $calc->get_product_prices_to_display( $cart, $product, $qty );
+		return $this->price_display->get_product_price_html_depends_on_page( $wdp_product, $qty, $page_data );
 	}
 
 	/**
@@ -604,11 +273,41 @@ class WDP_Frontend {
 		return $price_html;
 	}
 
-	public function woocommerce_cart_loaded_from_session() {
-		if ( ! empty( $_GET['wc-ajax'] )  AND $_GET['wc-ajax'] === "update_order_review") 
-			return;
+	public function wp_loaded_process_cart() {
+        $rewrite = apply_filters('wdp_rewrite_process_cart_call', false, array($this, 'process_cart'));
+
+        if ($rewrite) {
+            return;
+        }
+
+		if ( ! empty( $_GET['wc-ajax'] ) ) {
+			if ( $_GET['wc-ajax'] === "update_order_review" ) {
+				return;
+			} else if ( $_GET['wc-ajax'] === "checkout" ) {
+				add_action( 'woocommerce_checkout_process', array( $this, 'process_cart' ), PHP_INT_MAX );
+				return;
+			}  else if ( $_GET['wc-ajax'] === "update_shipping_method" ) {
+				add_action( 'woocommerce_before_cart_totals', array( $this, 'process_cart' ), PHP_INT_MAX );
+				return;
+			} else if ( $_GET['wc-ajax'] === "get_variation" ) {
+				//do nothing
+			} else if ( $_GET['wc-ajax'] === "wc_ppec_start_checkout" ) { //PP cart/checkout
+				add_action( 'woocommerce_checkout_process', array( $this, 'process_cart' ), PHP_INT_MAX );
+				return;
+			} else if ( $_GET['wc-ajax'] === "wc_ppec_generate_cart" ) { //PP express , at product page
+				add_action( 'woocommerce_before_calculate_totals', array( $this, 'process_cart' ), PHP_INT_MAX );
+				return;
+			} else {
+				/**
+				 *  Move cart processing after all actions with WC cart ended
+				 */
+				add_action( 'woocommerce_before_mini_cart', array( $this, 'process_cart' ), PHP_INT_MAX );
+				return;
+			}
+		}
+
 		$this->process_cart();
-	}	
+	}
 
 	public function woocommerce_checkout_update_order_review() {
 		add_action( 'woocommerce_before_data_object_save', array( $this, 'process_cart' ), 100 );
@@ -617,13 +316,148 @@ class WDP_Frontend {
 	public function process_cart() {
 		remove_action( 'woocommerce_before_data_object_save', array( $this, 'process_cart' ), 100 );
 
+		$wc_customer = WC()->cart->get_customer();
+		$wc_session = WC()->session;
+
+		// store tax exempt value
+		if ( ! isset( $wc_session->wdp_old_tax_exempt ) ) {
+			$wc_session->set( 'wdp_old_tax_exempt', $wc_customer->get_is_vat_exempt() );
+		} else {
+			$wc_customer->set_is_vat_exempt( $wc_session->wdp_old_tax_exempt );
+		}
+
 		$calc = self::make_wdp_calc_from_wc();
 		$cart = self::make_wdp_cart_from_wc();
 
-		$newcart = $calc->process_cart( $cart );
+		if ( ! empty( $this->profiler ) ) {
+			$this->profiler->attach_listener( $calc );
+		}
+
+		$this->price_display->attach_calc( $calc );
+
+		$newcart = $calc->main_process_cart( $cart );
 		if( $newcart ) {
-			$newcart->apply_to_wc_cart( WC()->cart );
+			$newcart->apply_to_wc_cart();
+		} else if ( $cart->has_immutable_changed_items() ) {
+			// renewal order items
+			$cart->apply_to_wc_cart();
 		} else {
+			unset( $wc_session->wdp_old_tax_exempt );
+
+			//try delete gifted products ?
+			$wc_cart_items = WC()->cart->get_cart();
+			$store_keys = apply_filters( 'wdp_save_cart_item_keys', array() );
+
+			foreach ( $wc_cart_items as $wc_cart_item_key => $wc_cart_item ) {
+				$wc_cart_item = apply_filters( 'wdp_wc_cart_item_before_clear_from_rules_keys', $wc_cart_item, $wc_cart_item_key );
+
+				$changed = false;
+
+				if ( isset( $wc_cart_item['wdp_gifted'] ) ) {
+					$wdp_gifted = $wc_cart_item['wdp_gifted'];
+					unset( $wc_cart_item['wdp_gifted'] );
+					$changed = true;
+					if ( $wdp_gifted ) {
+						WC()->cart->remove_cart_item( $wc_cart_item_key );
+						continue;
+					}
+				}
+
+				if ( isset( $wc_cart_item['wdp_original_price'] ) ) {
+					unset( $wc_cart_item['wdp_original_price'] );
+					$changed = true;
+				}
+
+				if ( isset( $wc_cart_item['wdp_history'] ) ) {
+					unset( $wc_cart_item['wdp_history'] );
+					$changed = true;
+				}
+
+				if ( isset( $wc_cart_item['wdp_rules'] ) ) {
+					unset( $wc_cart_item['wdp_rules'] );
+					$changed = true;
+				}
+
+				if ( isset( $wc_cart_item['rules'] ) ) {
+					unset( $wc_cart_item['rules'] );
+					$changed = true;
+				}
+
+				if ( isset( $wc_cart_item['wdp_rules_for_singular'] ) ) {
+					unset( $wc_cart_item['wdp_rules_for_singular'] );
+					$changed = true;
+				}
+
+				$product_id   = $wc_cart_item['product_id'];
+				$qty          = $wc_cart_item['quantity'];
+				$variation_id = $wc_cart_item['variation_id'];
+				$variation    = $wc_cart_item['variation'];
+
+				$cart_item_data = array();
+				foreach ( $store_keys as $key ) {
+					if ( isset( $wc_cart_item[ $key ] ) ) {
+						$cart_item_data[ $key ] = $wc_cart_item[ $key ];
+					}
+				}
+
+				if ( $changed ) {
+					WC()->cart->remove_cart_item( $wc_cart_item_key );
+
+					$exclude_hooks = apply_filters('wdp_exclude_hooks_when_add_to_cart_after_disable_pricing', array(), $wc_cart_item);
+					self::process_without_hooks( function () use ( $product_id, $qty, $variation_id, $variation, $cart_item_data ) {
+						WC()->cart->add_to_cart( $product_id, $qty, $variation_id, $variation, $cart_item_data );
+					}, $exclude_hooks );
+				}
+			}
+
+			$is_free_shipping_key = '_wdp_free_shipping';
+			// clear shipping in session for triggering full calculate_shipping to replace '_wdp_free_shipping' when needed
+			foreach ( WC()->session->get_session_data() as $key => $value ) {
+				if ( preg_match( '/(shipping_for_package_).*/', $key, $matches ) === 1 ) {
+					if ( ! isset( $matches[0] ) ) {
+						continue;
+					}
+					$stored_rates = WC()->session->get( $matches[0] );
+
+					if ( ! isset( $stored_rates['rates'] ) ) {
+						continue;
+					}
+					if ( is_array( $stored_rates['rates'] ) ) {
+						foreach ( $stored_rates['rates'] as $rate ) {
+							if ( isset( $rate->get_meta_data()[$is_free_shipping_key] ) ) {
+								unset( WC()->session->$key );
+								break;
+							}
+						}
+					}
+				}
+			}
+		}// if no rules
+
+
+		$this->price_display->apply_cart();
+	}
+
+	public static function process_cart_manually() {
+		$wc_customer = WC()->cart->get_customer();
+		$wc_session = WC()->session;
+
+		// store tax exempt value
+		if ( ! isset( $wc_session->wdp_old_tax_exempt ) ) {
+			$wc_session->set( 'wdp_old_tax_exempt', $wc_customer->get_is_vat_exempt() );
+		} else {
+			$wc_customer->set_is_vat_exempt( $wc_session->wdp_old_tax_exempt );
+		}
+
+		$calc = self::make_wdp_calc_from_wc();
+		$cart = self::make_wdp_cart_from_wc();
+
+		$newcart = $calc->process_cart_new( $cart );
+		if( $newcart ) {
+			$newcart->apply_to_wc_cart();
+		} else {
+			unset( $wc_session->wdp_old_tax_exempt );
+
 			//try delete gifted products ?
 			$wc_cart_items = WC()->cart->get_cart();
 			$store_keys = apply_filters( 'wdp_save_cart_item_keys', array() );
@@ -643,6 +477,11 @@ class WDP_Frontend {
 
 				if ( isset( $wc_cart_item['wdp_original_price'] ) ) {
 					unset( $wc_cart_item['wdp_original_price'] );
+					$changed = true;
+				}
+
+				if ( isset( $wc_cart_item['wdp_history'] ) ) {
+					unset( $wc_cart_item['wdp_history'] );
 					$changed = true;
 				}
 
@@ -710,7 +549,7 @@ class WDP_Frontend {
 	/**
 	 * @return WDP_Cart_Calculator
 	 */
-	private static function make_wdp_calc_from_wc() {
+	public static function make_wdp_calc_from_wc() {
 		$rule_collection = WDP_Rules_Registry::get_instance()->get_active_rules();
 		$calc            = new WDP_Cart_Calculator( $rule_collection );
 
@@ -718,43 +557,65 @@ class WDP_Frontend {
 	}
 
 	/**
+	 * @param bool $use_empty_cart
+	 *
 	 * @return WDP_Cart
 	 */
-	private static function make_wdp_cart_from_wc() {
+	public static function make_wdp_cart_from_wc( $use_empty_cart = false ) {
 		$context = self::make_wdp_cart_context_from_wc();
-		$cart    = WDP_Cart::make_from_wc_cart( WC()->cart, $context );
+
+		if ( $use_empty_cart ) {
+			$cart    = new WDP_Cart( $context );
+		} else {
+			$cart    = new WDP_Cart( $context, WC()->cart );
+		}
 
 		return $cart;
 	}
 
 	/**
-	 * @return array()
+	 * @return array
 	 */
 	private function get_wc_cart_coupons() {
 		$external_coupons = array();
-		foreach( WC()->cart->get_coupons() as $coupon ) {
-			if( $coupon->get_id() )
+		foreach ( WC()->cart->get_coupons() as $coupon ) {
+			/**
+			 * @var $coupon WC_Coupon
+			 */
+			if ( $coupon->get_id() ) {
 				$external_coupons[] = $coupon->get_code();
+			}
 		}
+
 		return $external_coupons;
 	}
 
 	/**
 	 * @return WDP_Cart_Context
 	 */
-	private static function make_wdp_cart_context_from_wc() {
+	public static function make_wdp_cart_context_from_wc() {
 		//test code
 		$environment = array(
 			'timestamp' => current_time( 'timestamp' ),
+			'prices_includes_tax' => wc_prices_include_tax(),
+			'tab_enabled' => wc_tax_enabled(),
 		);
 
 		$settings = WDP_Helpers::get_settings();
 
-		$customer = new WDP_User_Impl( new WP_User( WC()->customer->get_id() ) );
-		$customer->set_shipping_country( WC()->customer->get_shipping_country( '' ) );
-		$customer->set_shipping_state( WC()->customer->get_shipping_state( '' ) );
-		if ( is_checkout() ) $customer->set_payment_method( WC()->session->get('chosen_payment_method') );
-		if ( is_checkout() OR !self::is_catalog_view() ) $customer->set_shipping_methods( WC()->session->get('chosen_shipping_methods') );;
+		if ( ! is_null( WC()->customer ) ) {
+			$customer = new WDP_User_Impl( new WP_User( WC()->customer->get_id() ) );
+			$customer->set_shipping_country( WC()->customer->get_shipping_country( '' ) );
+			$customer->set_shipping_state( WC()->customer->get_shipping_state( '' ) );
+			$customer->set_is_vat_exempt( WC()->customer->get_is_vat_exempt() );
+		} else {
+			$customer = new WDP_User_Impl( new WP_User() );
+		}
+
+		if ( ! is_null( WC()->session ) ) {
+			if ( is_checkout() ) $customer->set_payment_method( WC()->session->get('chosen_payment_method') );
+			if ( is_checkout() OR !self::is_catalog_view() ) $customer->set_shipping_methods( WC()->session->get('chosen_shipping_methods') );
+		}
 		$context = new WDP_Cart_Context( $customer, $environment, $settings );
 
 		return $context;
@@ -854,7 +715,7 @@ class WDP_Frontend {
 	 */
 	private function inject_wc_cart_coupon_stats( $wc_cart, &$order_stats ) {
 		$totals      = $wc_cart->get_totals();
-		$wdp_coupons = isset( $totals['wdp_coupons'] ) ? $totals['wdp_coupons'] : '';
+		$wdp_coupons = isset( $totals['wdp_coupons'] ) ? $totals['wdp_coupons'] : array();
 		if ( empty( $wdp_coupons ) ) {
 			return;
 		}
@@ -862,10 +723,25 @@ class WDP_Frontend {
 		foreach ( $wc_cart->get_coupon_discount_totals() as $coupon_code => $amount ) {
 			if ( isset( $wdp_coupons['grouped'][ $coupon_code ] ) ) {
 				foreach ( $wdp_coupons['grouped'][ $coupon_code ] as $rule_id => $amount_per_rule ) {
+					if ( ! isset( $order_stats[ $rule_id ] ) ) {
+						$order_stats[ $rule_id ] = array();
+					}
+
+					if ( ! isset( $order_stats[ $rule_id ]['extra'] ) ) {
+						$order_stats[ $rule_id ]['extra'] = 0.0;
+					}
+
 					$order_stats[ $rule_id ]['extra'] += $amount_per_rule;
 				}
 			} elseif ( isset( $wdp_coupons['single'][ $coupon_code ] ) ) {
 				$rule_id = $wdp_coupons['single'][ $coupon_code ];
+				if ( ! isset( $order_stats[ $rule_id ] ) ) {
+					$order_stats[ $rule_id ] = array();
+				}
+
+				if ( ! isset( $order_stats[ $rule_id ]['extra'] ) ) {
+					$order_stats[ $rule_id ]['extra'] = 0.0;
+				}
 
 				$order_stats[ $rule_id ]['extra'] += $amount;
 			}
@@ -884,7 +760,7 @@ class WDP_Frontend {
 		}
 
 		foreach ( $wc_cart->get_fees() as $fee ) {
-			$fee_name = $fee->name;
+			$fee_name = $fee->name; // change with care, reports are using fee->name too
 			if ( isset( $wdp_fees[ $fee_name ] ) ) {
 				foreach ( $wdp_fees[ $fee_name ] as $rule_id => $fee_amount_per_rule ) {
 					$order_stats[ $rule_id ]['extra'] -= $fee_amount_per_rule;
@@ -903,38 +779,58 @@ class WDP_Frontend {
 			return;
 		}
 
+		$applied_rules_key = '_wdp_rules';
+		$is_free_shipping_key = '_wdp_free_shipping';
+
 		foreach ( $shippings as $package_id => $shipping_rate_key ) {
 			$packages = $wc->shipping()->get_packages();
 			if ( isset( $packages[ $package_id ]['rates'][ $shipping_rate_key ] ) ) {
 				/** @var WC_Shipping_Rate $sh_rate */
 				$sh_rate      = $packages[ $package_id ]['rates'][ $shipping_rate_key ];
 				$sh_rate_meta = $sh_rate->get_meta_data();
-				if ( isset( $sh_rate_meta['wdp_rule'] ) ) {
-					$rule_id          = $sh_rate_meta['wdp_rule'];
-					$amount           = $sh_rate_meta['wdp_amount'];
-					$is_free_shipping = $sh_rate_meta['wdp_free_shipping'];
 
-					$order_stats[ $rule_id ]['shipping']         += $amount;
-					$order_stats[ $rule_id ]['is_free_shipping'] = $is_free_shipping;
+				$is_free_shipping = isset( $sh_rate_meta[ $is_free_shipping_key ] ) ? $sh_rate_meta[ $is_free_shipping_key ] : false;
+				$wdp_rules        = isset( $sh_rate_meta[ $applied_rules_key ] ) ? json_decode( $sh_rate_meta[ $applied_rules_key ], true ) : false;
+
+				if ( ! empty( $wdp_rules ) && is_array( $wdp_rules ) ) {
+					foreach ( $wdp_rules as $rule_id => $amount ) {
+						if ( ! isset( $order_stats[ $rule_id ] ) ) {
+							$order_stats[ $rule_id ] = array();
+						}
+
+						if ( ! isset( $order_stats[ $rule_id ]['shipping'] ) ) {
+							$order_stats[ $rule_id ]['shipping'] = 0.0;
+						}
+
+						$order_stats[ $rule_id ]['shipping']         += $amount;
+						$order_stats[ $rule_id ]['is_free_shipping'] = $is_free_shipping;
+					}
 				}
 
 			}
 		}
 	}
 
-	private function wdp_get_template( $template_name , $args = array(), $template_path = '' ) {
+	public static function wdp_get_template( $template_name , $args = array(), $template_path = '' ) {
 		if ( ! empty( $args ) && is_array( $args ) ) {
 			extract( $args );
 		}
 
-		if ( !$template_path ) {
-			$template_path = trailingslashit( WC_ADP_PLUGIN_PATH . 'templates' );
-		} else {
-			$template_path = trailingslashit( WC_ADP_PLUGIN_PATH ) . trailingslashit( $template_path );
+		$full_template_path = trailingslashit( WC_ADP_PLUGIN_PATH . 'templates' );
+
+		if ( $template_path ) {
+			$full_template_path .= trailingslashit( $template_path );
 		}
 
-		if ( ! ( $full_template_path = locate_template( array( 'advanced-dynamic-pricing-for-woocommerce/' . $template_name ) ) ) ) {
-			$full_template_path = $template_path . $template_name;
+		$full_external_template_path = locate_template( array(
+			'advanced-dynamic-pricing-for-woocommerce/' . trailingslashit( $template_path ) . $template_name,
+			'advanced-dynamic-pricing-for-woocommerce/' . $template_name,
+		) );
+
+		if ( $full_external_template_path ) {
+			$full_template_path = $full_external_template_path;
+		} else {
+			$full_template_path .= $template_name;
 		}
 
 		ob_start();
@@ -959,7 +855,7 @@ class WDP_Frontend {
 
 		$script_data = array(
 			'ajaxurl'               => admin_url( 'admin-ajax.php' ),
-			'update_price_with_qty' => wc_string_to_bool( $options['update_price_with_qty'] ) && ! wc_string_to_bool($options['do_not_modify_price_at_product_page']),
+			'update_price_with_qty' => wc_string_to_bool( $options['update_price_with_qty'] ) && ! wc_string_to_bool( $options['do_not_modify_price_at_product_page'] ),
 			'js_init_trigger'       => apply_filters( 'wdp_bulk_table_js_init_trigger', "" ),
 		);
 
@@ -971,6 +867,7 @@ class WDP_Frontend {
 		if ( 0 >= $amount_saved ) {
 			return null;
 		}
+		$options    = WDP_Helpers::get_settings();
 
 		$templates = array(
 			'woocommerce_mini_cart_contents'               => 'mini-cart.php',
@@ -981,13 +878,10 @@ class WDP_Frontend {
 		$template_content = '';
 		foreach ( $templates as $hook_name => $template_name ) {
 			if ( current_action() == $hook_name ) {
-				$template_content = $this->wdp_get_template(
-					$template_name,
-					array(
-						'amount_saved' => $amount_saved,
-					),
-					'templates/amount-saved'
-				);
+				$template_content = self::wdp_get_template( $template_name, array(
+					'amount_saved' => $amount_saved,
+					'title'        => $options['amount_saved_label'],
+				), 'amount-saved' );
 			}
 		}
 
@@ -999,117 +893,98 @@ class WDP_Frontend {
 		$amount_saved = 0;
 
 		foreach ( $cart_items as $cart_item_key => $cart_item ) {
-			if ( ! isset( $cart_item['rules'] ) AND ! isset( $cart_item['wdp_rules'] ) ) {
-				return 0;
+			if ( ! isset( $cart_item['wdp_rules'] ) ) {
+				continue;
 			}
-			$cart_item_rules = isset( $cart_item['rules'] ) ? $cart_item['rules'] : $cart_item['wdp_rules'];
-			foreach ( $cart_item_rules as $id => $amount_saved_by_rule ) {
-				$amount_saved += $amount_saved_by_rule;
+
+			foreach ( $cart_item['wdp_rules'] as $id => $amount_saved_by_rule ) {
+				$amount_saved += $amount_saved_by_rule * $cart_item['quantity'];
 			}
 		}
 
-		return $amount_saved;
-	}
-
-	public function woocommerce_cart_item_price_and_price_subtotal ( $price, $cart_item, $cart_item_key ) {
-		$product = wc_get_product($cart_item['product_id']);
-
-		$new_price = (float) $cart_item['data']->get_price( 'edit' );
-		$new_price = $this->get_price_cart_item_to_display($product , array('price'=>$new_price));
-
-		$new_price_html = $price;
-		if ( !isset($cart_item['wdp_original_price']) ){
-			return $price;
-		}
-		$old_price = $cart_item['wdp_original_price'];
-		$old_price = $this->get_price_cart_item_to_display($product , array('price'=>$old_price));
-
-		if ( 'woocommerce_cart_item_subtotal' == current_filter() ) {
-			$new_price = $new_price * $cart_item['quantity'];
-			$old_price = $old_price * $cart_item['quantity'];
-		}
-
-		if ( $new_price !== false AND $old_price !== false ) {
-			if ( $new_price < $old_price ) {
-				$price_html = wc_format_sale_price(
-					$old_price,
-					$new_price
-				);
-			} else {
-				$price_html = $new_price_html;
-			}
-		} else {
-			$price_html = $new_price_html;
-		}
-		return $price_html;
-	}
-
-	private function get_price_cart_item_to_display( $product, $args = array() ) {
-		$args = wp_parse_args( $args, array(
-			'qty'   => 1,
-			'price' => $product->get_price(),
-		) );
-
-		$price = $args['price'];
-		$qty   = $args['qty'];
-
-		return 'incl' === get_option( 'woocommerce_tax_display_cart' ) ? wc_get_price_including_tax( $product, array( 'qty' => $qty, 'price' => $price ) ) : wc_get_price_excluding_tax( $product, array( 'qty' => $qty, 'price' => $price ) );
+		return apply_filters( 'wdp_amount_saved', $amount_saved, $cart_items );
 	}
 
 	function remove_hooks_set_by_other_plugins() {
 		global $wp_filter;
-		
-		$allowed_hooks = array( 
+
+		$allowed_hooks = array(
 			//Filters
- 			"woocommerce_get_price_html"=>array( "WDP_Frontend|woocommerce_get_price_html"),
- 			"woocommerce_product_is_on_sale"=>array( "WDP_Frontend|woocommerce_product_is_on_sale"),
- 			"woocommerce_variable_price_html"=>array( "WDP_Frontend|woocommerce_variable_price_html"),
-			"woocommerce_cart_item_price"=>array( "WDP_Frontend|woocommerce_cart_item_price_and_price_subtotal"),
-			"woocommerce_cart_item_subtotal"=>array( "WDP_Frontend|woocommerce_cart_item_price_and_price_subtotal"),
+			"woocommerce_get_price_html"            => array( "WDP_Price_Display|hook_get_price_html" ),
+			"woocommerce_product_is_on_sale"        => array( "WDP_Price_Display|hook_product_is_on_sale" ),
+			"woocommerce_product_get_sale_price"    => array( "WDP_Price_Display|hook_product_get_sale_price" ),
+			"woocommerce_product_get_regular_price" => array( "WDP_Price_Display|hook_product_get_regular_price" ),
+			"woocommerce_variable_price_html"       => array(),
+			"woocommerce_variable_sale_price_html"  => array(),
+			"woocommerce_cart_item_price"           => array( "WDP_Price_Display|woocommerce_cart_item_price_and_price_subtotal" ),
+			"woocommerce_cart_item_subtotal"        => array( "WDP_Price_Display|woocommerce_cart_item_price_and_price_subtotal" ),
 			//Actions
- 			"woocommerce_checkout_order_processed"=>array( "WDP_Frontend|checkout_order_processed"),
- 			"woocommerce_before_calculate_totals"=>array( ), //nothing allowed!
+			"woocommerce_checkout_order_processed"  => array( "WDP_Frontend|checkout_order_processed" ),
+			"woocommerce_before_calculate_totals"   => array(), //nothing allowed!
 		);
-		
-		foreach($wp_filter as $hook_name=>$hook_obj) {
-			if( preg_match('#^woocommerce_#',$hook_name) ) {
-				if( isset($allowed_hooks[$hook_name]) ) {
-					$wp_filter[$hook_name] = $this->remove_wrong_callbacks($hook_obj, $allowed_hooks[$hook_name] );
-					//var_dump($hook_name, $wp_filter[$hook_name] );die();
+
+		foreach ( $wp_filter as $hook_name => $hook_obj ) {
+			if ( preg_match( '#^woocommerce_#', $hook_name ) ) {
+				if ( isset( $allowed_hooks[ $hook_name ] ) ) {
+					$wp_filter[ $hook_name ] = $this->remove_wrong_callbacks( $hook_obj, $allowed_hooks[ $hook_name ] );
 				} else {
-					//var_dump($hook_name, $hook_obj );
-				}	
+				}
 			}
 		}
 	}
-	
-	function remove_wrong_callbacks($hook_obj, $allowed_hooks) {
+
+	public static function remove_callbacks( $hook_obj, $hooks ) {
 		$new_callbacks = array();
-		foreach($hook_obj->callbacks as $priority=>$callbacks) {
+		foreach ( $hook_obj->callbacks as $priority => $callbacks ) {
 			$priority_callbacks = array();
-			foreach($callbacks as $idx=>$callback_details) {
-				if( $this->is_callback_allowed($callback_details,$allowed_hooks) ) 
-					$priority_callbacks[$idx] = $callback_details;
+			foreach ( $callbacks as $idx => $callback_details ) {
+				if ( ! self::is_callback_match( $callback_details, $hooks ) ) {
+					$priority_callbacks[ $idx ] = $callback_details;
+				}
 			}
-			if($priority_callbacks)
-				$new_callbacks[$priority] = $priority_callbacks;
+			if ( $priority_callbacks ) {
+				$new_callbacks[ $priority ] = $priority_callbacks;
+			}
 		}
 		$hook_obj->callbacks = $new_callbacks;
+
+		return $hook_obj;
+	}
+
+	function remove_wrong_callbacks( $hook_obj, $allowed_hooks ) {
+		$new_callbacks = array();
+		foreach ( $hook_obj->callbacks as $priority => $callbacks ) {
+			$priority_callbacks = array();
+			foreach ( $callbacks as $idx => $callback_details ) {
+				if ( self::is_callback_match( $callback_details, $allowed_hooks ) ) {
+					$priority_callbacks[ $idx ] = $callback_details;
+				}
+			}
+			if ( $priority_callbacks ) {
+				$new_callbacks[ $priority ] = $priority_callbacks;
+			}
+		}
+		$hook_obj->callbacks = $new_callbacks;
+
 		return $hook_obj;
 	}
 
 	//check class + function name!
-	function is_callback_allowed($callback_details,$allowed_hooks) {
+	public static function is_callback_match( $callback_details, $allowed_hooks ) {
+		// we add our hooks as Class:member, so "function" will be array and will have 2 elements!
+		if ( !is_array($callback_details['function']) OR count( $callback_details['function'] ) != 2 ) {
+			return false; // not our hook!
+		}
+
 		$result = false;
-		foreach($allowed_hooks as $callback_name) {
-			list($class_name,$func_name) = explode("|",$callback_name);
-			if( count($callback_details['function']) != 2)
-				continue;
-			if( $class_name ==  get_class($callback_details['function'][0])  AND $func_name == $callback_details['function'][1]) {
+		foreach ( $allowed_hooks as $callback_name ) {
+			list( $class_name, $func_name ) = explode( "|", $callback_name );
+			if ( $class_name == get_class( $callback_details['function'][0] ) AND $func_name == $callback_details['function'][1] ) {
 				$result = true;
-				break;// done!
+				break;// don't  remove own hooks!
 			}
 		}
+
 		return $result;
 	}
 
@@ -1130,106 +1005,38 @@ class WDP_Frontend {
 		);
 	}
 
-	public static function is_nopriv_ajax_processing() {
-		return wp_doing_ajax() && ! empty( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], self::get_nopriv_ajax_actions() );
+	private static function get_ajax_actions() {
+		return array_merge( self::get_nopriv_ajax_actions(), self::get_priv_ajax_actions() );
+	}
+
+	private static function get_priv_ajax_actions() {
+		return array(
+			'download_report',
+			'get_user_report_data',
+		);
+	}
+
+	public static function is_ajax_processing() {
+		return wp_doing_ajax() && ! empty( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], self::get_ajax_actions() );
 	}
 
 	public static function get_gifted_cart_products() {
-		$products = array();
-		foreach ( WC()->cart->get_cart() as $wc_cart_item_key => $wc_cart_item ) {
-			if ( ! empty( $wc_cart_item['wdp_gifted'] ) ) {
-				$product_id = isset( $wc_cart_item['data'] ) ? $wc_cart_item['data']->get_id() : 0;
-				if ( $product_id ) {
-					if ( isset( $products[ $product_id ] ) ) {
-						$products[ $product_id ] += $wc_cart_item['wdp_gifted'];
-					} else {
-						$products[ $product_id ] = $wc_cart_item['wdp_gifted'];
-					}
-				}
-			}
-		}
-
-		return $products;
+		return WDP_Functions::get_gifted_cart_products();
 	}
 
-	public static function get_active_rules_for_product( $product_id, $qty = 1 ) {
-		$calc = self::make_wdp_calc_from_wc();
-		$cart = self::make_wdp_cart_from_wc();
-
-		return $calc->get_active_rules_for_product( $cart, $product_id, $qty );
+	public static function get_active_rules_for_product( $product_id, $qty = 1, $use_empty_cart = false ) {
+		return WDP_Functions::get_active_rules_for_product( $product_id, $qty, $use_empty_cart );
 	}
 
-	/**
-	 *
-	 * @param array $array_of_products
-	 * array[]['product_id']
-	 * array[]['qty']
-	 * @param boolean $plain Type of returning array. With False returns grouped by rules
-	 *
-	 * @return array
-	 */
 	public static function get_discounted_products_for_cart( $array_of_products, $plain = false ) {
-		if ( ! did_action( 'wp_loaded' ) ) {
-			_doing_it_wrong( __FUNCTION__, sprintf( __( '%1$s should not be called before the %2$s action.', 'woocommerce' ), 'get_discounted_products_for_cart', 'wp_loaded' ), WC_ADP_VERSION );
-			return array();
-		}
+		return WDP_Functions::get_discounted_products_for_cart( $array_of_products, $plain );
+	}
 
-		// make calculator
-		$rule_collection = WDP_Rules_Registry::get_instance()->get_active_rules();
-		$calc            = new WDP_Cart_Calculator( $rule_collection );
-
-		// make context
-		$customer = new WDP_User_Impl( new WP_User( WC()->customer->get_id() ) );
-		$customer->apply_wc_customer( WC()->customer );
-		$customer->apply_wc_session( WC()->session );
-		$environment = array(
-			'timestamp' => current_time( 'timestamp' ),
-		);
-		$settings = WDP_Helpers::get_settings();
-		$context = new WDP_Cart_Context( $customer, $environment, $settings );
-
-		// make and fill standalone wc cart
-		include_once WC_ADP_PLUGIN_PATH . 'classes/class-wdp-standalone-cart.php';
-		$wc_cart = new WDP_Standalone_Cart();
-		foreach ( $array_of_products as $product_data ) {
-			if ( ! isset( $product_data['product_id'], $product_data['qty'] ) ) {
-				continue;
-			}
-
-			$product_id = (int) $product_data['product_id'];
-			$qty        = (int) $product_data['qty'];
-
-			$result = $wc_cart->add_to_cart( $product_id, $qty );
-		}
-		$cart    = WDP_Cart::make_from_wc_cart( $wc_cart, $context );
-
-		return $calc->get_matched_products( $cart, $plain );
+	public static function get_discounted_product_price( $the_product, $qty, $use_empty_cart = true ) {
+		return WDP_Functions::get_discounted_product_price( $the_product, $qty, $use_empty_cart );
 	}
 
 	public static function process_without_hooks( $callback, $hooks_list ) {
-		if ( ! $hooks_list ) {
-			return $callback();
-		}
-
-		global $wp_filter;
-		$stored_actions = array();
-
-		foreach ( $hooks_list as $key ) {
-			if ( isset( $wp_filter[ $key ] ) ) {
-				$stored_actions[ $key ] = $wp_filter[ $key ];
-				unset( $wp_filter[ $key ] );
-			}
-		}
-
-		$result = $callback();
-
-		// restore hook
-		foreach ( $hooks_list as $key ) {
-			if ( isset( $stored_actions[ $key ] ) ) {
-				$wp_filter[ $key ] = $stored_actions[ $key ];
-			}
-		}
-
-		return $result;
+		return WDP_Functions::process_without_hooks( $callback, $hooks_list );
 	}
 }

@@ -62,8 +62,8 @@ trait WDP_Comparison {
 	 */
 	public function compare_values( $value, $comparison_value, $comparison_method = '<' ) {
 		if ( $comparison_method === 'in_range' ) {
-			$start  = isset( $comparison_value[0] ) ? (int) $comparison_value[0] : null;
-			$finish = isset( $comparison_value[1] ) ? (int) $comparison_value[1] : null;
+			$start  = isset( $comparison_value[0] ) ? (float) $comparison_value[0] : null;
+			$finish = isset( $comparison_value[1] ) ? (float) $comparison_value[1] : null;
 
 			return $this->value_in_range( $value, $start, $finish );
 		}

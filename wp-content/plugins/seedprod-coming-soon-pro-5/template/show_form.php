@@ -144,7 +144,7 @@ if(!empty($form_settings)){
 
 			<div class="row">
 
-			<?php if(!empty($settings->enable_recaptcha)){ ?>
+			<?php if(!empty($settings->enable_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 			<?php if(empty($settings->enable_invis_recaptcha)){ ?>
 			<div class="col-md-12">
 				<div id="emplacementRecaptcha"></div>
@@ -243,7 +243,7 @@ function send_request(){
 	    	if(response.status == '400'){
 	    		jQuery('#cspio-alert').remove();
 	    		jQuery(response.html).hide().appendTo("#cspio-field-wrapper").fadeIn();
-	    		<?php if(!empty($settings->enable_recaptcha)){ ?>
+	    		<?php if(!empty($settings->enable_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 	    		grecaptcha.reset(emplacementRecaptcha);
 	    		<?php } ?>
 				//$('#cspio-field-wrapper').before(response.html).done().find('#cspio-alert').hide().fadeIn();
@@ -263,7 +263,7 @@ function send_request(){
 
 
 
-<?php if(!empty($settings->enable_recaptcha) && !empty($settings->enable_invis_recaptcha)){ ?>
+<?php if(!empty($settings->enable_recaptcha) && !empty($settings->enable_invis_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 jQuery( "#cspio-subscribe-btn" ).click(function( event ) {
 	event.preventDefault();
 	grecaptcha.execute(emplacementRecaptcha);

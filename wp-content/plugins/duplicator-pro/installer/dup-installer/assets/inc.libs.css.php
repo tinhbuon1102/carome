@@ -1,6 +1,7 @@
 <?php
 defined("DUPXABSPATH") or die("");
 require_once($GLOBALS['DUPX_INIT'] . '/classes/utilities/class.u.php');
+DUPX_U::init();
 
 if(DUPX_U::tryCDN("ajax.googleapis.com", 443) ): ?>
 	<link rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css' type='text/css' media='all' />

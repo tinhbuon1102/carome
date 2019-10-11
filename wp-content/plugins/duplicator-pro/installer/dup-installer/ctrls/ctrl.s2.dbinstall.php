@@ -1,10 +1,19 @@
 <?php
-defined("DUPXABSPATH") or die("");
+/**
+ * controller step 2 db install test
+ * 
+ * @link http://www.php-fig.org/psr/psr-2 Full Documentation
+ *
+ * @package CTRL
+ *
+ */
+defined('ABSPATH') || defined('DUPXABSPATH') || exit;
 
 class DUPX_DBInstall
 {
-    private $dbh;
+    private $dbh = null;
     private $post;
+    public $dbaction = null;
     public $sql_result_data;
     public $sql_result_data_length;
     public $dbvar_maxtime;
@@ -30,6 +39,8 @@ class DUPX_DBInstall
     public $profile_start;
     public $profile_end;
     public $start_microtime;
+    public $dbcollate = null;
+    public $dbcharset = null;
     public $dbcollatefb;
     public $dbobj_views;
     public $dbobj_procs;
@@ -37,56 +48,141 @@ class DUPX_DBInstall
     public $dbFileSize = 0;
     private $threadTimeOut = 10;
 
-    public function __construct($post, $start_microtime)
+    public function __construct($inputValues, $start_microtime)
     {
-        $this->post                 = $post;
-        $this->php_mem              = $GLOBALS['PHP_MEMORY_LIMIT'];
-        $this->root_path            = $GLOBALS['DUPX_ROOT'];
-        $this->sql_file_path        = "{$GLOBALS['DUPX_INIT']}/dup-database__{$GLOBALS['DUPX_AC']->package_hash}.sql";
-        $this->sql_result_file_path = "{$GLOBALS['DUPX_INIT']}/{$GLOBALS['SQL_FILE_NAME']}";
+        $this->post                    = $inputValues;
+        $this->php_mem                 = $GLOBALS['PHP_MEMORY_LIMIT'];
+        $this->root_path               = $GLOBALS['DUPX_ROOT'];
+        $this->sql_file_path           = "{$GLOBALS['DUPX_INIT']}/dup-database__{$GLOBALS['DUPX_AC']->package_hash}.sql";
+        $this->sql_result_file_path    = "{$GLOBALS['DUPX_INIT']}/{$GLOBALS['SQL_FILE_NAME']}";
         $this->sql_chunk_seek_tell_log = "{$GLOBALS['DUPX_INIT']}/dup-database-seek-tell-log__{$GLOBALS['DUPX_AC']->package_hash}.txt";
-		$this->dbFileSize			= @filesize($this->sql_file_path);
-		$this->dbFileSize			= ($this->dbFileSize === false) ? 0 : $this->dbFileSize;
+        $this->dbFileSize              = @filesize($this->sql_file_path);
+        $this->dbFileSize              = ($this->dbFileSize === false) ? 0 : $this->dbFileSize;
 
-        //ESTABLISH CONNECTION
-        $this->dbh = DUPX_DB::connect($post['dbhost'], $post['dbuser'], $post['dbpass']);
-        ($this->dbh) or DUPX_Log::error(ERR_DBCONNECT.mysqli_connect_error());
-        if ($_POST['dbaction'] == 'empty' || $post['dbaction'] == 'rename') {
-            $post_db_name = DUPX_U::sanitize_text_field($post['dbname']);
-            mysqli_select_db($this->dbh, mysqli_real_escape_string($this->dbh, $post_db_name))
-                or DUPX_Log::error(sprintf(ERR_DBCREATE, $post_db_name));
-        }
-
-        @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
-        @mysqli_query($this->dbh, "SET GLOBAL max_allowed_packet = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_PACKETS']));
-        @mysqli_query($this->dbh, "SET max_allowed_packet = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_PACKETS']));
-
-        $this->profile_start   = isset($post['profile_start']) ? DUPX_U::sanitize_text_field($post['profile_start']) : DUPX_U::getMicrotime();
-        $this->start_microtime = isset($post['start_microtime']) ? DUPX_U::sanitize_text_field($post['start_microtime']) : $start_microtime;
+        $this->dbaction = $inputValues['dbaction'];
+        
+        $this->profile_start   = isset($inputValues['profile_start']) ? DUPX_U::sanitize_text_field($inputValues['profile_start']) : DUPX_U::getMicrotime();
+        $this->start_microtime = isset($inputValues['start_microtime']) ? DUPX_U::sanitize_text_field($inputValues['start_microtime']) : $start_microtime;
         $this->thread_start_time = microtime(true);
-        $this->dbvar_maxtime   = DUPX_DB::getVariable($this->dbh, 'wait_timeout');
-        $this->dbvar_maxpacks  = DUPX_DB::getVariable($this->dbh, 'max_allowed_packet');
-        $this->dbvar_sqlmode   = DUPX_DB::getVariable($this->dbh, 'sql_mode');
-        $this->dbvar_version   = DUPX_DB::getVersion($this->dbh);
         $this->dbvar_maxtime   = is_null($this->dbvar_maxtime) ? 300 : $this->dbvar_maxtime;
         $this->dbvar_maxpacks  = is_null($this->dbvar_maxpacks) ? 1048576 : $this->dbvar_maxpacks;
         $this->dbvar_sqlmode   = empty($this->dbvar_sqlmode) ? 'NOT_SET' : $this->dbvar_sqlmode;
-        $this->dbquery_errs    = isset($post['dbquery_errs']) ? DUPX_U::sanitize_text_field($post['dbquery_errs']) : 0;
-        $this->drop_tbl_log    = isset($post['drop_tbl_log']) ? DUPX_U::sanitize_text_field($post['drop_tbl_log']) : 0;
-        $this->rename_tbl_log  = isset($post['rename_tbl_log']) ? DUPX_U::sanitize_text_field($post['rename_tbl_log']) : 0;
-        $this->dbquery_rows    = isset($post['dbquery_rows']) ? DUPX_U::sanitize_text_field($post['dbquery_rows']) : 0;
-        $this->dbdelete_count  = isset($post['dbdelete_count']) ? DUPX_U::sanitize_text_field($post['dbdelete_count']) : 0;
-        $this->dbcollatefb     = isset($post['dbcollatefb']) ? DUPX_U::sanitize_text_field($post['dbcollatefb']) : 0;
-        $this->dbobj_views     = isset($post['dbobj_views']) ? DUPX_U::sanitize_text_field($post['dbobj_views']) : 0;
-        $this->dbobj_procs     = isset($post['dbobj_procs']) ? DUPX_U::sanitize_text_field($post['dbobj_procs']) : 0;
-		$this->dbchunk		   = isset($post['dbchunk'])     ? DUPX_U::sanitize_text_field($post['dbchunk']) : 0;
+        $this->dbquery_errs    = isset($inputValues['dbquery_errs']) ? DUPX_U::sanitize_text_field($inputValues['dbquery_errs']) : 0;
+        $this->drop_tbl_log    = isset($inputValues['drop_tbl_log']) ? DUPX_U::sanitize_text_field($inputValues['drop_tbl_log']) : 0;
+        $this->rename_tbl_log  = isset($inputValues['rename_tbl_log']) ? DUPX_U::sanitize_text_field($inputValues['rename_tbl_log']) : 0;
+        $this->dbquery_rows    = isset($inputValues['dbquery_rows']) ? DUPX_U::sanitize_text_field($inputValues['dbquery_rows']) : 0;
+        $this->dbdelete_count  = isset($inputValues['dbdelete_count']) ? DUPX_U::sanitize_text_field($inputValues['dbdelete_count']) : 0;
+        
+        $this->dbcharset         = $inputValues[DUPX_Paramas_Manager::PARAM_DB_CHARSET];
+        $this->dbcollate         = $inputValues[DUPX_Paramas_Manager::PARAM_DB_COLLATE];
+        $this->dbcollatefb       = $inputValues[DUPX_Paramas_Manager::PARAM_DB_COLLATE_FB];
+        $this->dbobj_views       = $inputValues[DUPX_Paramas_Manager::PARAM_DB_VIEW_CEATION];
+        $this->dbobj_procs       = $inputValues[DUPX_Paramas_Manager::PARAM_DB_PROC_CREATION];
+        $this->dbchunk           = $inputValues[DUPX_Paramas_Manager::PARAM_DB_CHUNK];
+    }
+
+    public function prepareCpanel()
+    {
+        //===============================================
+        //CPANEL LOGIC: From Postback
+        //===============================================
+        $cpnllog = "";
+
+        if ($this->post['view_mode'] == 'cpnl') {
+            try {
+                $cpnllog = "--------------------------------------\n";
+                $cpnllog .= "CPANEL API\n";
+                $cpnllog .= "--------------------------------------\n";
+
+                $CPNL = new DUPX_cPanel_Controller();
+
+                $cpnlToken = $CPNL->create_token($this->post['cpnl-host'], $this->post['cpnl-user'], $this->post['cpnl-pass']);
+                $cpnlHost  = $CPNL->connect($cpnlToken);
+
+                //CREATE DB USER: Attempt to create user should happen first in the case that the
+                //user passwords requirements are not met.
+                if ($this->post['cpnl-dbuser-chk']) {
+                    $result = $CPNL->create_db_user($cpnlToken, $this->post['dbuser'], $this->post['dbpass']);
+                    if ($result['status'] !== true) {
+                        DUPX_Log::info('CPANEL API ERROR: create_db_user '.print_r($result['cpnl_api'], true), 2);
+                        DUPX_Log::error(sprintf(ERR_CPNL_API, $result['status']));
+                    } else {
+                        $cpnllog .= "- A new database user was created\n";
+                    }
+                }
+
+                //CREATE NEW DB
+                if ($this->post['dbaction'] == 'create') {
+                    $result = $CPNL->create_db($cpnlToken, $this->post['dbname']);
+                    if ($result['status'] !== true) {
+                        DUPX_Log::info('CPANEL API ERROR: create_db '.print_r($result['cpnl_api'], true), 2);
+                        DUPX_Log::error(sprintf(ERR_CPNL_API, $result['status']));
+                    } else {
+                        $cpnllog .= "- A new database was created\n";
+                    }
+                } else {
+                    $cpnllog .= "- Used to connect to existing database named [{$post_db_name}]\n";
+                }
+
+                //ASSIGN USER TO DB IF NOT ASSIGNED
+                $result = $CPNL->is_user_in_db($cpnlToken, $this->post['dbname'], $this->post['dbuser']);
+                if (!$result['status']) {
+                    $result = $CPNL->assign_db_user($cpnlToken, $this->post['dbname'], $this->post['dbuser']);
+                    if ($result['status'] !== true) {
+                        DUPX_Log::info('CPANEL API ERROR: assign_db_user '.print_r($result['cpnl_api'], true), 2);
+                        DUPX_Log::error(sprintf(ERR_CPNL_API, $result['status']));
+                    } else {
+                        $cpnllog .= "- Database user was assigned to database";
+                    }
+                }
+            }
+            catch (Exception $ex) {
+                DUPX_Log::error($ex);
+            }
+        }
+    }
+    
+    /**
+     * execute a connection if db isn't connected
+     * 
+     * @return resource
+     */
+    protected function dbConnect()
+    {
+        if (is_null($this->dbh)) {
+            //ESTABLISH CONNECTION
+            if (($this->dbh = DUPX_DB::connect($this->post['dbhost'], $this->post['dbuser'], $this->post['dbpass'])) == false) {
+                $this->dbh = null;
+                DUPX_Log::error(ERR_DBCONNECT.mysqli_connect_error());
+            }
+
+            // EXEC ALWAYS A DB SELECT is required when chunking is activated
+            if (mysqli_select_db($this->dbh, mysqli_real_escape_string($this->dbh, $this->post['dbname'])) == false) {
+                if ($this->post['dbaction'] == 'empty' || $this->post['dbaction'] == 'rename') {
+                    DUPX_Log::error(sprintf(ERR_DBCREATE, $this->post['dbname']));
+                } else {
+                    DUPX_Log::info('CAN\'T SELECT DATABASE '.$this->post['dbname'].' is ok for action '.$this->post['dbaction']);
+                }
+            }
+
+            DUPX_DB::mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
+            DUPX_DB::mysqli_query($this->dbh, "SET GLOBAL max_allowed_packet = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_PACKETS']), DUPX_Log::LV_DEBUG);
+            DUPX_DB::mysqli_query($this->dbh, "SET max_allowed_packet = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_PACKETS']), DUPX_Log::LV_DEBUG);
+
+            $this->dbvar_maxtime  = DUPX_DB::getVariable($this->dbh, 'wait_timeout');
+            $this->dbvar_maxpacks = DUPX_DB::getVariable($this->dbh, 'max_allowed_packet');
+            $this->dbvar_sqlmode  = DUPX_DB::getVariable($this->dbh, 'sql_mode');
+            $this->dbvar_version  = DUPX_DB::getVersion($this->dbh);
+        }
+        return $this->dbh;
     }
 
     public function prepareDB()
     {
-        @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
-        @mysqli_query($this->dbh, "SET max_allowed_packet = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_PACKETS']));
-        DUPX_DB::setCharset($this->dbh, $this->post['dbcharset'], $this->post['dbcollate']);
+        $paramsManager = DUPX_Paramas_Manager::getInstance();
+        $this->dbConnect();
+        
+        DUPX_DB::setCharset($this->dbh, $this->dbcharset, $this->dbcollate);
 		$this->setSQLSessionMode();
 
         //Set defaults incase the variable could not be read
@@ -122,13 +218,14 @@ class DUPX_DBInstall
         }
 
         //CREATE DB
-        switch ($this->post['dbaction']) {
+        switch ($this->dbaction) {
             case "create":
                 if ($this->post['view_mode'] == 'basic') {
-                    mysqli_query($this->dbh, "CREATE DATABASE IF NOT EXISTS `".mysqli_real_escape_string($$this->dbh, $this->post['dbname'])."`");
+                    DUPX_DB::mysqli_query($this->dbh, "CREATE DATABASE IF NOT EXISTS `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`");
                 }
-                mysqli_select_db($this->dbh, $this->post['dbname'])
-                    or DUPX_Log::error(sprintf(ERR_DBCONNECT_CREATE, $this->post['dbname']));
+                if (mysqli_select_db($this->dbh, mysqli_real_escape_string($this->dbh, $this->post['dbname'])) == false) {
+                    DUPX_Log::error(sprintf(ERR_DBCONNECT_CREATE, $this->post['dbname']));
+                }
                 break;
 
             //DROP DB TABLES:  DROP TABLE statement does not support views
@@ -143,14 +240,14 @@ class DUPX_DBInstall
             case "rename" :
                 $sql          = "SHOW TABLES FROM `{$this->post['dbname']}` WHERE  `Tables_in_{$this->post['dbname']}` NOT LIKE '{$GLOBALS['DB_RENAME_PREFIX']}%'";
                 $found_tables = null;
-                if ($result       = mysqli_query($this->dbh, $sql)) {
+                if ($result       = DUPX_DB::mysqli_query($this->dbh, $sql)) {
                     while ($row = mysqli_fetch_row($result)) {
                         $found_tables[] = $row[0];
                     }
                     if (count($found_tables) > 0) {
                         foreach ($found_tables as $table_name) {
                             $sql    = "RENAME TABLE `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $table_name)."` TO  `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_RENAME_PREFIX']).mysqli_real_escape_string($this->dbh, $table_name)."`";
-                            if (!$result = mysqli_query($this->dbh, $sql)) {
+                            if (!$result = DUPX_DB::mysqli_query($this->dbh, $sql)) {
                                 DUPX_Log::error(sprintf(ERR_DBTRYRENAME, "{$this->post['dbname']}.{$table_name}"));
                             }
                         }
@@ -163,11 +260,14 @@ class DUPX_DBInstall
 
     public function writeInChunks() {
         DUPX_Log::info("--------------------------------------");
-        DUPX_Log::info("** DB install chunk start");
+        DUPX_Log::info("** DATABASE CHUNK install start");
         DUPX_Log::info("--------------------------------------");
+        $this->dbConnect();
+        
+        $paramsManager = DUPX_Paramas_Manager::getInstance();
 
         if (isset($this->post['dbchunk_retry']) && $this->post['dbchunk_retry'] > 0) {
-            DUPX_Log::info("Retrying count: ".$this->post['dbchunk_retry']);
+            DUPX_Log::info("DATABASE CHUNK RETRY COUNT: ".DUPX_Log::varToString($this->post['dbchunk_retry']));
         }
 
         if (!empty($this->post['delimiter'])) {
@@ -181,21 +281,36 @@ class DUPX_DBInstall
             return false;
         }
 
-        DUPX_Log::info("Seeking DB file position: ".$this->post['pos']);
+        DUPX_Log::info("DATABASE CHUNK SEEK POSITION: ".DUPX_Log::varToString($this->post['pos']));
 
         if (-1 !== fseek($handle, $this->post['pos'])) {
-            DUPX_DB::setCharset($this->dbh, $this->post['dbcharset'], $this->post['dbcollate']);
+            DUPX_DB::setCharset($this->dbh, $this->dbcharset, $this->dbcollate);
+
 			$this->setSQLSessionMode();
 
             $elapsed_time = (microtime(true) - $this->thread_start_time);
             if ($elapsed_time < $this->threadTimeOut) {
+                DUPX_Log::info('DATABASE CHUNK START POS:'.DUPX_Log::varToString($this->post['pos']), DUPX_Log::LV_DETAILED);
 
-                DUPX_Log::info("Iterating query loop");
+                if (!mysqli_ping($this->dbh)) {
+                    mysqli_close($this->dbh);
+                    $this->dbh = DUPX_DB::connect($this->post['dbhost'], $this->post['dbuser'], $this->post['dbpass'], $this->post['dbname']);
+                    // Reset session setup
+                    DUPX_DB::mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
+                    DUPX_DB::setCharset($this->dbh, $this->dbcharset, $this->dbcollate);
+                }
+                if (@mysqli_autocommit($this->dbh, false)) {
+                    DUPX_Log::info('Auto Commit set to false successfully');
+                } else {
+                    DUPX_Log::info('Failed to set Auto Commit to false');
+                }
+
+                DUPX_Log::info("DATABASE CHUNK: Iterating query loop", DUPX_Log::LV_DEBUG);
                 $query = null;
-                while (($line = fgets($handle)) !== false) {
+                while (($line  = fgets($handle)) !== false) {
                     if ('DELIMITER ;' == trim($query)) {
                         $delimiter = ';';
-                        $query = null;
+                        $query     = null;
                         continue;
                     }
                     $query .= $line;
@@ -203,48 +318,58 @@ class DUPX_DBInstall
                     if (preg_match('/'.$delimiter.'\s*$/S', $query)) {
                         // Temp: Uncomment this to randomly kill the php db process to simulate real world hosts and verify system recovers properly
                         /*
-                        $rand_no = rand(0, 500);
-                        if (0 == $this->post['dbchunk_retry'] && 1 == $rand_no) {
-                            DUPX_Log::info("#### intentionally killing db chunk installation process");
-                            error_log('#### intentionally killing db chunk installation process');
-                            exit(1);
-                        }
-                        */
+                          $rand_no = rand(0, 500);
+                          if (0 == $this->post['dbchunk_retry'] && 1 == $rand_no) {
+                          DUPX_Log::info("intentionally killing db chunk installation process");
+                          error_log('intentionally killing db chunk installation process');
+                          exit(1);
+                          }
+                         */
 
                         $query = trim($query);
-                        if (0 === strpos($query, "DELIMITER")) { 
+                        if (0 === strpos($query, "DELIMITER")) {
                             // Ending delimiter
                             // control never comes in this if condition, but written
-                            if ('DELIMITER ;' == $query) {  
-                                $delimiter = ';'; 
-                            } else { // starting delimiter 
-                                $delimiter =  substr($query, 10);
-                                $delimiter =  trim($delimiter);
-                            } 
-     
-                            DUPX_Log::info("Skipping delimiter query"); 
-                            $query = null; 
-                            continue; 
+                            if ('DELIMITER ;' == $query) {
+                                $delimiter = ';';
+                            } else { // starting delimiter
+                                $delimiter = substr($query, 10);
+                                $delimiter = trim($delimiter);
+                            }
+
+                            DUPX_Log::info("Skipping delimiter query");
+                            $query = null;
+                            continue;
                         }
 
+                        // DUPX_Log::info("Query: ".$query);
                         $this->writeQueryInDB($query);
-                        $elapsed_time = (microtime(true) - $this->thread_start_time);
-                        DUPX_Log::info("Elapsed time: ".$elapsed_time);
-                        if ($elapsed_time > $this->threadTimeOut) {
-                            DUPX_Log::info("Breaking query loop. Elapsed time: ".$elapsed_time);
-                            break;
-                        } else {
-                            DUPX_Log::info("Not Breaking query loop");
-                        }                        
 
+                        $elapsed_time = (microtime(true) - $this->thread_start_time);
+                        if (DUPX_Log::isLevel(DUPX_Log::LV_DEBUG)) {
+                            DUPX_Log::info("DATABASE CHUNK: Elapsed time: ".DUPX_Log::varToString($elapsed_time), DUPX_Log::LV_DEBUG);
+                            if ($elapsed_time > $this->threadTimeOut) {
+                                DUPX_Log::info("DATABASE CHUNK: Breaking query loop.", DUPX_Log::LV_DEBUG);
+                            } else {
+                                DUPX_Log::info("DATABASE CHUNK: Not Breaking query loop", DUPX_Log::LV_HARD_DEBUG);
+                            }
+                        }
+                        if ($elapsed_time > $this->threadTimeOut) {
+                            break;
+                        }
                         $query = null;
                     }
                 }
+                if (@mysqli_autocommit($this->dbh, true)) {
+                    DUPX_Log::info('Auto Commit set to true successfully');
+                } else {
+                    DUPX_Log::info('Failed to set Auto Commit to true');
+                }
             } else {
-                DUPX_Log::info("Skipping query loop because already out of time. Elapsed time: ".$elapsed_time);
+                DUPX_Log::info("DATABASE CHUNK: Skipping query loop because already out of time. Elapsed time: ".DUPX_Log::varToString($elapsed_time), DUPX_Log::LV_DEBUG);
                 $query_offset = ftell($handle);
             }
-            
+
             $query_offset = ftell($handle);
 			$progress = ceil($query_offset / $this->dbFileSize * 100);
 
@@ -305,7 +430,7 @@ class DUPX_DBInstall
                 }
 
                 if ($is_okay) {
-                    DUPX_Log::info('DB install chunk process integrity check has been just passed successfully.');
+                    DUPX_Log::info('DATABASE CHUNK: DB install chunk process integrity check has been just passed successfully.', DUPX_Log::LV_DETAILED);
                     $json['pass']              = 1;
                     $json['continue_chunking'] = false;
                 } else {
@@ -318,17 +443,16 @@ class DUPX_DBInstall
                 $json['continue_chunking'] = true;
             }
         }
-
-        DUPX_Log::info("End Query offset: $query_offset");
-
+        DUPX_Log::info("DATABASE CHUNK: End Query offset ".DUPX_Log::varToString($query_offset), DUPX_Log::LV_DETAILED);
+        
         if ($json['pass']) {
-            DUPX_Log::info("This is last chunk");
+            DUPX_Log::info('DATABASE CHUNK: This is last chunk', DUPX_Log::LV_DETAILED);
         }
 
         fclose($handle);
 
         DUPX_Log::info("--------------------------------------");
-        DUPX_Log::info("** DB install chunk end");
+        DUPX_Log::info("** DATABASE CHUNK install end");
         DUPX_Log::info("--------------------------------------");
 
         ob_flush();
@@ -336,7 +460,58 @@ class DUPX_DBInstall
 
         return $json;
     }
-    
+
+    public function getRowCountMisMatchTables()
+    {
+        $nManager = DUPX_NOTICE_MANAGER::getInstance();
+        $this->dbConnect();
+
+        if (is_null($this->dbh)) {
+            $errorMsg = "**ERROR** database DBH is null";
+            $this->dbquery_errs++;
+            $nManager->addNextStepNoticeMessage($errorMsg , DUPX_NOTICE_ITEM::CRITICAL , DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-dbh-null');
+            $nManager->addFinalReportNotice(array(
+                    'shortMsg' => $errorMsg,
+                    'level' => DUPX_NOTICE_ITEM::CRITICAL,
+                    'sections' => 'database'
+            ), DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-dbh-null');
+            DUPX_Log::info($errorMsg);
+            $nManager->saveNotices();
+            return false;
+        }
+
+        $tableWiseRowCounts = $GLOBALS['DUPX_AC']->dbInfo->tableWiseRowCounts;
+        $skipTables = array(
+            $GLOBALS['DUPX_AC']->wp_tableprefix."duplicator_packages",
+            $GLOBALS['DUPX_AC']->wp_tableprefix."options",
+            $GLOBALS['DUPX_AC']->wp_tableprefix."duplicator_pro_packages",
+            $GLOBALS['DUPX_AC']->wp_tableprefix."duplicator_pro_entities",
+        );
+        $misMatchTables = array();
+        foreach ($tableWiseRowCounts as $table => $rowCount) {
+            if (in_array($table, $skipTables)) {
+                continue;
+            }
+            $sql = "SELECT count(*) as cnt FROM `".mysqli_real_escape_string($this->dbh, $table)."`";
+            $result = DUPX_DB::mysqli_query($this->dbh, $sql); 
+            if (false !== $result) {
+                $row = mysqli_fetch_assoc($result);
+                if ($rowCount != ($row['cnt'])) {
+                    $errMsg = 'DATABASE: table '.DUPX_Log::varToString($table).' row count mismatch; expected '.DUPX_Log::varToString($rowCount).' in database'.DUPX_Log::varToString($row['cnt']);
+                    DUPX_Log::info($errMsg);
+                    $nManager->addBothNextAndFinalReportNotice(array(
+                        'shortMsg' => 'Database Table row count validation was failed',
+                        'level' => DUPX_NOTICE_ITEM::NOTICE,
+                        'longMsg' => $errMsg."\n",
+                        'sections' => 'database'
+                    ), DUPX_NOTICE_MANAGER::ADD_UNIQUE_APPEND, 'row-count-mismatch');
+                    $misMatchTables[] = $table;
+                }
+            }
+        }
+        return $misMatchTables;
+    }
+
     public function writeInDB()
     {
         //WRITE DATA
@@ -344,12 +519,30 @@ class DUPX_DBInstall
         $fcgi_buffer_count = 0;
         $counter           = 0;
         
+        $this->dbConnect();
+
         $handle = fopen($this->sql_file_path, 'rb');
         if ($handle === false) {
             return false;
         }
-
+        $paramsManager = DUPX_Paramas_Manager::getInstance();
+        $nManager = DUPX_NOTICE_MANAGER::getInstance();
+        if (is_null($this->dbh)) {
+            $errorMsg = "**ERROR** database DBH is null";
+            $this->dbquery_errs++;
+            $nManager->addNextStepNoticeMessage($errorMsg , DUPX_NOTICE_ITEM::CRITICAL , DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-dbh-null');
+            $nManager->addFinalReportNotice(array(
+                    'shortMsg' => $errorMsg,
+                    'level' => DUPX_NOTICE_ITEM::CRITICAL,
+                    'sections' => 'database'
+            ), DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-dbh-null');
+            DUPX_Log::info($errorMsg);
+            $nManager->saveNotices();
+            return;
+        }
+        
         @mysqli_autocommit($this->dbh, false);
+        
         $query = null;
         $delimiter = ';';
         while (($line = fgets($handle)) !== false) {
@@ -362,8 +555,17 @@ class DUPX_DBInstall
             if (preg_match('/'.$delimiter.'\s*$/S', $query)) {
                 $query_strlen = strlen(trim($query));
                 if ($this->dbvar_maxpacks < $query_strlen) {
-                    DUPX_Log::info("**ERROR** Query size limit [length={$this->dbvar_maxpacks}] [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]");
+                    $errorMsg = "**ERROR** Query size limit [length={$this->dbvar_maxpacks}] [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]";
                     $this->dbquery_errs++;
+                    $nManager->addNextStepNoticeMessage('QUERY ERROR: size limit' , DUPX_NOTICE_ITEM::SOFT_WARNING , DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-size-limit-msg');
+                    $nManager->addFinalReportNotice(array(
+                            'shortMsg' => 'QUERY ERROR: size limit',
+                            'level' => DUPX_NOTICE_ITEM::SOFT_WARNING,
+                            'longMsg' => $errorMsg,
+                            'sections' => 'database'
+                    ));
+                    DUPX_Log::info($errorMsg);
+
                 } elseif ($query_strlen > 0) {
                     $query = $this->nbspFix($query);
                     $query = $this->applyQueryCollationFallback($query);
@@ -386,7 +588,7 @@ class DUPX_DBInstall
                         continue;
                     }
 
-                    $tempRes = @mysqli_query($this->dbh, $query);
+                    $tempRes = DUPX_DB::mysqli_query($this->dbh, $query);
                     if (!is_bool($tempRes)) {
                         @mysqli_free_result($tempRes);
                     }
@@ -397,13 +599,43 @@ class DUPX_DBInstall
                             mysqli_close($this->dbh);
                             $this->dbh = DUPX_DB::connect($this->post['dbhost'], $this->post['dbuser'], $this->post['dbpass'], $this->post['dbname']);
                             // Reset session setup
-                            @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($dbh, $GLOBALS['DB_MAX_TIME']));
-                            DUPX_DB::setCharset($this->dbh, $this->post['dbcharset'], $this->post['dbcollate']);
+                            DUPX_DB::mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
+                            DUPX_DB::setCharset($this->dbh, $this->dbcharset, $this->dbcollate);
                         }
-                        DUPX_Log::info("**ERROR** database error write '{$err}' - [sql=".substr($query, 0, 75)."...]");
+                        $errMsg = "**ERROR** database error write '{$err}' - [sql=".substr($query, 0, 75)."...]";
+                        DUPX_Log::info($errMsg);
 
                         if (DUPX_U::contains($err, 'Unknown collation')) {
+                            $nManager->addNextStepNotice(array(
+                                'shortMsg' => 'DATABASE ERROR: database error write',
+                                'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+                                'longMsg' => 'Unknown collation<br>RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q',
+                                'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_HTML,
+                                'faqLink' => array(
+                                    'url' => 'https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q',
+                                    'label' => 'FAQ Link'
+                                )
+                            ), DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-collation-write-msg');
+                            $nManager->addFinalReportNotice(array(
+                                'shortMsg' => 'DATABASE ERROR: database error write',
+                                'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+                                'longMsg' => 'Unknown collation<br>RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q'.'<br>'.$errMsg,
+                                'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_HTML,
+                                'sections' => 'database',
+                                'faqLink' => array(
+                                    'url' => 'https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q',
+                                    'label' => 'FAQ Link'
+                                )
+                            ));
                             DUPX_Log::info('RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q');
+                        } else {
+                            $nManager->addNextStepNoticeMessage('DATABASE ERROR: database error write' , DUPX_NOTICE_ITEM::SOFT_WARNING , DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-write-msg');
+                            $nManager->addFinalReportNotice(array(
+                                'shortMsg' => 'DATABASE ERROR: database error write',
+                                'level' => DUPX_NOTICE_ITEM::SOFT_WARNING,
+                                'longMsg' => $errMsg,
+                                'sections' => 'database'
+                            ));
                         }
 
                         $this->dbquery_errs++;
@@ -422,37 +654,89 @@ class DUPX_DBInstall
         }
         @mysqli_commit($this->dbh);
         @mysqli_autocommit($this->dbh, true);
+
+        $nManager ->saveNotices();
     }
 
     public function writeQueryInDB($query) {
+        $this->dbConnect();
+        
         $query_strlen = strlen(trim($query));
+        
+        $nManager = DUPX_NOTICE_MANAGER::getInstance();
+        $paramsManager = DUPX_Paramas_Manager::getInstance();
+        
+        @mysqli_autocommit($this->dbh, false);
+
         if ($this->dbvar_maxpacks < $query_strlen) {
-            DUPX_Log::info("**ERROR** Query size limit [length={$this->dbvar_maxpacks}] [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]");
+
+            $errorMsg = "**ERROR** Query size limit [length={$this->dbvar_maxpacks}] [sql=".substr($this->sql_result_data[$counter], 0, 75)."...]";
             $this->dbquery_errs++;
+            $nManager->addNextStepNoticeMessage('QUERY ERROR: size limit' , DUPX_NOTICE_ITEM::SOFT_WARNING , DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-size-limit-msg');
+            $nManager->addFinalReportNotice(array(
+                    'shortMsg' => 'QUERY ERROR: size limit',
+                    'level' => DUPX_NOTICE_ITEM::SOFT_WARNING,
+                    'longMsg' => $errorMsg,
+                    'sections' => 'database'
+            ));
+            DUPX_Log::info($errorMsg);
         } elseif ($query_strlen > 0) {
             $query = $this->nbspFix($query);
             $query = $this->applyQueryCollationFallback($query);
             $query = $this->applyQueryProcUserFix($query);
             $query = trim($query);
          
-            $query_res = @mysqli_query($this->dbh, $query);
+            $query_res = DUPX_DB::mysqli_query($this->dbh, $query);
             if (!is_bool($query_res)) {
                 @mysqli_free_result($query_res);
             }
-            $err = mysqli_error($this->dbh);
+            if ($query_res) {
+                $err = mysqli_error($this->dbh);
+            }
             //Check to make sure the connection is alive
             if (!empty($err)) {
                 if (!mysqli_ping($this->dbh)) {
                     mysqli_close($this->dbh);
                     $this->dbh = DUPX_DB::connect($this->post['dbhost'], $this->post['dbuser'], $this->post['dbpass'], $this->post['dbname']);
                     // Reset session setup
-                    @mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($dbh, $GLOBALS['DB_MAX_TIME']));
-                    DUPX_DB::setCharset($this->dbh, $this->post['dbcharset'], $this->post['dbcollate']);
+                            DUPX_DB::mysqli_query($this->dbh, "SET wait_timeout = ".mysqli_real_escape_string($this->dbh, $GLOBALS['DB_MAX_TIME']));
+                            DUPX_DB::setCharset($this->dbh, $this->dbcharset, $this->dbcollate);
                 }
-                DUPX_Log::info("**ERROR** database error write '{$err}' - [sql=".substr($query, 0, 75)."...]");
+
+                $errMsg = "**ERROR** database error write '{$err}' - [sql=".substr($query, 0, 75)."...]";
+                DUPX_Log::info($errMsg);
 
                 if (DUPX_U::contains($err, 'Unknown collation')) {
+                    $nManager->addNextStepNotice(array(
+                        'shortMsg' => 'DATABASE ERROR: database error write',
+                        'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+                        'longMsg' => 'Unknown collation<br>RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q',
+                        'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_HTML,
+                        'faqLink' => array(
+                            'url' => 'https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q',
+                            'label' => 'FAQ Link'
+                        )
+                    ), DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-collation-write-msg');
+                    $nManager->addFinalReportNotice(array(
+                        'shortMsg' => 'DATABASE ERROR: database error write',
+                        'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+                        'longMsg' => 'Unknown collation<br>RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q'.'<br>'.$errMsg,
+                        'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_HTML,
+                        'sections' => 'database',
+                        'faqLink' => array(
+                            'url' => 'https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q',
+                            'label' => 'FAQ Link'
+                        )
+                    ));
                     DUPX_Log::info('RECOMMENDATION: Try resolutions found at https://snapcreek.com/duplicator/docs/faqs-tech/#faq-installer-110-q');
+                } else {
+                    $nManager->addNextStepNoticeMessage('DATABASE ERROR: database error write' , DUPX_NOTICE_ITEM::SOFT_WARNING , DUPX_NOTICE_MANAGER::ADD_UNIQUE , 'query-write-msg');
+                    $nManager->addFinalReportNotice(array(
+                        'shortMsg' => 'DATABASE ERROR: database error write',
+                        'level' => DUPX_NOTICE_ITEM::SOFT_WARNING,
+                        'longMsg' => $errMsg,
+                        'sections' => 'database'
+                    ));
                 }
 
                 $this->dbquery_errs++;
@@ -467,19 +751,22 @@ class DUPX_DBInstall
                 $this->dbquery_rows++;
             }
         }
+        @mysqli_commit($this->dbh);
+        @mysqli_autocommit($this->dbh, true);
     }
 
 	public function runCleanupRotines()
     {
+        $this->dbConnect();
         //DATA CLEANUP: Perform Transient Cache Cleanup
         //Remove all duplicator entries and record this one since this is a new install.
         $dbdelete_count1 = 0;
         $dbdelete_count2 = 0;
 
-        @mysqli_query($this->dbh, "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."duplicator_pro_packages`");
+        DUPX_DB::mysqli_query($this->dbh, "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."duplicator_pro_packages`");
         $dbdelete_count1 = @mysqli_affected_rows($this->dbh);
 
-        @mysqli_query($this->dbh,
+        DUPX_DB::mysqli_query($this->dbh,
                 "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` WHERE `option_name` LIKE ('_transient%') OR `option_name` LIKE ('_site_transient%')");
         $dbdelete_count2 = @mysqli_affected_rows($this->dbh);
 
@@ -488,7 +775,7 @@ class DUPX_DBInstall
         $opts_delete = json_decode($GLOBALS['DUPX_AC']->opts_delete);
         //Reset Duplicator Options
         foreach ($opts_delete as $value) {
-            mysqli_query($this->dbh, "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` WHERE `option_name` = '".mysqli_real_escape_string($this->dbh, $value)."'");
+            DUPX_DB::mysqli_query($this->dbh, "DELETE FROM `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` WHERE `option_name` = '".mysqli_real_escape_string($this->dbh, $value)."'");
         }
 
 		DUPX_Log::info("Starting Cleanup Routine...");
@@ -510,7 +797,8 @@ class DUPX_DBInstall
 
 	private function getSQLSessionMode()
     {
-		$result = mysqli_query($this->dbh, "SELECT @@SESSION.sql_mode;");
+        $this->dbConnect();
+		$result = DUPX_DB::mysqli_query($this->dbh, "SELECT @@SESSION.sql_mode;");
 		$row = mysqli_fetch_row($result);
 		$result->close();
 		return is_array($row) ? $row[0] : '';
@@ -527,16 +815,17 @@ class DUPX_DBInstall
 	*/
 	private function setSQLSessionMode()
     {
+        $this->dbConnect();
         switch ($this->post['dbmysqlmode']) {
             case 'DEFAULT':
-                @mysqli_query($this->dbh, "SET SESSION sql_mode = 'NO_AUTO_VALUE_ON_ZERO'");
+                DUPX_DB::mysqli_query($this->dbh, "SET SESSION sql_mode = 'NO_AUTO_VALUE_ON_ZERO'");
                 break;
             case 'DISABLE':
-                @mysqli_query($this->dbh, "SET SESSION sql_mode = ''");
+                DUPX_DB::mysqli_query($this->dbh, "SET SESSION sql_mode = ''");
                 break;
             case 'CUSTOM':
                 $dbmysqlmode_opts = $this->post['dbmysqlmode_opts'];
-                $qry_session_custom = @mysqli_query($this->dbh, "SET SESSION sql_mode = '".mysqli_real_escape_string($dbh, $dbmysqlmode_opts)."'");
+                $qry_session_custom = DUPX_DB::mysqli_query($this->dbh, "SET SESSION sql_mode = '".mysqli_real_escape_string($dbh, $dbmysqlmode_opts)."'");
                 if ($qry_session_custom == false) {
                     $sql_error = mysqli_error($this->dbh);
                     $log       = "WARNING: A custom sql_mode setting issue has been detected:\n{$sql_error}.\n";
@@ -550,20 +839,26 @@ class DUPX_DBInstall
     private function dropTables()
     {
         $sql          = "SHOW FULL TABLES WHERE Table_Type != 'VIEW'";
-        $found_tables = null;
-        if ($result       = mysqli_query($this->dbh, $sql)) {
-            while ($row = mysqli_fetch_row($result)) {
-                $found_tables[] = $row[0];
-            }
-            if (count($found_tables) > 0) {
-                foreach ($found_tables as $table_name) {
-                    $sql    = "DROP TABLE `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $table_name)."`";
-                    if (!$result = mysqli_query($this->dbh, $sql)) {
-                        DUPX_Log::error(sprintf(ERR_DBTRYCLEAN, "{$this->post['dbname']}.{$table_name}")."<br/>ERROR MESSAGE:{$err}");
-                    }
+        $found_tables = array();
+
+        if (($result = DUPX_DB::mysqli_query($this->dbh, $sql)) === false) {
+            DUPX_Log::error('QUERY '.DUPX_Log::varToString($sql).'ERROR: '.mysqli_error($this->dbh));
+        }
+        while ($row = mysqli_fetch_row($result)) {
+            $found_tables[] = $row[0];
+        }
+        if (count($found_tables) > 0) {
+            $sql = "SET FOREIGN_KEY_CHECKS = 0;";
+            DUPX_DB::mysqli_query($this->dbh, $sql);
+            foreach ($found_tables as $table_name) {
+                $sql    = "DROP TABLE `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $table_name)."`";
+                if (!$result = DUPX_DB::mysqli_query($this->dbh, $sql)) {
+                    DUPX_Log::error(sprintf(ERR_DBTRYCLEAN, "{$this->post['dbname']}.{$table_name}")."<br/>ERROR MESSAGE:{$err}");
                 }
-                $this->drop_tbl_log = count($found_tables);
             }
+            $sql                = "SET FOREIGN_KEY_CHECKS = 1;";
+            DUPX_DB::mysqli_query($this->dbh, $sql);
+            $this->drop_tbl_log = count($found_tables);
         }
     }
 
@@ -571,14 +866,14 @@ class DUPX_DBInstall
     {
         $sql    = "SHOW PROCEDURE STATUS";
         $found  = null;
-        if ($result = mysqli_query($this->dbh, $sql)) {
+        if ($result = DUPX_DB::mysqli_query($this->dbh, $sql)) {
             while ($row = mysqli_fetch_row($result)) {
                 $found[] = $row[1];
             }
             if (!is_null($found) && count($found) > 0) {
                 foreach ($found as $proc_name) {
                     $sql    = "DROP PROCEDURE IF EXISTS `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $proc_name)."`";
-                    if (!$result = mysqli_query($this->dbh, $sql)) {
+                    if (!$result = DUPX_DB::mysqli_query($this->dbh, $sql)) {
                         DUPX_Log::error(sprintf(ERR_DBTRYCLEAN, "{$this->post['dbname']}.{$proc_name}")."<br/>ERROR MESSAGE:{$err}");
                     }
                 }
@@ -590,14 +885,14 @@ class DUPX_DBInstall
     {
         $sql         = "SHOW FULL TABLES WHERE Table_Type = 'VIEW'";
         $found_views = null;
-        if ($result      = mysqli_query($this->dbh, $sql)) {
+        if ($result      = DUPX_DB::mysqli_query($this->dbh, $sql)) {
             while ($row = mysqli_fetch_row($result)) {
                 $found_views[] = $row[0];
             }
             if (!is_null($found_views) && count($found_views) > 0) {
                 foreach ($found_views as $view_name) {
                     $sql    = "DROP VIEW `".mysqli_real_escape_string($this->dbh, $this->post['dbname'])."`.`".mysqli_real_escape_string($this->dbh, $view_name)."`";
-                    if (!$result = mysqli_query($this->dbh, $sql)) {
+                    if (!$result = DUPX_DB::mysqli_query($this->dbh, $sql)) {
                         DUPX_Log::error(sprintf(ERR_DBTRYCLEAN, "{$this->post['dbname']}.{$view_name}")."<br/>ERROR MESSAGE:{$err}");
                     }
                 }
@@ -607,6 +902,10 @@ class DUPX_DBInstall
 
     public function writeLog()
     {
+        $this->dbConnect();
+        $nManager = DUPX_NOTICE_MANAGER::getInstance();
+        
+        
         DUPX_Log::info("ERRORS FOUND:\t{$this->dbquery_errs}");
         DUPX_Log::info("DROPPED TABLES:\t{$this->drop_tbl_log}");
         DUPX_Log::info("RENAMED TABLES:\t{$this->rename_tbl_log}");
@@ -615,23 +914,32 @@ class DUPX_DBInstall
         $this->dbtable_rows  = 1;
         $this->dbtable_count = 0;
 
-        if ($result = mysqli_query($this->dbh, "SHOW TABLES")) {
+        DUPX_Log::info("TABLES ROWS\n");
+        if ($result = DUPX_DB::mysqli_query($this->dbh, "SHOW TABLES")) {
             while ($row = mysqli_fetch_array($result, MYSQLI_NUM)) {
                 $table_rows         = DUPX_DB::countTableRows($this->dbh, $row[0]);
                 $this->dbtable_rows += $table_rows;
-                DUPX_Log::info("{$row[0]}: ({$table_rows})");
+                DUPX_Log::info('TABLE '.str_pad(DUPX_Log::varToString($row[0]), 50, '_', STR_PAD_RIGHT).'[ROWS:'.str_pad($table_rows, 6, " ", STR_PAD_LEFT).']');
                 $this->dbtable_count++;
             }
             @mysqli_free_result($result);
         }
 
-        DUPX_Log::info("Removed '{$this->dbdelete_count}' cache/transient rows");
+        DUPX_Log::info("\n".'DATABASE CACHE/TRANSITIENT [ROWS:'.str_pad($this->dbdelete_count, 6, " ", STR_PAD_LEFT).']');
 
         if ($this->dbtable_count == 0) {
-            DUPX_Log::info("NOTICE: You may have to manually run the installer-data.sql to validate data input.
-             Also check to make sure your installer file is correct and the table prefix
-             '{$GLOBALS['DUPX_AC']->wp_tableprefix}' is correct for this particular version of WordPress. \n");
+            $longMsg = "You may have to manually run the installer-data.sql to validate data input. ".
+                "Also check to make sure your installer file is correct and the table prefix '{$GLOBALS['DUPX_AC']->wp_tableprefix}' is correct for this particular version of WordPress.";
+            $nManager->addBothNextAndFinalReportNotice(array(
+                'shortMsg' => 'No table in database',
+                'level' => DUPX_NOTICE_ITEM::NOTICE,
+                'longMsg' => $longMsg,
+                'sections' => 'database'
+            ));
+            DUPX_Log::info("NOTICE: ".$longMsg."\n");
         }
+
+        $nManager->saveNotices();
     }
 
     public function getJSON($json)
@@ -644,7 +952,7 @@ class DUPX_DBInstall
     }
 
     private function applyQueryCollationFallback($query) {
-        if (!empty($this->post['dbcolsearchreplace']) && $this->post['dbcollatefb']) {
+        if (!empty($this->post['dbcolsearchreplace']) && $this->dbcollatefb) {
             $collation_replace_list = json_decode(stripslashes($this->post['dbcolsearchreplace']), true);
 
             if ($collation_replace_list === null) {
@@ -672,7 +980,7 @@ class DUPX_DBInstall
                         DUPX_Log::info("\tNOTICE: {$val['search']} replaced by {$val['replace']} in query [{$sub_query}...]");
                     }
                     if ($replace_charset && strpos($query, 'utf8mb4')) {
-                        $query = str_replace('utf8mb4', 'utf8', $this->sql_result_data[$key]);
+                        $query = str_replace('utf8mb4', 'utf8', $query);
                         $sub_query                   = str_replace("\n", '', substr($query, 0, 80));
                         DUPX_Log::info("\tNOTICE: utf8mb4 replaced by utf8 in query [{$sub_query}...]");
                     }
@@ -754,8 +1062,9 @@ class DUPX_DBInstall
 
     public function deactivatePlugin($slug)
     {
+        $this->dbConnect();
         $sql = "SELECT * FROM ".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options WHERE option_name = 'active_plugins'";
-        $arr = mysqli_fetch_assoc(mysqli_query($this->dbh, $sql));
+        $arr = mysqli_fetch_assoc(DUPX_DB::mysqli_query($this->dbh, $sql));
         $active_plugins_serialized = stripslashes($arr['option_value']);
         $active_plugins = unserialize($active_plugins_serialized);
         foreach ($active_plugins as $key => $active_plugin){
@@ -764,7 +1073,7 @@ class DUPX_DBInstall
                 $active_plugins = array_values($active_plugins);
                 $active_plugins_serialized = mysqli_real_escape_string($this->dbh,serialize($active_plugins));
                 $sql = "UPDATE `".mysqli_real_escape_string($this->dbh, $GLOBALS['DUPX_AC']->wp_tableprefix)."options` SET `option_value`='".mysqli_real_escape_string($this->dbh, $active_plugins_serialized)."' WHERE `option_name` = 'active_plugins'";
-                $result = mysqli_query($this->dbh, $sql);
+                $result = DUPX_DB::mysqli_query($this->dbh, $sql);
                 return $result;
                 break;
             }
@@ -774,5 +1083,6 @@ class DUPX_DBInstall
     public function __destruct()
     {
         @mysqli_close($this->dbh);
+        $this->dbh = null;
     }
 }

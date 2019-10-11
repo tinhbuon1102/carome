@@ -34,7 +34,7 @@ class WDP_Rule_Factory {
 
 	private function __construct() {
 		$this->rule_types = array(
-			'package' => 'WDP_Rule_Product_Package',
+			'package' => 'WDP_Rule',
 		);
 	}
 }

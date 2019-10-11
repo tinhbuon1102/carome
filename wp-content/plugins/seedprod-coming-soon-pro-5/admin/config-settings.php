@@ -110,7 +110,7 @@ function seed_cspv5_get_options(){
         'id'        => 'include_url_pattern',
         'type'      => 'textarea',
         'label'     => __( "Include URLs", 'seedprod' ),
-        'desc'  => __( 'Include certain urls to display the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id. Make sure to include http or https like: https://www.example.com/about/', 'seedprod' ),
+        'desc'  => __( 'Include certain urls to display the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id. <br>Example: https://www.example.com/about/ <br>To exclude wildcard urls use this pattern: https://www.example.com/about/* This will include any url that starts with https://www.example.com/about/ ', 'seedprod' ),
         'class' => 'large-text'
     );
 
@@ -118,7 +118,7 @@ function seed_cspv5_get_options(){
         'id'        => 'exclude_url_pattern',
         'type'      => 'textarea',
         'label'     => __( "Exclude URLs", 'seedprod' ),
-        'desc'  => __( 'Exclude certain urls from displaying the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id. Make sure to include http or https like: https://www.example.com/about/', 'seedprod' ),
+        'desc'  => __( 'Exclude certain urls from displaying the Coming Soon or Maintenance Page. One per line. You may also enter a page or post id.<br>Example: https://www.example.com/about/ <br>To exclude wildcard urls use this pattern: https://www.example.com/about/* This will exclude any url that starts with https://www.example.com/about/', 'seedprod' ),
         'class' => 'large-text'
     );
 
@@ -205,7 +205,7 @@ function seed_cspv5_get_options(){
         "type" => "checkbox",
         "id" => "alt_bypass",
         "label" => __( "Use Cookies for Bypass", 'seedprod-coming-soon-pro' ),
-        "desc" => __("Use cookies instead of creating a WordPress user for the bypass. Note: this may not work on sites that are cached. <a href='http://support.seedprod.com/article/99-how-the-bypass-url-works' target='_blank'>Learn More</a>", 'seedprod-coming-soon-pro'),
+        "desc" => __("Use cookies instead of creating a WordPress user for the bypass. Note: this may not work on sites that are cached. <a href='https://support.seedprod.com/article/39-how-the-bypass-url-works' target='_blank'>Learn More</a>", 'seedprod-coming-soon-pro'),
         "option_values" => array(
              '1' => __( 'Enable', 'seedprod-coming-soon-pro' ),
         ),

@@ -21,6 +21,10 @@ a.upgrade-link {color:maroon; font-style: italic}
     display: none;
 }
 
+.color_red {
+    color: #d54e21;
+}
+
 /*TABS*/
 ul.category-tabs li {cursor: pointer}
 

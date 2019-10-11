@@ -82,7 +82,7 @@ abstract class MailChimp_WooCommerce_Abstract_Sync extends WP_Job
     public function handle()
     {
         if (!mailchimp_is_configured()) {
-            mailchimp_debug(get_called_class(), 'mailchimp is not configured properly');
+            mailchimp_debug(get_called_class(), 'Mailchimp is not configured properly');
             return false;
         }
 
@@ -471,7 +471,7 @@ abstract class MailChimp_WooCommerce_Abstract_Sync extends WP_Job
         $wpdb->query("DELETE FROM {$wpdb->prefix}queue WHERE job LIKE '%{$class_name}%'");
 
         // this will paginate through all records for the resource type until they return no records.
-        mailchimp_handle_or_queue(new static());
+        mailchimp_handle_or_queue(new static(), 0, true);
         mailchimp_debug(get_called_class().'@handle', 'queuing up the next job');
     }
 }

@@ -10,7 +10,14 @@ class WDP_Cart_Adjustment_Free_Shipping implements WDP_Cart_Adjustment {
 		$this->data = $data;
 	}
 
-	public function apply_to_cart( $cart, $rule_id ) {
+	/**
+	 * @param WDP_Cart $cart
+	 * @param          $set_collection WDP_Cart_Set_Collection
+	 * @param int      $rule_id
+	 *
+	 * @return bool
+	 */
+	public function apply_to_cart( $cart, $set_collection, $rule_id ) {
 		$cart->add_free_shipping( $rule_id );
 
 		return true;

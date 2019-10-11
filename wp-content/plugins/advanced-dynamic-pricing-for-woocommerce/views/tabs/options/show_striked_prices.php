@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <fieldset>
             <legend class="screen-reader-text"><span><?php _e('Show Striked Prices in the Cart', 'advanced-dynamic-pricing-for-woocommerce') ?></span></legend>
             <label for="show_striked_prices">
+                <input name="show_striked_prices" value="0" type="hidden">
                 <input <?php checked( $options['show_striked_prices'] ); ?>
                         name="show_striked_prices" id="show_striked_prices" type="checkbox">
             </label>

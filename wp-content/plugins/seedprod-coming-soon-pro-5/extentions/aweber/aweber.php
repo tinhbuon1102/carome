@@ -17,12 +17,12 @@ function seed_cspv5_section_aweber($emaillist,$page_id) {
     <div class="postbox">
         <h3 class="hndle"><?php _e('Aweber', 'seedprod') ?></h3>
         <div class="inside">
-        <p><?php __('Configure saving subscribers to Aweber options. <a target="_blank" href="http://support.seedprod.com/article/34-collecting-emails-with-aweber">Learn More</a>', 'seedprod') ?></p>
+        <p><?php __('Configure saving subscribers to Aweber options. <a target="_blank" href="https://support.seedprod.com/article/71-collecting-emails-with-aweber">Learn More</a>', 'seedprod') ?></p>
         <form id="seed_cspv5_emaillist_settings">
         <input type="hidden" id="settings_name" name="settings_name" value="<?php echo $settings_name ?>"/>
         <input type="hidden" id="page_id" name="page_id" value="<?php echo $page_id ?>"/>
         <input type="hidden" id="emaillist" name="emaillist" value="<?php echo $emaillist ?>"/>
-        <p><a href="http://support.seedprod.com/article/34-collecting-emails-with-aweber" target="_blank">Learn how to Configure</a></p>
+        <p><a href="https://support.seedprod.com/article/71-collecting-emails-with-aweber" target="_blank">Learn how to Configure</a></p>
         <table class="form-table">
             <tbody>
                 <tr valign="top">

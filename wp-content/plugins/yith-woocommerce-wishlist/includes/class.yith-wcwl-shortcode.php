@@ -27,7 +27,7 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 			add_shortcode( 'yith_wcwl_wishlist', array( 'YITH_WCWL_Shortcode', 'wishlist' ) );
 			add_shortcode( 'yith_wcwl_add_to_wishlist', array( 'YITH_WCWL_Shortcode', 'add_to_wishlist' ) );
 
-			// register gutenberg blocks
+            // register gutenberg blocks
 			add_action( 'init', array( 'YITH_WCWL_Shortcode', 'register_gutenberg_blocks' ) );
 			add_action( 'yith_plugin_fw_gutenberg_before_do_shortcode', array( 'YITH_WCWL_Shortcode', 'fix_for_gutenberg_blocks' ), 10, 1 );
 		}
@@ -115,7 +115,7 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 							'default' => '',
 						),
 					),
-				),
+				)
 			);
 
 			yith_plugin_fw_gutenberg_add_blocks( $blocks );
@@ -328,12 +328,13 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 				$share_pinterest_enabled = get_option( 'yith_wcwl_share_pinterest' ) == 'yes';
 				$share_googleplus_enabled = get_option( 'yith_wcwl_share_googleplus' ) == 'yes';
 				$share_email_enabled = get_option( 'yith_wcwl_share_email' ) == 'yes';
-
+				$share_whatsapp_enabled = get_option( 'yith_wcwl_share_whatsapp' ) == 'yes';
+				$share_url_enabled = get_option( 'yith_wcwl_share_url' ) == 'yes';
 				$show_date_added = get_option( 'yith_wcwl_show_dateadded' ) == 'yes';
 				$show_add_to_cart = get_option( 'yith_wcwl_add_to_cart_show' ) == 'yes';
 				$repeat_remove_button = get_option( 'yith_wcwl_repeat_remove_button' ) == 'yes';
 
-				$share_enabled = $share_facebook_enabled || $share_twitter_enabled || $share_pinterest_enabled || $share_googleplus_enabled || $share_email_enabled;
+				$share_enabled = $share_facebook_enabled || $share_twitter_enabled || $share_pinterest_enabled || $share_googleplus_enabled || $share_email_enabled || $share_whatsapp_enabled || $share_url_enabled;
 
 				$additional_params = array(
 					// wishlist items
@@ -396,6 +397,8 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 						'share_pinterest_enabled' => $share_pinterest_enabled,
 						'share_googleplus_enabled' => $share_googleplus_enabled,
 						'share_email_enabled' => $share_email_enabled,
+						'share_whatsapp_enabled' => $share_whatsapp_enabled,
+						'share_url_enabled' => $share_url_enabled,
 						'share_title' => $share_title,
 						'share_link_url' => $share_link_url,
 						'share_link_title' => $share_links_title,
@@ -510,7 +513,7 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 			$additional_params = apply_filters( 'yith_wcwl_add_to_wishlist_params', $additional_params );
 			$additional_params['template_part'] = isset( $additional_params['template_part'] ) ? $additional_params['template_part'] : $template_part;
 
-			$atts = is_array( $atts ) ? array_filter( $atts ) : $atts;
+			$atts = is_array( $atts ) ? array_filter( $atts ) : (array) $atts;
 
 			$atts = shortcode_atts(
 				$additional_params,
@@ -526,7 +529,8 @@ if( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
 
 			return apply_filters( 'yith_wcwl_add_to_wishlisth_button_html', $template, $wishlist_url, $product_type, $exists );
 		}
-	}
+
+    }
 }
 
 YITH_WCWL_Shortcode::init();

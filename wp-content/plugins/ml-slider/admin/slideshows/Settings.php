@@ -20,7 +20,18 @@ class MetaSlider_Slideshow_Settings {
 	 * @param string|null $slideshow_id The settings object
 	 */
 	public function __construct($slideshow_id = null) {
-		$this->settings = is_null($slideshow_id) ? null : get_post_meta($slideshow_id, 'ml-slider_settings', true);
+		// If null, WP will return false
+		$settings = get_post_meta($slideshow_id, 'ml-slider_settings', true);
+		$this->settings = $settings ? $settings : $this->defaults();
+	}
+
+	/**
+	 * Returns settings
+	 *
+	 * @return array
+	 */
+	public function get_settings() {
+		return $this->settings;
 	}
 
 	/**
@@ -58,7 +69,7 @@ class MetaSlider_Slideshow_Settings {
 			'navigation' => true,
 			'links' => true,
 			'hoverPause' => true,
-			'theme' => 'default',
+			'theme' => 'none',
 			'direction' => 'horizontal',
 			'reverse' => false,
 			'animationSpeed' => 600,
@@ -69,7 +80,7 @@ class MetaSlider_Slideshow_Settings {
 			'smartCrop' => true,
 			'carouselMode' => false,
 			'carouselMargin' => 5,
-			'firstSlideFadeIn' => true,
+			'firstSlideFadeIn' => false,
 			'easing' => 'linear',
 			'autoPlay' => true,
 			'thumb_width' => 150,

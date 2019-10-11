@@ -20,4 +20,15 @@ jQuery( document ).ready( function ( $ ) {
 		}
 	}, 0 );
 
+	// control visibility for options which depends on load_in_backend option
+	setTimeout(function () {
+		$('#load_in_backend').change(function () {
+			if (this.checked) {
+				$('.load-in-backed-checked').show()
+			} else {
+				$('.load-in-backed-checked').hide()
+			}
+		}).trigger('change');
+	}, 0);
+
 } );

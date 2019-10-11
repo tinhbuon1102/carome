@@ -1,5 +1,4 @@
 <?php
-defined("ABSPATH") or die("");
 /**
  * Storage entity layer
  *
@@ -13,6 +12,8 @@ defined("ABSPATH") or die("");
  *
  * @todo Finish Docs
  */
+defined('ABSPATH') || defined('DUPXABSPATH') || exit;
+
 require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/lib/DropPHP/DropboxV2Client.php');
 
 require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/classes/class.io.php');
@@ -37,6 +38,7 @@ abstract class DUP_PRO_Storage_Types
     const S3       = 4;  
     const SFTP     = 5;
     const OneDrive = 6;
+    const OneDriveMSGraph = 7;
 }
 
 // For those storage types that do not require any configuration ahead of time
@@ -86,6 +88,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
     public $dropbox_access_token_secret  = '';
     public $dropbox_v2_access_token      = ''; //to use different name for OAuth 2 token
     public $dropbox_storage_folder       = '';
+    public $dropbox_skip_archive_validation_hash = 0;
     public $dropbox_max_files            = 10;
     public $dropbox_authorization_state  = DUP_PRO_Dropbox_Authorization_States::Unauthorized;
     //ONEDRIVE FIELDS
@@ -100,6 +103,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
     public $onedrive_storage_folder_id   = '';
     public $onedrive_authorization_state = DUP_PRO_OneDrive_Authorization_States::Unauthorized;
     public $onedrive_storage_folder_web_url = '';
+
     // FTP FIELDS
     public $ftp_server                   = '';
     public $ftp_port                     = 21;
@@ -137,7 +141,9 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
     public $s3_secret_key;
     public $s3_storage_class             = 'STANDARD';
     public $s3_storage_folder            = '';
+    
     private static $sort_error           = false;
+    private $throttleDelayInUs           = 0;
 
     //   const PLACE_HOLDER   ='%domain%';
     function __construct()
@@ -159,6 +165,9 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         $this->s3_storage_folder = 'Duplicator Backups/'.self::get_default_storage_folder();
 
         $this->onedrive_storage_folder = self::get_default_storage_folder();
+
+        $global                  = DUP_PRO_Global_Entity::get_instance();
+        $this->throttleDelayInUs = $global->getMicrosecLoadReduction();
     }
 
     public static function create_from_data($storage_data, $restore_id = false)
@@ -180,6 +189,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         $instance->dropbox_v2_access_token     = $storage_data->dropbox_v2_access_token;
         $instance->dropbox_access_token_secret = $storage_data->dropbox_access_token_secret;
         $instance->dropbox_storage_folder      = $storage_data->dropbox_storage_folder;
+        $instance->dropbox_skip_archive_validation_hash = (isset($storage_data->dropbox_skip_archive_validation_hash) && $storage_data->dropbox_skip_archive_validation_hash) ? 1 : 0;
         $instance->dropbox_max_files           = $storage_data->dropbox_max_files;
         $instance->dropbox_authorization_state = $storage_data->dropbox_authorization_state;
 
@@ -298,6 +308,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 return ($this->s3_storage_folder == '' ? '/' : $this->s3_storage_folder);
                 break;
             case DUP_PRO_Storage_Types::OneDrive:
+            case DUP_PRO_Storage_Types::OneDriveMSGraph:
                 return ($this->onedrive_storage_folder == '' ? '/' : $this->onedrive_storage_folder);
                 break;
         }
@@ -312,6 +323,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         $this->dropbox_v2_access_token     = $source_storage->dropbox_v2_access_token;
         $this->dropbox_access_token_secret = $source_storage->dropbox_access_token_secret;
         $this->dropbox_authorization_state = $source_storage->dropbox_authorization_state;
+        $this->dropbox_skip_archive_validation_hash = $source_storage->dropbox_skip_archive_validation_hash;
         $this->dropbox_max_files           = $source_storage->dropbox_max_files;
         $this->dropbox_storage_folder      = $source_storage->dropbox_storage_folder;
         //$this->editable;
@@ -376,17 +388,24 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
         array_unshift($storages, $default_local_storage);
 
-        foreach ($storages as $storage) {
-            /* @var $storage DUP_PRO_Storage_Entity */
-            $storage->decrypt();
+        $global = DUP_PRO_Global_Entity::get_instance(); 
+        if ($global->crypt) { 
+            foreach ($storages as $storage) {
+                /* @var $storage DUP_PRO_Storage_Entity */
+                $storage->decrypt();
+            }
         }
 
         return $storages;
     }
 
-    public function get_onedrive_client(){
-        $scope = !$this->onedrive_is_business() ? DUP_PRO_OneDrive_Config::ONEDRIVE_ACCESS_SCOPE :
-            DUP_PRO_OneDrive_Config::ONEDRIVE_BUSINESS_ACCESS_SCOPE;
+    public function get_onedrive_client() {
+        if ($this->storage_type == DUP_PRO_Storage_Types::OneDriveMSGraph) {
+            $scope = DUP_PRO_OneDrive_Config::MSGRAPH_ACCESS_SCOPE;
+        } else {
+            $scope = !$this->onedrive_is_business() ? DUP_PRO_OneDrive_Config::ONEDRIVE_ACCESS_SCOPE :
+                DUP_PRO_OneDrive_Config::ONEDRIVE_BUSINESS_ACCESS_SCOPE;
+        }
 		$state = (object)array(
             'redirect_uri' => null,
             'endpoint_url' => $this->onedrive_endpoint_url,
@@ -404,10 +423,21 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
             )
         );
 
-        $onedrive = DUP_PRO_Onedrive_U::get_onedrive_client_from_state($state);
-
-        if($onedrive->getAccessTokenStatus() < 0){
+        $onedrive = DUP_PRO_Onedrive_U::get_onedrive_client_from_state($state, $this->storage_type == DUP_PRO_Storage_Types::OneDriveMSGraph);
+        if ($onedrive->getAccessTokenStatus() < 0) {
             $onedrive->renewAccessToken(DUP_PRO_OneDrive_Config::ONEDRIVE_CLIENT_SECRET);
+            $state = $onedrive->getState();
+            if (isset($this->onedrive_refresh_token) && isset($state->token->data->access_token)) {
+                $this->onedrive_token_obtained = time();
+                $this->onedrive_refresh_token = $state->token->data->refresh_token;
+                $this->onedrive_access_token = $state->token->data->access_token;
+                $this->save();
+            } else {
+                $errorMessage = "Your OneDrive Access token can't be renewed";
+                error_log($errorMessage);
+                DUP_PRO_LOG::traceError($errorMessage);
+                throw new Exception($errorMessage);
+            }
         }
 
         return $onedrive;
@@ -437,8 +467,10 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
             try{
                 $onedrive_folder_candidate = $onedrive->fetchDriveItem($onedrive_folder_id);
                 $onedrive_folder = $onedrive_folder_candidate;
-            } catch (Exception $exception){
-                if(strpos($exception->getMessage(),"Item does not exist") !== false){
+            } catch (Exception $exception) {
+                $exception_message = $exception->getMessage();
+                if(strpos($exception_message, "Item does not exist") !== false
+                    || strpos($exception_message, "The resource could not be found") !== false){
                     $onedrive_folder = $this->create_onedrive_folder();
                     $this->onedrive_storage_folder_id = $onedrive_folder->getId();
                     $this->save();
@@ -501,32 +533,25 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         return $parent;
     }
 
-	// Can't have namespaces in common files
-    //public function purge_old_onedrive_packages(\Krizalys\Onedrive\Client $onedrive){
 	public function purge_old_onedrive_packages($onedrive)
 	{
         DUP_PRO_Log::trace("Starting purging of old packages in OneDrive");
+        $global = DUP_PRO_Global_Entity::get_instance();
         $storage_folder_id = $this->onedrive_storage_folder_id;
         $package_items = $onedrive->fetchDriveItems($storage_folder_id);
 
         $archives = array();
         $installers = array();
-
         foreach ($package_items as $item){
-            $name = $item->getName();
-          //  $extension = pathinfo($name)["extension"];
-			$pathinfo = pathinfo($name);
-			$extension = $pathinfo["extension"];
-
-            if($extension == 'zip' || $extension == 'daf'){
-                $archives[] = $item;
-            }elseif($extension == 'php'){
+            $name = $item->getName();            
+            if (DUP_PRO_STR::endsWith($name, "_{$global->installer_base_name}")) {
                 $installers[] = $item;
+            } elseif (DUP_PRO_STR::endsWith($name, '_archive.zip') || DUP_PRO_STR::endsWith($name, '_archive.daf')) {
+                $archives[] = $item;
             }
         }
 
 		$complete_packages = array();
-
         foreach ($archives as $archive){
             //$archive_name = pathinfo($archive->getName())["filename"];
 			$pathinfo = pathinfo($archive->getName());
@@ -555,7 +580,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
             }
         }
 
-		if($this->onedrive_max_files > 0) {
+		if ($this->onedrive_max_files > 0) {
 			$num_archives = count($complete_packages);
 			$num_archives_to_delete = $num_archives - $this->onedrive_max_files;
 
@@ -704,23 +729,36 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         return DUP_PRO_S3_U::get_s3_client($this->s3_region, $this->s3_access_key, $this->s3_secret_key, $this->s3_endpoint);
     }
 
-    public static function delete_by_id($storage_id)
-    {
-        $packages = DUP_PRO_Package::get_all();
+    /**
+     *
+     * @var int used in  delete_by_id_callback function
+     */
+    private static $currentDeleteStorageIdCallback = null;
 
-        foreach ($packages as $package) {
-            /* @var $package DUP_PRO_Package */
-            foreach ($package->upload_infos as $key => $upload_info) {
-                /* @var $upload_info DUP_PRO_Package_Upload_Info */
-                if ($upload_info->storage_id == $storage_id) {
-                    DUP_PRO_LOG::traceObject("deleting uploadinfo from package $package->ID", $upload_info);
-                    unset($package->upload_infos[$key]);
-                    $package->save();
-                    break;
-                }
+    /**
+     *
+     * @param DUP_PRO_Package $package
+     */
+    public static function delete_by_id_callback($package)
+    {
+        /* @var $package DUP_PRO_Package */
+
+        foreach ($package->upload_infos as $key => $upload_info) {
+            /* @var $upload_info DUP_PRO_Package_Upload_Info */
+            if ($upload_info->storage_id == self::$currentDeleteStorageIdCallback) {
+                DUP_PRO_LOG::traceObject("deleting uploadinfo from package $package->ID", $upload_info);
+                unset($package->upload_infos[$key]);
+                $package->save();
+                break;
             }
         }
+    }
 
+    public static function delete_by_id($storage_id)
+    {
+        self::$currentDeleteStorageIdCallback = $storage_id;
+        DUP_PRO_Package::by_status_callback(array(__CLASS__, 'delete_by_id_callback'));
+        self::$currentDeleteStorageIdCallback = null;
 
         parent::delete_by_id_base($storage_id);
     }
@@ -734,8 +772,9 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         $storage = self::get_by_id_and_type($id, get_class());
 
         if ($storage != null) {
+            $global = DUP_PRO_Global_Entity::get_instance(); 
             /* @var $storage DUP_PRO_Storage_Entity */
-            if ($decrypt) {
+            if ($global->crypt && $decrypt) {
                 $storage->decrypt();
             }
         }
@@ -826,6 +865,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 $this->copy_to_s3($package, $upload_info);
                 break;
             case DUP_PRO_Storage_Types::OneDrive:
+            case DUP_PRO_Storage_Types::OneDriveMSGraph:
                 $this->copy_to_onedrive($package, $upload_info);
                 break;
 
@@ -952,7 +992,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 $type_text = $this->s3_is_amazon() ? DUP_PRO_U::__('Amazon S3') : DUP_PRO_U::__('S3-Compatible (Generic)');
                 break;
             case DUP_PRO_Storage_Types::OneDrive:
-                $type_text = !$this->onedrive_is_business() ? DUP_PRO_U::__('OneDrive') : DUP_PRO_U::__('OneDrive (B)');
+                $type_text = !$this->onedrive_is_business() ? DUP_PRO_U::__('OneDrive v0.1') : DUP_PRO_U::__('OneDrive v0.1 (B)');
                 break;
         }
 
@@ -1235,7 +1275,6 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
         DUP_PRO_LOG::trace("copying to drop box");
 
         $source_archive_filepath = $package->Archive->getSafeFilePath();
-
         $source_installer_filepath = $package->Installer->get_safe_filepath();
 
         if (file_exists($source_archive_filepath)) {
@@ -1253,14 +1292,14 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 $dropbox_archive_path = basename($source_archive_filepath);
                 $dropbox_archive_path = $this->dropbox_storage_folder."/$dropbox_archive_path";
 
-                $dropbox_installer_path = basename($source_installer_filepath);
-                $dropbox_installer_path = $this->dropbox_storage_folder."/$dropbox_installer_path";
+                $dest_installer_filename = $package->Installer->get_orig_filename();                
+                $dropbox_installer_path = $this->dropbox_storage_folder."/$dest_installer_filename";
 
                 try {
                     if (!$upload_info->copied_installer) {
                         DUP_PRO_LOG::trace("attempting Dropbox upload of $source_installer_filepath to $dropbox_installer_path");
 
-                        $installer_meta = $dropbox->UploadFile($source_installer_filepath, $dropbox_installer_path);
+                        $installer_meta = $dropbox->UploadFile($source_installer_filepath, $dropbox_installer_path, $dest_installer_filename);
                         if($dropbox->checkFileHash($installer_meta,$source_installer_filepath)){
                             DUP_PRO_LOG::trace("Successfully uploaded installer to dropbox");
                             $upload_info->copied_installer = true;
@@ -1290,13 +1329,8 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                         $global = DUP_PRO_Global_Entity::get_instance();
 
                         /* @var $dropbox_upload_info DUP_PRO_DropboxClient_UploadInfo */
-                        $server_load_delay = 0;
-                        if ($global->server_load_reduction != DUP_PRO_Server_Load_Reduction::None) {
-                            $server_load_delay = DUP_PRO_Server_Load_Reduction::microseconds_from_reduction($global->server_load_reduction);
-                        }
-
                         $dropbox_upload_info = $dropbox->upload_file_chunk($source_archive_filepath, $dropbox_archive_path, $global->dropbox_upload_chunksize_in_kb * 1024,
-                            $global->php_max_worker_time_in_sec, $upload_info->archive_offset, $upload_info->upload_id, $server_load_delay);
+                            $global->php_max_worker_time_in_sec, $upload_info->archive_offset, $upload_info->upload_id, $this->throttleDelayInUs);
 
                         if ($dropbox_upload_info->error_details == null) {
                             // Clear the failure count - we are just looking for consecutive errors
@@ -1311,7 +1345,11 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                             DUP_PRO_LOG::trace("progress from $upload_info->archive_offset and total file size $file_size = $upload_info->progress");
 
                             if ($dropbox_upload_info->file_meta != null) {
-                                if($dropbox->checkFileHash($dropbox_upload_info->file_meta,$source_archive_filepath)){
+                                if ($this->dropbox_skip_archive_validation_hash || $dropbox->checkFileHash($dropbox_upload_info->file_meta,$source_archive_filepath)){
+                                    if ($this->dropbox_skip_archive_validation_hash) {
+                                        // error_log("Skip content hash validation");
+                                        DUP_PRO_LOG::trace("Skip content hash validation");
+                                    }
                                     DUP_PRO_LOG::trace("Successfully uploaded archive to dropbox");
                                     $upload_info->copied_archive = true;
 
@@ -1374,7 +1412,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 $onedrive_archive_path = basename($source_archive_filepath);
                 $onedrive_archive_path = $this->get_sanitized_storage_folder().$onedrive_archive_path;
 
-                $onedrive_installer_name = basename($source_installer_filepath);
+                $onedrive_installer_name = $package->Installer->get_orig_filename();
                 $onedrive_installer_path = $this->get_sanitized_storage_folder().$onedrive_installer_name;
 
                 try {
@@ -1432,19 +1470,14 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                         /* @var $global DUP_PRO_Global_Entity */
                         $global = DUP_PRO_Global_Entity::get_instance();
 
-                        $server_load_delay = 0;
-                        if ($global->server_load_reduction != DUP_PRO_Server_Load_Reduction::None) {
-                            $server_load_delay = DUP_PRO_Server_Load_Reduction::microseconds_from_reduction($global->server_load_reduction);
-                        }
-
                         if($upload_info->data != '' && $upload_info->data2 != ''){
                             $resumable = (object)array(
                                 "uploadUrl" => $upload_info->data,
                                 "expirationTime" => $upload_info->data2
                             );
-                            $onedrive->uploadFileChunk($source_archive_filepath,null,$resumable, $global->php_max_worker_time_in_sec,$server_load_delay,$upload_info->archive_offset);
+                            $onedrive->uploadFileChunk($source_archive_filepath,null,$resumable, $global->php_max_worker_time_in_sec,$this->throttleDelayInUs,$upload_info->archive_offset);
                         }else{
-                            $onedrive->uploadFileChunk($source_archive_filepath,$onedrive_archive_path,null, $global->php_max_worker_time_in_sec, $server_load_delay);
+                            $onedrive->uploadFileChunk($source_archive_filepath,$onedrive_archive_path,null, $global->php_max_worker_time_in_sec, $this->throttleDelayInUs);
                         }
 
                         /* @var $onedrive_upload_info \Krizalys\Onedrive\ResumableUploader */
@@ -1528,6 +1561,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
         $source_archive_filepath   = $package->Archive->getSafeFilePath();
         $source_installer_filepath = $package->Installer->get_safe_filepath();
+        $dest_installer_filename = $package->Installer->get_orig_filename();
 
         if (file_exists($source_archive_filepath)) {
             if (file_exists($source_installer_filepath)) {
@@ -1562,7 +1596,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
                         //$upload_info->data is the parent file id
                         $source_installer_filename = basename($source_installer_filepath);
-                        $existing_file_id          = DUP_PRO_GDrive_U::get_file($google_service_drive, $source_installer_filename, $upload_info->data);
+                        $existing_file_id          = DUP_PRO_GDrive_U::get_file($google_service_drive, $source_installer_filename, $upload_info->data, $dest_installer_filename);
 
                         if ($existing_file_id != null) {
                             DUP_PRO_LOG::trace("Installer already exists so deleting $source_installer_filename before uploading again. Existing file id = $existing_file_id");
@@ -1571,7 +1605,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                             DUP_PRO_LOG::trace("Installer doesn't exist already so no need to delete $source_installer_filename");
                         }
 
-                        if (DUP_PRO_GDrive_U::upload_file($google_client, $source_installer_filepath, $upload_info->data)) {
+                        if (DUP_PRO_GDrive_U::upload_file($google_client, $source_installer_filepath, $upload_info->data, $dest_installer_filename)) {
                             $upload_info->copied_installer = true;
                             $upload_info->progress         = 5;
                         } else {
@@ -1590,10 +1624,6 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                         $global = DUP_PRO_Global_Entity::get_instance();
 
                         /* @var $dropbox_upload_info DUP_PRO_DropboxClient_UploadInfo */
-                        $server_load_delay = 0;
-                        if ($global->server_load_reduction != DUP_PRO_Server_Load_Reduction::None) {
-                            $server_load_delay = DUP_PRO_Server_Load_Reduction::microseconds_from_reduction($global->server_load_reduction);
-                        }
 
                         // Warning: Google client is set to defer mode within this functin
                         // The upload_id for google drive is just the resume uri
@@ -1618,7 +1648,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
                         // Google Drive worker time capped at 10 seconds
                         $gdrive_upload_info = DUP_PRO_GDrive_U::upload_file_chunk($google_client, $source_archive_filepath, $upload_info->data, $global->gdrive_upload_chunksize_in_kb * 1024,
-                                10, $upload_info->archive_offset, $upload_info->upload_id, $server_load_delay);
+                                10, $upload_info->archive_offset, $upload_info->upload_id, $this->throttleDelayInUs);
 
                         if ($gdrive_upload_info->error_details == null) {
                             // Clear the failure count - we are just looking for consecutive errors
@@ -1697,8 +1727,8 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                         DUP_PRO_LOG::trace("Attempting S3 upload of $source_installer_filepath to $this->s3_storage_folder");
 
                         $source_installer_filename = basename($source_installer_filepath);
-
-                        if (DUP_PRO_S3_U::upload_file($s3_client, $this->s3_bucket, $source_installer_filepath, $this->s3_storage_folder, $this->s3_storage_class)) {
+                        $dest_installer_filename = $package->Installer->get_orig_filename();
+                        if (DUP_PRO_S3_U::upload_file($s3_client, $this->s3_bucket, $source_installer_filepath, $this->s3_storage_folder, $this->s3_storage_class, $dest_installer_filename)) {
                             $upload_info->copied_installer = true;
                             $upload_info->progress         = 5;
                         } else {
@@ -1717,13 +1747,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                         /* @var $global DUP_PRO_Global_Entity */
                         $global = DUP_PRO_Global_Entity::get_instance();
 
-                        $server_load_delay = 0;
-                        if ($global->server_load_reduction != DUP_PRO_Server_Load_Reduction::None) {
-                            $server_load_delay = DUP_PRO_Server_Load_Reduction::microseconds_from_reduction($global->server_load_reduction);
-                        }
-
                         // Data
-
                         /* @var $s3_upload_info DUP_PRO_S3_Client_UploadInfo */
                         $s3_upload_info = new DUP_PRO_S3_Client_UploadInfo();
 
@@ -1744,7 +1768,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                         $s3_upload_info->parts            = $upload_info->data2;
                         $s3_upload_info->upload_part_size = $global->s3_upload_part_size_in_kb * 1024;
 
-                        $s3_upload_info = DUP_PRO_S3_U::upload_file_chunk($s3_client, $s3_upload_info, $global->php_max_worker_time_in_sec, $server_load_delay);
+                        $s3_upload_info = DUP_PRO_S3_U::upload_file_chunk($s3_client, $s3_upload_info, $global->php_max_worker_time_in_sec, $this->throttleDelayInUs);
 
                         if ($s3_upload_info->error_details == null) {
                             // Clear the failure count - we are just looking for consecutive errors
@@ -1846,11 +1870,18 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 return "<a target=\"_blank\" href=\"https://console.aws.amazon.com/s3/home?region=$region&bucket=$bucket&prefix=$prefix\">s3://$this->s3_bucket/$this->s3_storage_folder</a>";
                 break;
             case DUP_PRO_Storage_Types::OneDrive:
+            case DUP_PRO_Storage_Types::OneDriveMSGraph:
                 if(empty($this->onedrive_storage_folder_web_url)){
                     if($this->onedrive_authorization_state === DUP_PRO_OneDrive_Authorization_States::Authorized){
-                        $this->onedrive_storage_folder_web_url = $this->get_onedrive_storage_folder()->getWebURL();
+                        $storage_folder = $this->get_onedrive_storage_folder();
+                        if (!empty($storage_folder)) {
+                            $this->onedrive_storage_folder_web_url = $this->get_onedrive_storage_folder()->getWebURL();
+                        } else {
+                            $this->onedrive_storage_folder_web_url = DUP_PRO_U::__("Can't read storage folder");
+                            return $this->onedrive_storage_folder_web_url;
+                        }
                     }else{
-                        $this->onedrive_storage_folder_web_url = "Not Authenticated";
+                        $this->onedrive_storage_folder_web_url = DUP_PRO_U::__("Not Authenticated");
                         return $this->onedrive_storage_folder_web_url;
                     }
                     $this->save();
@@ -1888,8 +1919,8 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                     try {
                         if ($upload_info->copied_installer == false) {
                             DUP_PRO_LOG::trace("attempting FTP upload of $source_installer_filepath to $this->ftp_storage_folder");
-
-                            if ($ftp_client->upload_file($source_installer_filepath, $this->ftp_storage_folder) == false) {
+                            $dest_installer_filename = $package->Installer->get_orig_filename();
+                            if ($ftp_client->upload_file($source_installer_filepath, $this->ftp_storage_folder, $dest_installer_filename) == false) {
                                 $upload_info->failed = true;
 
                                 DUP_PRO_LOG::trace(sprintf(__('Error uploading %1$s to %2$s'), $source_installer_filepath, $this->ftp_storage_folder));
@@ -1909,15 +1940,10 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                             /* @var $global DUP_PRO_Global_Entity */
                             $global = DUP_PRO_Global_Entity::get_instance();
 
-                            $server_load_delay = 0;
-                            if ($global->server_load_reduction != DUP_PRO_Server_Load_Reduction::None) {
-                                $server_load_delay = DUP_PRO_Server_Load_Reduction::microseconds_from_reduction($global->server_load_reduction);
-                            }
-
                             /* @var $ftp_upload_info DUP_PRO_FTP_UploadInfo */
                             DUP_PRO_LOG::trace("archive calling upload chunk with timeout");
                             $ftp_upload_info = $ftp_client->upload_chunk($source_archive_filepath, $this->ftp_storage_folder, $global->php_max_worker_time_in_sec,
-                                $upload_info->archive_offset, $server_load_delay);
+                                $upload_info->archive_offset, $this->throttleDelayInUs);
 
                             DUP_PRO_LOG::trace("after upload chunk archive");
                             if ($ftp_upload_info->error_details == null) {
@@ -2032,7 +2058,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
                         if ($upload_info->copied_installer == false) {
                             $source_filepath = $source_installer_filepath;
-                            $basename = basename($source_filepath);
+                            $basename = $package->Installer->get_orig_filename();
                             if($sftp->put($storage_folder.$basename, $source_filepath, $dup_phpseclib->source_local_files|$dup_phpseclib->sftp_resume)){
                                 $upload_info->progress    = 5;
                                 $upload_info->copied_installer = true;
@@ -2053,7 +2079,7 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
                             //Make sure time threshold not exceed the server maximum execution time
                             $time_threshold = $global->php_max_worker_time_in_sec;
-                            if( $this->sftp_timeout_in_secs < $time_threshold ) {
+                            if (isset($this->sftp_timeout_in_secs)) {
                                 $time_threshold = $this->sftp_timeout_in_secs;
                             }
 
@@ -2093,8 +2119,8 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 } catch (Exception $e) {
                     $upload_info->failed = true;
                     $upload_info->increase_failure_count();
-                    error_log("Problems copying package $package->Name to $this->sftp_storage_folder. " + $e->getMessage());
-                    DUP_PRO_LOG::traceError("Problems copying package $package->Name to $this->sftp_storage_folder. " + $e->getMessage());
+                    error_log("Problems copying package $package->Name to $this->sftp_storage_folder. " . $e->getMessage());
+                    DUP_PRO_LOG::traceError("Problems copying package $package->Name to $this->sftp_storage_folder. " . $e->getMessage());
                 }
             }else{
                 DUP_PRO_LOG::traceError("Installer doesn't exist for $package->Name!? - $source_installer_filepath");
@@ -2197,17 +2223,18 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                     }
                     
                     // Matching installer has to be present for us to delete
-                    $installer_filepath = str_replace($suffix, "_{$global->installer_base_name}", $archive_filepath);
+                    $installer_base_name = apply_filters('duplicator_pro_installer_file_path', $global->installer_base_name);
+                    $installer_filepath = str_replace($suffix, "_{$installer_base_name}", $archive_filepath);
 
                     DUP_PRO_LOG::trace("$installer_filepath in array so deleting installer and archive");
                                    
-                    $sql_filepath  = str_replace($suffix, '_database.sql', $archive_filepath);
-                    $json_filepath = str_replace($suffix, '_scan.json', $archive_filepath);
-                    $log_filepath  = str_replace($suffix, '_log.txt', $archive_filepath);
-                    $files_txt_filepath  = str_replace($suffix, '_files.txt', $archive_filepath);
-                    $dirs_txt_filepath  = str_replace($suffix, '_dirs.txt', $archive_filepath);
+                    $sql_filepath       = str_replace($suffix, '_database.sql', $archive_filepath);
+                    $json_filepath      = str_replace($suffix, '_scan.json', $archive_filepath);
+                    $log_filepath       = str_replace($suffix, '_log.txt', $archive_filepath);
+                    $files_txt_filepath = str_replace($suffix, DUP_PRO_Archive::FILES_LIST_FILE_NAME_SUFFIX, $archive_filepath);
+                    $dirs_txt_filepath  = str_replace($suffix, DUP_PRO_Archive::DIRS_LIST_FILE_NAME_SUFFIX, $archive_filepath);
 
-                    
+
                     if (isset($this->purge_package_record) && $this->purge_package_record) {
                         $purge_name_hash_arr[] = $wpdb->prepare("%s", basename($archive_filepath, $suffix));
                     }
@@ -2246,11 +2273,9 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
             $archive_filenames = array();
 
             foreach ($file_list as $file_metadata) {
-
                 if (DUP_PRO_STR::endsWith($file_metadata->file_path, "_{$global->installer_base_name}")) {
                     array_push($php_filenames, $file_metadata);
-                }
-                if (DUP_PRO_STR::endsWith($file_metadata->file_path, '_archive.zip') || DUP_PRO_STR::endsWith($file_metadata->file_path, '_archive.daf')) {
+                } elseif (DUP_PRO_STR::endsWith($file_metadata->file_path, '_archive.zip') || DUP_PRO_STR::endsWith($file_metadata->file_path, '_archive.daf')) {
                     array_push($archive_filenames, $file_metadata);
                 }
             }
@@ -2296,19 +2321,11 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
             if ($file_list != null) {
                 $php_files = array();
                 $archive_filenames = array();
-
                 foreach ($file_list as $drive_file) {
                     $file_title = $drive_file->getName();
-
-                    $parts = pathinfo($file_title);
-
-                    $extension = $parts['extension'];
-
                     if (DUP_PRO_STR::endsWith($file_title, "_{$global->installer_base_name}")) {
                         array_push($php_files, $drive_file);
-                    }
-
-                    if (DUP_PRO_STR::endsWith($file_title, '_archive.zip') || DUP_PRO_STR::endsWith($file_title, '_archive.daf')) {
+                    } elseif (DUP_PRO_STR::endsWith($file_title, '_archive.zip') || DUP_PRO_STR::endsWith($file_title, '_archive.daf')) {
                         array_push($archive_filenames, $drive_file);
                     }
                 }
@@ -2384,11 +2401,9 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
 
             foreach ($s3_objects as $s3_object) {
                 $filename = basename($s3_object['Key']);
-
                 if (DUP_PRO_STR::endsWith($filename, "_{$global->installer_base_name}")) {
                     array_push($php_files, $s3_object['Key']);
-                }
-                if (DUP_PRO_STR::endsWith($filename, '_archive.zip') || DUP_PRO_STR::endsWith($filename, '_archive.daf')) {
+                } elseif (DUP_PRO_STR::endsWith($filename, '_archive.zip') || DUP_PRO_STR::endsWith($filename, '_archive.daf')) {
                     array_push($archive_filenames, $s3_object['Key']);
                 }
             }
@@ -2570,16 +2585,11 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                     $archive_filepaths = array();
 
                     foreach ($valid_file_list as $file_name) {
-                        $parts     = pathinfo($file_name);
-                        $extension = $parts['extension'];
                         $file_path = "$this->sftp_storage_folder/$file_name";
-
                         // just look for the archives and delete only if has matching _installer
                         if (DUP_PRO_STR::endsWith($file_path, "_{$global->installer_base_name}")) {
                             array_push($php_files, $file_path);
-                        }
-
-                        if (DUP_PRO_STR::endsWith($file_path, '_archive.zip') || DUP_PRO_STR::endsWith($file_path, '_archive.daf')) {
+                        } elseif (DUP_PRO_STR::endsWith($file_path, '_archive.zip') || DUP_PRO_STR::endsWith($file_path, '_archive.daf')) {
                             array_push($archive_filepaths, $file_path);
                         }
                     }
@@ -2654,16 +2664,11 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
                 $archive_filepaths = array();
 
                 foreach ($valid_file_list as $file_name) {
-                    $parts     = pathinfo($file_name);
-                    $extension = $parts['extension'];
-                    $file_path = "$this->ftp_storage_folder/$file_name";
-
+                    $file_path = $this->ftp_storage_folder.'/'.$file_name;
                     // just look for the archives and delete only if has matching _installer
                     if (DUP_PRO_STR::endsWith($file_path, "_{$global->installer_base_name}")) {
                         array_push($php_files, $file_path);
-                    }
-
-                    if (DUP_PRO_STR::endsWith($file_path, '_archive.zip') || DUP_PRO_STR::endsWith($file_path, '_archive.daf')) {
+                    } elseif (DUP_PRO_STR::endsWith($file_path, '_archive.zip') || DUP_PRO_STR::endsWith($file_path, '_archive.daf')) {
                         array_push($archive_filepaths, $file_path);
                     }
                 }
@@ -2744,8 +2749,9 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
             case DUP_PRO_Storage_Types::S3:
                 return $this->s3_is_amazon() ? DUP_PRO_U::__('Amazon S3') : DUP_PRO_U::__('S3-Compatible (Generic)');
             case DUP_PRO_Storage_Types::OneDrive:
-                return !$this->onedrive_is_business() ? DUP_PRO_U::__('OneDrive') : DUP_PRO_U::__('OneDrive (B)');
-
+                return !$this->onedrive_is_business() ? DUP_PRO_U::__('OneDrive v0.1') : DUP_PRO_U::__('OneDrive v0.1 (B)');
+            case DUP_PRO_Storage_Types::OneDriveMSGraph:
+                return DUP_PRO_U::__('OneDrive');
             default:
                 return DUP_PRO_U::__('Unknown');
         }
@@ -2778,11 +2784,16 @@ class DUP_PRO_Storage_Entity extends DUP_PRO_JSON_Entity_Base
             $this->sftp_storage_folder = '/'.$this->sftp_storage_folder;
         }
 
-        $this->encrypt();
+        $global = DUP_PRO_Global_Entity::get_instance();
+        if ($global->crypt) {
+            $this->encrypt();
+        }
 
         parent::save();
 
-        $this->decrypt();   // Whenever its in memory its unencrypted
+        if ($global->crypt) {
+            $this->decrypt();   // Whenever its in memory its unencrypted
+        }
     }
 
     // Get a list of the permanent entries

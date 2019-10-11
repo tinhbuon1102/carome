@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php _e( 'Checkout', 'advanced-dynamic-pricing-for-woocommerce' ) ?>
                 </label>
                 <label for="is_show_amount_saved_in_cart">
+					<input name="is_show_amount_saved_in_cart" value="0" type="hidden">
                     <input <?php checked( $options['is_show_amount_saved_in_cart'] ) ?> name="is_show_amount_saved_in_cart" id="is_show_amount_saved_in_cart" type="checkbox">
 					<?php _e( 'Cart', 'advanced-dynamic-pricing-for-woocommerce' ) ?>
                 </label>

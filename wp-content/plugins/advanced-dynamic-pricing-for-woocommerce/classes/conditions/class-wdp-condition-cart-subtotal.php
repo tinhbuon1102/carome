@@ -5,8 +5,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WDP_Condition_Cart_Subtotal extends WDP_Condition_Abstract {
 
+	/**
+	 * @param WDP_Cart $cart
+	 *
+	 * @return bool
+	 */
 	public function check( $cart ) {
-		$subtotal = $cart->get_cart_subtotal();
+		$subtotal = array_sum( array_map( function ( $item ) {
+			/**
+			 * @var $item WDP_Cart_Item
+			 */
+			return $item->get_total_price();
+		}, $cart->get_items() ) );
 
 		$options           = $this->data['options'];
 		$comparison_value  = (float) $options[1];

@@ -45,35 +45,15 @@ class WDP_Cart_Context {
 	}
 
 	public function get_price_mode() {
-		return $this->settings['discount_for_onsale'];
-	}
-
-	public function is_show_striked_prices() {
-		return $this->settings['show_striked_prices'];
+		return $this->get_option( 'discount_for_onsale' );
 	}
 
 	public function is_combine_multiple_discounts() {
-		return $this->settings['combine_discounts'];
-	}
-
-	public function get_default_discount_name() {
-		return $this->settings['default_discount_name'];
+		return $this->get_option( 'combine_discounts' );
 	}
 
 	public function is_combine_multiple_fees() {
-		return $this->settings['combine_fees'];
-	}
-
-	public function get_default_fee_name() {
-		return $this->settings['default_fee_name'];
-	}
-
-	public function get_default_fee_tax_class() {
-		return $this->settings['default_fee_tax_class'];
-	}
-
-	public function get_cart_item_sorting() {
-		return $this->settings['cart_item_sorting'];
+		return $this->get_option( 'combine_fees' );
 	}
 
 	public function get_shipping_country() {
@@ -101,7 +81,8 @@ class WDP_Cart_Context {
 	}
 
 	public function get_customer_roles() {
-		return $this->customer->get_roles();
+		// all non registered users have a dummy 'wdp_guest' role
+		return $this->customer->get_roles() ? $this->customer->get_roles() : array( 'wdp_guest' );
 	}
 
 	public function get_customer_order_count( $time_range ) {
@@ -114,5 +95,25 @@ class WDP_Cart_Context {
 
 	public function get_count_of_rule_usages( $rule_id ) {
 		return WDP_Database::get_count_of_rule_usages( $rule_id );
+	}
+
+	public function is_tax_enabled() {
+		return isset( $this->environment['tab_enabled'] ) ? $this->environment['tab_enabled'] : false;
+	}
+
+	public function is_prices_includes_tax() {
+		return isset( $this->environment['prices_includes_tax'] ) ? $this->environment['prices_includes_tax'] : false;
+	}
+
+	public function get_option( $key, $default = false ) {
+		return isset( $this->settings[ $key ] ) ? $this->settings[ $key ] : $default;
+	}
+
+	public function set_is_tax_exempt( $tax_exempt ) {
+		$this->customer->set_is_vat_exempt( $tax_exempt );
+	}
+
+	public function get_tax_exempt() {
+		return $this->customer->get_tax_exempt();
 	}
 }

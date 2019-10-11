@@ -2,8 +2,12 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+/**
+ * @var $title string
+ * @var $amount_saved float
+ */
 ?>
 <li class="woocommerce-mini-cart-item" style="text-align: center">
-    <strong><?php _e( 'Discount amount', 'woocommerce' ); ?>:</strong>
-	<?php echo wc_price($amount_saved); ?>
+    <strong><?php echo $title; ?>:</strong>
+	<?php echo wc_price( $amount_saved ); ?>
 </li>

@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WDP_Admin_Options_Page extends WDP_Admin_Abstract_Page {
-	public $priority = 40;
+	public $priority = 50;
 	protected $tab = 'options';
 
 	public function __construct() {
@@ -13,47 +13,10 @@ class WDP_Admin_Options_Page extends WDP_Admin_Abstract_Page {
 
 	public function action() {
 		if ( isset( $_POST['save-options'] ) ) {
-			$args = $this->get_validate_filters();
-			WDP_Helpers::set_settings( filter_input_array( INPUT_POST, $args ) );
+			WDP_Helpers::set_settings( filter_input_array( INPUT_POST, WDP_Helpers::get_validate_filters() ) );
 
 			wp_redirect( $_SERVER['HTTP_REFERER'] );
 		}
-	}
-
-	protected function get_validate_filters() {
-		$filters = array(
-			'show_matched_bulk_table'          => FILTER_VALIDATE_BOOLEAN,
-			'show_category_bulk_table'         => FILTER_VALIDATE_BOOLEAN,
-			'show_striked_prices'              => FILTER_VALIDATE_BOOLEAN,
-			'show_onsale_badge'                => FILTER_VALIDATE_BOOLEAN,
-			'update_price_with_qty'            => FILTER_VALIDATE_BOOLEAN,
-			'limit_results_in_autocomplete'    => FILTER_VALIDATE_INT,
-
-			'combine_discounts'                     => FILTER_VALIDATE_BOOLEAN,
-			'default_discount_name'                 => FILTER_SANITIZE_STRING,
-			'combine_fees'                          => FILTER_VALIDATE_BOOLEAN,
-			'default_fee_name'                      => FILTER_SANITIZE_STRING,
-			'default_fee_tax_class'                 => FILTER_SANITIZE_STRING,
-			'discount_for_onsale'                   => FILTER_SANITIZE_STRING,
-			'do_not_modify_price_at_product_page'   => FILTER_VALIDATE_BOOLEAN, 
-			'is_override_cents'                     => FILTER_VALIDATE_BOOLEAN,
-			'prices_ends_with'                      => array(
-				'filter'  => FILTER_VALIDATE_REGEXP,
-				'options' => array(
-					'regexp'  => '/^[0-9]{2}$/',
-					'default' => 99,
-				),
-			),
-			'is_show_amount_saved_in_mini_cart'     => FILTER_VALIDATE_BOOLEAN,
-			'is_show_amount_saved_in_cart'          => FILTER_VALIDATE_BOOLEAN,
-			'is_show_amount_saved_in_checkout_cart' => FILTER_VALIDATE_BOOLEAN,
-
-			'uninstall_remove_data'          => FILTER_VALIDATE_BOOLEAN,
-			'load_in_backend'                => FILTER_VALIDATE_BOOLEAN,
-			'suppress_other_pricing_plugins' => FILTER_VALIDATE_BOOLEAN,
-		);
-
-		return $filters;
 	}
 
 	protected function get_sections() {
@@ -61,28 +24,38 @@ class WDP_Admin_Options_Page extends WDP_Admin_Abstract_Page {
 			"rules" => array(
 				'title'     => __( "Rules", 'advanced-dynamic-pricing-for-woocommerce' ),
 				'templates' => array(
+					"rules_per_page",
+					"rule_max_exec_time",
 					"limit_results_in_autocomplete",
+					"allow_to_exclude_products",
+					"support_shortcode_products_on_sale",
 				),
 			),
 			"category_page" => array(
 				'title'     => __( "Category page", 'advanced-dynamic-pricing-for-woocommerce' ),
 				'templates' => array(
 					"show_category_bulk_table",
+					"replace_price_with_min_bulk_price",
 				),
 			),
 			"product_page" => array(
 				'title'     => __( "Product page", 'advanced-dynamic-pricing-for-woocommerce' ),
 				'templates' => array(
 					"show_matched_bulk_table",
-					"do_not_modify_price_at_product_page",
 					"show_onsale_badge",
+					"do_not_modify_price_at_product_page",
 				),
 			),
 			"cart" => array(
 				'title'     => __( "Cart", 'advanced-dynamic-pricing-for-woocommerce' ),
 				'templates' => array(
 					"show_striked_prices",
+					"show_cross_out_subtotal_in_cart_totals",
 					"show_amount_save",
+					"amount_saved_label",
+					"disable_external_coupons",
+					"disable_external_coupons_only_if_items_updated",
+					"hide_coupon_word_in_totals",
 				),
 			),
 			"calculation" => array(
@@ -95,14 +68,22 @@ class WDP_Admin_Options_Page extends WDP_Admin_Abstract_Page {
 					"default_fee_name",
 					"default_fee_tax_class",
 					"override_cents",
+					"is_calculate_based_on_wc_precision",
 				),
 			),
 			"system"      => array(
 				'title'     => __( "System", 'advanced-dynamic-pricing-for-woocommerce' ),
 				'templates' => array(
-					"uninstall_remove_data",
-					"load_in_backend",
 					"suppress_other_pricing_plugins",
+					"load_in_backend",
+					"allow_to_edit_prices_in_po",
+					"uninstall_remove_data",
+				),
+			),
+			"debug"      => array(
+				'title'     => __( "Debug", 'advanced-dynamic-pricing-for-woocommerce' ),
+				'templates' => array(
+					"show_debug_bar",
 				),
 			),
 		);
@@ -138,7 +119,7 @@ class WDP_Admin_Options_Page extends WDP_Admin_Abstract_Page {
 		$product_id   = 0;
 
 		foreach ( $active_rules as $index => $rule ) {
-			$dependencies = $rule->get_product_dependencies();
+			$dependencies = $rule->get_rule_filters();
 
 			foreach ( $dependencies as $dependency ) {
 				if ( 'product_categories' === $dependency['type'] && ! $category_id ) {
@@ -147,6 +128,11 @@ class WDP_Admin_Options_Page extends WDP_Admin_Abstract_Page {
 
 				if ( 'products' === $dependency['type'] && ! $product_id ) {
 					$product_id = is_array( $dependency['values'] ) ? reset( $dependency['values'] ) : 0;
+				}
+
+				if ( 'product_sku' === $dependency['type'] && ! $product_id ) {
+					$sku = is_array( $dependency['values'] ) ? reset( $dependency['values'] ) : 0;
+					$product_id = wc_get_product_id_by_sku( $sku );
 				}
 
 				if ( $category_id && $product_id ) {

@@ -16,12 +16,12 @@ function seed_cspv5_section_icontact($emaillist,$page_id) {
     <div class="postbox">
         <h3 class="hndle"><?php _e('iContact', 'seedprod') ?></h3>
         <div class="inside">
-        <p><?php __('<a href="https://app.icontact.com/icp/core/externallogin?sAppId=puD4TZWs2kKlKZLZZgD7IAUiqPSYPIvd" target="_blank">Authorize the App</a> and define the app password, then enter that information below. Save your username and password to load your list. <br><a href="http://support.seedprod.com/article/73-collecting-emails-with-icontact" target="_blank">Learn More</a>', 'seedprod') ?></p>
+        <p><?php __('<a href="https://app.icontact.com/icp/core/externallogin?sAppId=puD4TZWs2kKlKZLZZgD7IAUiqPSYPIvd" target="_blank">Authorize the App</a> and define the app password, then enter that information below. Save your username and password to load your list. <br><a href="https://support.seedprod.com/article/78-collecting-emails-with-icontact" target="_blank">Learn More</a>', 'seedprod') ?></p>
         <form id="seed_cspv5_emaillist_settings">
         <input type="hidden" id="settings_name" name="settings_name" value="<?php echo $settings_name ?>"/>
         <input type="hidden" id="page_id" name="page_id" value="<?php echo $page_id ?>"/>
         <input type="hidden" id="emaillist" name="emaillist" value="<?php echo $emaillist ?>"/>
-        <p><a href="http://support.seedprod.com/article/73-collecting-emails-with-icontact" target="_blank">Learn how to Configure</a></p>
+        <p><a href="https://support.seedprod.com/article/78-collecting-emails-with-icontact" target="_blank">Learn how to Configure</a></p>
         <table class="form-table">
             <tbody>
                 <tr valign="top">

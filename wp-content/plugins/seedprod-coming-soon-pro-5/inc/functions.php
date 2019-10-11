@@ -847,3 +847,36 @@ function seed_cspv5_change_string_boolean_to_boolean(&$item){
         $item = false;
     } 
 }
+
+
+function seed_cspv5_add_email_integrations( $arr ) {
+    // Maybe modify $example in some way.
+    $arr = $arr + array(
+    'feedblitz' => 'FeedBlitz',
+    'drip' => 'Drip',
+    'feedburner' => 'FeedBurner',
+    'activecampaign' => 'Active Campaign',
+    'aweber' => 'Aweber',
+    'campaignmonitor' => 'Campaign Monitor',
+    'constantcontact' => 'Constant Contact',
+    'convertkit' => 'ConvertKit',
+    'getresponse' => 'Get Response',
+    'gravityforms' => 'Gravity Forms',
+    'ninjaforms' => 'Ninja Forms',
+    'followupemails' => 'Follow-Up Emails',
+    'formidable' => 'Formidable',
+    'icontact' => 'iContact',
+    'infusionsoft' => 'Infusionsoft',
+    'madmimi' => 'Mad Mimi',
+    'mailchimp' => 'MailChimp',
+    'sendy' => 'Sendy',
+    'zapier' => 'Zapier',
+    'mailpoet' => 'MailPoet',
+    'mymail' => 'Mailster formerly MyMail',
+    'htmlwebform' => 'HTML Web Form / Shortcode'
+    );
+    return $arr;
+}
+if(seed_cspv5_cu('em')){
+    add_filter( 'seed_cspv5_providers', 'seed_cspv5_add_email_integrations' );
+}

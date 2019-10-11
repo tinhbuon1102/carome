@@ -1,5 +1,4 @@
 <?php
-defined("ABSPATH") or die("");
 /**
  * Enity layer for schedules
  *
@@ -13,6 +12,7 @@ defined("ABSPATH") or die("");
  *
  * @todo Finish Docs
  */
+defined('ABSPATH') || defined('DUPXABSPATH') || exit;
 
 require_once(DUPLICATOR_PRO_PLUGIN_PATH . '/classes/entities/class.json.entity.base.php');
 require_once(DUPLICATOR_PRO_PLUGIN_PATH . '/classes/entities/class.package.template.entity.php');
@@ -177,7 +177,7 @@ class DUP_PRO_Schedule_Entity extends DUP_PRO_JSON_Entity_Base
             $dbcomments  = is_null($dbcomments) ? '- unknown -' : $dbcomments;
 
             //PACKAGE
-            $package->Created = date("Y-m-d H:i:s");
+            $package->Created = gmdate("Y-m-d H:i:s");
             $package->Version = DUPLICATOR_PRO_VERSION;
             $package->VersionOS = defined('PHP_OS') ? PHP_OS : 'unknown';
             $package->VersionWP = $wp_version;
@@ -208,7 +208,7 @@ class DUP_PRO_Schedule_Entity extends DUP_PRO_JSON_Entity_Base
             //ARCHIVE
             $package->Archive->PackDir = rtrim(DUPLICATOR_PRO_WPROOTPATH, '/');
             
-            if ($global->archive_build_mode === DUP_PRO_Archive_Build_Mode::DupArchive) {
+            if ($global->archive_build_mode == DUP_PRO_Archive_Build_Mode::DupArchive) {
                 $package->Archive->Format = 'DAF';
             } else {
                 $package->Archive->Format = 'ZIP';

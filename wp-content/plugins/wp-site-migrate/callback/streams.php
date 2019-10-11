@@ -2,18 +2,85 @@
 
 if (!defined('ABSPATH')) exit;
 if (!class_exists('BVRespStream')) :
-	
-class BVRespStream {
+
+	class BVStream extends BVCallbackBase {
+		public $bvb64stream;
+		public $bvb64cksize;
+		public $checksum;
+		
+		function __construct($params) {
+			$this->bvb64stream = isset($params['bvb64stream']);
+			$this->bvb64cksize = array_key_exists('bvb64cksize', $params) ? intval($params['bvb64cksize']) : false;
+			$this->checksum = array_key_exists('checksum', $params) ? $params['checksum'] : false;
+		}
+
+		public function writeChunk($chunk) {
+		}
+
+		public static function startStream($account, $request) {
+			$result = array();
+			$params = $request->params;
+			$stream = new BVRespStream($params);
+			if ($request->isAPICall()) {
+				$stream = new BVHttpStream($params);
+				if (!$stream->connect()) {
+					$apicallstatus = array(
+						"httperror" => "Cannot Open Connection to Host",
+						"streamerrno" => $stream->errno,
+						"streamerrstr" => $stream->errstr
+					);
+					return array("apicallstatus" => $apicallstatus);
+				}
+				if (array_key_exists('acbmthd', $params)) {
+					$qstr = http_build_query(array('bvapicheck' => $params['bvapicheck']));
+					$url = '/bvapi/'.$params['acbmthd']."?".$qstr;
+					if (array_key_exists('acbqry', $params)) {
+						$url .= "&".$params['acbqry'];
+					}
+					$stream->multipartChunkedPost($url);
+				} else {
+					return array("apicallstatus" => array("httperror" => "ApiCall method not present"));
+				}
+			}
+			return array('stream' => $stream);
+		}
+
+		public function writeStream($_string) {
+			if (strlen($_string) > 0) {
+				$chunk = "";
+				if ($this->bvb64stream) {
+					$chunk_size = $this->bvb64cksize;
+					$_string = $this->base64Encode($_string, $chunk_size);
+					$chunk .= "BVB64" . ":";
+				}
+				$chunk .= (strlen($_string) . ":" . $_string);
+				if ($this->checksum == 'crc32') {
+					$chunk = "CRC32" . ":" . crc32($_string) . ":" . $chunk;
+				} else if ($this->checksum == 'md5') {
+					$chunk = "MD5" . ":" . md5($_string) . ":" . $chunk;
+				}
+				$this->writeChunk($chunk);
+			}
+		}
+	}
+
+class BVRespStream extends BVStream {
+	function __construct($params) {
+		parent::__construct($params);
+	}
+
 	public function writeChunk($_string) {
 		echo "ckckckckck".$_string."ckckckckck";
 	}
 
 	public function endStream() {
 		echo "rerererere";
+
+		return array();
 	}
 }
 
-class BVHttpStream {
+class BVHttpStream extends BVStream {
 	var $user_agent = 'BVHttpStream';
 	var $host;
 	var $port;
@@ -24,13 +91,11 @@ class BVHttpStream {
 	var $boundary;
 	var $apissl;
 
-	/**
-	 * PHP5 constructor.
-	 */
-	function __construct($_host, $_port, $_apissl) {
-		$this->host = $_host;
-		$this->port = $_port;
-		$this->apissl = $_apissl;
+	function __construct($params) {
+		parent::__construct($params);
+		$this->host = $params['apihost'];
+		$this->port = intval($params['apiport']);
+		$this->apissl = array_key_exists('apissl', $params);
 	}
 
 	public function connect() {
@@ -95,8 +160,8 @@ class BVHttpStream {
 
 	public function multipartChunkedPost($url) {
 		$mph = array(
-				"Content-Disposition" => "form-data; name=bvinfile; filename=data",
-				"Content-Type" => "application/octet-stream"
+			"Content-Disposition" => "form-data; name=bvinfile; filename=data",
+			"Content-Type" => "application/octet-stream"
 		);
 		$rnd = rand(100000, 999999);
 		$this->boundary = "----".$rnd;
@@ -122,6 +187,16 @@ class BVHttpStream {
 		$epilogue = "\r\n\r\n--".$this->boundary."--\r\n";
 		$this->sendChunk($epilogue);
 		$this->closeChunk();
+
+		$result = array();
+		$resp = $this->getResponse();
+		if (array_key_exists('httperror', $resp)) {
+			$result["httperror"] = $resp['httperror'];
+		} else {
+			$result["respstatus"] = $resp['status'];
+			$result["respstatus_string"] = $resp['status_string'];
+		}
+		return array("apicallstatus" => $result);
 	}
 
 	public function getResponse() {

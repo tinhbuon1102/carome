@@ -3,66 +3,87 @@
 if (!defined('ABSPATH')) exit;
 if (!class_exists('BVMiscCallback')) :
 	
-class BVMiscCallback {
+class BVMiscCallback extends BVCallbackBase {
+	public $settings;
+	public $bvinfo;
+	public $siteinfo;
+	public $account;
 
-	function process($method) {
-		global $bvcb, $bvresp;
-		$info = $bvcb->bvmain->info;
-		switch ($method) {
+	public function __construct($callback_handler) {
+		$this->settings = $callback_handler->settings;
+		$this->siteinfo = $callback_handler->siteinfo;
+		$this->account = $callback_handler->account;
+		$this->bvinfo = new WPEInfo($callback_handler->settings);
+	}
+
+	public function process($request) {
+		$bvinfo = $this->bvinfo;
+		$settings = $this->settings;
+		$params = $request->params;
+		switch ($request->method) {
+		case "dummyping":
+			$resp = array();
+			$resp = array_merge($resp, $this->siteinfo->respInfo());
+			$resp = array_merge($resp, $this->account->respInfo());
+			$resp = array_merge($resp, $this->bvinfo->respInfo());
+			break;
 		case "enablebadge":
-			$option = $bvcb->bvmain->badgeinfo;
+			$option = $bvinfo->badgeinfo;
 			$badgeinfo = array();
-			$badgeinfo['badgeurl'] = $_REQUEST['badgeurl'];
-			$badgeinfo['badgeimg'] = $_REQUEST['badgeimg'];
-			$badgeinfo['badgealt'] = $_REQUEST['badgealt'];
-			$info->updateOption($option, $badgeinfo);
-			$bvresp->addStatus("status", $info->getOption($option));
+			$badgeinfo['badgeurl'] = $params['badgeurl'];
+			$badgeinfo['badgeimg'] = $params['badgeimg'];
+			$badgeinfo['badgealt'] = $params['badgealt'];
+			$settings->updateOption($option, $badgeinfo);
+			$resp = array("status" => $settings->getOption($option));
 			break;
 		case "disablebadge":
-			$option = $bvcb->bvmain->badgeinfo;
-			$info->deleteOption($option);
-			$bvresp->addStatus("status", !$info->getOption($option));
+			$option = $bvinfo->badgeinfo;
+			$settings->deleteOption($option);
+			$resp = array("status" => !$settings->getOption($option));
 			break;
 		case "getoption":
-			$bvresp->addStatus('getoption', $info->getOption($_REQUEST['opkey']));
+			$resp = array('getoption' => $settings->getOption($params['opkey']));
 			break;
 		case "setdynplug":
-			$info->updateOption('bvdynplug', $_REQUEST['dynplug']);
-			$bvresp->addStatus("setdynplug", $info->getOption('bvdynplug'));
+			$settings->updateOption('bvdynplug', $params['dynplug']);
+			$resp = array("setdynplug" => $settings->getOption('bvdynplug'));
 			break;
 		case "unsetdynplug":
-			$info->deleteOption('bvdynplug');
-			$bvresp->addStatus("unsetdynplug", $info->getOption('bvdynplug'));
+			$settings->deleteOption('bvdynplug');
+			$resp = array("unsetdynplug" => $settings->getOption('bvdynplug'));
 			break;
 		case "setptplug":
-			$info->updateOption('bvptplug', $_REQUEST['ptplug']);
-			$bvresp->addStatus("setptplug", $info->getOption('bvptplug'));
+			$settings->updateOption('bvptplug', $params['ptplug']);
+			$resp = array("setptplug" => $settings->getOption('bvptplug'));
 			break;
 		case "unsetptplug":
-			$info->deleteOption('bvptlug');
-			$bvresp->addStatus("unsetptplug", $info->getOption('bvptlug'));
+			$settings->deleteOption('bvptlug');
+			$resp = array("unsetptplug" => $settings->getOption('bvptlug'));
 			break;
 		case "wpupplgs":
-			$bvresp->addStatus("wpupdateplugins", wp_update_plugins());
+			$resp = array("wpupdateplugins" => wp_update_plugins());
 			break;
 		case "wpupthms":
-			$bvresp->addStatus("wpupdatethemes", wp_update_themes());
+			$resp = array("wpupdatethemes" => wp_update_themes());
 			break;
 		case "wpupcre":
-			$bvresp->addStatus("wpupdatecore", wp_version_check());
+			$resp = array("wpupdatecore" => wp_version_check());
 			break;
 		case "rmmonitime":
-			$bvcb->bvmain->unSetMonitTime();
-			$bvresp->addStatus("rmmonitime", !$bvcb->bvmain->getMonitTime());
+    	$this->settings->deleteOption('bvmonittime');
+			$resp = array("rmmonitime" => !$bvinfo->getMonitTime());
 			break;
 		case "phpinfo":
 			phpinfo();
 			die();
 			break;
+		case "dlttrsnt":
+			$resp = array("dlttrsnt" => $settings->deleteTransient($params['key']));
+			break;
 		default:
-			return false;
+			$resp = false;
 		}
-		return true;
+		return $resp;
 	}
 }
 endif;

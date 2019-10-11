@@ -162,4 +162,22 @@ class WDP_Rules_Collection {
 
 		return $rule;
 	}
+
+	public function get_exact( $rule_ids ) {
+		$filtered_rules    = array();
+		$rule_ids = (array) $rule_ids;
+
+		foreach ( $this->rules as $rule ) {
+			/**
+			 * @var $rule WDP_Rule
+			 */
+			if ( in_array( $rule->get_id(), $rule_ids ) ) {
+				$filtered_rules[] = $rule;
+			}
+		}
+
+		$new_collection = new self( $filtered_rules );
+
+		return $new_collection;
+	}
 }

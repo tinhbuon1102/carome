@@ -9,6 +9,15 @@ class WDP_Condition_Registry {
 	private static $instance;
 
 	protected function __construct() {
+		$this->init();
+	}
+
+	public function re_init() {
+		$this->items = array();
+		$this->init();
+	}
+
+	protected function init() {
 		$this->init_product_conditions();
 		$this->init_cart_conditions();
 		$this->init_customer_conditions();
@@ -48,7 +57,7 @@ class WDP_Condition_Registry {
 			'template' => WC_ADP_PLUGIN_PATH . 'views/conditions/products/product-tags.php',
 		);
 
-		foreach ( WDP_Helpers::get_custom_product_taxonomies() as $taxonomy ) {
+		foreach ( WDP_Helpers::get_custom_product_taxonomies(true) as $taxonomy ) {
 			$this->items[ $taxonomy->name ] = array(
 				'class'         => 'WDP_Condition_Product_Taxonomy',
 				'label'         => $taxonomy->labels->menu_name, // localized label

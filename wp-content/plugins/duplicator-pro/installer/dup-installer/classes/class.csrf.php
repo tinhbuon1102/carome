@@ -1,44 +1,94 @@
 <?php
+defined('ABSPATH') || defined('DUPXABSPATH') || exit;
+
 class DUPX_CSRF {
 	
-	/** Session var name
+	/** 
+	 * Session var name prefix
 	 * @var string
 	 */
 	public static $prefix = '_DUPX_CSRF';
-	
-	/** Generate DUPX_CSRF value for form
-	 * @param	string	$form	- Form name as session key
-	 * @return	string	- token
+
+	/** 
+	 * Stores all CSRF values: Key as CSRF name and Val as CRF value
+	 * @var array
 	 */
-	public static function generate($form = NULL) {
-		if (!empty($_COOKIE[DUPX_CSRF::$prefix . '_' . $form])) {
-			$token = $_COOKIE[DUPX_CSRF::$prefix . '_' . $form];
+	private static $CSRFVars;
+
+	/**
+	 * Set new CSRF
+	 * 
+	 * @param string $key CSRF Key
+	 * @param string $val CSRF Val
+	 * 
+	 * @return Void
+	 */
+	public static function setKeyVal($key, $val) {
+		$CSRFVars = self::getCSRFVars();
+		$CSRFVars[$key] = $val;
+		self::saveCSRFVars($CSRFVars);
+		self::$CSRFVars = false;
+	}
+
+	/**
+	 * Get CSRF value by passing CSRF key
+	 * 
+	 * @param string $key CSRF key
+	 * 
+	 * @return string|boolean If CSRF value set for give n Key, It returns CRF value otherise returns false
+	 */
+	public static function getVal($key) {
+		$CSRFVars = self::getCSRFVars();
+		if (isset($CSRFVars[$key])) {
+			return $CSRFVars[$key];
 		} else {
-            $token = DUPX_CSRF::token() . DUPX_CSRF::fingerprint();
+			return false;
 		}
-		$cookieName = DUPX_CSRF::$prefix . '_' . $form;
-        $ret = DUPX_CSRF::setCookie($cookieName, $token);
+	}
+	
+	/** 
+     * Generate DUPX_CSRF value for form
+	 *
+	 * @param	string	$form	 // Form name as session key
+     * 
+	 * @return	string      // token
+	 */ 
+	public static function generate($form = NULL) {
+		$keyName = self::getKeyName($form);
+
+		$existingToken = self::getVal($keyName);
+		if (false !== $existingToken) {
+			$token = $existingToken;
+		} else {
+			$token = DUPX_CSRF::token() . DUPX_CSRF::fingerprint();
+		}
+		
+		self::setKeyVal($keyName, $token);
 		return $token;
 	}
 	
-	/** Check DUPX_CSRF value of form
+	/** 
+	 * Check DUPX_CSRF value of form
+	 * 
 	 * @param	string	$token	- Token
 	 * @param	string	$form	- Form name as session key
 	 * @return	boolean
 	 */
 	public static function check($token, $form = NULL) {
-		if (!self::isCookieEnabled()) {
+        if (empty($form)) {
+            return false;
+        }
+        
+		$keyName = self::getKeyName($form);
+		$CSRFVars = self::getCSRFVars();
+		if (isset($CSRFVars[$keyName]) && $CSRFVars[$keyName] == $token) { // token OK
 			return true;
-		}
-		if (isset($_COOKIE[DUPX_CSRF::$prefix . '_' . $form]) && $_COOKIE[DUPX_CSRF::$prefix . '_' . $form] == $token) { // token OK
-			return true;
-			// return (substr($token, -32) == DUPX_CSRF::fingerprint()); // fingerprint OK?
 		}
 		return FALSE;
 	}
 	
 	/** Generate token
-	 * @param	void
+     * 
 	 * @return  string
 	 */
 	protected static function token() {
@@ -48,49 +98,87 @@ class DUPX_CSRF {
 	}
 	
 	/** Returns "digital fingerprint" of user
-	 * @param 	void
+     * 
 	 * @return 	string 	- MD5 hashed data
 	 */
 	protected static function fingerprint() {
 		return strtoupper(md5(implode('|', array($_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']))));
 	}
 
-	public static function setCookie($cookieName, $cookieVal) {
-		$_COOKIE[$cookieName] = $cookieVal;
-		return setcookie($cookieName, $cookieVal, time() + 10800, '/');
-	}
-	
 	/**
-	* @return bool
-	*/
-	protected static function isCookieEnabled() {
-		return (count($_COOKIE) > 0);
+	 * Generate CSRF Key name
+	 * 
+	 * @param string $form the form name for which CSRF key need to generate
+	 * @return string CSRF key
+	 */
+	private static function getKeyName($form) {
+		return DUPX_CSRF::$prefix . '_' . $form;
 	}
 
-	public static function resetAllTokens() {
-		foreach ($_COOKIE as $cookieName => $cookieVal) {
-			if (0 === strpos($cookieName, DUPX_CSRF::$prefix) || 'archive' == $cookieName || 'bootloader' == $cookieName) {
-				$baseUrl = self::getBaseUrl();
-				setcookie($cookieName, '', time() - 86400, $baseUrl);	
+	/**
+	 * Get Package hash
+	 * 
+	 * @return string Package hash
+	 */
+	private static function getPackageHash() {
+		if (class_exists('DUPX_Bootstrap')) {
+			return DUPX_Bootstrap::PACKAGE_HASH;
+		} else {
+			return DUPX_Boot::getPackageHash();
+		}
+	}
+
+	/**
+	 * Get file path where CSRF tokens are stored in JSON encoded format
+	 *
+	 * @return string file path where CSRF token stored 
+	 */
+	private static function getFilePath() {
+		if (class_exists('DUPX_Bootstrap')) {
+			$dupInstallerfolderPath = dirname(__FILE__).'/dup-installer/';
+		} else {
+			$dupInstallerfolderPath = $GLOBALS['DUPX_INIT'].'/';
+		}
+		$packageHash = self::getPackageHash();
+		$fileName = 'dup-installer-csrf__'.$packageHash.'.txt';
+		$filePath = $dupInstallerfolderPath.$fileName;
+		return $filePath;
+	}
+
+	/**
+	 * Get all CSRF vars in array format
+	 * 
+	 * @return array Key as CSRF name and value as CSRF value
+	 */
+	private static function getCSRFVars() {
+		if (!isset(self::$CSRFVars) || false === self::$CSRFVars) {
+			$filePath = self::getFilePath();
+			if (file_exists($filePath)) {
+				$contents = file_get_contents($filePath);
+				if (empty($contents)) {
+					self::$CSRFVars = array();
+				} else {
+					$CSRFobjs = json_decode($contents);
+					foreach ($CSRFobjs as $key => $value) {
+						self::$CSRFVars[$key] = $value;
+					}
+				}
+			} else {
+				self::$CSRFVars = array();
 			}
 		}
-		$_COOKIE = array();
+		return self::$CSRFVars;
 	}
 
-	private static function getBaseUrl() {
-		// output: /myproject/index.php
-		$currentPath = $_SERVER['PHP_SELF']; 
-		
-		// output: Array ( [dirname] => /myproject [basename] => index.php [extension] => php [filename] => index ) 
-		$pathInfo = pathinfo($currentPath); 
-		
-		// output: localhost
-		$hostName = $_SERVER['HTTP_HOST']; 
-		
-		// output: http://
-		$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https://'?'https://':'http://';
-		
-		// return: http://localhost/myproject/
-		return $protocol.$hostName.$pathInfo['dirname']."/";
+	/**
+	 * Stores all CSRF vars
+	 * 
+	 * @param array $CSRFVars holds all CSRF key val
+	 * @return void
+	 */
+	private static function saveCSRFVars($CSRFVars) {
+		$contents = DupProSnapJsonU::wp_json_encode($CSRFVars);
+		$filePath = self::getFilePath();
+		file_put_contents($filePath, $contents);
 	}
 }

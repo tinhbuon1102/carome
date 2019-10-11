@@ -2,9 +2,8 @@
 /** Absolute path to the DAWS directory. - necessary for php protection */
 if ( !defined('ABSPATH') )
 	define('ABSPATH', dirname(__FILE__) . '/');
-
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+if (DupProSnapLibUtil::wp_is_ini_value_changeable('display_errors'))
+    @ini_set('display_errors', 1);
 error_reporting(E_ALL);
 set_error_handler("terminate_missing_variables");
 

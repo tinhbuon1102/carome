@@ -55,6 +55,14 @@ class DUP_PRO_MU
         }
     }
 
+    /**
+     * This function is wrong because it assumes that if the folder sites exist, blogs.dir cannot exist.
+     * This is not true because if the network is old but a new site is created after the WordPress update both blogs.dir and sites folders exist.
+     * 
+     * @deprecated since version 3.8.4
+     *
+     * @return int
+     */
     public static function getGeneration()
     {
         if(self::getMode() == 0)
@@ -214,28 +222,30 @@ class DUP_PRO_MU
     }
 
     /**
-	 * Returns the main site ID for the network.
-	 *
+     * Returns the main site ID for the network.
+     *
      * Copied from the source of the get_main_site_id() except first line in https://developer.wordpress.org/reference/functions/get_main_site_id/
      * get_main_site_id() is introduced in WP 4.9.0. It is for backward compatibility
      * 
      * @param int|null network id
-	 * @return int The ID of the main site.
-	 */
-    public static function get_main_site_id($network_id = null) {
+     * @return int The ID of the main site.
+     */
+    public static function get_main_site_id($network_id = null)
+    {
         // For > WP 4.9.0  
-        if (function_exists('get_main_site_id'))  return get_main_site_id($network_id);
-       
-        if (!is_multisite() ) {
+        if (function_exists('get_main_site_id')) {
+            return get_main_site_id($network_id);
+        }
+
+        if (!is_multisite()) {
             return get_current_blog_id();
         }
-     
-        $network = get_network($network_id);
+
+        $network = function_exists('get_network') ? get_network($network_id) : wp_get_network($network_id);
         if (!$network) {
             return 0;
         }
-     
+
         return $network->site_id;
     }
-
 }

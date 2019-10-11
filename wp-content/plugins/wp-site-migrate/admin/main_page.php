@@ -14,7 +14,7 @@
 	<div class="row">
 
 		<div class="seven columns">
-			<form id="wpe_migrate_form" dummy=">" action="<?php echo $this->bvmain->appUrl(); ?>/home/migrate" onsubmit="document.getElementById('migratesubmit').disabled = true;" method="post" name="signup">
+			<form id="wpe_migrate_form" dummy=">" action="<?php echo $this->bvinfo->appUrl(); ?>/home/migrate" onsubmit="document.getElementById('migratesubmit').disabled = true;" method="post" name="signup">
 				<h1>Migrate My Site to WP Engine</h1>
 				<p>The WP Engine Automated Migration plugin allows you to easily migrate your entire WordPress site from
 					your previous hosting service to WP Engine for free.</p>

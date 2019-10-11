@@ -1,8 +1,9 @@
 <?php
 defined("ABSPATH") or die("");
-require_once(DUPLICATOR_PRO_PLUGIN_PATH . '/classes/utilities/class.u.low.php');
-require_once(DUPLICATOR_PRO_PLUGIN_PATH . '/classes/entities/class.system.global.entity.php');
-require_once(DUPLICATOR_PRO_PLUGIN_PATH . '/lib/snaplib/class.snaplib.u.url.php');
+
+require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/classes/utilities/class.u.low.php');
+require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/classes/entities/class.system.global.entity.php');
+require_once(DUPLICATOR_PRO_PLUGIN_PATH.'/lib/snaplib/class.snaplib.u.url.php');
 
 /**
  * Used to generate a alert in the main WP admin screens
@@ -20,6 +21,8 @@ require_once(DUPLICATOR_PRO_PLUGIN_PATH . '/lib/snaplib/class.snaplib.u.url.php'
 class DUP_PRO_UI_Alert
 {
 
+    const OPTION_ACTIVATE_PLUGINS = 'duplicator_pro_activate_plugins_after_installation';
+
     /**
      * Used by the WP action hook to detect the state of the endpoint license
      * which calls the various show* methods for which alert to display
@@ -35,53 +38,53 @@ class DUP_PRO_UI_Alert
                 //Style needs to be loaded here because css is global across wp-admin
                 wp_enqueue_style('dup-pro-plugin-style-notices', DUPLICATOR_PRO_PLUGIN_URL.'assets/css/admin-notices.css', null, DUPLICATOR_PRO_VERSION);
                 $license_status = DUP_PRO_License_U::getLicenseStatus(false);
-               
+
                 if ($license_status === DUP_PRO_License_Status::Expired) {
                     self::showExpired();
                 } else if ($license_status !== DUP_PRO_License_Status::Valid) {
                     $global = DUP_PRO_Global_Entity::get_instance();
 
                     if ($global->license_no_activations_left) {
-                        self::showNoActivationsLeft();                        
+                        self::showNoActivationsLeft();
                     } else {
                         $days_invalid = floor((time() - $global->initial_activation_timestamp) / 86400);
 
                         // If an md5 is present always do standard nag
                         $license_key = get_option(DUP_PRO_Constants::LICENSE_KEY_OPTION_NAME, '');
                         $md5_present = DUP_PRO_Low_U::isValidMD5($license_key);
-                                                
+
                         if ($md5_present || ($days_invalid < DUP_PRO_Constants::UNLICENSED_SUPER_NAG_DELAY_IN_DAYS)) {
                             self::showInvalidStandardNag();
                         } else {
                             self::showInvalidSuperNag($days_invalid);
                         }
                     }
-                }                
+                }
             }
         }
     }
-    
-     /**
+
+    /**
      * Shows the scheduled failed alert
      */
     public static function failedScheduleCheck()
     {
         /* @var $system_global DUP_PRO_System_Global_Entity */
         $system_global = DUP_PRO_System_Global_Entity::get_instance();
-        $img_url     = plugins_url('duplicator-pro/assets/img/warning.png');
+        $img_url       = plugins_url('duplicator-pro/assets/img/warning.png');
 
-        if(($system_global !== null) && ($system_global->schedule_failed)) {
+        if (($system_global !== null) && ($system_global->schedule_failed)) {
 
-           // $clear_url = self_admin_url()."admin.php?page=".DUP_PRO_Constants::$SCHEDULES_SUBMENU_SLUG.'&dup_pro_clear_schedule_failure=1';
-			$clear_url = SnapLibURLU::getCurrentUrl();
-			$clear_url = SnapLibURLU::appendQueryValue($clear_url, 'dup_pro_clear_schedule_failure', 1);
+            // $clear_url = self_admin_url()."admin.php?page=".DUP_PRO_Constants::$SCHEDULES_SUBMENU_SLUG.'&dup_pro_clear_schedule_failure=1';
+            $clear_url = DupProSnapLibURLU::getCurrentUrl();
+            $clear_url = DupProSnapLibURLU::appendQueryValue($clear_url, 'dup_pro_clear_schedule_failure', 1);
 
             echo "<div style='padding-bottom:10px;' class='dpro-admin-notice error'><p><img src='".esc_url($img_url)."' style='float:left; padding:0 10px 0 5px' />".
-            sprintf(DUP_PRO_U::esc_html__('%sWarning! A Duplicator Pro scheduled backup has failed.%s'),'<b>','</b> <br/>') .
-            sprintf(DUP_PRO_U::esc_html__('This message will continue to be displayed until a %sscheduled build%s successfully runs.'), "<a href='admin.php?page=duplicator-pro-schedules'>", '</a>') .
+            sprintf(DUP_PRO_U::esc_html__('%sWarning! A Duplicator Pro scheduled backup has failed.%s'), '<b>', '</b> <br/>').
+            sprintf(DUP_PRO_U::esc_html__('This message will continue to be displayed until a %sscheduled build%s successfully runs.'), "<a href='admin.php?page=duplicator-pro-schedules'>", '</a>').
             ' '.
-			sprintf(DUP_PRO_U::esc_html__('To ignore and clear this message %sclick here%s'), "<a href='".esc_url($clear_url)."'>", '</a>.<br/></p></div>');
-        }    
+            sprintf(DUP_PRO_U::esc_html__('To ignore and clear this message %sclick here%s'), "<a href='".esc_url($clear_url)."'>", '</a>.<br/></p></div>');
+        }
     }
 
     /**
@@ -134,11 +137,11 @@ class DUP_PRO_UI_Alert
         $licensing_tab_url = self_admin_url()."admin.php?page=".DUP_PRO_Constants::$SETTINGS_SUBMENU_SLUG.'&tab=licensing';
 
         $problem_text = 'missing';
-        
-        if(get_option(DUP_PRO_Constants::LICENSE_KEY_OPTION_NAME, '') !== '') {
+
+        if (get_option(DUP_PRO_Constants::LICENSE_KEY_OPTION_NAME, '') !== '') {
             $problem_text = 'invalid or disabled';
-        } 
-        
+        }
+
         echo "<div class='update-nag dpro-admin-notice'><p><img src='{$img_url}' style='float:left; padding:0 10px 0 5px' /> ".
         "<b>Warning!</b> Your Duplicator Pro license is {$problem_text}... <br/>".
         "This means this plugin doesn't have access to <b>security updates</b>, <i>bug fixes</i>, <b>support request</b> or <i>new features</i>.<br/>".
@@ -162,11 +165,92 @@ class DUP_PRO_UI_Alert
         ."<img src='".esc_url($img_url)."' style='margin-top:15px;'>"
         .'<p style="font-size:1.5em; line-height:1.4em;">'
         .'<b>The Bad News:</b> Your Duplicator Pro License is Invalid. <br/>'
-        .'<b>The Good News:</b> You Can Get 30% Off Duplicator Pro Today! </p>'
+        .'<b>The Good News:</b> You Can Get 10% Off Duplicator Pro Today! </p>'
         ."The Duplicator Pro plugin has been running for at least 30 days without a valid license.<br/>"
         .'...which means you don\'t have access to <b>security updates</b>, <i>bug fixes</i>, <b>support requests</b> or <i>new features</i>.<br/>'
         ."<p style='font-size:1.5rem'><a href='".esc_url($licensing_tab_url)."'>Activate Your License Now...</a> <br/> - OR - <br/> "
         ."<a target='_blank' href='https://snapcreek.com/duplicator/pricing?discount=SUPERN_10_F2'>Purchase and Get 10% Off!*</a></p>"
         .'<p style="text-align:center; font-size:1rem"><small>*Discount appears in cart at checkout time.</small></p></div>';
+    }
+
+    /**
+     * Shows the scheduled failed alert
+     */
+    public static function phpUpgrade()
+    {
+        if (false !== strpos($GLOBALS['hook_suffix'], 'duplicator-pro') && version_compare(PHP_VERSION, '5.3.0') < 0) {
+            echo '<div class="dpro-admin-notice error"><p>';
+
+            echo '<b>';
+            printf(DUP_PRO_U::esc_html__('Your system is running a very old version of PHP (%s) and Duplicator Pro will no longer support it in the near future.'), PHP_VERSION);
+            echo '&nbsp&nbsp</b>';
+
+            printf(DUP_PRO_U::esc_html__('Please ask your host to upgrade to PHP v5.6 or greater'));
+            echo '</p></div>';
+        }
+    }
+
+    /**
+     * Shows install deactivated function
+     */
+    public static function activatePluginsAfterInstall()
+    {
+        
+        $pluginsToActive = get_option(self::OPTION_ACTIVATE_PLUGINS, false);
+        if (is_array($pluginsToActive)) {
+            $allPlugins        = get_plugins();
+            $shouldBeActivated = array();
+            
+            foreach ($pluginsToActive as $pluginSlug) {
+                if (!isset($allPlugins[$pluginSlug])) {
+                    continue;
+                }
+                
+                if (is_multisite()) {
+                    if (!is_plugin_active_for_network($pluginSlug)) {
+                        $shouldBeActivated[$pluginSlug] = $allPlugins[$pluginSlug]['Name'];
+                    }
+                } else {
+                    if (!is_plugin_active($pluginSlug)) {
+                         $shouldBeActivated[$pluginSlug] = $allPlugins[$pluginSlug]['Name'];
+                    }
+                }
+            }
+
+            if (empty($shouldBeActivated)) {
+                delete_option(self::OPTION_ACTIVATE_PLUGINS, false);
+            } else {
+                $img_url = plugins_url('duplicator-pro/assets/img/warning.png');
+                ?>
+                <div class="update-nag dpro-admin-notice">
+                    <img src="<?php echo esc_attr($img_url); ?>" style="float:left; padding:0 10px 0 5px" /> 
+                    <div style="margin-left: 70px;">
+                        <b><?php DUP_PRO_U::esc_attr_e('Warning!'); ?></b> <?php DUP_PRO_U::esc_attr_e('Migration Almost Complete!'); ?> <br/>
+                        <?php DUP_PRO_U::esc_attr_e('Plugin(s) listed here must be activated, Please activate them:'); ?><br/>
+                        <ul>
+                            <?php
+                            foreach ($shouldBeActivated as $slug => $title) {
+                                if (is_multisite()) {
+                                    $activateURL = network_admin_url('plugins.php?action=activate&plugin='.$slug);
+                                } else {
+                                    $activateURL = admin_url('plugins.php?action=activate&plugin='.$slug);
+                                }
+                                $activateURL = wp_nonce_url($activateURL, 'activate-plugin_'.$slug);
+                                $anchorTitle = sprintf(DUP_PRO_U::__('Activate %s'), $title);
+                                ?>
+                                <li>
+                                    <a href="<?php echo esc_attr($activateURL); ?>" title="<?php echo esc_attr($anchorTitle); ?>"> 
+                                        <?php echo esc_html($title); ?>
+                                    </a>
+                                </li>
+                                <?php
+                            }
+                            ?>
+                        </ul>
+                    </div>
+                </div>
+                <?php
+            }
+        }
     }
 }

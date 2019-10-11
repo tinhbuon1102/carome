@@ -25,7 +25,7 @@ body, html {
 }
 
 #seed-cspv5-sidebar-wrapper small {
-  font-size: 10px;
+  font-size: 11px;
 }
 
 #seed-cspv5-customizer-wrapper{
@@ -122,5 +122,26 @@ body, html {
   .seed-cspv5-form-field{
     margin-bottom:10px;
   }
+
+  .sortable-ghost{
+    background:yellow;
+  }
  
+
+  #dragbar{
+    background-color: #ccc;
+    height: 100%;
+    width: 3px;
+    cursor: col-resize;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .help{
+    display: block;
+    font-size:11px;
+  }
+  
+  
 

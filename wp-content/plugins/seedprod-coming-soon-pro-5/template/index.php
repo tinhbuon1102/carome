@@ -852,7 +852,7 @@ $url = '';
     ?>
 
 
-	<?php if(!empty($settings->enable_recaptcha)){ ?>
+	<?php if(!empty($settings->enable_recaptcha)  && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 		<?php if(!empty($settings->enable_invis_recaptcha)){ ?>
 		    .grecaptcha-badge{
 		        display:none;
@@ -860,11 +860,16 @@ $url = '';
 		<?php } ?>
 	<?php } ?>
 
+	<?php if(!empty($settings->enable_wp_head_footer)){ ?>
+	#cspio-cf-modal .modal-dialog{
+		z-index:1050;
+	}
+	<?php } ?>
 
 
 	</style>
 
-	<?php if(!empty($settings->enable_recaptcha)){ ?>
+	<?php if(!empty($settings->enable_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 			<script>
 			 var emplacementRecaptcha = '';
 			 var emplacementRecaptcha2 = '';
@@ -934,7 +939,7 @@ $url = '';
 	<?php } ?>
 
 
-	<?php if(!empty($settings->enable_recaptcha)){ ?>
+	<?php if(!empty($settings->enable_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 	<!-- Recaptcha -->
 	<script src="https://www.google.com/recaptcha/api.js?onload=IRonloadCallback&render=explicit" async defer></script>
 	<?php } ?>
@@ -1107,7 +1112,7 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 			  </div>
 			  <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
 
-			  	<?php if(!empty($settings->enable_recaptcha)){ ?>
+			  	<?php if(!empty($settings->enable_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 					<div id="emplacementRecaptcha2"></div>
 				<?php } ?>
 	          <button id="cspio-cf-send-button" type="button" class="btn btn-primary"><?php echo $settings->txt_contact_form_send ?></button>
@@ -1122,7 +1127,7 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 		$contact_form_callback_ajax_url = html_entity_decode(wp_nonce_url(admin_url().'admin-ajax.php?action=seed_cspv5_contactform_callback','seed_cspv5_contactform_callback')); 
 		?>
 
-		<?php if(!empty($settings->enable_recaptcha) && !empty($settings->enable_invis_recaptcha)){ ?>
+		<?php if(!empty($settings->enable_recaptcha) && !empty($settings->enable_invis_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 		jQuery( "#cspio-cf-send-button" ).click(function( event ) {
 			event.preventDefault();
 			grecaptcha.execute(emplacementRecaptcha2);
@@ -1166,10 +1171,10 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 			    error: function(jqXHR, textStatus, errorThrown) {
 			    	console.log(jqXHR);
 			    	console.log(errorThrown);
-		    		<?php if(!empty($settings->enable_recaptcha)){ ?>
+		    		<?php if(!empty($settings->enable_recaptcha) && !empty($settings->recaptcha_site_key) && !empty($settings->recaptcha_secret_key)){ ?>
 		    		grecaptcha.reset(emplacementRecaptcha2);
 		    		<?php } ?>
-		        	alert(textStatus);
+		        	alert('The email could not be sent. Possible reason: your host may have disabled the mail() function.');
 		    	}
 			});
 
@@ -1370,7 +1375,7 @@ if($settings->blocks[count($settings->blocks)-1] != 'column' ){
 	<script>
 	function resize(){
 			jQuery('head').append("<style id='form-style' type='text/css'></style>");
-			jQuery('#form-style').html('.cspio .input-group-btn, .cspio .input-group{display:block;width:100%;}.cspio #cspio-subscribe-btn{margin-left:0;width:100%;display:block;}.cspio .input-group .form-control:first-child, .cspio .input-group-addon:first-child, .cspio .input-group-btn:first-child>.btn, .cspio .input-group-btn:first-child>.dropdown-toggle, .cspio .input-group-btn:last-child>.btn:not(:last-child):not(.dropdown-toggle) {border-bottom-right-radius: 4px;border-top-right-radius: 4px;}.cspio .input-group .form-control:last-child, .cspio .input-group-addon:last-child, .cspio .input-group-btn:last-child>.btn, .cspio .input-group-btn:last-child>.dropdown-toggle, .cspio .input-group-btn:first-child>.btn:not(:first-child) {border-bottom-left-radius: 4px;border-top-left-radius: 4px;}');
+			jQuery('#form-style').html('.cspio #cspio-field-wrapper .input-group-btn, .cspio #cspio-field-wrapper .input-group{display:block;width:100%;}.cspio #cspio-subscribe-btn{margin-left:0;width:100%;display:block;}.cspio .input-group .form-control:first-child, .cspio .input-group-addon:first-child, .cspio .input-group-btn:first-child>.btn, .cspio .input-group-btn:first-child>.dropdown-toggle, .cspio .input-group-btn:last-child>.btn:not(:last-child):not(.dropdown-toggle) {border-bottom-right-radius: 4px;border-top-right-radius: 4px;}.cspio .input-group .form-control:last-child, .cspio .input-group-addon:last-child, .cspio .input-group-btn:last-child>.btn, .cspio .input-group-btn:last-child>.dropdown-toggle, .cspio .input-group-btn:first-child>.btn:not(:first-child) {border-bottom-left-radius: 4px;border-top-left-radius: 4px;}');
 	}
 	
 	jQuery('#cspio-content').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){

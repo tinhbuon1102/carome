@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WDP_Admin_Exclusive_Page extends WDP_Admin_Abstract_Page {
-	public $priority = 120;
+	public $priority = 130;
 	protected $tab = 'exclusive';
 
 	public function __construct() {

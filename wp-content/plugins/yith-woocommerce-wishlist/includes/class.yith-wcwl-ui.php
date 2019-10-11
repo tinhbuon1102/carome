@@ -177,7 +177,7 @@ if( ! class_exists( 'YITH_WCWL_UI' ) ) {
             { $html .= '<li style="list-style-type: none; display: inline-block;"><a target="_blank" class="googleplus" href="https://plus.google.com/share?url=' . $url . '&amp;title=' . $title . '" title="' . $title . '" onclick=\'javascript:window.open(this.href, "", "menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600");return false;\'></a></li>'; }
 
             if( get_option( 'yith_wcwl_share_email' ) == 'yes' )
-            { $html .= '<li style="list-style-type: none; display: inline-block;"><a class="email" href="mailto:?subject=I wanted you to see this site&amp;body= ' . $url . '&amp;title=' . __('email', 'yith-woocommerce-wishlist') . '" title="' . $title . '" ></a></li>'; }
+            { $html .= '<li style="list-style-type: none; display: inline-block;"><a class="email" href="mailto:?subject='.urlencode( apply_filters( 'yith_wcwl_email_share_subject', 'I wanted you to see this site' ) ).'&amp;body= ' . $url . '&amp;title=' . __('email', 'yith-woocommerce-wishlist') . '" title="' . $title . '" ></a></li>'; }
 
             $html .= '</ul>';
             $html .= '</div>';

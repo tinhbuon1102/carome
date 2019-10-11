@@ -5,57 +5,66 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WDP_Loader {
 	const db_version = "wdp_db_version";
-	
+
 	public static function install() {
 		WDP_Database::create_database();
+		do_action('wdp_install');
 	}
-	
+
 	public static function deactivate() {
 		delete_option( WDP_Settings::$activation_notice_option );
 	}
-	
+
 	public static function uninstall() {
 		// delete tables  only if have value in settings
 		$options = get_option( 'wdp_settings', array() );
 		if( isset($options['uninstall_remove_data']) AND $options['uninstall_remove_data'])
 			WDP_Database::delete_database();
+
+		do_action('wdp_uninstall', $options);
 	}
-	
+
 	public function __construct() {
+		$extension_file = WC_ADP_PLUGIN_PATH . 'pro_version/loader.php';
+		if ( file_exists( $extension_file ) ) {
+			include_once $extension_file;
+		}
+
 		//should wait a bit
 		add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
 	}
-	
-	public function init_plugin() {
-		load_plugin_textdomain( 'advanced-dynamic-pricing-for-woocommerce', FALSE, basename( dirname( dirname( __FILE__ ) ) ) . '/languages/' );
 
-		if ( ! self::check_requirements() ) {
+	public function init_plugin() {
+		if ( ! self::check_requirements() || WDP_Loader::is_request_to_rest_api() ) {
 			return;
 		}
-		
-		self::check_db_version();
+		load_plugin_textdomain( 'advanced-dynamic-pricing-for-woocommerce', FALSE, basename( dirname( dirname( __FILE__ ) ) ) . '/languages/' );
 
+		self::check_db_version();
+		
 		include_once WC_ADP_PLUGIN_PATH . 'classes/common/class-wdp-helpers.php';
-		include_once WC_ADP_PLUGIN_PATH . 'classes/admin/class-wdp-customizer.php';
+		include_once WC_ADP_PLUGIN_PATH . 'classes/admin/class-wdp-importer.php';
 
 		include_once WC_ADP_PLUGIN_PATH . 'classes/class-wdp-frontend.php';
+		include_once WC_ADP_PLUGIN_PATH . 'classes/class-wdp-functions.php';
+		include_once WC_ADP_PLUGIN_PATH . 'classes/admin/class-wdp-settings.php';
 
 		if ( is_admin() ) {
-			include_once WC_ADP_PLUGIN_PATH . 'classes/admin/class-wdp-settings.php';
 			new WDP_Settings();// it will load core on demand
 		}
 
 		$options = WDP_Helpers::get_settings();
-		if ( ! is_admin() || $options['load_in_backend'] || WDP_Frontend::is_nopriv_ajax_processing() ) {
+		if ( ! is_admin() || $options['load_in_backend'] || WDP_Frontend::is_ajax_processing() ) {
 			new WDP_Frontend(); // it will load core on demand
 		}
 	}
-	
+
 	public static function check_db_version() {
 		$version = get_option( self::db_version, "" );
 		if( $version != WC_ADP_VERSION ) {
 			//upgrade db
 			WDP_Database::create_database();
+			do_action('wdp_upgrade_db');
 			update_option( self::db_version, WC_ADP_VERSION, false );
 		}
 	}
@@ -86,11 +95,7 @@ class WDP_Loader {
 	}
 
 	public static function load_core() {
-		//Advanced classes
-		$extension_file = WC_ADP_PLUGIN_PATH . 'pro_version/loader.php';
-		if ( file_exists( $extension_file ) ) {
-			include_once $extension_file;
-		}
+		do_action( 'wdp_load_core' );
 
 		//Contracts
 		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/contracts/contract-*.php' ) as $filename ) {
@@ -106,6 +111,63 @@ class WDP_Loader {
 		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/engine/class-*.php' ) as $filename ) {
 			include_once $filename;
 		}
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/engine/cart/class-*.php' ) as $filename ) {
+			include_once $filename;
+		}
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/engine/product/class-*.php' ) as $filename ) {
+			include_once $filename;
+		}
+
+		include_once WC_ADP_PLUGIN_PATH . 'classes/engine/range_discount_table/abstracts/abstract-wdp-range-discounts-table.php';
+		include_once WC_ADP_PLUGIN_PATH . 'classes/engine/range_discount_table/abstracts/abstract-wdp-range-discounts-table-product-context.php';
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/engine/range_discount_table/class-*.php' ) as $filename ) {
+			include_once $filename;
+		}
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/engine/range_discount_table/tables/class-*.php' ) as $filename ) {
+			include_once $filename;
+		}
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/shortcode/class-*.php' ) as $filename ) {
+			include_once $filename;
+		}
+
+		//Rules
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/class-*.php' ) as $filename ) {
+			include_once $filename;
+		}
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/class-wdp-rule-*.php' ) as $filename ) {
+			include_once $filename;
+		}
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/calculators/class-wdp-rule-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/abstract/abstract-class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/product/class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/product_categories/class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/product_selected_categories/class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/sets/class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/total_qty_in_cart/class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/variation/class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/qty_based_calculators/all_matched_products/class-*.php' ) as $filename )
+			include_once $filename;
+
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/exceptions/class-*.php' ) as $filename )
+			include_once $filename;
 
 		do_action( 'wdp_include_core_classes' );
 
@@ -134,17 +196,39 @@ class WDP_Loader {
 			include_once $filename;
 		}
 
-		//Rules
-		include_once WC_ADP_PLUGIN_PATH . 'classes/rules/class-wdp-rule-product-package.php';
-		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/class-wdp-rule-*.php' ) as $filename )
+		// Reporter
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/reporter/class-*.php' ) as $filename ) {
 			include_once $filename;
+		}
 
-		include_once WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/calculators/interface-wdp-rule-discount-range-calculator.php';
-		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/rules/discount_range/calculators/class-wdp-rule-*.php' ) as $filename )
+		foreach ( glob( WC_ADP_PLUGIN_PATH . 'classes/reporter/collectors/class-*.php' ) as $filename ) {
 			include_once $filename;
+		}
+
+		include_once WC_ADP_PLUGIN_PATH . 'classes/class-wdp-standalone-cart.php';
+		include_once WC_ADP_PLUGIN_PATH . 'classes/admin/class-wdp-customizer.php';
 	}
-	
+
+	protected function is_request_to_rest_api() {
+		if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+			return false;
+		}
+
+		$rest_prefix = trailingslashit( rest_get_url_prefix() );
+		$request_uri = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+		$wordpress = ( false !== strpos( $request_uri, $rest_prefix ) );
+		return $wordpress;
+	}
+
 	public static function is_pro_version() {
 		return defined('WC_ADP_PRO_VERSION_PATH');
+	}
+
+	public static function get_product_filtering_class() {
+		return apply_filters('wdp_get_product_filtering_class', new WDP_Product_Filtering());
+	}
+
+	public static function get_rule_sql_generator_class() {
+		return apply_filters('wdp_get_rule_sql_generator_class', new WDP_Rule_SQL_Generator());
 	}
 }

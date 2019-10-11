@@ -1,5 +1,6 @@
 <?php
 namespace DuplicatorPro\Krizalys\Onedrive;
+defined("ABSPATH") or die("");
 include_once "ResumableUploader.php";
 
 use Monolog\Handler\StreamHandler;
@@ -24,31 +25,6 @@ use Monolog\Logger;
  */
 class Client
 {
-    /**
-     * @var string The base URL for API requests.
-     */
-    const API_URL = 'https://api.onedrive.com/v1.0/';
-
-    /**
-     * @var string The base URL for authorization requests.
-     */
-    const AUTH_URL = 'https://login.live.com/oauth20_authorize.srf';
-
-    /**
-     * @var string The base URL for authorization requests for OneDrive for buisness.
-     */
-    const BUSINESS_AUTH_URL = 'https://login.microsoftonline.com/common/oauth2/authorize';
-
-    /**
-     * @var string The base URL for token requests.
-     */
-    const TOKEN_URL = 'https://login.live.com/oauth20_token.srf';
-
-    /**
-     * @var string The base URL for token requests for OneDrive for buisness.
-     */
-    const BUSINESS_TOKEN_URL = 'https://login.microsoftonline.com/common/oauth2/token';
-
     /**
      * @var string Client information.
      */
@@ -79,6 +55,18 @@ class Client
      *                  when verifying).
      */
     private $_sslCaPath;
+
+    public $use_msgraph_api;
+	
+	private $api_url;
+	
+	public $route_prefix;
+
+	// The base URL for authorization requests.
+	private $auth_url;
+
+	// The base URL for token requests.
+	private $token_url;
 
     /**
      * @var int The name conflict behavior.
@@ -112,7 +100,7 @@ class Client
      * @var string OneDrive endpoint url
      */
 
-    private $_endpointURL = self::API_URL;
+    private $_endpointURL;
 
     /**
      * @var null|string The Resource ID to get the OneDrive tokens with.
@@ -252,7 +240,7 @@ class Client
                 'token' => null,
             ];
 
-        $this->_endpointURL = !empty($this->_state->endpoint_url) ? $this->_state->endpoint_url : self::API_URL;
+        
 
         $this->_serviceResourceId = property_exists($this->_state,"resource_id") ? $this->_state->resource_id : null;
 
@@ -265,8 +253,6 @@ class Client
         $this->_streamBackEnd = array_key_exists('stream_back_end', $options)
             ? $options['stream_back_end'] : StreamBackEnd::TEMP;
 
-        $this->_isBusiness = $this->_endpointURL != self::API_URL;
-
         $this->_streamOpener = new StreamOpener();
 
         $this->_nameConflictBehavior =
@@ -276,6 +262,44 @@ class Client
 
         $this->_nameConflictBehaviorParameterizer =
             new NameConflictBehaviorParameterizer();
+
+        $this->use_msgraph_api = array_key_exists('use_msgraph_api', $options) ? $options['use_msgraph_api'] : false;
+
+        if ($this->use_msgraph_api) {
+            $this->api_url = 'https://graph.microsoft.com/v1.0/';
+            $this->route_prefix = 'me/';
+
+            // The base URL for authorization requests.
+            $this->auth_url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
+            // The base URL for token requests.
+            $this->token_url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
+        } else { // Custom App or old live sdk
+            $this->route_prefix = '';
+            // $this->api_url = 'https://api.onedrive.com/v1.0/';
+
+            
+            $this->api_url = !empty($this->_state->endpoint_url) ? $this->_state->endpoint_url : 'https://api.onedrive.com/v1.0/';
+            $this->_isBusiness = $this->api_url != 'https://api.onedrive.com/v1.0/';
+
+            // $this->_isBusiness = true;
+            /*
+            if (!empty($this->_state->endpoint_url)) {
+                $this->_isBusiness = true;
+            }
+            */
+
+            if ($this->_isBusiness) {
+                // The base URL for authorization requests.
+                $this->auth_url =  'https://login.microsoftonline.com/common/oauth2/authorize';
+                // The base URL for token requests.
+                $this->token_url = 'https://login.microsoftonline.com/common/oauth2/token';
+            } else {
+                // The base URL for authorization requests.
+                $this->auth_url =  'https://login.live.com/oauth20_authorize.srf';
+                // The base URL for token requests.
+                $this->token_url = 'https://login.live.com/oauth20_token.srf';
+            }
+        }
     }
 
     /**
@@ -283,6 +307,10 @@ class Client
      */
     public function setBusinessMode()
     {
+        // The base URL for authorization requests.
+        $this->auth_url =  'https://login.microsoftonline.com/common/oauth2/authorize';
+        // The base URL for token requests.
+        $this->token_url = 'https://login.microsoftonline.com/common/oauth2/token';
         $this->_isBusiness = true;
     }
 
@@ -356,15 +384,19 @@ class Client
             );
         }
 
-        $imploded = implode(',', $scopes);
-        $redirectUri = (string)$redirectUri;
+        if ($this->use_msgraph_api) {
+			$imploded    = implode(' ', $scopes);
+		} else {
+			$imploded    = implode(',', $scopes);
+		}
+        $redirectUri = (string) $redirectUri;
         $this->_state->redirect_uri = $redirectUri;
 
         // When using this URL, the browser will eventually be redirected to the
         // callback URL with a code passed in the URL query string (the name of
         // the variable is "code"). This is suitable for PHP.
-        $url = $this->_isBusiness ? self::BUSINESS_AUTH_URL : self::AUTH_URL;
-        $url .= '?client_id=' . urlencode($this->_clientId)
+        $url = $this->auth_url
+            . '?client_id=' . urlencode($this->_clientId)
             . '&scope=' . urlencode($imploded)
             . '&response_type=code'
             . '&redirect_uri=' . urlencode($redirectUri)
@@ -438,11 +470,7 @@ class Client
             );
         }
 
-        if ($this->_isBusiness) {
-            $url = self::BUSINESS_TOKEN_URL;
-        } else {
-            $url = self::TOKEN_URL;
-        }
+        $url = $this->token_url;
 
         $fields_arr = array(
             'client_id' => $this->_clientId,
@@ -552,13 +580,18 @@ class Client
             );
         }
 
-        if ($this->_isBusiness) {
-            $url = self::BUSINESS_TOKEN_URL;
-        } else {
-            $url = self::TOKEN_URL;
-        }
+        $url = $this->token_url;
 
         $curl = curl_init();
+
+        $post_fields = 'client_id=' . urlencode($this->_clientId)
+                        . '&client_secret=' . urlencode($clientSecret)
+                        . '&grant_type=refresh_token';
+        if (!empty($this->_state->token->data->refresh_token)) {
+            $post_fields .= '&refresh_token=' . urlencode(
+                                    $this->_state->token->data->refresh_token
+                                );
+        }
 
         curl_setopt_array($curl, [
             // General options.
@@ -566,15 +599,7 @@ class Client
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_AUTOREFERER => true,
             CURLOPT_POST => 1, // i am sending post data
-
-            CURLOPT_POSTFIELDS =>
-                'client_id=' . urlencode($this->_clientId)
-                . '&client_secret=' . urlencode($clientSecret)
-                . '&grant_type=refresh_token'
-                . '&refresh_token=' . urlencode(
-                    $this->_state->token->data->refresh_token
-                ),
-
+            CURLOPT_POSTFIELDS => $post_fields,
             // SSL options.
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -615,20 +640,34 @@ class Client
      */
     public function apiGet($path, $options = [])
     {
+        $api = $this->api_url;
+		
+        // $url  = (strpos($path, 'https://') === 0) ? $path : $api . $path;
         if (strpos($path, "https") === false) {
-            $url = $this->_endpointURL . $path;
+            $url = $api . $path;
         } else {
             $url = $path;
         }
 
-        $url =
-            $url . '?access_token=' . urlencode(
-                $this->_state->token->data->access_token
-            );
+        if (!$this->use_msgraph_api)
+            $url .=
+            '?access_token=' . urlencode($this->_state->token->data->access_token);
 
         //throw new \Exception(print_r($this->_state,true));
         $curl = self::_createCurl($path, $options);
-        curl_setopt($curl, CURLOPT_URL, $url);
+
+        $curl_options = array(
+			CURLOPT_URL			=> $url,            
+            CURLOPT_HTTPHEADER 	=> array(
+				'Authorization: Bearer ' . $this->_state->token->data->access_token
+            ),
+        );
+        
+        // error_log($url);
+		
+		curl_setopt_array($curl, $curl_options);
+
+        // curl_setopt($curl, CURLOPT_URL, $url);
         return $this->_processResult($curl);
     }
 
@@ -642,11 +681,9 @@ class Client
      */
     public function apiPost($path, $data)
     {
-        if (strpos($path, "https") === false) {
-            $url = $this->_endpointURL . $path;
-        } else {
-            $url = $path;
-        }
+        $api = $this->api_url;
+		
+		$url  = (strpos($path, 'https://') === 0) ? $path : $api . $path;
 
         $data = (object)$data;
         $curl = self::_createCurl($path);
@@ -680,13 +717,12 @@ class Client
      */
     public function apiPut($path, $stream, $pheaders = [], $contentType = null)
     {
-        if (strpos($path, "https") === false) {
-            $url = $this->_endpointURL . $path;
-        } else {
-            $url = $path;
-        }
+        $api = $this->api_url;
+		
+		$url   = (strpos($path, 'https://') === 0) ? $path : $api . $path;
         $curl = self::_createCurl($path);
         $stats = fstat($stream);
+		$size = $stats[7];
 
         $headers = [
             'Authorization: Bearer ' . $this->_state->token->data->access_token,
@@ -719,21 +755,19 @@ class Client
      */
     public function apiDelete($path)
     {
-        if (strpos($path, "https") === false) {
-            $url = $this->_endpointURL . $path;
-        } else {
-            $url = $path;
-        }
-        $url =
-            $url
-            . '?access_token='
-            . urlencode($this->_state->token->data->access_token);
+        $url = $this->api_url . $path;
+		if (!$this->use_msgraph_api)
+            $url .=
+            '?access_token=' . urlencode($this->_state->token->data->access_token);
 
         $curl = self::_createCurl($path);
 
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
             CURLOPT_CUSTOMREQUEST => 'DELETE',
+            CURLOPT_HTTPHEADER	=> array(
+				'Authorization: Bearer ' . $this->_state->token->data->access_token
+			)
         ]);
 
         return $this->_processResult($curl);
@@ -749,11 +783,7 @@ class Client
      */
     public function apiPatch($path, $data)
     {
-        if (strpos($path, "https") === false) {
-            $url = $this->_endpointURL . $path;
-        } else {
-            $url = $path;
-        }
+        $url  = $this->api_url.$path;
         $data = (object)$data;
         $curl = self::_createCurl($path);
 
@@ -829,9 +859,9 @@ class Client
      */
     public function createFolder($name, $parentId = null, $description = null)
     {
-        $path = 'drive/special/approot/children';
+        $path = $this->route_prefix.'drive/special/approot/children';
         if (null !== $parentId) {
-            $path = 'drive/items/' . $parentId . '/children';
+            $path = $this->route_prefix.'drive/items/' . $parentId . '/children';
         }
 
         $properties = [
@@ -1008,8 +1038,8 @@ class Client
      */
     public function fetchDriveItem($driveItemId = null)
     {
-        $root = 'drive/special/approot';
-        $path = (null !== $driveItemId) ? 'drive/items/' . $driveItemId : $root;
+        $root = $this->route_prefix.'drive/special/approot';
+        $path = (null !== $driveItemId) ? $this->route_prefix.'drive/items/' . $driveItemId : $root;
         $result = $this->apiGet($path);
 
         if (property_exists($result, 'folder')) {
@@ -1023,7 +1053,7 @@ class Client
 
     public function fetchDriveItemByPath($path = null)
     {
-        $root = 'drive/special/approot:/';
+        $root = $this->route_prefix.'drive/special/approot:/';
         $path = $root . $path;
 
         $result = $this->apiGet($path);
@@ -1056,7 +1086,7 @@ class Client
      */
     public function fetchDocs()
     {
-        return $this->fetchDriveItemByPath('drive/root:/Documents');
+        return $this->fetchDriveItemByPath($this->route_prefix.'drive/root:/Documents');
     }
 
     /**
@@ -1067,7 +1097,7 @@ class Client
      */
     public function fetchPics()
     {
-        return $this->fetchDriveItem('drive/root:/Pictures');
+        return $this->fetchDriveItem($this->route_prefix.'drive/root:/Pictures');
     }
 
     /**
@@ -1079,8 +1109,8 @@ class Client
      */
     public function fetchProperties($driveItemId)
     {
-        $root = 'drive/special/approot';
-        $path = (null !== $driveItemId) ? 'drive/items/' . $driveItemId : $root;
+        $root = $this->route_prefix.'drive/special/approot';
+        $path = (null !== $driveItemId) ? $this->route_prefix.'drive/items/' . $driveItemId : $root;
 
         return $this->apiGet($path);
     }
@@ -1095,8 +1125,8 @@ class Client
      */
     public function fetchDriveItems($driveItemId = null)
     {
-        $root = 'drive/special/approot';
-        $path = (null !== $driveItemId) ? 'drive/items/' . $driveItemId . '/children' : $root.'/children';
+        $root = $this->route_prefix.'drive/special/approot';
+        $path = (null !== $driveItemId) ? $this->route_prefix.'drive/items/' . $driveItemId . '/children' : $root.'/children';
 
         $result = $this->apiGet($path);
         $driveItems = [];
@@ -1125,7 +1155,7 @@ class Client
      */
     public function updateDriveItem($driveItemId, $properties = [], $temp = true)
     {
-        $path = 'drive/items/' . $driveItemId;
+        $path = $this->route_prefix.'drive/items/' . $driveItemId;
 
         $this->apiPatch($path, $properties, 'application/json');
     }
@@ -1142,7 +1172,7 @@ class Client
      */
     public function moveDriveItem($driveItemId, $destinationId = null)
     {
-        $path = "drive/items/" . $driveItemId;
+        $path = $this->route_prefix."drive/items/" . $driveItemId;
         if (null === $destinationId) {
             $root = $this->fetchRoot();
             $destinationId = $root->getId();
@@ -1168,7 +1198,7 @@ class Client
      */
     public function copyDriveItem($driveItemId, $destinationId = null)
     {
-        $path = "drive/items/" . $driveItemId . "/copy";
+        $path = $this->route_prefix."drive/items/" . $driveItemId . "/copy";
         if (null === $destinationId) {
             $copyTo = $this->fetchRoot();
         } else {
@@ -1192,8 +1222,7 @@ class Client
      */
     public function deleteDriveItem($driveItemId)
     {
-        $path = "drive/items/" . $driveItemId;
-
+        $path = $this->route_prefix."drive/items/" . $driveItemId;
         $this->apiDelete($path);
     }
 
@@ -1206,7 +1235,7 @@ class Client
      */
     public function fetchQuota()
     {
-        $result = $this->apiGet('drive');
+        $result = $this->apiGet($this->route_prefix.'drive');
 
         return (object)[
             "quota" => $result->quota->total,
@@ -1217,6 +1246,6 @@ class Client
 
     public function fetchAccountInfo()
     {
-        return $this->apiGet('drive/special/approot')->createdBy->user;
+        return $this->apiGet($this->route_prefix.'drive/special/approot')->createdBy->user;
     }
 }

@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WDP_Admin_Help_Page extends WDP_Admin_Abstract_Page {
-	public $priority = 60;
+	public $priority = 80;
 	protected $tab = 'help';
 
 	public function __construct() {

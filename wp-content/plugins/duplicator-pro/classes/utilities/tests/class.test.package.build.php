@@ -36,7 +36,7 @@ class DUP_PRO_Test_package_build extends DUP_PRO_U_Test_abstract
     {
         $result = array();
 
-        $test     = new DUP_PRO_U_Test_result(DUP_PRO_U_Test_result::TEST_WAIT, 'Package inizialized', '', 'test_check_pack_init no_display');
+        $test     = new DUP_PRO_U_Test_result(DUP_PRO_U_Test_result::TEST_WAIT, 'Package initialized', '', 'test_check_pack_init no_display');
         $result[] = $test;
 
         $test     = new DUP_PRO_U_Test_result(DUP_PRO_U_Test_result::TEST_WAIT, 'Package scan', '', 'test_check_pack_scan no_display');

@@ -95,8 +95,8 @@ if( ! class_exists( 'YITH_Gutenberg' ) ){
 		 * @author Andrea Grillo <andrea.grillo@yithemes.com>
 		 */
 		public function register_blocks(){
+		    $block_args = array();
 			foreach (  $this->_to_register_blocks as $block => $args ){
-
 				if( isset( $args['style'] ) ){
 					$block_args['style'] = $args['style'];
 				}

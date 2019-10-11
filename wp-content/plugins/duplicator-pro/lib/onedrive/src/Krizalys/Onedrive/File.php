@@ -1,7 +1,7 @@
 <?php
 
 namespace DuplicatorPro\Krizalys\Onedrive;
-
+defined("ABSPATH") or die("");
 /**
  * @class File
  *
@@ -72,7 +72,9 @@ class File extends DriveItem
             \DUP_PRO_Log::trace("{$local_sha1} <=> {$this->sha1}");
 
             return $local_sha1 == $this->sha1;
-        }else{
+        } elseif (is_null($this->sha1)) {
+            return true;
+        } else {
             throw new \Exception("Couldn't get the SHA1 hash of the uploaded file.",404);
         }
     }

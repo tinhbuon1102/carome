@@ -5,6 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WDP_Condition_Date extends WDP_Condition_Abstract {
 
+	/**
+	 * @param WDP_Cart $cart
+	 *
+	 * @return bool
+	 */
 	public function check( $cart ) {
 		$date = $cart->get_context()->datetime('d-m-Y');
 		$date = strtotime($date);

@@ -17,33 +17,18 @@ class WDP_Rule_Discount_Range_Calculation {
 		$this->calculator->set_ranges( $ranges );
 	}
 	
-	public function apply_price_individually() {
-		$ranges = $this->calculator->get_ranges();
-		foreach ( $ranges as &$range ) {
-			/** @var $range WDP_Rule_Discount_Range */
-			$range->apply_price_individually();
-		}
-
-		$this->calculator->set_ranges( $ranges );
+	public function is_type_tier() {
+		return $this->calculator instanceof WDP_Rule_Tier_Calculator;
 	}
 
 	/**
 	 * @param $items WDP_Rule_Discount_Range_Calculation_Item[]
+	 * @param $custom_qty int
 	 *
 	 * @return array
 	 */
-	public function calculate_items_prices( $items ) {
-		return $this->calculator->calculate_items_prices( $items );
-	}
-
-	/**
-	 * @param $price float
-	 * @param $qty int
-	 *
-	 * @return float
-	 */
-	public function calculate_item_price( $price, $qty = 1 ) {
-		return $this->calculator->calculate_item_price( $price, $qty );
+	public function calculate_items_discounts( $items, $custom_qty = null ) {
+		return $this->calculator->calculate_items_discounts( $items, $custom_qty );
 	}
 
 	/**
@@ -67,64 +52,6 @@ class WDP_Rule_Discount_Range_Calculation {
 		}
 
 		return $ranges_objs;
-	}
-
-	/**
-	 * @param $items array
-	 *
-	 * @return WDP_Rule_Discount_Range_Calculation_Item[]
-	 */
-	public static function make_items( $items ) {
-		$combined_items = array();
-
-		foreach ( $items as $item ) {
-			$price = $item['price'];
-//			unset( $item['price'] );
-			$qty = $item['quantity'];
-			unset( $item['quantity'] );
-			unset( $item['rules'] );
-			unset( $item['original_item']['wdp_gifted'] );
-			unset( $item['original_item']['wdp_rules'] );
-			unset( $item['original_item']['wdp_original_price'] );
-			unset( $item['original_item']['wdp_rules_for_singular'] );
-			$hash = md5( json_encode( $item ) );
-
-			if ( isset( $combined_items[ $hash ] ) ) {
-				$combined_items[ $hash ]['qty'] += $qty;
-			} else {
-				$combined_items[ $hash ] = array(
-					'qty'   => $qty,
-					'price' => $price,
-				);
-			}
-		}
-
-		$items_objs = array();
-		foreach ( $combined_items as $hash => $item ) {
-			$items_objs[] = new WDP_Rule_Discount_Range_Calculation_Item( $hash, $item['price'], $item['qty'] );
-		}
-
-		return $items_objs;
-	}
-
-
-	/**
-	 * @param $sets array
-	 *
-	 * @return WDP_Rule_Discount_Range_Calculation_Item[]
-	 */
-	public static function convert_sets_to_items( $sets ) {
-		$items_objs = array();
-		foreach ( $sets as $hash => $set ) {
-			$price          = 0;
-			foreach ( $set as $item ) {
-				$price += $item['price'];
-			}
-
-			$items_objs[] = new WDP_Rule_Discount_Range_Calculation_Item( $hash, $price, 1 );
-		}
-
-		return $items_objs;
 	}
 
 }

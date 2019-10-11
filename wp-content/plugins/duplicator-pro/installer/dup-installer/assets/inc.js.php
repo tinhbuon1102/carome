@@ -4,9 +4,14 @@
 	DUPX = new Object();
 	DUPX.Util = new Object();
     DUPX.Const = new Object();
-	DUPX.GLB_DEBUG =  <?php echo ($_GET['debug'] || $GLOBALS['DEBUG_JS']) ? 'true' : 'false'; ?>;
+	DUPX.GLB_DEBUG =  <?php echo $paramsManager->getValue(DUPX_Paramas_Manager::PARAM_DEBUG) ? 'true' : 'false'; ?>;
 
 	DUPX.parseJSON = function(mixData) {
+        // if mixData is already a object, Then don't parse it
+        if (typeof mixData === 'object' && mixData !== null) {
+            return mixData;
+        }
+        
 		try {
 			var parsed = JSON.parse(mixData);
 			return parsed;
@@ -97,6 +102,14 @@
 				obj.params[key] = encodeURIComponent(obj.params[key].replace(/&amp;/g, "&"));
   			}
 		}
+        
+        var tokenData = <?php 
+            $paramManager = DUPX_Paramas_Manager::getInstance();
+            echo DupProSnapJsonU::wp_json_encode_pprint(array(
+            DUPX_Paramas_Manager::PARAM_ROUTER_ACTION => $paramManager->getValue(DUPX_Paramas_Manager::PARAM_ROUTER_ACTION),
+            DUPX_Security::ROUTER_TOKEN => DUPX_CSRF::generate($paramManager->getValue(DUPX_Paramas_Manager::PARAM_ROUTER_ACTION))
+            )); ?>;
+        var ajaxData = $.extend({}, tokenData, obj.params);
 
 		if (DUPX.GLB_DEBUG) {
 			console.log('==============================================================');
@@ -110,7 +123,7 @@
 			cache: false,
 			timeout: timeout,
 			url: requestURI,
-			data:  obj.params,
+			data:  ajaxData,
 			success: function(respData) {
 				if (DUPX.GLB_DEBUG) console.log(respData);
 				try {
@@ -136,10 +149,11 @@
 
 	DUPX.toggleClick = function()
 	{
+        var button = $(this);
 		var src	   = 0;
-		var id     = $(this).attr('data-target');
-		var text   = $(this).text().replace(/\+|\-/, "");
-		var icon   = $(this).find('i.fa');
+		var id     = button.attr('data-target');
+		var text   = button.text().replace(/\+|\-/, "");
+		var icon   = button.find('i.fa');
 		var target = $(id);
 		var list   = new Array();
 
@@ -169,15 +183,16 @@
 		if (target.is(':hidden') ) {
 			(icon.length)
 				? $(icon).addClass(style[src].open )
-				: $(this).html("- " + text );
-			target.show();
+				: button.html("- " + text );
+            button.removeClass('open').addClass('close');
+			target.show().removeClass('no-display');
 		} else {
 			(icon.length)
 				? $(icon).addClass(style[src].close)
-				: $(this).html("+ " + text );
-			target.hide();
+				: button.html("+ " + text );
+            button.removeClass('close').addClass('open');
+			target.hide().addClass('no-display');
 		}
-
 	}
 
 	DUPX.Util.formatBytes = function (bytes,decimals)
@@ -189,7 +204,7 @@
 		var i = Math.floor(Math.log(bytes) / Math.log(k));
 		return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
 	}
-
+    
 	$(document).ready(function()
     {
 		<?php if ($GLOBALS['DUPX_DEBUG']) : ?>
@@ -229,5 +244,6 @@
 		DUPX.loadQtip();
 
 	});
-
 </script>
+<?php
+DUPX_U_Html::js();

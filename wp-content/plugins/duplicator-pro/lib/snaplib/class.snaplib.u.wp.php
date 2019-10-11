@@ -1,6 +1,4 @@
 <?php
-if (!defined("ABSPATH") && !defined("DUPXABSPATH")) 
-    die("");
 /**
  * Wordpress utility functions
  *
@@ -13,16 +11,16 @@ if (!defined("ABSPATH") && !defined("DUPXABSPATH"))
  * @license	https://opensource.org/licenses/GPL-3.0 GNU Public License
  *
  */
-/**
- * Wordpress utility functions
- */
-if (!class_exists('DupProSnapLibUtilWp')) {
+defined('ABSPATH') || defined('DUPXABSPATH') || exit;
+
+if (!class_exists('DupProSnapLibUtilWp', false)) {
 
     /**
      * Wordpress utility functions
      */
     class DupProSnapLibUtilWp
     {
+
         const PATH_FULL     = 0;
         const PATH_RELATIVE = 1;
         const PATH_AUTO     = 2;
@@ -40,13 +38,32 @@ if (!class_exists('DupProSnapLibUtilWp')) {
         {
             if (is_null(self::$safeAbsPath)) {
                 if (defined('ABSPATH')) {
-                    self::$safeAbsPath = rtrim(DupProSnapLibIOU::safePath(ABSPATH), '/');
+                    self::$safeAbsPath = DupProSnapLibIOU::safePathUntrailingslashit(ABSPATH);
                 } else {
                     self::$safeAbsPath = '';
                 }
             }
 
             return self::$safeAbsPath;
+        }
+
+        /**
+         * 
+         * @param string $path
+         * @param null|string $AbsPath  // if is null get ABSPATH
+         * 
+         * @return bool|string
+         */
+        public static function getRelativePathFromFull($path, $AbsPath = null)
+        {
+            $safeAbsPath = is_null($AbsPath) ? self::getSafeAbsPath() : DupProSnapLibIOU::safePathUntrailingslashit($AbsPath);
+            $safePath    = DupProSnapLibIOU::safePath($path);
+
+            if (strpos($safePath, $safeAbsPath) === 0) {
+                return ltrim(substr($safePath, strlen($safeAbsPath)), '\/');
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -131,6 +148,29 @@ if (!class_exists('DupProSnapLibUtilWp')) {
                 require_once(dirname(__FILE__).'/wordpress.core.files.php');
             }
             return self::$corePathList;
+        }
+
+        /**
+         * return object list of sites
+         * 
+         * @return boolean
+         */
+        public static function getSites($args = array())
+        {
+            if (!is_multisite()) {
+                return false;
+            }
+
+            if (function_exists('get_sites')) {
+                return get_sites($args);
+            } else {
+                $result = array();
+                $blogs  = wp_get_sites($args);
+                foreach ($blogs as $blog) {
+                    $result[] = (object) $blog;
+                }
+                return $result;
+            }
         }
     }
 }
