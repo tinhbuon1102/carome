@@ -7,6 +7,9 @@ define('CONTACT_EMAIL_ADMIN_WITH_FILE', 'return@carome.net');
 if (strpos($_SERVER['SERVER_NAME'], 'carome.net') !== false){
 	define('BOOKING_FORM_ID', 19672);
 }
+else {
+	define('BOOKING_FORM_ID', 19672);
+}
 
 function elsey_change_cssjs_ver( $src ) {
 	if( strpos( $src, '?ver=' ) )
@@ -1503,7 +1506,7 @@ add_action( 'wcwl_after_remove_user_from_waitlist', 'elsey_wcwl_after_remove_use
 function elsey_wcwl_after_remove_user_from_waitlist ($product_id, $user )
 {
 	$user_id = $user->ID;
-	$waitlist_user = get_user_meta($user_id, woocommerce_waitlist_user, true);
+	$waitlist_user = get_user_meta($user_id, 'woocommerce_waitlist_user', true);
 	$waitlist_user = $waitlist_user ? $waitlist_user : array();
 
 	if (isset($waitlist_user) && isset($waitlist_user[$product_id])){
@@ -1516,7 +1519,7 @@ add_action( 'wcwl_after_add_user_to_waitlist', 'elsey_wcwl_after_add_user_to_wai
 function elsey_wcwl_after_add_user_to_waitlist ($product_id, $user )
 {
 	$user_id = $user->ID;
-	$waitlist_user = get_user_meta($user_id, woocommerce_waitlist_user, true);
+	$waitlist_user = get_user_meta($user_id, 'woocommerce_waitlist_user', true);
 	$waitlist_user = $waitlist_user ? $waitlist_user : array();
 	if (!isset($waitlist_user) || !isset($waitlist_user[$product_id])){
 		$waitlist_user[$product_id] = $product_id;
@@ -2689,7 +2692,7 @@ function elsey_schedule_cancelled_not_paid() {
 	            if (strpos($order->get_payment_method(), 'epsilon_pro_cs') !== false)
 	            {
 	            	// Already cancel in function_epsilon.php file
-	            	continue;
+	            	//continue;
 	            	
 	            	// If passed 3 days -> cancel
 	            	if (($time_now - (60*60*24*4)) >= strtotime($order->get_date_created()->format('Y-m-d')))
