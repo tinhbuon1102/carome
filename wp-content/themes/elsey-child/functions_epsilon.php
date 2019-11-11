@@ -21,16 +21,15 @@ function check_epsilon_paid_cs_orders ()
 		  ( (mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' AND (wp_posts.post_status = 'wc-on-hold' OR wp_posts.post_status = 'wc-processing' OR wp_posts.post_status = 'wc-pending'))
 		)) AND wp_posts.post_type = 'shop_order'  
 		GROUP BY wp_posts.ID
-		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 222";
+		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 20";
 	
 	$orders = $wpdb->get_results($sql);
-	echo '<pre>'; print_r($orders); echo '</pre>';die; 
 	
 	if (is_array($orders) && !empty($orders))
 	{
 		foreach ($orders as $order)
 		{
-			if ($order->post_status == 'wc-on-hold')
+			if (in_array($order->post_status, array('wc-on-hold', 'wc-processing', 'wc-pending')))
 			{
 				$wpdb->query('UPDATE wp_posts SET menu_order = ' . ($order->menu_order + 1) . ' WHERE ID = ' . $order->ID);
 				epsilon_get_paid_cs_order($order->ID);
