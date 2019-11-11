@@ -28,7 +28,7 @@ function check_epsilon_paid_cs_orders ()
 
 
 	epsilon_get_paid_cs_order(54182);
-	die;
+	die('xxxx');
 	
 	if (is_array($orders) && !empty($orders))
 	{
@@ -100,12 +100,14 @@ function epsilon_get_paid_cs_order($order_id)
 	
 	// HTTP REQUEST Action
 	$response = $request->sendRequest();
-	echo '<pre>'; print_r($response); echo '</pre>';
-	die;
+	
 	if ( ! PEAR::isError($response) )
 	{
 		$res_code = $request->getResponseCode();
 		$res_content = $request->getResponseBody();
+
+		echo '<pre>'; print_r($res_content); echo '</pre>';
+	die;
 		// xml unserializer
 		$temp_xml_res = str_replace("x-sjis-cp932", "UTF8", $res_content);
 		$unserializer = new XML_Unserializer();
