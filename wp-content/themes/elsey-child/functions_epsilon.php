@@ -25,8 +25,9 @@ function check_epsilon_paid_cs_orders ()
 		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 20";
 	
 	//AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-5 days')) . "' 
-		
+
 	$orders = $wpdb->get_results($sql);
+	echo '<pre>'; print_r($orders); echo '</pre>';die;
 	
 	if (is_array($orders) && !empty($orders))
 	{
