@@ -18,11 +18,11 @@ function check_epsilon_paid_cs_orders ()
 			INNER JOIN wp_postmeta AS mt1 ON ( wp_posts.ID = mt1.post_id ) WHERE 1=1  AND (
 		  ( wp_postmeta.meta_key = '_payment_method' AND wp_postmeta.meta_value = 'epsilon_pro_cs' )
 		  AND
-		  ( (mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' AND (wp_posts.post_status = 'wc-on-hold' OR wp_posts.post_status = 'wc-pending' OR wp_posts.post_status = 'wc-processing'))
+		  ( (mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' AND (wp_posts.post_status = 'wc-on-hold' OR wp_posts.post_status = 'wc-pending' OR wp_posts.post_status = 'wc-processing')) 
 		)) AND wp_posts.post_type = 'shop_order'  
 		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-25 days')) . "' 
 		GROUP BY wp_posts.ID
-		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 22";
+		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 2";
 	
 	$orders = $wpdb->get_results($sql);
 	echo '<pre>'; print_r($orders); echo '</pre>';
