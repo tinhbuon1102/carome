@@ -18,14 +18,15 @@ function check_epsilon_paid_cs_orders ()
 			INNER JOIN wp_postmeta AS mt1 ON ( wp_posts.ID = mt1.post_id ) WHERE 1=1  AND (
 		  ( wp_postmeta.meta_key = '_payment_method' AND wp_postmeta.meta_value = 'epsilon_pro_cs' )
 		  AND
-		  ( (mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '0')
+		  ( (mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' AND (wp_posts.post_status = 'wc-on-hold' OR wp_posts.post_status = 'wc-pending' OR wp_posts.post_status = 'wc-processing'))
 		)) AND wp_posts.post_type = 'shop_order'  
-		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-15 days')) . "' 
+		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-335 days')) . "' 
 		GROUP BY wp_posts.ID
-		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 2222";
+		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 222";
 	
 	$orders = $wpdb->get_results($sql);
-	echo '<pre>'; print_r($orders); echo '</pre>';die;
+	echo '<pre>'; print_r($orders); echo '</pre>';
+	die;
 	
 	if (is_array($orders) && !empty($orders))
 	{
@@ -34,9 +35,6 @@ function check_epsilon_paid_cs_orders ()
 			if ($order->post_status == 'wc-on-hold')
 			{
 				$wpdb->query('UPDATE wp_posts SET menu_order = ' . ($order->menu_order + 1) . ' WHERE ID = ' . $order->ID);
-				epsilon_get_paid_cs_order($order->ID);
-			}
-			else {
 				epsilon_get_paid_cs_order($order->ID);
 			}
 		}
