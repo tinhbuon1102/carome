@@ -20,9 +20,9 @@ function check_epsilon_paid_cs_orders ()
 		  AND
 		  ( (mt1.meta_key = '_custom_payment_status' AND mt1.meta_value != '1' AND (wp_posts.post_status = 'wc-on-hold' OR wp_posts.post_status = 'wc-pending' OR wp_posts.post_status = 'wc-processing'))
 		)) AND wp_posts.post_type = 'shop_order'  
-		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-335 days')) . "' 
+		  AND wp_posts.post_date > '" . date('Y-m-d', strtotime('-5 days')) . "' 
 		GROUP BY wp_posts.ID
-		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 222";
+		ORDER BY wp_posts.menu_order ASC, wp_posts.post_date DESC LIMIT 0, 22";
 	
 	$orders = $wpdb->get_results($sql);
 	echo '<pre>'; print_r($orders); echo '</pre>';
